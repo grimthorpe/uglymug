@@ -663,7 +663,7 @@ const	CString& arg2)
 
 
 void
-context::do_echo (
+context::do_at_echo (
 const	CString& arg1,
 const	CString& arg2)
 

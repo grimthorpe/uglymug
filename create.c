@@ -447,7 +447,7 @@ const	CString& room_name)
 
 /* use this to create a room */
 void
-context::do_dig (
+context::do_at_dig (
 const	CString& name,
 const	CString& desc)
 
@@ -718,11 +718,11 @@ const	CString& )
 
 
 /*
- * do_dictionary: creates a dictionary called name.
+ * do_at_dictionary: creates a dictionary called name.
  */
 
 void
-context::do_dictionary (
+context::do_at_dictionary (
 const	CString& dictionary_name,
 const	CString& )
 {

@@ -416,7 +416,7 @@ const	CString& )
 
 
 void
-context::do_email (
+context::do_at_email (
 const	CString& name,
 const	CString& email_addr)
 

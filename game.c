@@ -172,25 +172,25 @@ command_details			command_table [] =
 	{"@credit",		&context::do_at_credit,		NO_COMMAND_FLAGS},
 	{"@cstring",		&context::do_at_cstring,	NO_COMMAND_FLAGS},
 	{"@csuccess",		&context::do_at_csuccess,	NO_COMMAND_FLAGS},
-	{"@debit",		&context::do_debit, 		NO_COMMAND_FLAGS},
-	{"@decompile",		&context::do_decompile,		NO_COMMAND_FLAGS},
-	{"@describe",		&context::do_describe,		NO_COMMAND_FLAGS},
-	{"@destroy",		&context::do_destroy,		NO_COMMAND_FLAGS},
-	{"@dictionary",		&context::do_dictionary,	NO_COMMAND_FLAGS},
-	{"@dig",		&context::do_dig,		NO_COMMAND_FLAGS},
+	{"@debit",		&context::do_at_debit, 		NO_COMMAND_FLAGS},
+	{"@decompile",		&context::do_at_decompile,	NO_COMMAND_FLAGS},
+	{"@describe",		&context::do_at_describe,	NO_COMMAND_FLAGS},
+	{"@destroy",		&context::do_at_destroy,	NO_COMMAND_FLAGS},
+	{"@dictionary",		&context::do_at_dictionary,	NO_COMMAND_FLAGS},
+	{"@dig",		&context::do_at_dig,		NO_COMMAND_FLAGS},
 	{"@disconnect",		&context::do_at_disconnect,	NO_COMMAND_FLAGS},
 	{"@drop",		&context::do_at_drop,		NO_COMMAND_FLAGS},
-	{"@dump",		&context::do_dump,		NO_COMMAND_FLAGS},
-	{"@echo",		&context::do_echo,		LEGAL_COMMAND},
+	{"@dump",		&context::do_at_dump,		NO_COMMAND_FLAGS},
+	{"@echo",		&context::do_at_echo,		LEGAL_COMMAND},
 	{"@else",		&context::do_at_else,		NO_COMMAND_FLAGS},
 	{"@elseif",		&context::do_at_elseif,		NO_COMMAND_FLAGS},
-	{"@email",		&context::do_email,		NO_COMMAND_FLAGS},
-	{"@empty",		&context::do_empty,		NO_COMMAND_FLAGS},
+	{"@email",		&context::do_at_email,		NO_COMMAND_FLAGS},
+	{"@empty",		&context::do_at_empty,		NO_COMMAND_FLAGS},
 	{"@end",		&context::do_at_end,		NO_COMMAND_FLAGS},
 	{"@endif",		&context::do_at_endif,		NO_COMMAND_FLAGS},
 	{"@evaluate",		&context::do_full_evaluate,	LEGAL_COMMAND},
 #if 0	/* PJC 24/1/97 */
-	{"@event",		&context::do_event,		NO_COMMAND_FLAGS},
+	{"@event",		&context::do_at_event,		NO_COMMAND_FLAGS},
 #endif
 	{"@exclude",		&context::do_at_exclude,	NO_COMMAND_FLAGS},
 	{"@fail",		&context::do_fail,		NO_COMMAND_FLAGS},
@@ -420,7 +420,7 @@ const	CString&)
 
 
 void
-context::do_dump (
+context::do_at_dump (
 const	CString&,
 const	CString&)
 

@@ -19,7 +19,7 @@ const char	*initial_state	= "start";	/* name of initial state dictionary */
  * Send an event to an NPC, to trigger a state change.
  */
 
-void context::do_event(const char *name, const char *event)
+void context::do_at_event(const char *name, const char *event)
 {
 	dbref npc;
 

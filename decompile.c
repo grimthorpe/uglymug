@@ -184,7 +184,7 @@ dbref	player)
 
 
 void
-context::do_decompile (
+context::do_at_decompile (
 const	CString& name,
 const	CString& args)
 

@@ -471,7 +471,7 @@ const	CString& newname)
 
 
 void
-context::do_describe (
+context::do_at_describe (
 const	CString& name,
 const	CString& description)
 
@@ -2720,7 +2720,7 @@ void context::do_at_credit(const CString& arg1, const CString& arg2)
 	RETURN_SUCC;
 }
 
-void context::do_debit(const CString& arg1, const CString& arg2)
+void context::do_at_debit(const CString& arg1, const CString& arg2)
 {
 	dbref victim;
 	int amount;

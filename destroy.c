@@ -40,12 +40,12 @@ static	void			check_and_make_sane_lock		(dbref object);
 
 /*
  *
- * do_empty: Cleans out an array or dictionary
+ * do_at_empty: Cleans out an array or dictionary
  *
  */
 
 void
-context::do_empty(
+context::do_at_empty(
 const	CString& name,
 const	CString& )
 
@@ -91,12 +91,12 @@ const	CString& )
 
 
 /*
- * do_destroy: Destroy something. This works out what is to be
+ * do_at_destroy: Destroy something. This works out what is to be
  *	destroyed and then calls the relevant routine to zap it.
  */
 
 void
-context::do_destroy (
+context::do_at_destroy (
 const	CString& name,
 const	CString& dummy)
 
@@ -595,6 +595,8 @@ log_message("Custom list destroyed");
 
 /*
  * do_destroy_player: checks for locks against the player
+ * renamed to check_and_destroy_player() at some point, spotted during tidyup
+ * JPK
  */
 
 static bool
@@ -689,6 +691,7 @@ dbref	zap_player)
 
 /*
  * do_destroy_exit: Zap the exit.
+ * renamed check_and_destroy_exit() at some point, spotted during tidyup JPK
  */
 
 static bool
