@@ -164,49 +164,11 @@ static enum
 } ordering;
 
 /* Value of POSIXLY_CORRECT environment variable.  */
-static char *posixly_correct;
+static const char *posixly_correct;
 
-#ifdef	__GNU_LIBRARY__
-/* We want to avoid inclusion of string.h with non-GNU libraries
-   because there are many ways it can cause trouble.
-   On some systems, it contains special magic macros that don't work
-   in GCC.  */
+extern "C" const char *getenv (const char *);
 #include <string.h>
 #define	my_index	strchr
-#else
-
-/* Avoid depending on library functions or files
-   whose names are inconsistent.  */
-
-char *getenv ();
-
-static char *
-my_index (str, chr)
-     const char *str;
-     int chr;
-{
-  while (*str)
-    {
-      if (*str == chr)
-	return (char *) str;
-      str++;
-    }
-  return 0;
-}
-
-/* If using GCC, we can safely declare strlen this way.
-   If not using GCC, it is ok not to declare it.  */
-#ifdef __GNUC__
-/* Note that Motorola Delta 68k R3V7 comes with GCC but not stddef.h.
-   That was relevant to code that was here before.  */
-#if !defined (__STDC__) || !__STDC__
-/* gcc with -traditional declares the built-in strlen to return int,
-   and has done so at least since version 2.4.5. -- rms.  */
-extern int strlen (const char *);
-#endif /* not __STDC__ */
-#endif /* __GNUC__ */
-
-#endif /* not __GNU_LIBRARY__ */
 
 /* Handle permutation of arguments.  */
 
@@ -227,8 +189,7 @@ static int last_nonopt;
    the new indices of the non-options in ARGV after they are moved.  */
 
 static void
-exchange (argv)
-     char **argv;
+exchange (char **argv)
 {
   int bottom = first_nonopt;
   int middle = last_nonopt;
@@ -285,8 +246,7 @@ exchange (argv)
 /* Initialize the internal data when the first call is made.  */
 
 static const char *
-_getopt_initialize (optstring)
-     const char *optstring;
+_getopt_initialize (const char *optstring)
 {
   /* Start processing options with ARGV-element 1 (since ARGV-element 0
      is the program name); the sequence of previously skipped
@@ -375,13 +335,7 @@ _getopt_initialize (optstring)
    long-named options.  */
 
 int
-_getopt_internal (argc, argv, optstring, longopts, longind, long_only)
-     int argc;
-     char *const *argv;
-     const char *optstring;
-     const struct option *longopts;
-     int *longind;
-     int long_only;
+_getopt_internal (int argc, char **argv, const char *optstring, const struct option *longopts, int *longind, int long_only)
 {
   optarg = NULL;
 
@@ -401,7 +355,7 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 	     exchange them so that the options come first.  */
 
 	  if (first_nonopt != last_nonopt && last_nonopt != optind)
-	    exchange ((char **) argv);
+	    exchange (argv);
 	  else if (last_nonopt != optind)
 	    first_nonopt = optind;
 
@@ -569,7 +523,7 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 		}
 	    }
 	  nextchar += strlen (nextchar);
-	  if (longind != NULL)
+	  if (longind)
 	    *longind = option_index;
 	  if (pfound->flag)
 	    {
@@ -597,7 +551,7 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 		fprintf (stderr, _("%s: unrecognized option `%c%s'\n"),
 			 argv[0], argv[optind][0], nextchar);
 	    }
-	  nextchar = (char *) "";
+	  nextchar = "";
 	  optind++;
 	  return '?';
 	}
@@ -679,10 +633,7 @@ _getopt_internal (argc, argv, optstring, longopts, longind, long_only)
 }
 
 int
-getopt (argc, argv, optstring)
-     int argc;
-     char *const *argv;
-     const char *optstring;
+getopt (int argc, char **argv, const char *optstring)
 {
   return _getopt_internal (argc, argv, optstring,
 			   (const struct option *) 0,
@@ -698,9 +649,7 @@ getopt (argc, argv, optstring)
    the above definition of `getopt'.  */
 
 int
-main (argc, argv)
-     int argc;
-     char **argv;
+main (int argc, char **argv)
 {
   int c;
   int digit_optind = 0;
