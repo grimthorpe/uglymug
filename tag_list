@@ -9,3 +9,6 @@ release_001 - Reaps
 	between 8 and 9 hours connect.
     Made all times cope with weeks of connect/idle
 	including the idle message from pages.
+
+release_002 - Reaps
+    Set the UNCONNECTED idle limit to 5 mins
