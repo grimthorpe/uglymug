@@ -283,6 +283,7 @@ void log_gripe (
 
 
 void log_hack (
+	dbref			hacked,
 	const	char		*fmt,
 						...
 ) {
@@ -294,12 +295,13 @@ void log_hack (
 	va_end(vl);
 	
 	/*
-	 * HACK|timestamp|message
+	 * HACK|timestamp|target|message
 	 */
 
-	Trace(	"%cHACK%c%d%c%s%c\n",
+	Trace(	"%cHACK%c%d%c%d%c%s%c\n",
 				RECORD_START,					FIELD_SEPARATOR,
 				time(NULL),						FIELD_SEPARATOR,
+				hacked,						FIELD_SEPARATOR,
 				message,						RECORD_END
 	);
 }

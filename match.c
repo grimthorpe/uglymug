@@ -1271,6 +1271,8 @@ const	CString& arg)
 			set_return_string (unparse_for_return (*this, matcher->match_result ()));
 		else if (!string_compare (type, "leaf"))
 			set_return_string (unparse_for_return (*this, matcher->get_leaf ()));
+		else if(!string_compare (type, "self"))
+			set_return_string (unparse_for_return (*this, get_current_command()));
 		else
 		{
 			if (!gagged_command())

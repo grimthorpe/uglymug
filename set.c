@@ -1673,7 +1673,7 @@ const	CString& flag)
 		}
 		if ( (get_current_command() != NOTHING) && (!Wizard(get_current_command())))
 		{
-			log_hack("Attempt to set ABORT flag on %s(#%d) by %s(%d) in command %s(%d)",
+			log_hack(GOD_ID, "Attempt to set ABORT flag on %s(#%d) by %s(%d) in command %s(%d)",
 					getname(thing), thing,
 					getname(player), player,
 					getname(get_current_command()), get_current_command());
@@ -1687,9 +1687,9 @@ const	CString& flag)
 	if ((f == FLAG_WIZARD) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if (Typeof(thing) == TYPE_COMMAND)
-			log_hack("<<<WIZARD>>> flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
+			log_hack(GOD_ID, "<<<WIZARD>>> flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
 		else
-			log_hack("PROTECT: WIZARD flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
+			log_hack(GOD_ID, "PROTECT: WIZARD flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
 	}
 	if (f == FLAG_READONLY)
 	{

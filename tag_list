@@ -13,6 +13,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Modified log_hack to take the 'target' of the hack. If there is no target, use GOD_ID instead.
 	Made .reconnect be run *BEFORE* the descriptors are swapped around in the list so any @terminal commands will work on the latest connection.
 	Cleaned up descriptor_data so that there is a 'terminal' structure (rather than naming everything terminal_foo).
 	Cleaned up hostname handling so we don't use strdup, and then put the result into a String.

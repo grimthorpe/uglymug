@@ -29,7 +29,7 @@
 	void		log_disconnect		(dbref, const CString&, int, int, const CString&, bool);
 	void		log_dumping			(bool, const char *, ...);
 	void		log_gripe			(dbref, const CString&, dbref, const CString&, const CString&);
-	void		log_hack			(const char *, ...);
+	void		log_hack			(dbref, const char *, ...);
 	void		log_halfquit		(dbref, const CString&, int, int);
 	void		log_huh				(dbref, const CString&, dbref, const CString&, dbref, dbref, const CString&, const CString&);
 	void		log_loading			(const CString&, bool);

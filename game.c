@@ -675,7 +675,7 @@ execute_startups(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
-				log_hack("non-wizard character %s(#%d) owns .startup command #%d in #%d",
+				log_hack(GOD_ID, "non-wizard character %s(#%d) owns .startup command #%d in #%d",
 							getname(db[item].get_owner()),
 							db[item].get_owner(),
 							item,
@@ -701,7 +701,7 @@ execute_shutdown(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
-				log_hack(	"%s(#%d) owns .shutdown command #%d in #%d",
+				log_hack(GOD_ID, 	"%s(#%d) owns .shutdown command #%d in #%d",
 							getname(db[item].get_owner()),
 							db[item].get_owner(),
 							item,
@@ -1205,7 +1205,7 @@ const	char	*original_command)
 			&& (Wizard (get_effective_id ()))
 			&& (!legal_command)
 			&& (!Wizard(get_current_command ())))
-		log_hack("%s(%d) hacked %s(%d) (originally %s) giving %s %s=%s",
+		log_hack(db[get_current_command()].get_owner(), "%s(%d) hacked %s(%d) (originally %s) giving %s %s=%s",
 					getname(player),						player,
 					getname (get_current_command ()),		get_current_command(),
 					original_command,
@@ -1324,7 +1324,7 @@ void mud_run_dotcommand(dbref player, const CString& command)
 				delete mud_scheduler.push_express_job (login_context);
 			}
 			else
-				log_hack("Global .login command (#%d) not owned by a Wizard", the_command);
+				log_hack(GOD_ID, "Global .login command (#%d) not owned by a Wizard", the_command);
 	}
 
 }

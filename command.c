@@ -65,7 +65,8 @@ const	CString& arg2)
 			&& (strncasecmp(command_string.c_str(), "here:", 5) != 0))
 		{
 			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
-			log_hack(	"player %s(#%d): effective: %s(%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
+			log_hack(get_effective_id(),
+				"player %s(#%d): effective: %s(%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
 						getname(get_player()),
 						get_player(),
 						getname(get_effective_id()),
@@ -103,7 +104,7 @@ const	CString& arg2)
 			{
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
 			}
-			/* Whether it worked or not, we've tried our best */
+			/* Whether it worked or not, we've tried out best */
 			return true;
 		}
 		matcher.match_restart ();
