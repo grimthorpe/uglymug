@@ -1294,8 +1294,15 @@ context	*c)
 	c->set_scheduled (True);
 	contexts.push (c);
 	/* Now keep going while the queue is deeper */
-	while (contexts.get_depth () > old_depth)
+// HACK: We might hit a loop here...
+int loop = 0;
+	while ((contexts.get_depth () > old_depth) && (loop++ < 1500))
 		returned = step ();
+
+while(contexts.get_depth() > old_depth)
+{
+	returned = contexts.pop();
+}
 
 
 	/* The last step that popped the queue must have returned something useful */
