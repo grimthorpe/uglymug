@@ -12,6 +12,8 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    Made the word-wrap closer to TinyFugue so we don't get horrible-looking
+    word-wrap.
     Censorship now ignores colours.
     Added WelcomerTitles as a colour attribute.
 

@@ -2383,7 +2383,7 @@ char *a,*a1,*b;
 			{
 				break;
 			}
-			if(terminal_xpos+1 >= terminal_width)
+			if(terminal_xpos+2 >= terminal_width)
 			{
 				if(last_space != 0)
 				{
