@@ -885,9 +885,9 @@ const	char	*)
 	{
 		case TYPE_FUSE:
 			if (( !db[thing].get_description ()) && (db[thing].get_parent() != NOTHING))
-				notify (player, "%sTicks [INHERITED]:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_inherited_description ());
+				notify (player, "%sTicks [INHERITED]:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, value_or_empty(db[thing].get_inherited_description ()));
 			else
-				notify (player, "%sTicks:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_description());
+				notify (player, "%sTicks:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, value_or_empty(db[thing].get_description()));
 			break;
 
 		case TYPE_COMMAND:
@@ -906,10 +906,10 @@ const	char	*)
 
 		default:
 			if(db[thing].get_description())
-				notify(player, "%sDescription:%s %s%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_DESCRIPTIONS], db[thing].get_description(), COLOUR_REVERT);
+				notify(player, "%sDescription:%s %s%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_DESCRIPTIONS], value_or_empty(db[thing].get_description()), COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_description ())
-					notify (player, "%sDescription [INHERITED]:%s %s%s", colour_at[COLOUR_TITLES],  colour_at[COLOUR_DESCRIPTIONS], db[thing].get_inherited_description (), COLOUR_REVERT);
+					notify (player, "%sDescription [INHERITED]:%s %s%s", colour_at[COLOUR_TITLES],  colour_at[COLOUR_DESCRIPTIONS], value_or_empty(db[thing].get_inherited_description ()), COLOUR_REVERT);
 			break;
 	}
 
