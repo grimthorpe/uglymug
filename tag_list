@@ -12,6 +12,9 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_024 - Grimthorpe
+    Undo the change in look.c so you can see inside a container again.
+
 um1_023 - Grimthorpe
     Tidied up the alarm code; can't remember what I was trying to fix...
     Changed Boolean->bool, True->true, False->false to keep with Standard C++.
