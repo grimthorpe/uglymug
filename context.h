@@ -1,3 +1,4 @@
+// vi:ts=4:sw=4:ai:
 #ifndef	_CONTEXT_H
 #define	_CONTEXT_H
 

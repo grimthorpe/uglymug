@@ -13,7 +13,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
-
+	Changed get code (do_get) so you can't get things from other players (aka theft).
+	Changed drop code (do_drop) so you can only drop things that you are carrying.
+	  This prevents "drop here:object" and "drop <player>:object" which are just silly.
+	Changed teleport code (do_at_location) to let players teleport their puppets and NPCs
+	Changed idle-message from "...who has been inactive for 3 minutes." to "...who has been inactive for 3 minutes:". It's just slightly nicer.
 	Modified @?hardcodecommands to use String concatenation.
 	Implemented @?my name, to return the name that the current command was called as.
 	Commands locked against a player no longer stop the search for a useable command.
@@ -34,7 +38,7 @@ um1_041 - SWho did you mean?
 	Added port information in interfaces.c, thus WebGW and TelnetGW
 	connections are labelled to be set host.
 
-	Changed victin from char* to String in dump_users. Probable cause of crashes in 040
+	Changed victim from char* to String in dump_users. Probable cause of crashes in 040
 	Grimthorpe: Changed it back and fixed class WhoToShow instead.
 	Modified interface to fic a small bug where we used NULL instead of \0
 

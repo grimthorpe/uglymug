@@ -2335,7 +2335,7 @@ const	String& new_location_string)
 		case TYPE_PUPPET:
 			if ((victim==player) && (Welcomer(victim)))
 				break;
-			if ((victim!=player) && !Wizard(get_effective_id()) && !Apprentice(get_effective_id()))
+			if ((victim!=player) && !Wizard(get_effective_id()) && !Apprentice(get_effective_id()) && !controls_for_write (victim))
 			{
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 				return;

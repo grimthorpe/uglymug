@@ -683,6 +683,13 @@ const	String& where)
 			notify_colour(player, player, COLOUR_MESSAGES, "You already have that!");
 			return;
 		}
+
+		/* don't allow "get <player>:thing */
+		if (Typeof(db[thing].get_location()) == TYPE_PLAYER) {
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't steal from other players!");
+			return;
+		}
+		
 		switch(Typeof(thing))
 		{
 			case TYPE_THING:
@@ -874,6 +881,13 @@ const	String& where)
 			if ((container = where_matcher.noisy_match_result ()) == NOTHING)
 				return;
 		}
+
+		/* you can only drop things you are carrying */
+		if (db[thing].get_location() != player) {
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only drop things that you are carrying.");
+			return;
+		}
+
 
 		/* Do the drop */
 		switch (Typeof (thing))

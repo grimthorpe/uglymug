@@ -39,7 +39,7 @@ enum	Command_next
 	ENDIF_NEXT,
 	FOR_NEXT,
 	WITH_NEXT,
-	END_NEXT
+	END_NEXT,
 };
 
 extern	Command_next	what_is_next	(const char *);

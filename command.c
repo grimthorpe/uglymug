@@ -466,6 +466,10 @@ const	char	*text)
 	while (q && (*q) && (*q == ' '))
 		q++;
 
+	// smash leading tabs too. you can get these using /quote in TinyFugue
+	while (q && (*q) && (*q == '\t'))
+		q++;
+
 	while (q && (*q) && (*q !=' ') && (charssofar++ < 255))
 		*p++=*q++;
 	*p='\0';

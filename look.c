@@ -795,7 +795,7 @@ const	String& )
 			}
 			else
 			{
-				notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
+				notify(player, "%sOwner:%s %s; %Key:%s %s; %sFlags:%s%s",
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					stored_owner,
