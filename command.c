@@ -81,7 +81,11 @@ const	char	*arg2)
 	} while ((command = matcher.match_result ()) != NOTHING);
 
 	/* If we get here, we've not found a command, but we keep quiet about it */
-	return True;
+	/* AJS: Why do we keep quiet about it? DARK commands shouldn't affect
+	 *	the game this way (we don't generate Huh?, things fail silently)
+	 */
+	//return True;
+	return False;
 }
 
 
