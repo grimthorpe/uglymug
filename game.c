@@ -1195,7 +1195,7 @@ const	char	*original_command)
 		count_down_fuses (*this, db [player].get_location (), !TOM_FUSE);
 	}
 
-	a0 = get_simple_command ();
+	a0 = get_simple_command ().c_str();
 
 	/* Try to do a compound command */
 	if ((*a0 != '|')
@@ -1246,15 +1246,15 @@ const	char	*original_command)
 
 			notify(player, "%s", scratch_buffer);
 			strcpy (scratch_buffer, command);
-			if (get_arg1 () && *get_arg1 () != '\0')
+			if (get_arg1())
 			{
 				strcat (scratch_buffer, " ");
-				strcat (scratch_buffer, get_arg1 ());
+				strcat (scratch_buffer, get_arg1().c_str());
 			}
-			if (get_arg2 () && *get_arg2 () != '\0')
+			if (get_arg2())
 			{
 				strcat (scratch_buffer, " = ");
-				strcat (scratch_buffer, get_arg2 ());
+				strcat (scratch_buffer, get_arg2().c_str());
 			}
 			notify_colour (player, player, COLOUR_TRACING, "%s", scratch_buffer);
 			notify_colour (player, player, COLOUR_MESSAGES, "This was expanded from the original:");
@@ -1322,8 +1322,8 @@ const	char	*original_command)
 					getname (get_current_command ()),		get_current_command(),
 					original_command,
 					command,
-					value_or_empty(get_arg1()),
-					value_or_empty(get_arg2())
+					get_arg1().c_str(),
+					get_arg2().c_str()
 		);
 #endif /* NEW_LOGGING */
 	}

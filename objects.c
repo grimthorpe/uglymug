@@ -270,7 +270,7 @@ object::object ()
 {
 	int	i;
 
-	name		= NULL;
+	name		= NULLSTRING;
 	location	= NOTHING;
 	next		= NOTHING;
 	owner		= NOTHING;
@@ -287,7 +287,7 @@ object::object ()
 object::~object ()
 
 {
-	set_name		(NULL);
+	set_name		(NULLSTRING);
 }
 
 
@@ -1071,7 +1071,7 @@ const
 Describable_object::~Describable_object ()
 
 {
-	set_description (NULL);
+	set_description (NULLSTRING);
 }
 
 
@@ -1162,12 +1162,12 @@ Lockable_object::Lockable_object ()
 
 {
 	key		= TRUE_BOOLEXP;
-	fail_message	= NULL;
-	succ_message	= NULL;
-	drop_message	= NULL;
-	ofail		= NULL;
-	osuccess	= NULL;
-	odrop		= NULL;
+	fail_message	= NULLSTRING;
+	succ_message	= NULLSTRING;
+	drop_message	= NULLSTRING;
+	ofail		= NULLSTRING;
+	osuccess	= NULLSTRING;
+	odrop		= NULLSTRING;
 }
 
 
@@ -1175,12 +1175,12 @@ Lockable_object::~Lockable_object ()
 
 {
 	set_key (TRUE_BOOLEXP);
-	set_fail_message (NULL);
-	set_succ_message (NULL);
-	set_drop_message (NULL);
-	set_ofail (NULL);
-	set_osuccess (NULL);
-	set_odrop (NULL);
+	set_fail_message (NULLSTRING);
+	set_succ_message (NULLSTRING);
+	set_drop_message (NULLSTRING);
+	set_ofail (NULLSTRING);
+	set_osuccess (NULLSTRING);
+	set_odrop (NULLSTRING);
 }
 
 
@@ -1382,13 +1382,13 @@ const
 Room::Room()
 
 {
-	contents_string= NULL;
+	contents_string= NULLSTRING;
 	last_entry_time = 0;
 }
 
 Room::~Room()
 {
-	set_contents_string(NULL);
+	set_contents_string(NULLSTRING);
 }
 
 void
@@ -1432,9 +1432,9 @@ puppet::puppet ()
 	last_name_change = time(NULL);
 	pennies		= 0;
 	score		= 0;
-	race		= NULL;
-	who_string	= NULL;
-	email_addr	= NULL;
+	race		= NULLSTRING;
+	who_string	= NULLSTRING;
+	email_addr	= NULLSTRING;
 	fsm_states	= NULL;
 	money		= 0;
 	build_id	= NOTHING;
@@ -1443,9 +1443,9 @@ puppet::puppet ()
 
 puppet::~puppet ()
 {
-	set_race		(NULL);
-	set_who_string		(NULL);
-	set_email_addr		(NULL);
+	set_race		(NULLSTRING);
+	set_who_string		(NULLSTRING);
+	set_email_addr		(NULLSTRING);
 }
 
 
@@ -1892,7 +1892,7 @@ const
 Thing::Thing ()
 
 {
-	contents_string = NULL;
+	contents_string = NULLSTRING;
 	lock_key = TRUE_BOOLEXP;
 }
 
@@ -1900,7 +1900,7 @@ Thing::Thing ()
 Thing::~Thing ()
 
 {
-	set_contents_string	(NULL);
+	set_contents_string	(NULLSTRING);
 	set_lock_key		(TRUE_BOOLEXP);
 }
 

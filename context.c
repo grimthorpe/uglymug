@@ -168,15 +168,15 @@ const	bool	ok)
 /************************************************************************/
 
 Command_and_arguments::Command_and_arguments (
-const	char	*sc,
-const	char	*a1,
-const	char	*a2,
+const	CString&sc,
+const	CString&a1,
+const	CString&a2,
 	Matcher	*m)
 : matcher ((Matcher *)NULL)
 , sticky_fuses (0)
-, simple_command (alloc_string (a1))
-, arg1 (alloc_string (a1))
-, arg2 (alloc_string (a2))
+, simple_command (a1)
+, arg1 (a1)
+, arg2 (a2)
 {
 	set_matcher (m);
 }
@@ -185,9 +185,6 @@ const	char	*a2,
 Command_and_arguments::~Command_and_arguments ()
 
 {
-	ASSIGN_STRING (const_cast <char *> (simple_command), (const char *) 0);
-	ASSIGN_STRING (const_cast <char *> (arg1), (const char *) 0);
-	ASSIGN_STRING (const_cast <char *> (arg2), (const char *) 0);
 	set_matcher ((Matcher *)NULL);
 }
 
@@ -206,28 +203,25 @@ void Command_and_arguments::set_matcher(const Matcher *use_this_one)
 
 void
 Command_and_arguments::set_simple_command (
-const	char	*s)
-
+const	CString& s)
 {
-	ASSIGN_STRING (const_cast <char *> (simple_command), s);
+	simple_command = s;
 }
 
 
 void
 Command_and_arguments::set_arg1 (
-const	char	*s)
-
+const	CString& s)
 {
-	ASSIGN_STRING (const_cast <char *> (arg1), s);
+	arg1 = s;
 }
 
 
 void
 Command_and_arguments::set_arg2 (
-const	char	*s)
-
+const	CString& s)
 {
-	ASSIGN_STRING (const_cast <char *> (arg2), s);
+	arg2 = s;
 }
 
 
@@ -235,9 +229,9 @@ void
 Command_and_arguments::pend_fuse (
 dbref		fuse,
 bool		success,
-const	char	*simple_command,
-const	char	*arg1,
-const	char	*arg2,
+const	CString& simple_command,
+const	CString& arg1,
+const	CString& arg2,
 const	Matcher	&matcher)
 
 {
@@ -257,9 +251,9 @@ const	Matcher	&matcher)
 Compound_command_and_arguments::Compound_command_and_arguments (
 	dbref	cmd,
 	context *c,
-const	char	*sc,
-const	char	*a1,
-const	char	*a2,
+const	CString& sc,
+const	CString& a1,
+const	CString& a2,
 const	dbref	eid,
 	Matcher	*m,
 	bool	silent)
@@ -722,7 +716,7 @@ const
 }
 
 
-const char *
+const String&
 context::get_innermost_arg1 ()
 const
 
@@ -734,7 +728,7 @@ const
 }
 
 
-const char *
+const String&
 context::get_innermost_arg2 ()
 const
 

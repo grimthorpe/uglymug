@@ -214,22 +214,22 @@ class	Command_and_arguments
     private:
 			Matcher		*matcher;
 			Pending_fuse	*sticky_fuses;
-		const	char		*simple_command;
-		const	char		*arg1;
-		const	char		*arg2;
+			String		simple_command;
+			String		arg1;
+			String		arg2;
 			void		set_matcher(const Matcher *);
     protected:
-			void		set_simple_command	(const char *);
-			void		set_arg1		(const char *);
-			void		set_arg2		(const char *);
+			void		set_simple_command	(const CString&);
+			void		set_arg1		(const CString&);
+			void		set_arg2		(const CString&);
     public:
-					Command_and_arguments	(const char *sc, const char *a1, const char *a2, Matcher *m);
+					Command_and_arguments	(const CString&sc, const CString&a1, const CString&a2, Matcher *m);
 					~Command_and_arguments	();
-			void		pend_fuse		(dbref fuse, bool success, const char *simple_command, const char *arg1, const char *arg2, const Matcher &matcher);
+			void		pend_fuse		(dbref fuse, bool success, const CString&simple_command, const CString&arg1, const CString&arg2, const Matcher &matcher);
 			void		fire_sticky_fuses	(context &c);
-		const	char		*get_simple_command	()	const		{ return (simple_command); }
-		const	char		*get_arg1		()	const		{ return (arg1); }
-		const	char		*get_arg2		()	const		{ return (arg2); }
+		const	String&		get_simple_command	()	const		{ return (simple_command); }
+		const	String&		get_arg1		()	const		{ return (arg1); }
+		const	String&		get_arg2		()	const		{ return (arg2); }
 			Matcher		*get_matcher		()	const		{ return (matcher); }
 };
 
@@ -249,7 +249,7 @@ class	Compound_command_and_arguments
     protected:
 	virtual	const	int		line_for_outer_scope	()	const	{ return current_line + 1; };
     public:
-					Compound_command_and_arguments	(dbref c, context *, const char *sc, const char *a1, const char *a2, dbref eid, Matcher *m, bool silent);
+					Compound_command_and_arguments	(dbref c, context *, const CString& sc, const CString& a1, const CString& a2, dbref eid, Matcher *m, bool silent);
 	virtual				~Compound_command_and_arguments	();
 			Command_action	step			(context *);
 		const	char		*set_command		(dbref c);
@@ -328,8 +328,8 @@ class	context
 	const	dbref			get_player		()	const	{ return (player); }
 	const	dbref			get_unchpid_id		()	const	{ return (unchpid_id); }
 	const	Command_status		get_return_status	()	const	{ return (return_status); }
-	const	char			*get_innermost_arg1	()	const;
-	const	char			*get_innermost_arg2	()	const;
+	const	String&			get_innermost_arg1	()	const;
+	const	String&			get_innermost_arg2	()	const;
 	const	bool			in_command		()	const;
 	const	dbref			get_current_command	()	const;
 	const	bool			gagged_command		()	const	{ return (call_stack.is_empty())?false:call_stack.top()->gagged_command(); }
@@ -344,9 +344,9 @@ class	context
 	void				log_recursion		(dbref command, const char *arg1, const char *arg2);
 	void				process_basic_command	(const char *);
 	String				sneakily_process_basic_command	(const CString&, Command_status &);
-	bool				can_do_compound_command	(const char *command, const char *arg1, const char *arg2);
-	bool				can_override_command (const char *command, const char *arg1, const char *arg2);
-	Command_action			do_compound_command	(dbref command, const char *simple_command, const char *arg1, const char *arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
+	bool				can_do_compound_command	(const CString& command, const CString& arg1, const CString& arg2);
+	bool				can_override_command (const CString& command, const CString& arg1, const CString& arg2);
+	Command_action			do_compound_command	(dbref command, const CString& simple_command, const CString& arg1, const CString& arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
 
 	/* Functions from move.c that needed to be inside a context */
 	void				enter_room              (dbref loc);

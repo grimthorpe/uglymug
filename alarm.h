@@ -50,13 +50,13 @@ class	Pending_fuse
 {
     private:
 	bool			success;
-	const	char		*command;
-	const	char		*arg1;
-	const	char		*arg2;
+	String			command;
+	String			arg1;
+	String			arg2;
 	Matcher			matcher;	/* Copied */
 	bool			operator<	(Pending &)	{ return (true); }
     public:
-				Pending_fuse	(dbref object, bool success, const char *cmd, const char *a1, const char *a2, const Matcher &matcher);
+				Pending_fuse	(dbref object, bool success, const CString& cmd, const CString& a1, const CString& a2, const Matcher &matcher);
 	virtual			~Pending_fuse	();
 	void			fire		(context &c);
 };

@@ -30,8 +30,8 @@ int	tom_fuse)
 	char		buf [15];
 	dbref		fuse;
 
-	const	char	*command_arg1 = c.get_simple_command ();
-	const	char	*command_arg2 = reconstruct_message (value_or_empty (c.get_arg1 ()), value_or_empty (c.get_arg2 ()));
+	const	CString& command_arg1 = c.get_simple_command ();
+	const	String command_arg2 = reconstruct_message (c.get_arg1(), c.get_arg2 ());
 	Matcher		matcher		(c.get_player (), object, TYPE_FUSE, c.get_effective_id ());
 
 	matcher.match_count_down_fuse ();
@@ -57,7 +57,7 @@ int	tom_fuse)
 					{
 						context	*fuse_context = new context (c.get_player ());
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
-						fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1, command_arg2, db [fuse].get_owner(), matcher);
+						fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
 						delete mud_scheduler.push_express_job (fuse_context);
 					}
 				}
@@ -81,7 +81,7 @@ int	tom_fuse)
 					{
 						context	*fuse_context = new context (c.get_player ());
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
-						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1, command_arg2, db[fuse].get_owner(), matcher);
+						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
 						delete mud_scheduler.push_express_job (fuse_context);
 					}
 				}
@@ -109,8 +109,8 @@ dbref	object)
 	char		buf [15];
 	dbref		fuse;
 
-	const	char	*command_arg1 = c.get_simple_command ();
-	const	char	*command_arg2 = reconstruct_message (value_or_empty (c.get_arg1 ()), value_or_empty (c.get_arg2 ()));
+	const	CString& command_arg1 = c.get_simple_command ();
+	const	String command_arg2 = reconstruct_message (c.get_arg1(), c.get_arg2());
 	Matcher		matcher		(c.get_player (), object, TYPE_FUSE, c.get_effective_id ());
 
 	matcher.match_count_down_fuse ();
@@ -131,7 +131,7 @@ dbref	object)
 				{
 					context	*fuse_context = new context (c.get_player ());
 					fuse_context->set_unchpid_id (db [fuse].get_owner ());
-					fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1, command_arg2, db [fuse].get_owner(), matcher);
+					fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
 					mud_scheduler.push_express_job (fuse_context);
 
 					if (fuse_context->get_return_status () == COMMAND_FAIL)
@@ -158,7 +158,7 @@ dbref	object)
 					{
 						context	*fuse_context = new context (c.get_player ());
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
-						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1, command_arg2, db[fuse].get_owner(), matcher);
+						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
 						delete mud_scheduler.push_express_job (fuse_context);
 					}
 				}
@@ -179,16 +179,16 @@ dbref	object)
 Pending_fuse::Pending_fuse (
 dbref		f,
 bool		succ,
-const	char	*sc,
-const	char	*a1,
-const	char	*a2,
+const	CString& sc,
+const	CString& a1,
+const	CString& a2,
 const	Matcher	&m)
 
 : Pending (f)
 , success (succ)
-, command (alloc_string (sc))
-, arg1 (alloc_string (a1))
-, arg2 (alloc_string (a2))
+, command (sc)
+, arg1 (a1)
+, arg2 (a2)
 , matcher (m)
 
 {
@@ -198,12 +198,6 @@ const	Matcher	&m)
 Pending_fuse::~Pending_fuse ()
 
 {
-	if (command)
-		free (const_cast <char *> (command));
-	if (arg1)
-		free (const_cast <char *> (arg1));
-	if (arg2)
-		free (const_cast <char *> (arg2));
 }
 
 
@@ -239,7 +233,7 @@ context	&c)
 			else
 			{
 				context	*fuse_context = new context (c.get_player ());
-				fuse_context->do_compound_command (command_id, command, arg1, arg2, db [get_object ()].get_owner (), matcher);
+				fuse_context->do_compound_command (command_id, command.c_str(), arg1.c_str(), arg2.c_str(), db [get_object ()].get_owner (), matcher);
 				delete mud_scheduler.push_express_job (fuse_context);
 			}
 		}

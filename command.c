@@ -45,9 +45,9 @@ const	char	permission_denied	[]	= "Permission denied.";
 
 bool
 context::can_do_compound_command (
-const	char	*command_string,
-const	char	*arg1,
-const	char	*arg2)
+const	CString& command_string,
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	dbref	command;
@@ -61,15 +61,15 @@ const	char	*arg2)
 		 * an absolute), then print a nasty warning.
 		 * We'll let commands relative to 'here' through...
 		 */
-		if((command_string[0] != '#')
-			&& (strncasecmp(command_string, "here:", 5) != 0))
+		if((command_string.c_str()[0] != '#')
+			&& (strncasecmp(command_string.c_str(), "here:", 5) != 0))
 		{
-			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string);
+			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
 #ifndef NEW_LOGGING
 			Trace("HACK|%s(%d)| Command %s(%d) has non-absolute command '%s' called while in @chpid\n",
 				getname(get_effective_id()), get_effective_id(),
 				getname(get_current_command()), get_current_command(),
-				command_string);
+				command_string.c_str());
 #else
 			log_hack(	"player %s(#%d): effective: %s(%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
 						getname(get_player()),
@@ -78,7 +78,7 @@ const	char	*arg2)
 						get_effective_id(),
 						getname(get_current_command()),
 						get_current_command(),
-						command_string
+						command_string.c_str()
 			);
 #endif /* NEW_LOGGING */
 		}
@@ -127,9 +127,9 @@ const	char	*arg2)
 
 bool
 context::can_override_command (
-const	char	*command_string,
-const	char	*arg1,
-const	char	*arg2)
+const	CString& command_string,
+const	CString& arg1,
+const	CString& arg2)
 {
 	dbref command;
 
@@ -145,11 +145,11 @@ const	char	*arg2)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Ambiguous command.");
 #ifndef NEW_LOGGING
-		Trace( "BUG: Ambiguous command (%s) in #%d\n", command_string, COMMAND_LAST_RESORT);
+		Trace( "BUG: Ambiguous command (%s) in #%d\n", command_string.c_str(), COMMAND_LAST_RESORT);
 #else
-		log_bug("ambiguous command '%s' in #%d", command_string, COMMAND_LAST_RESORT);
+		log_bug("ambiguous command '%s' in #%d", command_string.c_str(), COMMAND_LAST_RESORT);
 #endif /* NEW_LOGGING */
-		notify_wizard ("Error: There's an ambiguous match on '%s' in #%d!", command_string, COMMAND_LAST_RESORT);
+		notify_wizard ("Error: There's an ambiguous match on '%s' in #%d!", command_string.c_str(), COMMAND_LAST_RESORT);
 		return (false);
 	}
 
@@ -179,9 +179,9 @@ const	char	*arg2)
 Command_action
 context::do_compound_command (
 dbref		command,
-const	char	*sc,
-const	char	*a1,
-const	char	*a2,
+const	CString& sc,
+const	CString& a1,
+const	CString& a2,
 dbref		eid,
 Matcher		&matcher)
 {
@@ -195,7 +195,7 @@ Matcher		&matcher)
 #ifndef NEW_LOGGING
 		log_recursion (command, a1, a2);
 #else
-		log_message("recursion: depth limit: %d command: #%d %s %s", depth_limit, command, a1, a2);
+		log_message("recursion: depth limit: %d command: #%d %s %s", depth_limit, command, a1.c_str(), a2.c_str());
 #endif /* NEW_LOGGING */
 		return_status= COMMAND_HALT;
 		return ACTION_HALT;
