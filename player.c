@@ -37,7 +37,7 @@ const	CString& password)
 	if ((player = lookup_player (NOTHING, name)) == NOTHING)
 		return NOTHING;
 	if(db[player].get_password ()
-		&& string_compare(db[player].get_password ().c_str(), (char *) (crypt(password.c_str(), password.c_str()) +2)))
+		&& string_compare(db[player].get_password (), (char *) (crypt(password.c_str(), password.c_str()) +2)))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with password '%s'.", password.c_str());
 		return 0;

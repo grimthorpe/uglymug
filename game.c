@@ -664,7 +664,7 @@ execute_startups(void)
 
 	DOLIST (item, db[COMMAND_LAST_RESORT].get_commands())
 	{
-		if (!string_compare(db[item].get_name().c_str(),".startup"))
+		if (!string_compare(db[item].get_name(),".startup"))
 			if (Wizard(db[item].get_owner()))
 			{
 				context *c = new context (db[item].get_owner());
@@ -686,7 +686,7 @@ execute_shutdown(void)
 
         DOLIST (item, db[COMMAND_LAST_RESORT].get_commands())
         {
-		if (!string_compare(db[item].get_name().c_str(),".shutdown"))
+		if (!string_compare(db[item].get_name(),".shutdown"))
 			if (Wizard(db[item].get_owner()))
 			{
 				context *c = new context (db[item].get_owner());
@@ -1100,11 +1100,15 @@ const	char	*original_command)
 		if ((*++a0 == '|')
 			&& in_command ()
 			&& (Wizard (get_current_command ())))
+		{
 			a0++;
-		/* It wasn't || (or we couldn't); try COMMAND_LAST_RESORT */
+		}
+		/* It wasn't ||; try COMMAND_LAST_RESORT */
+		else if (can_override_command (a0, get_arg1 (), get_arg2 ()))
+		{
+			command_done = True;
+		}
 	}
-	else if (can_override_command (a0, get_arg1 (), get_arg2 ()))
-		command_done = True;
 
 	/* We've bombed out everywhere else; is this a straight, simple command? */
 	if (!command_done && ((entry = find_basic_command (a0)) != NULL))
@@ -1294,7 +1298,7 @@ void mud_connect_player (dbref player)
 
 	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
 	{
-		if (!string_compare(db[the_command].get_name().c_str(),".login"))
+		if (!string_compare(db[the_command].get_name(),".login"))
 			if (Wizard(db[the_command].get_owner()))
 			{
 				context *login_context = new context (player);
@@ -1341,7 +1345,7 @@ void mud_disconnect_player (dbref player)
 
 	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
 	{
-		if (!string_compare(db[the_command].get_name().c_str(),".logout"))
+		if (!string_compare(db[the_command].get_name(),".logout"))
 			if (Wizard(db[the_command].get_owner()))
 			{
 				context *logout_context = new context (player);

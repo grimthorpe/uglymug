@@ -3773,7 +3773,7 @@ int			flags)
 				(db[d->get_player()].has_alias(victim)))) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_me && (string_compare(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
+		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
 			(want_xbuilders && XBuilder(d->get_player())) ||
@@ -3786,7 +3786,7 @@ int			flags)
 			(strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0)) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_me && (string_compare(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
+		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
 			(want_xbuilders && XBuilder(d->get_player())) ||

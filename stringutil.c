@@ -33,10 +33,10 @@ int	excluded=0;
 #define ConvertGender(x)	(Male((x))?MALE : Neuter((x))?NEUTER : Female((x))?FEMALE : UNASSIGNED)
 
 
-int colour_strlen(const char *string)
+int colour_strlen(const CString& string)
 {
 	int size=0;
-	const char *p=string;
+	const char *p=string.c_str();
 	int percent_primed=0;
 	while (p && *p)
 	{
@@ -106,21 +106,21 @@ void init_strings (void)
 
 Boolean
 semicolon_string_match (
-const	char	*in_this,
-const	char	*is_this)
+const	CString& in_this,
+const	CString& is_this)
 
 {
-	const	char	*p = is_this;
-	const	char	*m = in_this;
+	const	char	*p = is_this.c_str();
+	const	char	*m = in_this.c_str();
 
 	/* Check for both NULL or both the same string */
 	if (in_this == is_this)
 		return (True);
 
 	/* Check for one NULL */
-	if (in_this == NULL)
+	if (!in_this)
 		return (False);
-	if (is_this == NULL)
+	if (!is_this)
 		return (True);
 
 	while(*m)
@@ -142,7 +142,7 @@ const	char	*is_this)
 			
 		while (isspace (*m))
 			m++;
-		p = is_this;
+		p = is_this.c_str();
 	}
 
 	return(False);
@@ -209,16 +209,18 @@ const	CString& prefix)
 
 const char *
 string_match (
-const	char	*src,
-const	char	*sub)
+const	CString& csrc,
+const	CString& csub)
 
 {
+const char* src = csrc.c_str();
+const char* sub = csub.c_str();
 	/* If substring is NULL, automatic match */
-	if (sub == NULL)
+	if (!csub)
 		return (src);
 
 	/* If substring is non-NULL and source is NULL, fail. */
-	if (src == NULL)
+	if (csrc)
 		return (NULL);
 
 	/* Otherwise, we have to hunt for it */
@@ -253,9 +255,11 @@ pronoun_substitute (
 char		*result,
 unsigned int	buffer_length,
 dbref		player,
-const	char	*str)
+const	CString& cstr)
 
 {
+	const char* str = cstr.c_str();
+
 	char c;
 	static const char *subjective[4] = { "", "it", "she", "he" };
 	static const char *possessive[4] = { "", "its", "her", "his" };
@@ -266,7 +270,7 @@ const	char	*str)
 	{
 		buffer_length -= strlen(result);
 	}
-  else
+	else
 	{
 		buffer_length = 0;
 	}
@@ -619,7 +623,7 @@ char *string)
         return (1);
 }
 
-const char *censor(const char *string)
+const char *censor(const CString& string)
 {
 	/* This is horribly inefficient. Infact, it can't get more inefficient.
 	   Some sort of Boyer-Moore algorithm might be better, but that is
@@ -629,7 +633,7 @@ const char *censor(const char *string)
     char *letter=censored;
     char t;
 
-    strcpy(censored, string);
+    strcpy(censored, string.c_str());
     while ((t= *letter))
     {
         if (!isalpha(t))

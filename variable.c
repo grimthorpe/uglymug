@@ -1609,7 +1609,7 @@ unsigned int	space_left)
 						return (COMMAND_FAIL);
 					}
 					for (unsigned int i = 1; i <= db [dic].get_number_of_elements (); i++)
-						if (string_match (results[1].string, db [dic].get_index (i).c_str()) != NULL)
+						if (string_match (results[1].string, db [dic].get_index (i)) != NULL)
 						{
 							if (final.string [0] != '\0')
 								strcat (final.string, ";");

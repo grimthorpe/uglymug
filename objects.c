@@ -894,7 +894,7 @@ const
 
 	for(temp = 1; temp <= number; temp++)
 	{
-		if(semicolon_string_match (indices[temp - 1].c_str(), element.c_str()))
+		if(semicolon_string_match (indices[temp - 1], element))
 			return(temp);
 	}
 
@@ -1678,7 +1678,7 @@ const
 			break;
 		if ((!alias[i]) && (foundempty == 0))
 			foundempty = (i + 1);
-		if ((string_compare(alias[i].c_str(), string.c_str())) == 0)
+		if ((string_compare(alias[i], string)) == 0)
 			return (i + 1);
 	}
 	return (-foundempty);

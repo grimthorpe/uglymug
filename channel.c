@@ -110,7 +110,7 @@ public:
 		}
 		for(Channel* iter = head(); iter != 0; iter = iter->next())
 		{
-			if(string_compare(n.c_str(), iter->name().c_str()) == 0)
+			if(string_compare(n, iter->name()) == 0)
 			{
 				return iter;
 			}
@@ -322,7 +322,7 @@ const char* msgstart = msg.c_str();
 	}
 	if(get_censored())
 	{
-		msgstart = censor(msg.c_str());
+		msgstart = censor(msg);
 	}
 
 	for(iter = Players; iter != 0; iter = iter->next())
@@ -492,15 +492,15 @@ context::do_query_channel (const CString& arg1, const CString& arg2)
 		RETURN_FAIL;
 	}
 
-	if(string_compare(arg1.c_str(), "primary") == 0)
+	if(string_compare(arg1, "primary") == 0)
 	{
 		query = Primary;
 	}
-	else if(string_compare(arg1.c_str(), "all") == 0)
+	else if(string_compare(arg1, "all") == 0)
 	{
 		query = All;
 	}
-	else if(string_compare(arg1.c_str(), "members") == 0)
+	else if(string_compare(arg1, "members") == 0)
 	{
 		query = Members;
 	}

@@ -7,6 +7,8 @@
 #include <string.h>
 
 class	String;
+class	CString;
+
 class	CString
 {
 private:
@@ -71,6 +73,15 @@ public:
 	const char*	c_str()		const { return buf?buf:""; }
 	unsigned int	length()	const { return len; }
 
+	// Strict equivalence
+	bool operator==(const CString& str) const
+	{
+		if(str.buf == buf)
+		{
+			return true;
+		}
+		return false;
+	}
 };
 
 class String
@@ -207,13 +218,27 @@ public:
 
 inline CString::CString(const String& str)
 {
-	buf = str.c_str();
-	len = str.length();
+	if(str)
+	{
+		buf = str.c_str();
+		len = str.length();
+	}
+	else
+	{
+		clear();
+	}
 }
 inline CString& CString::operator=(const String& str)
 {
-	buf = str.c_str();
-	len = str.length();
+	if(str)
+	{
+		buf = str.c_str();
+		len = str.length();
+	}
+	else
+	{
+		clear();
+	}
 	return *this;
 }
 

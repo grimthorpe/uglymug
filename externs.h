@@ -157,14 +157,14 @@ extern	int		blank			(const char *s);
 extern	const	char	*reconstruct_message	(const CString& arg1, const CString& arg2);
 
 /* From stringutil.c */
-extern	Boolean		semicolon_string_match	(const char *, const char *);
+extern	Boolean		semicolon_string_match	(const CString&, const CString&);
 extern	void		init_strings		();
-extern	void		pronoun_substitute	(char *result, unsigned int buffer_length, dbref player, const char *str);
+extern	void		pronoun_substitute	(char *result, unsigned int buffer_length, dbref player, const CString& str);
 extern	int		string_compare		(const CString& s1, const CString& s2);
 extern	int		string_prefix		(const CString& string, const CString& prefix);
-extern	const	char	*string_match		(const char *src, const char *sub);
-extern  const	char	*censor			(const char *string);
-extern	int		colour_strlen		(const char *string);
+extern	const	char	*string_match		(const CString& src, const CString& sub);
+extern  const	char	*censor			(const CString& string);
+extern	int		colour_strlen		(const CString& string);
 extern	Boolean		add_rude		(const CString&);
 extern	Boolean		add_excluded		(const CString&);
 extern	Boolean		un_rude			(const CString&);

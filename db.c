@@ -3219,7 +3219,7 @@ const	CString& name)
 void Database::remove_player_from_cache(const CString& name)
 {
 	for(struct changed_player_list_struct *current=changed_player_list; current; )
-		if(string_compare(current->name, name.c_str())==0)
+		if(string_compare(current->name, name)==0)
 		{
 			struct changed_player_list_struct *old=current;
 
@@ -3245,7 +3245,7 @@ void Database::remove_player_from_cache(const CString& name)
 			current=current->next;
 
 	for(int i=0; i<player_count; i++)
-		if(string_compare(player_cache[i].name.c_str(), name.c_str())==0)
+		if(string_compare(player_cache[i].name, name)==0)
 			player_cache[i].state=CACHE_INVALID;
 }
 

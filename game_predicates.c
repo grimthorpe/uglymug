@@ -122,7 +122,7 @@ const	char	*default_fail_msg)
 		
 		if(db[thing].get_inherited_ofail() && !Dark(c.get_player ()))
 		{
-			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ().c_str());
+			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ());
 			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
 		}
 
@@ -136,7 +136,7 @@ const	char	*default_fail_msg)
 
 		if(db[thing].get_inherited_osuccess() && !Dark(c.get_player ()))
 		{
-			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_osuccess().c_str());
+			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_osuccess());
 			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
 		}
 

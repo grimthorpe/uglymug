@@ -101,7 +101,7 @@ const
 {
 	for (String_pair_iterator i (variable_stack); !i.finished (); i.step ())
 	{
-		if (!string_compare (i.current ()->get_name().c_str(), name))
+		if (!string_compare (i.current ()->get_name(), name))
 			return i.current ();
 	}
 
@@ -460,7 +460,7 @@ context		*context)
 						notify_public_colour (player, player, COLOUR_FAILURE, "%s", db[command].get_inherited_fail_message ().c_str());
 					if ((!Silent (player)) && db [command].get_inherited_ofail ())
 					{
-						pronoun_substitute (scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_ofail ().c_str());
+						pronoun_substitute (scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_ofail ());
 						notify_except (db[db[player].get_location ()].get_contents (), player, player, scratch_buffer);
 					}
 				}
@@ -493,7 +493,7 @@ context		*context)
 						notify_public_colour(player, player, COLOUR_SUCCESS, "%s", db[command].get_inherited_succ_message ().c_str());
 					if((!Silent (player)) && db[command].get_inherited_osuccess () && !Dark(player))
 					{
-						pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_osuccess ().c_str());
+						pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_osuccess ());
 						notify_except(db[db[player].get_location ()].get_contents (), player, player, scratch_buffer);
 					}
 				}
