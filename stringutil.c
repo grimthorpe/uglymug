@@ -399,7 +399,7 @@ swear_compare(int &skipped, const char *s1, const char *s2)
 			if(*s1)
 				s1++, skipped++;
 		}
-		if (ispunct(*s1) || isspace(*s1))
+		if (ispunct(*s1))
 			s1++, skipped++;
 		else if (tolower(*s1) != tolower(*s2))
 			return (tolower(*s1) - tolower(*s2));
