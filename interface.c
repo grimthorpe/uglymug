@@ -3575,9 +3575,11 @@ int	sig)
 	char message[1024];
 #ifdef linux
 // Yuck - I feel ill JPK
-        extern char *strsignal (int __sig) __THROW;
-#endif
+	extern const char * const sys_siglist[];
 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+#else
+	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+#endif
 //#if defined (sun) // Sun's different
 //	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 //#elif defined (SYSV)
