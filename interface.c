@@ -3869,19 +3869,7 @@ int			flags)
 				if (get_player())
 				{
 					int thing= d->get_player();
-					int colour=COLOUR_MORTALS;
-					if (Builder(thing))
-						colour= COLOUR_BUILDERS;
-					if (Welcomer(thing))
-						colour= COLOUR_WELCOMERS;
-                                        if (XBuilder(thing))
-						colour= COLOUR_XBUILDERS;
-                                        if (Apprentice(thing))
-						colour= COLOUR_APPRENTICES;
-                                        if (Wizard(thing))
-						colour= COLOUR_WIZARDS;
-                                        if (thing==GOD_ID)
-						colour= COLOUR_GOD;
+					int colour=rank_colour(thing);
 					if (!who.want_npcs)
 						strcat(buf, player_colour (get_player(), get_player(), colour));
 				}
@@ -4300,21 +4288,12 @@ const	String& )
 		if(who.Show(d))
 		{
 			int thing= d->get_player();
-			int colour=COLOUR_MORTALS;
-			if (Builder(thing))
-				colour= COLOUR_BUILDERS;
-			if (Welcomer(thing))
-				colour= COLOUR_WELCOMERS;
-			if (XBuilder(thing))
-				colour= COLOUR_XBUILDERS;
-			if (Apprentice(thing))
-				colour= COLOUR_APPRENTICES;
-			if (Wizard(thing))
-				colour= COLOUR_WIZARDS;
-			if (thing==GOD_ID)
-				colour= COLOUR_GOD;
+			int colour=rank_colour(thing);
+			char rankchar= Retired(d->get_player())?'-':
+					(Wizard(d->get_player())?'*':
+						(Apprentice(d->get_player())?'~':' '));
 			snprintf(linebuf, sizeof(linebuf), " %c%s%-23s%s", 
-				(Wizard(d->get_player())?'*':(Apprentice(d->get_player())?'~':' ')),
+				rankchar,
 				player_colour (get_player(), get_player(), colour),
 				db[d->get_player()].get_name().c_str(),
 				COLOUR_REVERT);
