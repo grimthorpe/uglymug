@@ -1,6 +1,11 @@
 /* static char SCCSid[] = "@(#)boolexp.c	1.23\t2/17/95"; */
 #include "copyright.h"
 
+/** \file
+ * Locks on objects use boolean expressions. This file contains the implementation of boolexp
+ * functions.
+ */
+
 #include <ctype.h>
 #include <stdlib.h>
 
@@ -17,6 +22,11 @@
 static	int	commands_executed;
 
 
+
+/**
+ * Construct a blank boolexp of type t.
+ */
+
 boolexp::boolexp (
 boolexp_type t)
 : type (t)
@@ -28,6 +38,10 @@ boolexp_type t)
 }
 
 
+/**
+ * Destructor: Recursively delete any subtrees.
+ */
+
 boolexp::~boolexp ()
 
 {
@@ -37,6 +51,18 @@ boolexp::~boolexp ()
 		delete sub2;
 }
 
+
+/**
+ * Evaluate this node of the expression:
+ * - If AND, return the eval of the left and right subexpressions;
+ * - If OR, return the eval of the left or right subexpressions;
+ * - If NOT, return the negation of the eval of the left subexpression;
+ * - If CONST and thing is not a command, return whether the player, player's contents or (recursively) any of their contents is the thing. This follows inheritance rules, too;
+ * - If CONST and thing is a command, return whether the command was successful;
+ * - If FLAG, return whether the player has the specified flag set on them.
+ *
+ * AND and OR use short-circuit evaluation.
+ */
 
 const bool
 boolexp::eval_internal (
@@ -109,6 +135,10 @@ const
 }
 
 
+/**
+ * Evaluate the top-level boolexp node in the given context, matched by the given matcher.
+ */
+
 const bool
 boolexp::eval (
 const	context	&c,
@@ -121,10 +151,12 @@ const
 }
 
 
-/* If the parser returns TRUE_BOOLEXP, you lose */
-/* TRUE_BOOLEXP cannot be typed in by the user; use @unlock instead */
+static const char *parsebuf;	///< Global pointer to current position in the parse
 
-static const char *parsebuf;
+
+/**
+ * Move the parse pointer past an arbitrary amount of whitespace
+ */
 
 static void
 skip_whitespace()
@@ -133,9 +165,17 @@ skip_whitespace()
 		parsebuf++;
 }
 
-boolexp	*parse_boolexp_E (dbref player);
 
-/* F -> (E); F -> !F; F -> @F; F -> object identifier */
+
+boolexp	*parse_boolexp_E (dbref player);	// Advance declaration
+
+/**
+ * Parse a boolexp Factor, which may be:
+ * - '(' Expression ')'
+ * - '!' Factor
+ * - '@' Flag
+ * - Object Identifier
+ */
 
 boolexp *
 parse_boolexp_F (
@@ -253,7 +293,12 @@ const	dbref	player)
 	}
 }
 
-/* T -> F; T -> F & T */
+/**
+ * Parse a boolexp Term, which may be:
+ * - Factor
+ * - Factor '&' Term
+ */
+
 boolexp *
 parse_boolexp_T (
 const	dbref	player)
@@ -285,7 +330,12 @@ const	dbref	player)
 	}
 }
 
-/* E -> T; E -> T | E */
+/**
+ * Parse a boolexp Expression, which may be:
+ *	Term
+ *	Term '|' Expression
+ */
+
 boolexp *
 parse_boolexp_E (
 const	dbref	player)
@@ -315,6 +365,13 @@ const	dbref	player)
     }
 }
 
+
+/*
+ * Parse buf, in the context of player, to produce a boolexp.  Return the boolexp on success,
+ * TRUE_BOOLEXP on a parse failure.
+ * TRUE_BOOLEXP cannot be typed in by the user; use @unlock instead.
+ */
+
 boolexp *
 parse_boolexp (
 const	dbref	player,
@@ -325,6 +382,10 @@ const	String& buf)
 	return (parse_boolexp_E (player));
 }
 
+
+/**
+ * Return whether object is referenced by this node or any sub-node.
+ */
 
 const bool
 boolexp::contains (
@@ -353,9 +414,14 @@ const
 }
 
 
-static	char	boolexp_buf[BUFFER_LEN];
-static	char	*buftop;
+static	char	boolexp_buf[BUFFER_LEN];	///< String for storing the unparsed boolexp
+static	char	*buftop;	///< Current location of the unparse pointer
 
+
+/**
+ * Unparse a part of a full boolexp in a form that it can be re-read by the boolexp parser.
+ * TODO: Reimplement using String, as this is liable to crash when the boolexp overflows boolexp_buf and there is no easy fix.
+ */
 
 void
 boolexp::unparse_internal (
@@ -420,6 +486,11 @@ const
 	}
 }
 
+
+/**
+ * TODO: Can this be combined with unparse_for_return by sneaky use of a function pointer as to which unparser to use (or just a boolean?)
+ * PJC 2003-10-26
+ */
 
 void
 boolexp::unparse_for_return_internal (
@@ -486,6 +557,10 @@ const
 }
 
 
+/**
+ * Construct the string representing this boolexp and return it.  Successive returns may re-use the same memory.
+ */
+
 const char *
 boolexp::unparse (
 context	&c)
@@ -500,6 +575,10 @@ const
 }
 
 
+/**
+ * Construct the string representing this boolexp as a return value and return it.  Successive returns may re-use the same memory.
+ */
+
 const char *
 boolexp::unparse_for_return (
 context	&c)
@@ -513,6 +592,12 @@ const
 	return (boolexp_buf);
 }
 
+
+/**
+ * Clean out any nodes in a boolexp that refer to freed objects. Return a (potentially)
+ * new boolexp that is the sanitised version; this may or may not contain similar nodes to the
+ * original. Memory management of the boolexp nodes is performed by this routine.
+ */
 
 boolexp *
 boolexp::sanitise ()
@@ -529,7 +614,6 @@ boolexp::sanitise ()
 				return (TRUE_BOOLEXP);
 			}
 			return(this);
-			/* break; */
 		case BOOLEXP_AND:
 		case BOOLEXP_OR:
 			sub1 = sub1->sanitise ();
@@ -549,7 +633,6 @@ boolexp::sanitise ()
 				return (copied_base);
 			}
 			return(this);
-			/* break; */
 		case BOOLEXP_NOT:
 			if ((sub1 = sub1->sanitise ()) == TRUE_BOOLEXP)
 			{
@@ -557,13 +640,12 @@ boolexp::sanitise ()
 				return (TRUE_BOOLEXP);
 			}
 			return (this);
-			/* break; */
 		case BOOLEXP_FLAG:
 			return (this);
 			break;
 		default:
 			/* bad type */
-			log_bug("recursive_sane_lock: bad type: %d. Removing node and all sub-nodes", type);
+			log_bug("sanitise: bad type: %d. Removing node and all sub-nodes", type);
 			return (TRUE_BOOLEXP);
 	}
 
@@ -571,6 +653,10 @@ boolexp::sanitise ()
 	return (TRUE_BOOLEXP);
 }
 
+
+/**
+ * A boolexp can (and does) reference other objects.  Set references as appropriate for this boolexp and its subs.
+ */
 
 void
 boolexp::set_references ()
