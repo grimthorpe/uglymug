@@ -1,0 +1,29 @@
+
+This is the modified cgitelnet as used by UglyMUG which uses the
+UglyCODE code to run.
+
+Changes that have been made since the original:
+
+o Default colour scheme changed to be less icky
+o cml configuration looked at, and run away from [1]
+o Changed the polling loop to pause for a number of microseconds (1000)
+  so as to reduce CPU overhead.  No noticeable degradation in usability
+  significant reduction in CPU overhead
+o Changed main polling loop not to insert <!-- --> into the html output
+  every single iteration, but only to do it if nothing has been output
+  for the last n (25) seconds.  This prevents the html file from getting
+  stupidly big, stupidly quickly, and soaking up bandwidth pointlessly.
+o Some Javascript added to make IE work better such that it too would auto
+  scroll the output window.
+
+Future additions should have dates included, but these were all done
+before including into CVS repository.
+
+JPK (Thu Jan 31 13:37:56 GMT 2002)
+
+
+
+
+
+
+[1] TODO:  Get external configuration working

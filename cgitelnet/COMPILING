@@ -1,0 +1,7 @@
+
+Note that whilst the code appears to be relatively portable it doesn't
+include a configure script by default, but merely the autoconf files
+to allow the generation of a configure script, this autoconf and automake
+are needed in order to make this work.
+
+JPK (Thu Jan 31 13:38:42 GMT 2002)
