@@ -601,11 +601,7 @@ dbref player)
 	matcher.match_array_or_dictionary();
 	if ((guest_match = matcher.match_result()) == NOTHING)
         {
-#ifndef NEW_LOGGING
-                Trace( "BUG: Cannot find guest_dictionary in #4\n");
-#else
                 log_bug("Cannot find guest_dictionary in #4");
-#endif /* NEW_LOGGING */
                 return (false);
         }
         else

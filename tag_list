@@ -13,6 +13,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Removed all of the '#ifndef NEW_LOGGING' blocks containing old Trace()/fputs() calls.
+	Removed (old) context::log_recursion function and prototypes
+	Added missing log_recursion() call in context.c
+	Changed @decompile so that it's no longer wizard-only. you can @decompile if you have controls_for_write().
+??	Added log_reconnect
 	Added log_halfquit() and changed log call in interface.c
 	Added RECORD_START and RECORD_END to a case for log_disconnect (never connected). Now it should go into the DISCONNECT log.
 

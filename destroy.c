@@ -17,11 +17,7 @@
 #include "colour.h"
 #include "log.h"
 
-#ifndef NEW_LOGGING
-#define RefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {Trace("BUG: %s has REF cleared\n",unparse_object(god_context,(x)));}}
-#else
 #define RefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {log_bug("%s has REF cleared",unparse_object(god_context,(x)));}}
-#endif /* NEW_LOGGING */
 
 static	bool			empty_an_object				(dbref, dbref);
 
@@ -497,11 +493,7 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 			if(Typeof(who) != TYPE_PLAYER)
 			{
 				if(errors)
-#ifndef NEW_LOGGING
-					Trace( "BUG: Attempting to remove a playerlist reference where the target player doesn't exist (in @destroy/@ashcan)\n");
-#else
 					log_bug("Attempting to remove a playerlist reference where the target player doesn't exist (in @destroy/@ashcan)");
-#endif /* NEW_LOGGING */
 				i++;
 				continue;
 			}
@@ -509,19 +501,11 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 			if(hislist == NOTHING)
 			{
 				if(errors)
-#ifndef NEW_LOGGING
-					Trace( "BUG: Attempting to remove a playerlist reference where the list doesn't exist (in @destroy/@ashcan)\n");
-#else
 					log_bug("Attempting to remove a playerlist reference where the list doesn't exist (in @destroy/@ashcan)");
-#endif /* NEW_LOGGING */
 			}
 			else if ((element= db[hislist].exist_element(smallbuf))==0)
 			{
-#ifndef NEW_LOGGING
-				Trace("BUG: Attempting to remove a playerlist reference where none exists (in @destroy)\n");
-#else
 				log_bug("Attempting to remove a playerlist reference where none exists (in @destroy)");
-#endif /* NEW_LOGGING */
 			}
 			else
 			{
@@ -531,11 +515,7 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 					nowarning=0;
 				}
 				db[hislist].destroy_element(element);
-#ifndef NEW_LOGGING
-Trace( "Player list updated\n");
-#else
 log_message("Player list updated");
-#endif /* NEW_LOGGING */
 			}
 			i++;
 		}
@@ -593,31 +573,19 @@ log_message("Player list updated");
 					newlist[strlen(newlist)-1]='\0';
 					db[hislist].set_element(j, NULL, newlist);
 					j++;
-#ifndef NEW_LOGGING
-Trace( "Custom list updated\n");
-#else
 log_message("Custom list updated");
-#endif /* NEW_LOGGING */
 				}
 				else
 				{
 					db[hislist].destroy_element(j); 
 					deadlists++;
-#ifndef NEW_LOGGING
-Trace( "Custom list destroyed\n");
-#else
 log_message("Custom list destroyed");
-#endif /* NEW_LOGGING */
 				}
 			}
 			if (deadlists>0)
 				notify_colour(who,who,COLOUR_MESSAGES, "(%d empty custom list%sbeen deleted because of this)", deadlists, (deadlists==1) ? " has ":"s have ");
 			if (sanity_count !=0)
-#ifndef NEW_LOGGING
-				Trace( "BUG: Sanity count for reverse lists incorrect in @destroy. Out by %d\n", sanity_count);
-#else
 				log_bug("Sanity count for reverse lists incorrect in @destroy. Out by %d", sanity_count);
-#endif /* NEW_LOGGING */
 
 			i++;
 		}
@@ -1310,11 +1278,7 @@ const	CString& )
 								moveto (object, LIMBO);
 							break;
 						default:
-#ifndef NEW_LOGGING
-							Trace( "BUG: Room %d has illegal object type on its contents list (object %d).\n", i, object);
-#else
 							log_bug("Room #%d has illegal object type on its contents list (object #%d)", i, object);
-#endif /* NEW_LOGGING */
 							break;
 					}
 				}

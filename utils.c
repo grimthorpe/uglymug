@@ -132,11 +132,7 @@ int	article_base)
 		article_base = 0;
         if ((article_base < 0) || (article_base > 3))
 	{
-#ifndef NEW_LOGGING
-		Trace("BUG: Invalid article base (%d) in getarticle ()\n", article_base);
-#else
 		log_bug("Invalid article base (%d) in getarticle()", article_base);
-#endif /* NEW_LOGGING */
 		article_base = 0;
 	}
 	return (articles[ConvertArticle (thing) + 4 * article_base]);

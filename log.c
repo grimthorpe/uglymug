@@ -20,7 +20,6 @@
  */
 
 
-#ifdef NEW_LOGGING
 /*
  * If you fancy viewing the logs with | as a separator
  * rather than the 'invisible' ^W characters, try this:
@@ -38,51 +37,6 @@
 #define RECORD_START	'\025'
 #define RECORD_END		'\026'
 #define FIELD_SEPARATOR '\027'
-
-#endif
-
-/*
- * we preserve the 'old' logging code, and write our new
- * code from scratch
- */
-
-#ifndef NEW_LOGGING
-static char *log_time(void)
-{
-	static	char	timestr[100];
-
-	time_t		now;
-	time(&now);
-	strcpy(timestr, ctime(&now));
-	*strchr(timestr, '\n') = '\0' ;
-	return timestr;
-}
-
-void
-context::log_recursion (
-dbref		command,
-const	CString&	arg1,
-const	CString&	arg2)
-
-{
-#ifdef LOG_RECURSION
-	Trace( "RECURSION: %s(%d) [%s] Limit: %d Command: %s(%d) %s = %s\n",
-		getname_inherited (player), player,
-		log_time(),
-		step_limit,
-		getname_inherited (command), command, arg1.c_str(), arg2.c_str());
-#endif
-	set_return_string (recursion_return_string);
-	return_status = COMMAND_FAIL;
-}
-
-#endif /* ifndef NEW_LOGGING */
-
-/*
- * This is the start of the NEW LOGGING code
- */
-
-#ifdef NEW_LOGGING
 
 void log_accept (
 	int					descriptor,
@@ -508,7 +462,7 @@ void log_recursion (
 	 * RECURSION|timestamp|playerid|playername|step_limit|command|argument
 	 */
 
-	Trace(	"%cRECURSIONX%d%c%s%c%d%c%s%c%s%c\n",
+	Trace(	"%cRECURSION%c%d%c%d%c%s%c%d%c%s%c%s%c\n",
 				RECORD_START,					FIELD_SEPARATOR,
 				time(NULL),						FIELD_SEPARATOR,
 				playerid,						FIELD_SEPARATOR,
@@ -555,7 +509,6 @@ void log_wall (
 	);			
 }
 
-#endif /* NEW_LOGGING */
 
 
 /* 

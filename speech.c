@@ -363,11 +363,7 @@ const	CString& arg2)
 	if (Wizard (get_effective_id ()) || Apprentice (player))
 	{
 #ifdef	LOG_WALLS
-#ifndef NEW_LOGGING
-		Trace("WALL from %s(%d): %s\n", getname_inherited (player), player, message);
-#else
 		log_wall(player, getname_inherited(player), message);
-#endif /* NEW_LOGGING */
 #endif	/* LOG_WALLS */
 		if(!blank(message))
 		{
@@ -399,16 +395,6 @@ const	CString& arg2)
 		notify_colour(player, player, COLOUR_MESSAGES, "Not really worth taking a note of, huh?");
 	else
 	{
-#ifndef NEW_LOGGING		
-		Trace("NOTE from |%s|(%d) in %s%s(%d)[%s]: %s\n",
-			getname_inherited (player),
-			player,
-			getarticle (db[player].get_location(), ARTICLE_LOWER_INDEFINITE),
-			getname_inherited (db[player].get_location ()),
-			db[player].get_location(),
-			getname_inherited (db[db[player].get_location()].get_owner()),
-			message);
-#else
 		dbref npc_owner;
 		/* if the player is actually an NPC we want to redirect the @note
 		 * to the owner of the NPC
@@ -428,7 +414,6 @@ const	CString& arg2)
 				controls_for_read (db[player].get_location()) ? true : false,
 				message
 		);
-#endif /* NEW_LOGGING */		
 		fflush(stderr);
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Your note has been logged.");
@@ -467,15 +452,10 @@ const	CString& arg2)
 			getarticle (loc, ARTICLE_LOWER_INDEFINITE),
 			getname_inherited (loc), loc,
 			value_or_empty(message));
-#ifndef NEW_LOGGING
-		fputs (scratch_buffer, stderr);
-		fflush(stderr);
-#else
 		log_gripe(	player, getname_inherited(player),
 					loc,	getname_inherited(loc),
 					value_or_empty(message)
 		);
-#endif		
 		notify_colour(player, player, COLOUR_MESSAGES, "Your complaint has been logged.");
 		notify_wizard ("%s", scratch_buffer);
 		return_status = COMMAND_SUCC;

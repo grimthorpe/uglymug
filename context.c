@@ -87,11 +87,7 @@ const	CString& val)
 
 	if (!(temp = locatearg (name))) /* This shouldn't happen! */
 	{
-#ifndef NEW_LOGGING
-		Trace("BUG: Trying to find non-existent argument %s.\n", name.c_str());
-#else
 		log_bug("Variable_stack::updatearg: trying to find non-existent argument: %s", name.c_str());
-#endif /* NEW_LOGGING */
 		return false;
 	}
 	temp->set_value (val);
@@ -153,11 +149,7 @@ Scope::do_at_elseif (
 const	bool	ok)
 
 {
-#ifndef NEW_LOGGING
-	fputs ("BUG: Scope::do_at_elseif called.\n", stderr);
-#else
 	log_bug("Scope::do_at_elseif called");
-#endif /* NEW_LOGGING */
 }
 
 
@@ -381,9 +373,7 @@ context		*context)
 		// First nuke the scope stack
 		while (!scope_stack.is_empty())
 			delete scope_stack.pop();
-#ifndef NEW_LOGGING
-		context->log_recursion (command, get_arg1 (), get_arg2 ());
-#endif
+		log_recursion(player, db[player].get_name(), -1, unparse_object (GOD_ID, command), reconstruct_message(get_arg1(), get_arg2()));
 		return ACTION_HALT;
 	}
 
@@ -410,21 +400,13 @@ context		*context)
 		{
 			case ACTION_HALT:
 				/* This should never happen.. Deal with it anyway */
-#ifndef NEW_LOGGING
-				Trace( "BUG: ACTION_HALT returned to Compound_command_and_arguments::step()\n");
-#else
 				log_bug("ACTION_HALT returned to Compound_command_and_arguments::step()");
-#endif /* NEW_LOGGING */
 				while (!scope_stack.is_empty())
 					delete scope_stack.pop();
 				return ACTION_HALT;
 	
 			case ACTION_UNSET:
-#ifndef NEW_LOGGING
-				Trace( "BUG: ACTION_UNSET returned to Compound_command_and_arguments::step()\n");
-#else
 				log_bug("ACTION_UNSET returned to Compound_command_and_arguments::step()");
-#endif /* NEW_LOGGING */
 				/* Fallthrough */
 
 			case ACTION_STOP:
@@ -465,10 +447,6 @@ context		*context)
 		context->command_executed();
 
 #ifdef LOG_COMMANDS
-#ifndef NEW_LOGGING
-		Trace( "COMPOUND: %s(%d)\n", db [get_current_command ()].get_name ().c_str(), get_current_command ());
-#else
-		//log_command("COMPOUND: %s(#%d)", db[get_current_command()].get_name().c_str(), get_current_command());
 		log_command(player,											/* playerid */
 					db[player].get_name(),							/* playername */
 					get_effective_id(),								/* effectiveid */
@@ -477,7 +455,6 @@ context		*context)
 					db[db[player].get_location()].get_name(),		/* locationid */
 					db [command].get_name ()						/* command */
 		);
-#endif /* NEW_LOGGING */
 #endif
 
 		/* Now work out where to go */
@@ -557,13 +534,7 @@ context		*context)
 				set_command(NOTHING);
 				return ACTION_HALT;
 			default:
-#ifndef NEW_LOGGING
-				Trace( "BUG: Player %s(%d) ran command %s(%d) which returned invalid boolean.\n",
-					getname (player), player,
-					getname (command), command);
-#else
 				log_bug("player %s(#%d) ran command %s(#%d) which returned an invalid boolean");
-#endif /* NEW_LOGGING */
 				set_command (NOTHING);
 		}
 		action= (command==NOTHING)? ACTION_STOP : ACTION_CONTINUE;
@@ -603,11 +574,7 @@ const	bool	if_ok)
 #ifdef	DEBUG
 	if (scope_stack.is_empty ())
 	{
-#ifndef NEW_LOGGING
-		fputs ("BUG: Compound command do_at_elseif called with no if scope active.\n", stderr);
-#else
 		log_bug ("Compound command do_at_elseif called with no if scope active");
-#endif /* NEW_LOGGING */
 		return;
 	}
 #endif	/* DEBUG */
@@ -849,11 +816,7 @@ context::step ()
 				delete call_stack.pop ();
 			}
 			else
-#ifndef NEW_LOGGING
-				Trace( "BUG: Empty call stack when ACTION_STOP returned to context::step()\n");
-#else
 				log_bug("empty call stack when ACTION_STOP returned to context::step()");
-#endif /* NEW_LOGGING */
 
 			/* If that's all we've got to do, we've finished */
 			if (call_stack.is_empty ())
@@ -872,11 +835,7 @@ context::step ()
 			return (ACTION_RESTART);
 		case ACTION_UNSET:
 			// When do we get this?
-#ifndef NEW_LOGGING
-			Trace("WARNING: Command_action::step is in state ACTION_UNSET.\n");
-#else
 			log_bug("WARNING: Command_action::step is in state ACTION_UNSET");
-#endif /* NEW_LOGGING */
 	}
 
 	/* If we get here, there's more to do, so request that we be stepped again */
@@ -979,11 +938,7 @@ context	*c)
 		/* current_line incremented here in case the command modifies it */
 		current_line+=db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-		Trace("If: CurrentLine %s\n", command_block);
-#else
 		log_debug("if: currentline: %s", command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 		c->process_basic_command (command_block);
 		return ACTION_CONTINUE;
@@ -1003,11 +958,7 @@ context	*c)
 		/* OK, we're evaluating an elseif / else */
 		db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-		Trace("If: CurrentLine %s\n", command_block);
-#else
 		log_debug("if: currentline: %s", command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 		c->process_basic_command (command_block);
 		/* do_at_elseif will have been called by the elseif / else */
@@ -1038,11 +989,7 @@ context	*c)
 	}
 
 	/* If we get here, something *really* odd has happened */
-#ifndef NEW_LOGGING
-	fputs ("BUG: Weird state in If_scope::step_once. Ditching block.\n", stderr);
-#else
 	log_bug ("Weird state in If_scope::step_once. Ditching block");
-#endif
 	return ACTION_STOP;
 }
 
@@ -1103,11 +1050,7 @@ context	*c)
 	/* It's a normal line */
 	current_line+=db[get_command()].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-	Trace("Loop: CurrentLine %s\n", command_block);
-#else
 	log_debug("loop: currentline: %s", command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 	c->process_basic_command (command_block);
 	return ACTION_CONTINUE;
@@ -1244,11 +1187,7 @@ Scheduler::step ()
 #ifdef	DEBUG
 	if (!runnable ())
 	{
-#ifndef NEW_LOGGING
-		fputs ("BUG: Scheduler can't step when it's not runnable\n", stderr);
-#else
 		log_bug ("Scheduler can't step when it's not runnable");
-#endif /* NEW_LOGGING */
 		return 0;
 	}
 #endif	/* DEBUG */
@@ -1258,11 +1197,7 @@ Scheduler::step ()
 	/* If we're running single-user, the top-most context *must* be able to run */
 	if (contexts.top ()->get_dependency ())
 	{
-#ifndef NEW_LOGGING
-		fputs ("BUG: Top of run queue has a dependency.\n", stderr);
-#else
 		log_bug ("Top of run queue has a dependency");
-#endif /* NEW_LOGGING */
 		/* Should really do something sensible here, like grab a lower context */
 		return 0;
 	}
@@ -1275,18 +1210,10 @@ Scheduler::step ()
 	switch (run_context->step ())
 	{
 		case ACTION_HALT:
-#ifndef NEW_LOGGING
-			fputs("BUG: context returned a halt request to the scheduler. (Ignore the next 2 BUGs)\n", stderr);
-#else
 			log_bug("context returned a halt request to the scheduler. (Ignore the next 2 BUGs)");
-#endif /* NEW_LOGGING */
 			/* FALLTHROUGH - Ignore the next error*/
 		case ACTION_RESTART:
-#ifndef NEW_LOGGING
-			fputs ("BUG: context returned a restart request to the scheduler.\n", stderr);
-#else
 			log_bug("context returned a restart request to the scheduler");
-#endif /* NEW_LOGGING */
 			/* Treat a restart as a stop */
 			/* FALLTHROUGH */
 		case ACTION_STOP:
@@ -1295,11 +1222,7 @@ Scheduler::step ()
 			return returned;
 		case ACTION_UNSET:
 			// When do we get this?
-#ifndef NEW_LOGGING
-			Trace("WARNING: Scheduler::step is in state ACTION_UNSET.\n");
-#else
 			log_bug("WARNING: Scheduler::step is in state ACTION_UNSET");
-#endif /* NEW_LOGGING */
 			break;
 		case ACTION_CONTINUE:
 			/* Do nothing */

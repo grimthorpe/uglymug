@@ -30,7 +30,6 @@
 
 #undef	DEBUG					/* For debugging */
 #undef	MATCH_DEBUG				/* Match debug lines */
-#define NEW_LOGGING         	/* new style logging */
 
 #define BUFFER_LEN      ((MAX_COMMAND_LEN)*4)
 

@@ -155,11 +155,7 @@ dbref	where)
 		}
 		else
 		{
-#ifndef NEW_LOGGING
-			Trace( "BUG: Move to create recursive contents: %d -> %d\n", what, where);
-#else
 			log_bug("Move to create recursive contents: %s(#%d) -> %s(#%d)", getname(what), what, getname(where), where);
-#endif /* NEW_LOGGING */
 			return false;
 		}
 	}
@@ -174,11 +170,7 @@ dbref	where)
 				where = db[what].get_destination();
 			if (where == NOTHING)
 			{
-#ifndef NEW_LOGGING
-				Trace( "BUG: Attempt to move object to *NOTHING*\n");
-#else
 				log_bug("Attempt to move object %s(#%d) to *NOTHING*", getname(what), what);
-#endif /* NEW_LOGGING */
 				return false;
 			}
 				/* FALLTHROUGH */
@@ -232,11 +224,7 @@ dbref	where)
 				db[what].set_next(NOTHING);
 			break;
 		default:
-#ifndef NEW_LOGGING
-			Trace( "BUG: Unhandled object type in moveto()!\n");
-#else
 			log_bug("Unhandled object type %d in moveto()!", Typeof(what));
-#endif /* NEW_LOGGING */
 	}
 	return true;
 }

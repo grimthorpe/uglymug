@@ -341,7 +341,6 @@ class	context
 		String_pair		*locate_innermost_arg	(const CString& name)	const;
 #ifndef	NO_GAME_CODE
 	bool				allow_another_step	();
-	void				log_recursion		(dbref command, const char *arg1, const char *arg2);
 	void				process_basic_command	(const char *);
 	String				sneakily_process_basic_command	(const CString&, Command_status &);
 	bool				can_do_compound_command	(const CString& command, const CString& arg1, const CString& arg2);

@@ -129,9 +129,6 @@ extern	bool		is_guest		(dbref player);
 extern	void		panic			(const char *);
 extern	int		peak_users;
 
-/* From log.c */
-extern	void		log_recursion		(dbref player, dbref command, char* arg1, char* ar2);
-
 /* From look.c */
 extern	void		look_room		(context &, dbref room);
 extern	const char	*flag_description	(dbref thing);

@@ -65,12 +65,6 @@ const	CString& arg2)
 			&& (strncasecmp(command_string.c_str(), "here:", 5) != 0))
 		{
 			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
-#ifndef NEW_LOGGING
-			Trace("HACK|%s(%d)| Command %s(%d) has non-absolute command '%s' called while in @chpid\n",
-				getname(get_effective_id()), get_effective_id(),
-				getname(get_current_command()), get_current_command(),
-				command_string.c_str());
-#else
 			log_hack(	"player %s(#%d): effective: %s(%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
 						getname(get_player()),
 						get_player(),
@@ -80,7 +74,6 @@ const	CString& arg2)
 						get_current_command(),
 						command_string.c_str()
 			);
-#endif /* NEW_LOGGING */
 		}
 	}
 #endif /* HACK_HUNTING */
@@ -144,11 +137,7 @@ const	CString& arg2)
 	if (command == AMBIGUOUS)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Ambiguous command.");
-#ifndef NEW_LOGGING
-		Trace( "BUG: Ambiguous command (%s) in #%d\n", command_string.c_str(), COMMAND_LAST_RESORT);
-#else
 		log_bug("ambiguous command '%s' in #%d", command_string.c_str(), COMMAND_LAST_RESORT);
-#endif /* NEW_LOGGING */
 		notify_wizard ("Error: There's an ambiguous match on '%s' in #%d!", command_string.c_str(), COMMAND_LAST_RESORT);
 		return (false);
 	}
@@ -192,11 +181,7 @@ Matcher		&matcher)
 	if ((call_stack.depth () >= depth_limit) || (!call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()))))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Recursion in command");
-#ifndef NEW_LOGGING
-		log_recursion (command, a1, a2);
-#else
-		log_message("recursion: depth limit: %d command: #%d %s %s", depth_limit, command, a1.c_str(), a2.c_str());
-#endif /* NEW_LOGGING */
+		log_recursion(player, db[player].get_name(), depth_limit, unparse_object (GOD_ID, command), reconstruct_message(get_arg1(), get_arg2()));
 		return_status= COMMAND_HALT;
 		return ACTION_HALT;
 	}
@@ -204,16 +189,12 @@ Matcher		&matcher)
 	if(Backwards(command))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Attempt to run BACKWARDS command not supported any more.");
-#ifndef NEW_LOGGING
-		Trace("BUG: Player #%d tried to execute BACKWARDS command #%d", player, command);
-#else
 		log_bug("player %s(#%d) tried to execure BACKWARDS command %s(#%d)",
 				getname(player),
 				player,
 				getname(command),
 				command
 		);
-#endif /* NEW_LOGGING */
 		return_status = COMMAND_HALT;
 		return ACTION_HALT;
 	}
@@ -252,11 +233,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-		Trace("Compound_command parse %d: %s\n", line, command_block);
-#else
 		log_debug("compound_command parse %d: %s", line, command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 
 		switch (what_is_next (command_block))
@@ -311,11 +288,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-		Trace("For_loop parse: %s\n", command_block);
-#else
 		log_debug("for_loop parse: %s", command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 
 		switch (what_is_next (command_block))
@@ -372,11 +345,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-		Trace("With_loop parse: %s\n", command_block);
-#else
 		log_debug("with_loop parse: %s", command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 
 		switch (what_is_next (command_block))
@@ -435,11 +404,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-		Trace("If_scope parse line %d: %s\n", line, command_block);
-#else
 		log_debug("if_scope parse line %d: %s", line, command_block);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 
 		switch (what_is_next(command_block))
@@ -546,11 +511,7 @@ const	CString&)
 	if(in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "ERROR: @endif in command when not expected.");
-#ifndef NEW_LOGGING
-		Trace("BUG: @endif in command #%d not expected.", get_current_command());
-#else
 		log_bug("@endif in command %s(#%d) not expected", getname(get_current_command()), get_current_command());
-#endif /* NEW_LOGGING */
 		// Cause the command to abort.
 		commands_executed = step_limit + 1;
 		RETURN_FAIL;
@@ -855,14 +816,10 @@ const CString&)
 	}
 
 	/* Should never get here */
-#ifndef NEW_LOGGING
-	Trace( "BUG: @end processed by %s in a command with no scope (%s).\n", unparse_object (GOD_ID, player), unparse_object (GOD_ID, get_current_command ()));
-#else
 	log_bug("@end processed by %s in a command with no scope (%s)",
 			unparse_object (GOD_ID, player),
 			unparse_object (GOD_ID, get_current_command ())
 	);
-#endif /* NEW_LOGGING */
 }
 
 

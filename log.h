@@ -12,7 +12,6 @@
 /* config.h tells us if we are using NEW_LOGGING or not */
 #include "config.h"
 
-#ifdef NEW_LOGGING
 	/*
 	 * prototypes for NEW_LOGGING functions
 	 */
@@ -41,16 +40,5 @@
 	void		log_recursion		(dbref, const CString&, int, const CString&, const CString&);
 	void		log_shutdown		(dbref, const CString&, const CString&);
 	void		log_wall			(dbref, const CString&, const CString&);
-#else
-	/*
-	 * prototypes for original functions
-	 */
-
-	/*
-	 * since log.h is a new file, created for NEW_LOGGING
-	 * this isection should almost definitely have no function
-	 * prototypes in it
-	 */
-#endif /* NEW_LOGGING */
 
 #endif /* _LOG_H */

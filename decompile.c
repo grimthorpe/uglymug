@@ -215,14 +215,13 @@ const	CString& args)
 	if((object = thing_matcher.noisy_match_result()) == NOTHING)
 		return;
 
-
-	if (!Wizard(player))
-	{
-		notify (player, permission_denied);
+	/* allow players to decompile objects they have controls_for_read on */
+	if (! controls_for_read(object)) {
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
 		return;
 	}
-
-
+	
+	/* no @decompile in a compound command - can't remember why */
 	if (in_command())
 	{
 		notify (player, "You can't use @decompile in a compound command.");

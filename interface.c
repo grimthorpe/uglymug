@@ -485,16 +485,6 @@ struct terminal_set_command
 	} while (0)
 
 #ifdef DEBUG
-#ifndef NEW_LOGGING
-#define FREE(x) { if((x)==NULL) \
-			Trace( "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
-		  else \
-		  { \
-		  	free((x)); \
-		  	(x)=NULL; \
-		  } \
-	  	}
-#else /* NEW_LOGGING */
 #define FREE(x) { if((x)==NULL) \
 			log_bug("WARNING: attempt to free NULL pointer (%s, line %d)", __FILE__, __LINE__); \
 		  else \
@@ -503,7 +493,6 @@ struct terminal_set_command
 		  	(x)=NULL; \
 		  } \
 	  	}
-#endif /* NEW_LOGGING */
 #else
 #define FREE(x) free((x))
 #endif /* DEBUG */
@@ -1441,11 +1430,7 @@ void mud_main_loop(int argc, char** argv)
 						}
 						d->warning_level=0;
 						if(!d->process_output ())
-#ifndef NEW_LOGGING
-							Trace( "Wank dick, channel %d.\n", d->channel);
-#else
 							log_message("Wank dick, channel %d", d->channel);
-#endif /* NEW_LOGGING */
 					}
 				}
 #endif
@@ -1499,11 +1484,7 @@ int connect_concentrator(int sock)
 	int			addr_len;
 	int			newsock;
 
-#ifndef NEW_LOGGING
-	Trace( "CONCENTRATOR:  connected\n");
-#else
 	log_message("CONCENTRATOR: connected");
-#endif /* NEW_LOGGING */
 
 	addr_len=sizeof(addr);
 	newsock=accept(sock, (struct sockaddr *) &addr, &addr_len);
@@ -1555,17 +1536,9 @@ struct descriptor_data *new_connection(int sock)
 	int one = 1;
 	if(setsockopt(newsock, SOL_SOCKET, SO_KEEPALIVE, &one, sizeof(one)) != 0)
 	{
-#ifndef NEW_LOGGING
-		Trace("BUG: KeepAlive option not set, errno=%d", errno);
-#else
 		log_bug("KeepAlive option not set, errno=%d", errno);
-#endif /* NEW_LOGGING */
 	}
-#ifndef NEW_LOGGING
-	Trace( "ACCEPT from |%s|%d| on descriptor |%d\n", convert_addr (&(addr.sin_addr)), ntohs (addr.sin_port), newsock);
-#else
 	log_accept(newsock, ntohs (addr.sin_port), convert_addr (&(addr.sin_addr)));
-#endif /* NEW_LOGGING */
 	return new descriptor_data (newsock, &addr);
 }
 
@@ -1582,11 +1555,7 @@ descriptor_data::send_telnet_option(unsigned char command, unsigned char option)
 	sendbuf[2]=option;
 
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-	Trace( "Sent option '%s %s'\n", TELCMD(command), TELOPT(option));
-#else
 	log_debug("Sent option '%s %s'", TELCMD(command), TELOPT(option));
-#endif /* NEW_LOGGING */
 #endif /* DEBUG_TELNET */
 	write(get_descriptor(), sendbuf, 3);
 }
@@ -1633,11 +1602,7 @@ int count = 0;
 	case IAC_GOT_COMMAND:
 		t_iac_option = *(buf++);
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-		Trace( "Got option '%s %s'\n", TELCMD(t_iac_command), TELOPT(t_iac_option));
-#else
 		log_debug("Got option '%s %s'", TELCMD(t_iac_command), TELOPT(t_iac_option));
-#endif /* NEW_LOGGING */
 #endif /* DEBUG_TELNET */
 
 		switch(t_iac_command)
@@ -1765,18 +1730,10 @@ int count = 0;
 				return 0;
 			}
 			if(c!=SE)
-#ifndef NEW_LOGGING
-				Trace("Telnet option warning, descriptor %d:  %x isn't IAC SE\n", get_descriptor(), c);
-#else
 				log_debug("Telnet option warning, descriptor %d:  %x isn't IAC SE", get_descriptor(), c);
-#endif /* NEW_LOGGING */
 			t_iacbuf[t_piacbuf]=0;
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-			Trace( "Got command '%s' for '%s'\n", TELCMD(t_iac_command), TELOPT(t_iac_option));
-#else
 			log_debug("Got command '%s' for '%s'", TELCMD(t_iac_command), TELOPT(t_iac_option));
-#endif /* NEW_LOGGING */
 #endif /* DEBUG_TELNET */
 			get_value_from_subnegotiation(t_iacbuf, t_iac_option, t_piacbuf);
 			free(t_iacbuf); t_iacbuf = 0;
@@ -1888,19 +1845,11 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			terminal_width=buf[0]*256 + buf[1];
 			terminal_height=buf[2]*256 + buf[3];
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-			Trace( "Descriptor %d terminal dimensions:  %d x %d\n", get_descriptor(), terminal_width, terminal_height);
-#else
 			log_debug("Descriptor %d terminal dimensions:  %d x %d", get_descriptor(), terminal_width, terminal_height);
-#endif /* NEW_LOGGING */
 #endif
 			if(terminal_width < 20 || terminal_height < 5)
 			{
-#ifndef NEW_LOGGING
-				Trace( "Descriptor %d gave silly terminal dimensions (%d x %d)\n", get_descriptor(), terminal_width, terminal_height);
-#else
 				log_bug("Descriptor %d gave silly terminal dimensions (%d x %d)", get_descriptor(), terminal_width, terminal_height);
-#endif /* NEW_LOGGING */
 				terminal_width=0;
 				terminal_height=0;
 			}
@@ -1911,11 +1860,7 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			memcpy(scratch, buf+1, size);
 			scratch[size]=0;
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-			Trace( "Descriptor %d terminal type is '%s'\n", get_descriptor(), scratch);
-#else
 			log_debug("Descriptor %d terminal type is '%s'", get_descriptor(), scratch);
-#endif /* NEW_LOGGING */
 #endif
 			set_terminal_type(scratch);
 			send_telnet_option(WONT, TELOPT_TTYPE);	/* To make sure we don't have to send it */
@@ -1924,21 +1869,13 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 		case TELOPT_SNDLOC:
 			if(address.sin_addr.s_addr != LOGTHROUGH_HOST)
 			{
-#ifndef NEW_LOGGING
-				Trace( "Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST\n", get_descriptor());
-#else
 				log_bug("Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST", get_descriptor());
-#endif /* NEW_LOGGING */
 				break;
 			}
 			memcpy(scratch, buf, size);
 			scratch[size-1]=0;
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-			Trace( "Descriptor %d location is '%s'\n", get_descriptor(), scratch);
-#else
 			log_debug("Descriptor %d location is '%s'", get_descriptor(), scratch);
-#endif /* NEW_LOGGING */
 #endif
 			indirect_connection=1;
 			strcpy(hostname, scratch);
@@ -1967,18 +1904,10 @@ int descriptor_data::set_terminal_type (const CString& termtype)
 	if (setupterm (terminal, get_descriptor(), &setupterm_error) != OK)
 	{
 		if (setupterm_error == -1)
-#ifndef NEW_LOGGING
-			Trace( "BUG:  Terminfo database could not be found.\n");
-#else
 			log_bug("Terminfo database could not be found.");
-#endif /* NEW_LOGGING */
 #ifdef DEBUG_TELNET
 		else if (setupterm_error == 0)
-#ifndef NEW_LOGGING
-			Trace( "BUG: Terminal type '%s' from descriptor %d not in the terminfo database\n", terminal, get_descriptor());
-#else
 			log_bug("Terminal type '%s' from descriptor %d not in the terminfo database", terminal, get_descriptor());
-#endif /* NEW_LOGGING */
 #endif
 		FREE(terminal);
 		return 0;
@@ -1991,22 +1920,14 @@ int descriptor_data::set_terminal_type (const CString& termtype)
 	{
 		terminal_width = tigetnum(const_cast<char *>("cols"));
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-		Trace( "Terminal width (from terminfo):  %d\n", terminal_width);
-#else
 		log_debug("Terminal width (from terminfo):  %d", terminal_width);
-#endif /* NEW_LOGGING */
 #endif
 	}
 	if (terminal_height == 0)
 	{
 		terminal_height = tigetnum(const_cast<char *>("lines"));
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-		Trace( "Terminal height (from terminfo):  %d\n", terminal_height);
-#else
 		log_debug("Terminal height (from terminfo):  %d", terminal_height);
-#endif /* NEW_LOGGING */
 #endif
 	}
 
@@ -2069,11 +1990,7 @@ descriptor_data::set_terminal_type(const CString& termtype)
 	if(tgetent(ltermcap, terminal)!=1)
 	{
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-		Trace( "BUG: Terminal type '%s' from descriptor %d not in /etc/termcap\n", terminal, get_descriptor());
-#else
 		log_bug("Terminal type '%s' from descriptor %d not in /etc/termcap", terminal, get_descriptor());
-#endif /* NEW_LOGGING */
 #endif
 		FREE(terminal);
 		return 0;
@@ -2086,22 +2003,14 @@ descriptor_data::set_terminal_type(const CString& termtype)
 	{
 		terminal_width=tgetnum("co");
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-	Trace( "Terminal width (from termcap):  %d\n", terminal_width);
-#else
 	log_debug("Terminal width (from termcap):  %d", terminal_width);
-#endif /* NEW_LOGGING */
 #endif
 	}
 	if(terminal_height == 0)
 	{
 		terminal_height=tgetnum("li");
 #ifdef DEBUG_TELNET
-#ifndef NEW_LOGGING
-	Trace( "Terminal height (from termcap):  %d\n", terminal_height);
-#else
 	log_debug("Terminal height (from termcap):  %d", terminal_height);
-#endif /* NEW_LOGGING */
 #endif
 	}
 
@@ -2263,29 +2172,11 @@ descriptor_data::shutdownsock()
 			mud_disconnect_player (get_player());
 			time (&stamp);
 			now = localtime (&stamp);
-#ifndef NEW_LOGGING
-			Trace( "DISCONNECT descriptor |%d|%d| player |%s|%d| at |%04d/%02d/%02d %02d:%02d\n",
-			CHANNEL(),
-			channel,
-			getname (get_player()),
-			get_player(),
-			now->tm_year+1900,
-			now->tm_mon+1,
-			now->tm_mday,
-			now->tm_hour,
-			now->tm_min);
-#else
 			log_disconnect(get_player(), getname(get_player()), CHANNEL(), channel, NULL, true);
-#endif /* NEW_LOGGING */
 		}
 		else
 		{
-#ifndef NEW_LOGGING
-			Trace( "DISCONNECT descriptor |%d| never connected\n",
-			CHANNEL());
-#else
 			log_disconnect(0, NULL, CHANNEL(), 0, NULL, false);
-#endif /* NEW_LOGGING */
 		}
 	}
 	process_output ();
@@ -2566,11 +2457,7 @@ char *a,*a1,*b;
 
 	if(get_connect_state()==DESCRIPTOR_LIMBO)
 	{
-#ifndef NEW_LOGGING
-		Trace( "WARNING:  Attempt to queue_string to a limbo'd descriptor\n");
-#else
 		log_bug("WARNING: Attempt to queue_string to a limbo'd descriptor");
-#endif /* NEW_LOGGING */
 		return 0;
 	}
 	else if(IS_FAKED()) // Output text to a NPC
@@ -2810,11 +2697,7 @@ descriptor_data::process_output()
 		{
 			if ((cnt = send_concentrator_data (channel, cur->start, cur->nchars))<1)
 			{
-#ifndef NEW_LOGGING
-				Trace("Concentrator disconnect in write() (process_output)\n");
-#else
 				log_bug("Concentrator disconnect in write() (process_output)");
-#endif /* NEW_LOGGING */
 				return 0;
 			}
 		}
@@ -2894,12 +2777,7 @@ descriptor_data::splat_motd()
 
 	if((f = fopen(WELCOME_FILE, "r")) == NULL)
 	{
-#ifndef NEW_LOGGING
-		fputs("BUG:", stderr);
-		perror(WELCOME_FILE);
-#else
 		log_bug("file not found: %s", WELCOME_FILE);
-#endif /* NEW_LOGGING */
 		queue_string (WELCOME_MESSAGE);
 	}
 	else
@@ -3018,11 +2896,7 @@ descriptor_data::announce_player (announce_states state)
 			snprintf (wizard_string, sizeof(wizard_string), " has reconnected from %s]\n", hostname);
 			break;
 		default :
-#ifndef NEW_LOGGING
-			Trace( "BUG: Unknown state (%d) encounted in announce_player()\n", state);
-#else
 			log_bug("Unknown state (%d) encounted in announce_player()", state);
-#endif /* NEW_LOGGING */
 			break;
 	}
 
@@ -3409,11 +3283,7 @@ descriptor_data::do_command (const char *command)
 	else if(strcmp (command, INFO_COMMAND) == 0)
 	{
 		if ((fp=fopen (HELP_FILE, "r"))==NULL)
-#ifndef NEW_LOGGING
-			Trace("BUG:  %s: %s\n",HELP_FILE,sys_errlist[errno]);
-#else
 			log_bug("%s: %s",HELP_FILE,sys_errlist[errno]);
-#endif /* NEW_LOGGING */
 		else
 		{
 			while (fgets(scratch, BUFFER_LEN, fp)!=NULL)
@@ -3481,33 +3351,16 @@ descriptor_data::connect_a_player (
 
 	if(!already_here)
 	{
-#ifndef NEW_LOGGING
-		Trace( "%s |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
-			(announce_type == ANNOUNCE_CREATED) ? "CREATED":"CONNECTED",
-			db[player].get_name().c_str(),
-			player,
-			CHANNEL(),
-			the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-#else
 		if (announce_type == ANNOUNCE_CREATED) {
 			log_created(CHANNEL(), player, db[player].get_name().c_str());
 		}
 		else {
 			log_connect(true, CHANNEL(), player, db[player].get_name().c_str());
 		}
-#endif /* NEW_LOGGING */
 	}
 	else
 	{
-#ifndef NEW_LOGGING
-		Trace( "RECONNECT |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
-			db[player].get_name().c_str(),
-			player,
-			CHANNEL(),
-			the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-#else
 		log_reconnect(player, db[player].get_name().c_str(), CHANNEL());
-#endif /* NEW_LOGGING */
 
 		//Swap current position and the last descriptor
 		//Swapping - last_one and this
@@ -3568,23 +3421,14 @@ descriptor_data::check_connect (const char *msg)
 		if (player == NOTHING || player == 0)
 		{
 			queue_string (connect_fail);
-#ifndef NEW_LOGGING
-			Trace( "FAILED CONNECT |%s| on descriptor |%d\n", luser, CHANNEL());
-#else
 			log_connect(false, CHANNEL(), -1, luser);
-#endif /* NEW_LOGGING */
 		}
 		else
 		{
 			if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!string_compare(luser, "guest")))
 			{
 				queue_string(guest_create_banned);
-#ifndef NEW_LOGGING
-				Trace( "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
-#else
-				log_message("*** We need NEW_LOGGING support for BANNED GUEST ***");
 				log_message("BANNED GUEST %s on descriptor %d", luser, CHANNEL());
-#endif /* NEW_LOGGING */
 			}
 			else
 			{
@@ -3597,12 +3441,7 @@ descriptor_data::check_connect (const char *msg)
                 if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
                 {
                         queue_string(create_banned);
-#ifndef NEW_LOGGING
-                        Trace( "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
-#else
-						log_message("*** We need NEW_LOGGING support for BANNED CREATE ***");
 						log_message("BANNED CREATE %s on descriptor %d", luser, CHANNEL());
-#endif /* NEW_LOGGING */
                 }
                 else
 
@@ -3611,13 +3450,7 @@ descriptor_data::check_connect (const char *msg)
                         if (player == NOTHING)
                         {
                                 queue_string (create_fail);
-#ifndef NEW_LOGGING
-                                Trace( "FAILED CREATE |%s| on descriptor |%d\n",
-                                luser, CHANNEL());
-#else
-						log_message("*** We need NEW_LOGGING support for FAILED CREATE ***");
-						log_message("FAILED CREATE %s on descriptor %d", luser, CHANNEL());
-#endif /* NEW_LOGGING */
+							log_message("FAILED CREATE %s on descriptor %d", luser, CHANNEL());
                         }
                         else
                         {
@@ -3633,12 +3466,7 @@ descriptor_data::check_connect (const char *msg)
 				if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!string_compare(command, "guest")))
 				{
 					queue_string(guest_create_banned);
-#ifndef NEW_LOGGING
-					Trace( "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
-#else
-					log_message("*** We need NEW_LOGGING support for BANNED GUEST ***");
 					log_message("BANNED GUEST %s on descriptor %d", luser, CHANNEL());
-#endif /* NEW_LOGGING */
 					welcome_user();
 				}
 				else
@@ -3690,12 +3518,7 @@ descriptor_data::check_connect (const char *msg)
 						if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
 						{
 							queue_string(create_banned);
-#ifndef NEW_LOGGING
-							Trace( "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
-#else
-							log_message("*** We need NEW_LOGGING support for BANNED CREATE ***");
 							log_message("BANNED CREATE %s on descriptor %d", luser, CHANNEL());
-#endif /* NEW_LOGGING */
 
 							queue_string (name_prompt);
 							set_connect_state(DESCRIPTOR_NAME);
@@ -3747,12 +3570,7 @@ descriptor_data::check_connect (const char *msg)
 					{
 						/* Invalid password */
 						queue_string (connect_fail);
-#ifndef NEW_LOGGING
-						Trace( "FAILED CONNECT |%s| on descriptor |%d\n",
-						get_player_name().c_str(), CHANNEL());
-#else
 						log_connect(false, CHANNEL(), -1, get_player_name().c_str());
-#endif /* NEW_LOGGING */
 						if(--connect_attempts==0)
 						{
 							queue_string (too_many_attempts);
@@ -3783,12 +3601,7 @@ descriptor_data::check_connect (const char *msg)
 					if (player == NOTHING)
 					{
 						queue_string (create_fail);
-#ifndef NEW_LOGGING
-						Trace( "BUG: FAILED CREATE %s on descriptor %d (THIS SHOULD NOT HAPPEN!)\n",
-						luser, CHANNEL());
-#else
 						log_bug("FAILED CREDATE: %s on descriptor %d. THIS SHOULD NOT HAPPEN!", luser, CHANNEL());
-#endif /* NEW_LOGGING */
 						queue_string (name_prompt);
 						set_connect_state(DESCRIPTOR_NAME);
 					}
@@ -3806,11 +3619,7 @@ descriptor_data::check_connect (const char *msg)
 				break;
 
 			default:
-#ifndef NEW_LOGGING
-				Trace( "BUG: check_connect called with connect_state==DESCRIPTOR_CONNECTED or DESCRIPTOR_LIMBO\n");
-#else
 				log_bug("check_connect called with connect_state==DESCRIPTOR_CONNECTED or DESCRIPTOR_LIMBO");
-#endif /* NEW_LOGGING */
 				break;
 		}
 	}
@@ -3936,11 +3745,7 @@ int	sig)
 		LogCommand* l = LastCommands[j];
 		if(l)
 		{
-#ifndef NEW_LOGGING
-			fprintf(stderr, "LASTCOMMAND:%d Player|%d|:%s\n", MAX_LAST_COMMANDS - i, l->get_player(), l->get_command());
-#else
 			log_message("LASTCOMMAND:%d Player|%d|:%s", MAX_LAST_COMMANDS - i, l->get_player(), l->get_command());
-#endif /* NEW_LOGGING */
 		}
 	}
 	panic(message);
@@ -5112,11 +4917,7 @@ static struct descriptor_data *which_descriptor(int channel)
 			break;
 
 	if(!d)
-#ifndef NEW_LOGGING
-		Trace("CONCENTRATOR:  couldn't find channel %d in descriptor list!\n", channel);
-#else
 		log_bug("CONCENTRATOR: couldn't find channel %d in descriptor list!", channel);
-#endif /* NEW_LOGGING */
 
 	return d;
 }
@@ -5130,11 +4931,7 @@ int process_concentrator_input(int sock)
 
 	if ((i=read(sock, &msg, sizeof(msg)))<sizeof(msg))
 	{
-#ifndef NEW_LOGGING
-		Trace("CONCENTRATOR:  corrupt message received - wanted %d bytes, got %d\n", sizeof(msg), i);
-#else
 		log_bug("CONCENTRATOR: corrupt message received - wanted %d bytes, got %d", sizeof(msg), i);
-#endif /* NEW_LOGGING */
 		return 0;
 	}
 
@@ -5143,11 +4940,7 @@ int process_concentrator_input(int sock)
 		case CONC_CONNECT:
 
 			/* This is the equivalent of new_connection() for concentrator connections */
-#ifndef NEW_LOGGING
-			Trace( "ACCEPT from concentrator(%d) on channel %d\n", sock, msg.channel);
-#else
 			log_message("ACCEPT from concentrator(%d) on channel %d", sock, msg.channel);
-#endif /* NEW_LOGGING */
 			new descriptor_data (0, NULL, msg.channel);
 			break;
 
@@ -5163,20 +4956,11 @@ int process_concentrator_input(int sock)
 			if((d=which_descriptor(msg.channel)))
 				d->process_input (msg.len);
 			else
-#ifndef NEW_LOGGING
-				Trace( "CONCENTRATOR:  got data on unknown channel %d (discarded)\n", msg.channel);
-#else
 				log_message("CONCENTRATOR: got data on unknown channel %d (discarded)", msg.channel);
-#endif /* NEW_LOGGING */
 			break;
 
 		default:
-#ifndef NEW_LOGGING
-			Trace( "CONCENTRATOR:  unknown message type %d received (discarded)\n", msg.type);
-#else
-			Trace("*** We need NEW_LOGGING support for CONCENTRATOR UNKNOWN MESSAGE ***\n");
 			log_message("CONCENTRATOR: unknown message type %d received (discarded)", msg.type);
-#endif /* NEW_LOGGING */
 			break;
 	}
 
@@ -5201,11 +4985,7 @@ void concentrator_disconnect(void)
 {
 	struct descriptor_data *d;
 
-#ifndef NEW_LOGGING
-	Trace( "CONCENTRATOR:  dropped connection (players booted)\n");
-#else
 	log_message("CONCENTRATOR: dropped connection (players booted)");
-#endif /* NEW_LOGGING */
 	for (d=descriptor_list; d; d=d->next)
 	{
 		if (d->channel)

@@ -243,11 +243,7 @@ const	CString& val)
 	/* Check whether the argument exists in the top nesting */
 	if (call_stack.is_empty())
 	{
-#ifndef NEW_LOGGING
-		Trace("BUG: Trying to add a local to an empty call stack!\n");
-#else
 		log_bug("Trying to add a local to an empty call stack!");
-#endif /* NEW_LOGGING */
 		return; /* Erm, where can we add it! This should never occur */
 	}
 
@@ -260,14 +256,10 @@ const	CString& val)
 		if (!call_stack.top()->addarg (name, val))
 		{
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "BUG: @local: Couldn't add local variable.") ;
-#ifndef NEW_LOGGING
-			fputs ("BUG: @local: Couldn't add variable\n", stderr);
-#else
 			log_bug("@local: couldn't add variable %s in command %s(#%d)",
 					name.c_str(),
 					getname(get_current_command()),
 				   	get_current_command());
-#endif /* NEW_LOGGING */
 			return;
 		}
 
@@ -361,11 +353,7 @@ const	unsigned int	max_length)
 	retval = nested_variable_substitution (arg, result, 0, max_length);
 	if (strlen (result) > max_length)
 	{
-#ifndef NEW_LOGGING
-		Trace( "BUG: Buffer overflow: %s\n", getname (get_player ()));
-#else
 		log_bug("Buffer overflow: %s(#%d)", getname (get_player ()), get_player());
-#endif /* NEW_LOGGING */
 		result[max_length -1] = '\0';
 	}
 
@@ -411,11 +399,7 @@ const	int	depth,
 		nested_variable_substitution (source_pointer, result_buffer, depth + 1, space_left);
 		if (strlen (result_buffer) > space_left)
 		{
-#ifndef NEW_LOGGING
-		Trace( "Buffer overflow by %s.\n", getname (get_player ()));
-#else
 		log_bug("Buffer overflow by %s(#%d)", getname (get_player ()), get_player());
-#endif /* NEW_LOGGING */
 			strcpy (result_buffer, too_big);
 		}
 		name_start = result_buffer;

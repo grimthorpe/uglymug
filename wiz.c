@@ -474,11 +474,7 @@ context::dump_email_addresses ()
 
 	/* Flup's email dumping routine */
 	if ((fp=fopen (EMAIL_FILE, "w"))==NULL)
-#ifndef NEW_LOGGING
-		Trace( "BUG: couldn't open %s (%s)\n", EMAIL_FILE, sys_errlist[errno]);
-#else
 		log_bug("couldn't open %s (%s)", EMAIL_FILE, sys_errlist[errno]);
-#endif /* NEW_LOGGING */
 	else
 	{
 		for (i = 0; i < db.get_top (); i++)

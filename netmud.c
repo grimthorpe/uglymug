@@ -76,11 +76,7 @@ char	**argv)
 				sscanf(optarg, "%d", &dump_interval);
 				if(dump_interval<1)
 				{
-#ifndef NEW_LOGGING
-					Trace( "Dump interval must be at least 1 minute - setting to %d minutes.\n", DUMP_INTERVAL/60);
-#else
 					log_message("Dump interval must be at least 1 minute - setting to %d minutes", DUMP_INTERVAL/60);
-#endif /* NEW_LOGGING */
 					dump_interval=DUMP_INTERVAL*60;
 				}
 				break;
@@ -145,11 +141,7 @@ char	**argv)
 	getrlimit(RLIMIT_NOFILE,&lim);
 	lim.rlim_cur=MAX_USERS+4;
 	if(setrlimit(RLIMIT_NOFILE,&lim)<0)
-#ifndef NEW_LOGGING
-		Trace( "BUG: setrlimit() failed\n");
-#else
 		log_bug("setrlimit() failed");
-#endif /* NEW_LOGGING */
 #endif
 
 	srand (time(NULL));
@@ -162,11 +154,7 @@ char	**argv)
 	init_strings ();
 	if (init_game (argv[optind], argv[optind + 1]) < 0)
 	{
-#ifndef NEW_LOGGING
-		Trace( "Couldn't load %s!\n", argv[optind]);
-#else
 		log_message("Couldn't load %s!", argv[optind]);
-#endif /* NEW_LOGGING */
 		exit (2);
 	}
 	set_signals ();

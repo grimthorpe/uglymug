@@ -17,11 +17,7 @@
 /* DB_GROWSIZE must be a power of 2 */
 #define DB_GROWSIZE	1024
 #define	ASSIGN_STRING(d,s)	{ if ((d)) free ((d));  if ((s && *s!=0)) (d)=strdup((s)); else (d)=NULL; }
-#ifndef NEW_LOGGING
-#define	IMPLEMENTATION_ERROR(str)	Trace( "Illegal access to %s\n", str);
-#else
 #define	IMPLEMENTATION_ERROR(str)	log_bug("Illegal access to %s", str);
-#endif /* NEW_LOGGING */
 
 /* This realloc macro is made for the dictionaries and arrays types. It is quite specific */
 #define REALLOC(p,s)		{ ((p)) ? ((p) = (char **) realloc ((p),(s))) : ((p) = (char **) malloc((s))); }
@@ -64,11 +60,7 @@ const	char	*string)
 
 	if((s = strdup (string)) == NULL)
 	{
-#ifndef NEW_LOGGING
-		Trace("Fatal: alloc_string: strdup failed\n");
-#else
 		log_bug("Fatal: alloc_string: strdup failed");
-#endif /* NEW_LOGGING */
 		abort();
 	}
 	return s;
@@ -151,11 +143,7 @@ const	dbref	newtop)
 			top = 0;
 			if((array = (object_and_flags *) malloc(real_newtop * sizeof(object_and_flags))) == NULL)
 			{
-#ifndef NEW_LOGGING
-				Trace("Fatal: grow: malloc failed\n");
-#else
 				log_bug("Fatal: grow: malloc failed");
-#endif /* NEW_LOGGING */
 				abort();
 			}
 
@@ -2395,11 +2383,7 @@ unsigned Command::reconstruct_command_block(char *const command_block, const uns
 			else
 			{
 				it_dont_fit=true;
-#ifndef NEW_LOGGING
-				Trace("BUG:  command_block overflow, Start_line:  %u, max_size:  %u\n", start_line, max_size);
-#else
 				log_bug("command_block overflow, Start_line:  %u, max_size:  %u", start_line, max_size);
-#endif /* NEW_LOGGING */
 			}
 		}
 		if(it_dont_fit)		//Catch overflow.
@@ -2516,11 +2500,7 @@ const	unsigned short	value)
 	if (!parse_helper)
 		alloc_parse_helper ();
 #ifdef	DEBUG
-#ifndef NEW_LOGGING
-	Trace( "set_parse_helper: line %d = 0x%4x (%d)\n", index, value, value);
-#else
 	log_debug("set_parse_helper: line %d = 0x%4x (%d)", index, value, value);
-#endif /* NEW_LOGGING */
 #endif	/* DEBUG */
 	if (index > 0 && index <= get_inherited_number_of_elements ())
 		parse_helper [index] = value;
