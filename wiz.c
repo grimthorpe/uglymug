@@ -33,7 +33,7 @@ const   CString& arg2)
         return_status = COMMAND_FAIL;
         set_return_string (error_return_string);
 
-        if (!(Welcomer (get_effective_id ())))
+        if (!Welcomer(player) && !(Welcomer(get_effective_id ())))
                 notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
         else
         {
