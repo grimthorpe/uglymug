@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)stringutil.c	1.13\t3/20/95";
+/* static char SCCSid[] = "@(#)stringutil.c	1.13\t3/20/95"; */
 #include "copyright.h"
 
 /* String utilities */
@@ -444,7 +444,7 @@ Boolean
 un_rude(
 const char *string)
 {
-	int		value;
+	/* int		value; */
 	int		i;
 
 	if (!(string && *string))
@@ -469,7 +469,7 @@ Boolean
 un_exclude(
 const char *string)
 {
-	int		value;
+	/* int		value; */
 	int		i;
 
 	if (!(string && *string))
