@@ -138,13 +138,13 @@ const	char	*arg2)
 			says = "says";
 			break;
 	}
-	notify_public(player, player, "%sYou %s \"%s%s%s\"", colour_at[rank_colour(player)], say, colour_at[COLOUR_SAYS], message, colour_at[rank_colour(player)]);
+	notify_public(player, player, "%sYou %s \"%s%s%s\"", colour_at[rank_colour(player)], say, colour_at[COLOUR_SAYS], value_or_empty(message), colour_at[rank_colour(player)]);
 
 	sprintf(scratch_buffer, "%s %s ", getname_inherited (player),says);
 	notify_except_colour(db[loc].get_contents(),
 				player,
 				scratch_buffer,
-			        message,
+			        value_or_empty(message),
 				True,
 				player,
 				COLOUR_SAYS);
@@ -189,12 +189,16 @@ const	char	*arg2)
 		Matcher matcher_prop(player, ".silent", TYPE_PROPERTY, get_effective_id());
 		matcher_prop.match_variable_remote(where);
 
-			if ((prop=matcher_prop.match_result()) == NOTHING || (prop == AMBIGUOUS))
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't whisper in a silent room!");
-		else
-				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description() );
-		return;
+		if ((prop=matcher_prop.match_result()) == NOTHING || (prop == AMBIGUOUS))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't whisper in a silent room!");
 		}
+		else
+		{
+				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, value_or_empty(db[prop].get_inherited_description()) );
+		}
+		return;
+	}
 
 	switch(who = matcher.match_result())
 	{
@@ -210,11 +214,11 @@ const	char	*arg2)
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only whisper to players.");
 				return;
 			}
-			notify_public_colour(player, who, COLOUR_WHISPERS, "You whisper \"%s\" to %s.", arg2, getname_inherited (who));
-			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", getname_inherited (player), arg2);
+			notify_public_colour(player, who, COLOUR_WHISPERS, "You whisper \"%s\" to %s.", value_or_empty(arg2), getname_inherited (who));
+			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", value_or_empty(getname_inherited (player)), value_or_empty(arg2));
 #ifndef QUIET_WHISPER
 			sprintf(scratch_buffer, "%s whispers something to %s.",
-				getname_inherited (player), getname_inherited (who));
+				value_or_empty(getname_inherited (player)), value_or_empty(getname_inherited (who)));
 			if((loc = getloc(player)) != NOTHING)
 			{
 				notify_except2(db[loc].get_contents(), player, player, who, scratch_buffer);
@@ -251,7 +255,7 @@ const	char	*arg2)
         }
 
 	/* notify everybody */
-	notify_area(loc, player, "%s", arg2);
+	notify_area(loc, player, "%s", value_or_empty(arg2));
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -277,7 +281,7 @@ const	char	*arg2)
 	}
 
 	/* notify everybody */
-	notify_area(loc, player, "%s", reconstruct_message(arg1, arg2));
+	notify_area(loc, player, "%s", value_or_empty(reconstruct_message(arg1, arg2)));
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -465,7 +469,7 @@ const	char	*arg2)
 			getname_inherited (player), player,
 			getarticle (loc, ARTICLE_LOWER_INDEFINITE),
 			getname_inherited (loc), loc,
-			message);
+			value_or_empty(message));
 		fputs (scratch_buffer, stderr);
 		fflush(stderr);
 		notify_colour(player, player, COLOUR_MESSAGES, "Your complaint has been logged.");
@@ -650,7 +654,13 @@ const	char	*arg2)
 	set_return_string (error_return_string);
 
 	if (!(Wizard (get_effective_id ()) || Apprentice (player)))
+	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Only Wizards and Apprentices may use the @natter channel.");
+	}
+	else if(!arg1 && !arg2)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to natter?");
+	}
 	else
 	{
 		message = reconstruct_message (arg1, arg2);
@@ -799,7 +809,7 @@ const	char	*what)
 		if (!controls_for_read(db[victim].get_location()))
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only @notify to someone who is in a room that you own.");
 		else
-			notify_censor(victim, player, "%s", what);
+			notify_censor(victim, player, "%s", value_or_empty(what));
 		victim=targets.get_next();
 	}
 	if (!in_command())
