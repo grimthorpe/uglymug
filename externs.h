@@ -161,7 +161,7 @@ extern	const	char	*reconstruct_message	(const char *arg1, const char *arg2);
 /* From stringutil.c */
 extern	Boolean		semicolon_string_match	(const char *, const char *);
 extern	void		init_strings		();
-extern	void		pronoun_substitute	(char *result, int buffer_length, dbref player, const char *str);
+extern	void		pronoun_substitute	(char *result, unsigned int buffer_length, dbref player, const char *str);
 extern	int		string_compare		(const char *s1, const char *s2);
 extern	int		string_prefix		(const char *string, const char *prefix);
 extern	const	char	*string_match		(const char *src, const char *sub);
