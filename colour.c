@@ -213,7 +213,7 @@ static struct
 	{"ChannelMessages",	'|',	"%z%w"},
 	{"Tells",		'}',	"%z%c"},
 
-	{"WelcomerTitles",	'0',	"%g%h"},
+	{"WelcomerTitles",	'~',	"%g%h"},
 
 	{NULL,		0}
 };

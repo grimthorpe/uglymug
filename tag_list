@@ -12,6 +12,8 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    Made WelcomerTitles modifiable; Don't know exactly how, don't know why
+    it didn't work before.
     Modified String::clear to be String::empty because of a macro definition
     in curses.h (clear->wclear(X)). Changed all (1) reference outside of
     mudstring.h
