@@ -278,7 +278,7 @@ const	String& string)
 	if(!ok_name(string))
 		return 0;
 	for (scan = string.c_str(); *scan; scan++)
-		if (!valid_char(*scan))
+		if (!is_printable(*scan))
 			return 0;
 
 	/* lookup name to avoid conflicts */
@@ -301,7 +301,7 @@ const	String& string)
 		return 0;
 
 	for (scan = string.c_str(); *scan; scan++)
-		if ((!isprint (*scan)) || (*scan == '\n') )
+		if ((!is_printable (*scan)) || (*scan == '\n') )
 			return 0;
 	return 1;
 }

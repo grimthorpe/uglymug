@@ -186,4 +186,11 @@ const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 #define CHANNEL_MAGIC_COOKIE		'#'
 #define CHANNEL_INVITE_FREQUENCY	60
 
+/* Acceptable character set (currently ISO-8859-15).
+   For systems that don't support this standard, use the second definition below. */
+
+#define	is_printable(c)		(((unsigned char)(c)>=0x20 && (unsigned char)(c)<=0x7e) \
+							|| ((unsigned char)(c)>=0xa0 && (unsigned char)(c)<=0xff))
+/*#define	is_printable(c)	isprint((c))*/
+
 #endif

@@ -313,6 +313,7 @@ struct terminal_set_command
 	{ "effects",	&descriptor_data::terminal_set_effects, &descriptor_data::terminal_get_effects },
 	{ "halfquit",	&descriptor_data::terminal_set_halfquit, &descriptor_data::terminal_get_halfquit },
 	{ "noflush",	&descriptor_data::terminal_set_noflush, &descriptor_data::terminal_get_noflush },
+	{ "sevenbit",	&descriptor_data::terminal_set_sevenbit, &descriptor_data::terminal_get_sevenbit },
 
 	{ NULL, NULL }
 };
@@ -2296,6 +2297,7 @@ int
 descriptor_data::queue_write(const char *b, int n)
 {
 	int space;
+	const char *buf = b;
 
 	if(IS_FAKED())
 		return n;
@@ -2306,7 +2308,13 @@ descriptor_data::queue_write(const char *b, int n)
 		if (space < 0)
 			output_size -= flush_queue(&output, -space);
 	}
-	add_to_queue (&output, b, n);
+	if(terminal.sevenbit)
+	{
+		for (int i=0; i<n; i++)
+			scratch_buffer[i] = ((unsigned char) b[i] >= 0x7f) ? terminal.sevenbit : b[i];
+		buf = scratch_buffer;
+	}
+	add_to_queue (&output, buf, n);
 	output_size += n;
 
 	if (!get_descriptor())
@@ -3002,7 +3010,7 @@ descriptor_data::process_input (int len)
 				backslash_pending = false;
 			}
 			default:
-				if (p < pend && isascii (*q) && isprint (*q))
+				if (p < pend && is_printable (*q))
 				{
 charcount++;
 					if (backslash_pending)
@@ -3335,7 +3343,7 @@ descriptor_data::check_connect (const char *input)
                 if(smd_cantcreate(ntohl(address)))
                 {
                         queue_string(create_banned);
-						log_message("BANNED CREATE %s on descriptor %d", luser, CHANNEL());
+			log_message("BANNED CREATE %s on descriptor %d", luser, CHANNEL());
                 }
                 else
 
@@ -3495,7 +3503,7 @@ descriptor_data::check_connect (const char *input)
 					if (player == NOTHING)
 					{
 						queue_string (create_fail);
-						log_bug("FAILED CREDATE: %s on descriptor %d. THIS SHOULD NOT HAPPEN!", luser, CHANNEL());
+						log_bug("FAILED CREATE: %s on descriptor %d. THIS SHOULD NOT HAPPEN!", luser, CHANNEL());
 						queue_string (name_prompt);
 						set_connect_state(DESCRIPTOR_NAME);
 					}
@@ -3529,27 +3537,27 @@ void parse_connect (const char *msg, char *command, char *user, char *pass)
 {
 	char *p;
 
-	while (*msg && isascii(*msg) && isspace (*msg))
+	while (*msg && is_printable(*msg) && isspace (*msg))
 		msg++;
 
 	p = command;
-	while (*msg && isascii(*msg) && !isspace (*msg))
+	while (*msg && is_printable(*msg) && !isspace (*msg))
 		*p++ = *msg++;
 
 	*p = '\0';
-	while (*msg && isascii(*msg) && isspace (*msg))
+	while (*msg && is_printable(*msg) && isspace (*msg))
 		msg++;
 
 	p = user;
-	while (*msg && isascii(*msg) && !isspace (*msg))
+	while (*msg && is_printable(*msg) && !isspace (*msg))
 		*p++ = *msg++;
 
 	*p = '\0';
-	while (*msg && isascii(*msg) && isspace (*msg))
+	while (*msg && is_printable(*msg) && isspace (*msg))
 		msg++;
 
 	p = pass;
-	while (*msg && isascii(*msg) && !isspace (*msg))
+	while (*msg && is_printable(*msg) && !isspace (*msg))
 		*p++ = *msg++;
 
 	*p = '\0';
@@ -4427,6 +4435,48 @@ descriptor_data::terminal_set_noflush(const String& toggle, bool gagged)
 	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"noflush is %s", terminal.noflush?"on":"off");
+	}
+	return COMMAND_SUCC;
+}
+
+String
+descriptor_data::terminal_get_sevenbit()
+{
+	if(terminal.sevenbit)
+		return str_on;
+	else
+		return str_off;
+}
+
+Command_status
+descriptor_data::terminal_set_sevenbit(const String& toggle, bool gagged)
+{
+	if(toggle)
+	{
+		if(toggle.c_str()[1]!='\0')
+		{
+			if(string_compare(toggle, "off")==0)
+				terminal.sevenbit='\0';
+			else
+			{
+				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal sevenbit=<character>' or '@terminal sevenbit=off'.");
+				return COMMAND_FAIL;
+			}
+		}
+		else if(isprint(toggle.c_str()[0]))
+			terminal.sevenbit=toggle.c_str()[0];
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "That isn't a valid character to use with sevenbit.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!gagged)
+	{
+		if(terminal.sevenbit)
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "sevenbit is '%c'", terminal.sevenbit);
+		else
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "sevenbit is off");
 	}
 	return COMMAND_SUCC;
 }
