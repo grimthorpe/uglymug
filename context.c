@@ -634,7 +634,6 @@ context &your_maker)
 
 {
 	set_effective_id(new_player);
-fprintf(stderr, "context created, id is %d, eid is %d\n", player, new_player);
 }
 
 

@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Removed the debugging message from the context constructor.
 
 um1_036 - Bug stopping time.
 	Stopped the recursion logging from crashing the game.
