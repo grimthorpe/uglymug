@@ -1,39 +1,52 @@
 /* static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)"; */
-/*
- * Waaaah, someone took our comment out!
+/*\file
+ * The socket interface, along with all the other grubbiness that means players can connect.
  *
- * -- Flup, ReaperMan, and Bursar; 2-MAY-94
+ * This file is long overdue for splitting into a number of smaller files.
  */
-
-/* "To fight a surperior battle for a rightous cause" */
-
-/* KEITH: Buy a surperior spellchecker too. - Luggs */
-
-#define __lint
 
 #include "copyright.h"
 
+#include "os.h"
 #include "descriptor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/time.h>
 #include <time.h>
 #include <signal.h>
-#include <sys/ioctl.h>
-#include <sys/wait.h>
-#include <fcntl.h>
 #include <sys/errno.h>
 #include <ctype.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <sys/param.h>
-/* JPK #include <malloc.h> */
-#include <stdarg.h>
+
+#if	USE_BSD_SOCKETS
+#	include <sys/wait.h>
+#	include <fcntl.h>
+#	include <sys/ioctl.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <netdb.h>
+
+	// Whatever Microsoft's shortcomings, they like their typedefs.
+	// Some of the code below uses Microsoft-ish Winsock typedefs;
+	// here are their non-MS definitions.  PJC 19/4/2003.
+	typedef	int	SOCKET;
+#	define	SETSOCKOPT_OPTCAST	(int *)
+#endif	/* USE_BSD_SOCKETS */
+
+#if	USE_WINSOCK2
+#	include <winsock2.h>
+#	define	MAXHOSTNAMELEN	1024
+#	define	ECONNREFUSED	WSAECONNREFUSED
+#	define	EWOULDBLOCK	WSAEWOULDBLOCK
+#	define	SETSOCKOPT_OPTCAST (char*)
+typedef	int	socklen_t;
+int gettimeofday (struct timeval*, void *);
+#endif	/* USE_WINSOCK2 */
 
 #include "db.h"
 #include "externs.h"
@@ -51,42 +64,53 @@
 /* JPK - regexp needed for conditional output */
 #include "regexp_interface.h"
 
-#ifdef USE_TERMINFO
-#if defined (sun) || (linux)
-	#include <curses.h>
-#else
-	#include <ncurses.h> 
-	/* #include "local_curses.h" */
-#endif
-	#include <term.h>
-#endif	/* USE_TERMINFO */
-#ifdef clear // Stupid curses/ncurses defines this as a macro.
-	#undef clear
-#endif
+#if	HAS_CURSES
+#	ifdef USE_TERMINFO
+#		if defined (sun) || (linux)
+#			include <curses.h>
+#		else
+#			include <ncurses.h> 
+#		endif
+#		include <term.h>
+#	endif	/* USE_TERMINFO */
+#	ifdef clear // Stupid curses/ncurses defines this as a macro.
+#		undef clear
+#	endif /* clear */
+#endif	/* HAS_CURSES */
 
 #ifdef DEBUG_TELNET
-#define	TELOPTS		/* make telnet.h define telopts[] */
-#define	TELCMDS
+#	define	TELOPTS		/* make telnet.h define telopts[] */
+#	define	TELCMDS
 #endif /* DEBUG_TELNET */
+
 #ifdef ABORT
-#undef ABORT
+#	undef	ABORT
 #endif
 #ifdef linux
-#include <arpa/telnet.h>
+#	include <arpa/telnet.h>
 #else
-#include "telnet.h"
+#	include "telnet.h"
 #endif
 
 #define safe_strdup(x) ((x==0)?strdup(""):strdup(x))
-#ifdef	SYSV
-#define	getdtablesize()		MAX_USERS + 4
-#endif	/* SYSV */
+
+#if	NEEDS_GETDTABLESIZE
+#	define	getdtablesize()		MAX_USERS + 4
+#endif	/* NEEDS_GETDTABLESIZE */
+
+#if	NEEDS_STRSIGNAL
+const char *strsignal (const int sig)
+{
+	static	char	buf [20];	// Assume 20 digits is good enough. PJC 20/4/2003.
+	sprintf (buf, "%d", sig);
+	return buf;
+}
+#endif	/* NEEDS_STRSIGNAL */
 
 #define	HELP_FILE		"help.txt"
 #define	SIGNAL_STACK_SIZE	200000
-#define	LOGTHROUGH_HOST		0xc0544e92	/* 192.84.78.146 (delginis) */
-#define	LOCAL_ADDRESS_MASK	0x82580000	/* 130.88.0.0 */
-//#define	DOMAIN_STRING		".man.ac.uk"
+#define	LOGTHROUGH_HOST		0x7f000001	/* 127.0.0.1 */
+#define	LOCAL_ADDRESS_MASK	0x7f000000	/* 127.0.0.0 */
 #define	DOMAIN_STRING		""
 
 #define	DUMP_QUIET		1
@@ -235,12 +259,11 @@ descriptor_data::save_command(const char* command)
 
 struct	descriptor_data		*descriptor_list = NULL;
 
-static	int*			ListenPorts;
+static	SOCKET*			ListenPorts;
 static	int			NumberListenPorts;
 
-//static	int			sock;
 #ifdef CONCENTRATOR
-static	int			conc_listensock, conc_sock, conc_connected;
+static	SOCKET			conc_listensock, conc_sock, conc_connected;
 #endif
 static	int			ndescriptors = 0;
 static	int			outgoing_conc_data_waiting = 0;
@@ -248,9 +271,9 @@ static	int			outgoing_conc_data_waiting = 0;
 void				process_commands	(void);
 void				make_nonblocking	(int s);
 const	char			*convert_addr 		(unsigned long);
-struct	descriptor_data		*new_connection		(int sock);
+struct	descriptor_data		*new_connection		(SOCKET sock);
 void				parse_connect 		(const char *msg, char *command, char *user, char *pass);
-int				make_socket		(int, unsigned long);
+SOCKET				make_socket		(int, unsigned long);
 void				bailout			(int);
 u_long				addr_numtoint		(char *, int);
 u_long				addr_strtoint		(char *, int);
@@ -258,7 +281,7 @@ u_long				addr_strtoint		(char *, int);
 #ifdef CONCENTRATOR
 int				connect_concentrator	(int);
 int				send_concentrator_data	(int channel, char *data, int length);
-int				process_concentrator_input(int sock);
+int				process_concentrator_input(SOCKET sock);
 void				concentrator_disconnect	(void);
 #endif
 
@@ -332,6 +355,9 @@ public:
 LogCommand* LastCommands[MAX_LAST_COMMANDS];
 int LastCommandsPtr = 0;
 
+
+#if	HAS_SIGNALS
+
 void set_signals()
 {
 	/* we don't care about SIGPIPE, we notice it in select() and write() */
@@ -359,6 +385,8 @@ void set_signals()
 	signal (SIGVTALRM, bailout);
 	signal (SIGUSR2, bailout);
 }
+
+#endif	/* HAS_SIGNALS */
 
 
 int
@@ -1017,7 +1045,7 @@ void mud_main_loop(int argc, char** argv)
 	struct	timeval		last_slice, current_time;
 	struct	timeval		next_slice;
 	struct	timeval		timeout, slice_timeout;
-	int			maxd;
+	SOCKET			maxd;
 	int			select_value;
 	struct	descriptor_data	*d, *dnext;
 	struct	descriptor_data	*newd;
@@ -1033,7 +1061,7 @@ void mud_main_loop(int argc, char** argv)
 	if(argc > 0)
 	{
 		NumberListenPorts = argc;
-		ListenPorts = new int[NumberListenPorts];
+		ListenPorts = new SOCKET [NumberListenPorts];
 		for(int i = 0; i < argc; i++)
 		{
 			ListenPorts[i] = make_socket(atoi(argv[i]), INADDR_ANY);
@@ -1043,7 +1071,7 @@ void mud_main_loop(int argc, char** argv)
 	else
 	{
 		NumberListenPorts = 1;
-		ListenPorts = new int[1];
+		ListenPorts = new SOCKET [1];
 		ListenPorts[0] = make_socket(TINYPORT, INADDR_ANY);
 		maxd = ListenPorts[0];
 	}
@@ -1121,7 +1149,7 @@ void mud_main_loop(int argc, char** argv)
 		(void) time (&now);
 		for (d = descriptor_list; d; d=d->next)
 		{
-			if ((d->get_descriptor())	/* Don't want to watch concentrator descriptors - if you don't know why, go learn C, Keith */
+			if ((d->get_descriptor())	/* Don't want to watch concentrator descriptors */
 			  && (!d->IS_FAKED()) /* Don't forget to exclude NPCs either */
 			  && (!d->IS_HALFQUIT())) /* Or HALFQUIT people */
 			{
@@ -1321,11 +1349,11 @@ void mud_main_loop(int argc, char** argv)
 }
 
 #ifdef CONCENTRATOR
-int connect_concentrator(int sock)
+SOCKET connect_concentrator(SOCKET sock)
 {
 	struct	sockaddr_in	addr;
 	int			addr_len;
-	int			newsock;
+	SOCKET			newsock;
 
 	log_message("CONCENTRATOR: connected");
 
@@ -1336,9 +1364,9 @@ int connect_concentrator(int sock)
 }
 #endif
 
-struct descriptor_data *new_connection(int sock)
+struct descriptor_data *new_connection(SOCKET sock)
 {
-	int			newsock;
+	SOCKET			newsock;
 	struct	sockaddr_in	addr;
 #if defined (linux) || defined (__FreeBSD__)
 	socklen_t		addr_len;
@@ -1377,7 +1405,7 @@ struct descriptor_data *new_connection(int sock)
 	}
 
 	int one = 1;
-	if(setsockopt(newsock, SOL_SOCKET, SO_KEEPALIVE, &one, sizeof(one)) != 0)
+	if(setsockopt(newsock, SOL_SOCKET, SO_KEEPALIVE, SETSOCKOPT_OPTCAST &one, sizeof(one)) != 0)
 	{
 		log_bug("KeepAlive option not set, errno=%d", errno);
 	}
@@ -1729,12 +1757,12 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 
 #ifdef USE_TERMINFO
 /*
- * I've done a blatent cut and paste of this code for the other version so if
+ * I've done a blatant cut and paste of this code for the other version so if
  * you update one you should check the other.  I was going to go through having
  * lots of ifdefs so it was more obviously how things tied up but it made the
  * totally unreadable.  -Abstract
  */
-int descriptor_data::set_terminal_type (const String& termtype)
+bool descriptor_data::set_terminal_type (const String& termtype)
 {
 	char *term;
 
@@ -1753,7 +1781,7 @@ int descriptor_data::set_terminal_type (const String& termtype)
 			log_bug("Terminal type '%s' from descriptor %d not in the terminfo database", term, get_descriptor());
 #endif
 		FREE(term);
-		return 0;
+		return false;
 	}
 
 	terminal.type = term;
@@ -1773,19 +1801,6 @@ int descriptor_data::set_terminal_type (const String& termtype)
 		log_debug("Terminal height (from terminfo):  %d", terminal.height);
 #endif
 	}
-
-/*	const char *const clearline = tigetstr("dl1");
- *	if (clearline != (char *)-1)
- *	{
- *		termcap.clearline = clearline;
- *	}
- *
- *	const char *const backspace = tigetstr("dch1");
- *	if (backspace != (char *)-1)
- *	{
- *		termcap.backspace = backspace;
- *	}
- */
 
 	const char *const bold = tigetstr(const_cast<char *>("bold"));
 	if (bold != (char *)-1)
@@ -1811,14 +1826,15 @@ int descriptor_data::set_terminal_type (const String& termtype)
 		termcap.underscore_off = scratch;
 	}
 
-	return 1;
+	return true;
 }
 
 #else /* !USE_TERMINFO */
 /*
  * If you update this you should also check the version above!
  */
-int
+
+bool
 descriptor_data::set_terminal_type(const String& termtype)
 {
 	static char ltermcap[1024];
@@ -1836,7 +1852,7 @@ descriptor_data::set_terminal_type(const String& termtype)
 		log_bug("Terminal type '%s' from descriptor %d not in /etc/termcap", terminal, get_descriptor());
 #endif
 		FREE(terminal);
-		return 0;
+		return false;
 	}
 
 	terminal.type=terminal;
@@ -1856,18 +1872,6 @@ descriptor_data::set_terminal_type(const String& termtype)
 	log_debug("Terminal height (from termcap):  %d", terminal.height);
 #endif
 	}
-
-/*	area=scratch;
-	if(tgetstr("dl", &area))
-	{
-		termcap.clearline=scratch;
-	}
-
-	area=scratch;
-	if(tgetstr("dc", &area))
-	{
-		termcap.backspace=scratch;
-	}*/
 
 	area=scratch;
 	if(tgetstr("md", &area))
@@ -1893,8 +1897,7 @@ descriptor_data::set_terminal_type(const String& termtype)
 		termcap.underscore_off=scratch;
 	}
 
-
-	return 1;
+	return true;
 }
 
 #endif /* USE_TERMINFO */
@@ -1914,7 +1917,7 @@ cached_addr cached_addresses[CACHE_ADDR_SIZE];
 bool
 get_cached_addr(u_long addr, char* name)
 {
-int i;
+	int i;
 	for(i = 0; i < CACHE_ADDR_SIZE; i++)
 	{
 		if(cached_addresses[i].addr == addr)
@@ -1931,10 +1934,10 @@ int i;
 void
 set_cached_addr(u_long addr, const String& name)
 {
-int i;
-time_t mintime = 0x7fffffff;
-u_long mincount = 0xffffffff;
-u_long bestindex = 0;
+	int i;
+	time_t mintime = 0x7fffffff;
+	u_long mincount = 0xffffffff;
+	u_long bestindex = 0;
 	for(i = 0; i < CACHE_ADDR_SIZE; i++)
 	{
 		if(cached_addresses[i].addr == 0)
@@ -2072,7 +2075,7 @@ descriptor_data::~descriptor_data()
 
 
 descriptor_data::descriptor_data (
-int			s,
+SOCKET			s,
 struct	sockaddr_in	*a,
 int			chanl)
 :
@@ -2177,9 +2180,9 @@ int			chanl)
 }
 
 
-int make_socket(int port, unsigned long inaddr)
+SOCKET make_socket(int port, unsigned long inaddr)
 {
-	int s;
+	SOCKET s;
 	struct sockaddr_in server;
 	int opt;
 
@@ -2580,15 +2583,21 @@ descriptor_data::process_output()
 
 void make_nonblocking(int s)
 {
-#ifdef FNDELAY
-	if (fcntl (s, F_SETFL, FNDELAY) == -1)
-#else
-	if (fcntl (s, F_SETFL, O_NDELAY) == -1)
-#endif
-	{
-		perror ("make_nonblocking: fcntl");
-		panic ("FNDELAY fcntl failed");
-	}
+#if	USE_BSD_SOCKETS
+#	ifdef FNDELAY
+		if (fcntl (s, F_SETFL, FNDELAY) == -1)
+#	else
+		if (fcntl (s, F_SETFL, O_NDELAY) == -1)
+#	endif
+		{
+			perror ("make_nonblocking: fcntl");
+			panic ("FNDELAY fcntl failed");
+		}
+#endif	/* USE_BSD_SOCKETS */
+
+#if	USE_WINSOCK2
+	// TODO: Write me.
+#endif	/* USE_WINSOCK2 */
 }
 
 void
@@ -3526,6 +3535,7 @@ void parse_connect (const char *msg, char *command, char *user, char *pass)
 	*p = '\0';
 }
 
+
 void close_sockets()
 {
 	struct	descriptor_data	*d;
@@ -3568,6 +3578,7 @@ void close_sockets()
 	}
 }
 
+
 void emergency_shutdown()
 {
 	close_sockets();
@@ -3580,28 +3591,8 @@ int	sig)
 
 {
 	char message[1024];
-#ifdef linux
-// Yuck - I feel ill JPK
-//	extern const char * const sys_siglist[];
-	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
-#else
-	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
-#endif
-//#if defined (sun) // Sun's different
-//	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
-//#elif defined (SYSV)
-//	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
-//#else
-//	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
-//#endif
 
-// #if !defined (SYSV) // Fixing signal naming...
-// 	extern char *sys_siglist[];
-//
-// 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
-// #else
-// 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
-// #endif
+	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 
 // Dump the last MAX_LAST_COMMANDS out.
 	for(int i = 0; i < MAX_LAST_COMMANDS; i++)
