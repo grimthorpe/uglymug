@@ -826,7 +826,7 @@ void notify_norecall_conditional(String match,dbref player, const char *fmt, ...
         va_end (vl);
 	
 	// JPK *FIXME*
-	if (! (match.c_str()[0]) == NULL )
+	if (! (match.c_str()[0]) == '\0' )
 	{
 		compile(match.c_str(), regexpbuf, regexpbuf+BUFFER_LEN, '\0');
 		if (step(vsnprintf_result, regexpbuf))
