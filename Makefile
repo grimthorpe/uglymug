@@ -179,8 +179,6 @@ OUTFILES = \
 	stats \
 	concentrator
 
-RELEASETAG = '$Name:  $'
-
 all: dump extract paths sanity-check netmud sadness stats colouring concentratormondodestruct
 
 purify: netmud.purify
@@ -270,6 +268,7 @@ newversion:
 	fi
 
 version.h: newversion
+	echo $(RELEASETAG)
 	@echo \#define VERSION \"[build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date` on `hostname`]\" > version.h
 
 alarm.o : alarm.c \
