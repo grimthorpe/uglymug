@@ -1,4 +1,3 @@
-char SCCSid[] = "@(#)speech.c	1.60\t9/19/95";
 #include "copyright.h"
 
 /* Commands which involve speaking */

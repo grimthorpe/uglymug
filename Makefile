@@ -179,6 +179,8 @@ OUTFILES = \
 	stats \
 	concentrator
 
+RELEASETAG = '$Release$'
+
 all: dump extract paths sanity-check netmud sadness stats colouring concentratormondodestruct
 
 purify: netmud.purify
