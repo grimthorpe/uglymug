@@ -37,7 +37,7 @@ extern	int	puppet_check;
 extern	int	fix_things;
 
 	int	dump_interval=DUMP_INTERVAL;
-const	char*	fakeversion = "@(#)" VERSION ", CVS Release $Name:  $";
+const	char*	fakeversion = "@(#)" VERSION;
 const	char	*version=fakeversion + 4;
 
 String NULLSTRING;

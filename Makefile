@@ -268,8 +268,7 @@ newversion:
 	fi
 
 version.h: newversion
-	echo $(RELEASETAG)
-	@echo \#define VERSION \"[build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date` on `hostname`]\" > version.h
+	@echo \#define VERSION \"[Release `head -1 tag_list`, build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" > version.h
 
 alarm.o : alarm.c \
 	alarm.h \
