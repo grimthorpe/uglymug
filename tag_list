@@ -12,6 +12,10 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    Fixed beep(player) so that it only sends the beep to the specific player
+    Fixed @colour so the message that an attribute is set is the right
+    way around
+
 um1_024 - Grimthorpe
     Undo the change in look.c so you can see inside a container again.
 
