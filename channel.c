@@ -603,7 +603,7 @@ context::do_query_channel (const CString& arg1, const CString& arg2)
 }
 
 void
-context::do_channel (const CString& arg1, const CString& arg2)
+context::do_at_channel (const CString& arg1, const CString& arg2)
 {
 	if(Typeof(player) != TYPE_PLAYER)
 	{

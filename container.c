@@ -121,7 +121,7 @@ const	CString& )
 
 
 void
-context::do_cstring (
+context::do_at_cstring (
 const	CString& object,
 const	CString& description)
 

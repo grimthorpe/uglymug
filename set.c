@@ -2626,7 +2626,7 @@ const	CString& parent_name)
 }
 
 
-void context::do_credit(const CString& arg1, const CString& arg2)
+void context::do_at_credit(const CString& arg1, const CString& arg2)
 {
 	dbref victim;
 	int amount;

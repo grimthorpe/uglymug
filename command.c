@@ -526,7 +526,7 @@ const	CString&)
 
 
 void
-context::do_chpid (
+context::do_at_chpid (
 const	CString&,
 const	CString&)
 

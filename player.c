@@ -234,7 +234,7 @@ const	CString& dummy)
 }
 
 void
-context::do_alias (
+context::do_at_alias (
 const	CString& person,
 const	CString& string)
 
@@ -413,7 +413,7 @@ const	CString& string)
 
 
 void
-context::do_controller (
+context::do_at_controller (
 const	CString& name,
 const	CString& other)
 

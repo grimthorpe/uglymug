@@ -435,7 +435,7 @@ const dbref victim
 }
 
 void
-context::do_colour (
+context::do_at_colour (
 const	CString& cia,
 const	CString& colour_codes)
 

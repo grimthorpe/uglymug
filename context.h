@@ -358,8 +358,8 @@ class	context
 	const	bool			dollar_substitute	(const char *&argp, char *&resp, const int depth, unsigned int space_left);
 		void			brace_substitute	(const char *&, char *&, unsigned int space_left);
 
-	void				do_alarm		(const CString&, const CString&);
-	void				do_array		(const CString&, const CString&);
+	void				do_at_alarm		(const CString&, const CString&);
+	void				do_at_array		(const CString&, const CString&);
 	void				do_at_censor		(const CString&, const CString&);
 	void				do_at_censorinfo	(const CString&, const CString&);
 	void				do_at_command		(const CString&, const CString&);
@@ -397,21 +397,21 @@ class	context
 	void				do_at_unlock		(const CString&, const CString&);
 	void				do_at_who		(const CString&, const CString&);
 	void				do_at_with		(const CString&, const CString&);
-	void				do_beep			(const CString&, const CString&);
-	void				do_boot			(const CString&, const CString&);
-	void				do_cfailure		(const CString&, const CString&);
-	void				do_channel		(const CString&, const CString&);
+	void				do_at_beep		(const CString&, const CString&);
+	void				do_at_boot		(const CString&, const CString&);
+	void				do_at_cfailure		(const CString&, const CString&);
+	void				do_at_channel		(const CString&, const CString&);
 	void				do_channel_who		(const CString&, const CString&);
 	void				do_chat			(const CString&, const CString&);
-	void				do_chpid		(const CString&, const CString&);
+	void				do_at_chpid		(const CString&, const CString&);
 	void				do_close		(const CString&, const CString&);
-	void				do_colour		(const CString&, const CString&);
+	void				do_at_colour		(const CString&, const CString&);
 	void				do_container		(const CString&, const CString&);
-	void				do_controller		(const CString&, const CString&);
-	void				do_create		(const CString&, const CString&);
-	void				do_credit		(const CString&, const CString&);
-	void				do_cstring		(const CString&, const CString&);
-	void				do_csuccess		(const CString&, const CString&);
+	void				do_at_controller	(const CString&, const CString&);
+	void				do_at_create		(const CString&, const CString&);
+	void				do_at_credit		(const CString&, const CString&);
+	void				do_at_cstring		(const CString&, const CString&);
+	void				do_at_csuccess		(const CString&, const CString&);
 	void				do_debit		(const CString&, const CString&);
 	void				do_decompile		(const CString&, const CString&);
 	void				do_describe		(const CString&, const CString&);
@@ -443,7 +443,7 @@ class	context
 	void				do_gripe		(const CString&, const CString&);
 #ifdef ALIASES
 	void				do_unalias		(const CString&, const CString&);
-	void				do_alias		(const CString&, const CString&);
+	void				do_at_alias		(const CString&, const CString&);
 	void				do_listaliases		(const CString&, const CString&);
 #endif /* ALIASES */
 	void				do_inventory		(const CString&, const CString&);

@@ -4749,7 +4749,7 @@ const	CString& )
 
 
 void
-context::do_beep (
+context::do_at_beep (
 const	CString& ,
 const	CString& )
 

@@ -506,7 +506,7 @@ const	CString& desc)
 
 
 void
-context::do_create (
+context::do_at_create (
 const	CString& name,
 const	CString& desc)
 
@@ -657,11 +657,11 @@ const	CString& commands)
 
 
 /*
- * do_array: creates a variable called name.
+ * do_at_array: creates a variable called name.
  */
 
 void
-context::do_array (
+context::do_at_array (
 const	CString& array_name,
 const	CString& )
 {
@@ -914,7 +914,7 @@ notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a d
 
 /*
  * parse_linkable_command: Make sure the destination is a command or HOME,
- *	and that we can link to it. Used by do_csuccess and do_cfailure.
+ *	and that we can link to it. Used by do_at_csuccess and do_at_cfailure.
  */
 
 dbref
@@ -952,11 +952,11 @@ const	CString& command_name)
 
 
 /*
- * do_csuccess: Set up the success pointer for this command.
+ * do_at_csuccess: Set up the success pointer for this command.
  */
 
 void
-context::do_csuccess (
+context::do_at_csuccess (
 const	CString& name,
 const	CString& command_name)
 
@@ -1021,11 +1021,11 @@ const	CString& command_name)
 
 
 /*
- * do_cfailure: Set up the failure pointer for this command.
+ * do_at_cfailure: Set up the failure pointer for this command.
  */
 
 void
-context::do_cfailure (
+context::do_at_cfailure (
 const	CString& name,
 const	CString& command_name)
 
@@ -1147,7 +1147,7 @@ context::do_fuse (const CString& fuse_name, const CString& command_name)
 
 
 void
-context::do_alarm (const CString& alarm_name, const CString& time_of_execution)
+context::do_at_alarm (const CString& alarm_name, const CString& time_of_execution)
 {
 	dbref	thing;
 

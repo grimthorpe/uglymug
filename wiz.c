@@ -288,7 +288,7 @@ const	CString& password)
 
     
 void
-context::do_boot (
+context::do_at_boot (
 const	CString& victim,
 const	CString& reason)
 

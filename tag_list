@@ -28,6 +28,11 @@ um1_034 - Some people did some changes.
 	Made semicolon_string_match return FALSE if what you're searching for is an empty string.
 	Added missing # to hack message
 	Added log_boot() and changed the call in context::do_boot() accordingly
+***
+*
+* Note - do_boot renamed to do_at_boot on Apr 11 2002 by JPK
+*
+***
 	Made @terminal follow the 'Silent' flag rules, rather than just being silent when run from a softcode command.
 	More changes to @remote; this time keep processing the remoted command until completion.
 	Modified log_hack to take the 'target' of the hack. If there is no target, use GOD_ID instead.
