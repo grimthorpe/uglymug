@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Provide output command info for wMug and other uses. (Grimthorpe)
+
 um1_057
 	Prevented mortals being able to 'look' at any item in the db.
 

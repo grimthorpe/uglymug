@@ -157,6 +157,10 @@ static	char	vsnprintf_result[BUFFER_LEN];
 static	char	scratch[BUFFER_LEN];
 bool descriptor_data::check_descriptors = false;
 int			peak_users;
+String	descriptor_data::LastCommandName;
+dbref	descriptor_data::LastCommandCaller = NOTHING;
+int	descriptor_data::LastCommandCount = 0;
+int	descriptor_data::LastCommandDepth = 0;
 
 String str_on = "on";
 String str_off = "off";
@@ -326,6 +330,7 @@ struct terminal_set_command
 	{ "noflush",	&descriptor_data::terminal_set_noflush, &descriptor_data::terminal_get_noflush },
 	{ "sevenbit",	&descriptor_data::terminal_set_sevenbit, &descriptor_data::terminal_get_sevenbit },
 	{ "colour_terminal",	&descriptor_data::terminal_set_colour_terminal, &descriptor_data::terminal_get_colour_terminal },
+	{ "commandinfo",	&descriptor_data::terminal_set_emit_lastcommand, &descriptor_data::terminal_get_emit_lastcommand },
 
 	{ NULL, NULL }
 };
@@ -2375,12 +2380,21 @@ char *a,*a1,*b;
 
         if(get_player())
         {
-                if(store_in_recall_buffer && terminal.recall)
-                {
-                        db[get_player()].add_recall_line(s);
-                }
+		if(store_in_recall_buffer)
+		{
+			if(_last_command_count != LastCommandCount)
+			{
+				_last_command_count = LastCommandCount;
+				char temp[1024];
+				snprintf(temp, 1024, "\001(%s)\002(#%d)\003", LastCommandName.c_str(), LastCommandCaller);
+				queue_string(temp, show_literally, store_in_recall_buffer);
+			}
+			if(terminal.recall)
+			{
+				db[get_player()].add_recall_line(s);
+			}
+		}
         }
-
 
 	if(IS_HALFQUIT())
 	{
@@ -2402,6 +2416,14 @@ char *a,*a1,*b;
 			switch (*a)
 			{
 			case 0:
+				break;
+
+			case 1:	// Start of command info
+				while((*a) && (*a != 3))
+					a++;
+				if(*a)
+					a++;
+				continue;
 				break;
 
 			case '\n':
@@ -2479,71 +2501,72 @@ char *a,*a1,*b;
 		}
 	}
 
-	int queue_count = 0;		/* Collates all the results from the queue_writes */
+	String output;
+
 	int colour = 0;
 	if(get_player())
 		colour = Colour(get_player());  /* Stores whether we need to substitute in the codes */
 	int percent_loaded = 0;		/* Indicates whether we have already hit a % sign */
-	int bcount = 0;			/* This steps along string copying from */
-	int cocount = 0;		/* The counts along output buffer */
-	char cobuf[BUFFER_LEN];		/* This is the output buffer, once full, output and
-					   start again */
 
-
-	while(b[bcount])	
+	while(*b)
 	{
-		/* Step through the string until the buffer gets full, minus a safety margin */
-		while(b[bcount] && (bcount % BUFFER_LEN) < (BUFFER_LEN - 64))
+		char chr = *(b++);
+		switch(chr)
 		{
-			if(b[bcount] == '%')
+		case '%':
+			if((percent_loaded) || (show_literally))
 			{
-				if((percent_loaded) || (show_literally))
+				/* Deal with %% which displays a % sign */
+				output += '%';
+				percent_loaded = 0;
+			}
+			else
+			{
+				percent_loaded = 1;
+			}
+			break;
+
+		case '\001':
+			if(!terminal.emit_lastcommand)
+			{
+				do
 				{
-					/* Deal with %% which displays a % sign */
-					cobuf[cocount++] = '%';
-					percent_loaded = 0;
+					b++;
 				}
-				else
+				while((*b) && (*b != 3));
+				if(*b)
+					b++;
+				continue;
+			}
+
+		default:
+			if(percent_loaded)
+			{
+				percent_loaded = 0;
+				if((colour || terminal.effects) && terminal.colour_terminal)
 				{
-					percent_loaded = 1;
+					/* They want the colour codes transfered*/
+
+					if((chr >= 'A') && (chr <= '~'))
+					{
+						/* Find the entry in the colour table by
+						   directly referencing it. 'A' is 0 */
+						colour_table_type& entry = colour_table[(chr - 65)];
+						if(colour || entry.is_effect)
+						{
+							output += entry.ansi;
+						}
+					}
 				}
 			}
 			else
 			{
-				if(percent_loaded)
-				{
-					percent_loaded = 0;
-					if((colour || terminal.effects) && terminal.colour_terminal)
-					{
-						/* They want the colour codes transfered*/
-
-						if((b[bcount] >= 'A') && (b[bcount] <= '~'))
-						{
-							/* Find the entry in the colour table by
-							   directly referencing it. 'A' is 0 */
-							colour_table_type& entry = colour_table[(b[bcount] - 65)];
-							if(colour || entry.is_effect)
-							{
-								strcpy(&cobuf[cocount], entry.ansi);
-								cocount += strlen(entry.ansi);
-							}
-						}
-					}
-				}
-				else
-				{
-					/* Just a character, copy it */
-					cobuf[cocount++] = b[bcount];
-				}
+				/* Just a character, copy it */
+				output += chr;
 			}
-			bcount++;
 		}
-
-		cobuf[cocount] = '\0';
-		queue_count += queue_write (cobuf, strlen (cobuf));
-		cocount = 0;
 	}
-	return queue_count;
+	return queue_write (output.c_str(), output.length());
 }
 
 int
@@ -2967,7 +2990,7 @@ descriptor_data::process_input (int len)
 			default:
 				if ((p < pend)&& is_printable (*q))
 				{
-charcount++;
+					charcount++;
 					if (backslash_pending)
 					{
 						if (p + 1 < pend)
@@ -3106,7 +3129,7 @@ descriptor_data::do_command (String command)
 		if(IS_FAKED())
 			return 1; // NPC's can't HALFQUIT!
 
-		if (get_descriptor())
+		if (get_descriptor() && get_player())
 		{
 			write (get_descriptor(), HALFQUIT_MESSAGE, strlen(HALFQUIT_MESSAGE));
 			HALFQUIT();
@@ -4413,6 +4436,42 @@ descriptor_data::terminal_set_colour_terminal(const String& toggle, bool gagged)
 	return COMMAND_SUCC;
 }
 
+
+String
+descriptor_data::terminal_get_emit_lastcommand()
+{
+	if(terminal.emit_lastcommand)
+		return str_on;
+	else
+		return str_off;
+}
+
+Command_status
+descriptor_data::terminal_set_emit_lastcommand(const String& toggle, bool gagged)
+{
+	if(toggle)
+	{
+		if(string_compare(toggle, "on") == 0)
+		{
+			terminal.emit_lastcommand = true;
+		}
+		else if(string_compare(toggle, "off") == 0)
+		{
+			terminal.emit_lastcommand = false;
+		}
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal commandinfo=on' or '@terminal commandinfo=off'.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!gagged)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"commandinfo is %s", terminal.emit_lastcommand?"on":"off");
+	}
+	return COMMAND_SUCC;
+}
+
 String
 descriptor_data::terminal_get_sevenbit()
 {
@@ -5143,3 +5202,15 @@ descriptor_data::output_suffix()
 	}
 }
 
+void
+set_last_command(const String& command, dbref player)
+{
+	if(!command)
+	{
+		descriptor_data::ClearLastCommand();
+	}
+	else
+	{
+		descriptor_data::SetLastCommand(command, player);
+	}
+}

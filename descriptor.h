@@ -64,6 +64,31 @@ private:
 
 class descriptor_data
 {
+private:
+	static String	LastCommandName;
+	static dbref	LastCommandCaller;
+	static int	LastCommandCount;
+	static int	LastCommandDepth;
+	int		_last_command_count;
+public:
+	static void SetLastCommand(const String& name, dbref player)
+	{
+		if(LastCommandDepth++ == 0)
+		{
+			LastCommandName = name;
+			LastCommandCaller = player;
+			LastCommandCount++;
+		}
+	}
+	static void ClearLastCommand()
+	{
+		if(--LastCommandDepth == 0)
+		{
+			LastCommandName = NULLSTRING;
+			LastCommandCaller = NOTHING;
+			LastCommandCount++;
+		}
+	}
 public:
 	descriptor_data(SOCKET sock, sockaddr_in *a, int conc = 0);
 	~descriptor_data();
@@ -120,8 +145,10 @@ public:
 				bool	noflush;
 				char	sevenbit;
 				bool	colour_terminal;
-				Terminal() : width(0), height(0), type(), xpos(0), wrap(true), lftocr(true), pagebell(true), recall(true), effects(false), halfquit(false), noflush(false), sevenbit('\0'), colour_terminal(true) {}
+				bool	emit_lastcommand;
+				Terminal() : width(0), height(0), type(), xpos(0), wrap(true), lftocr(true), pagebell(true), recall(true), effects(false), halfquit(false), noflush(false), sevenbit('\0'), colour_terminal(true), emit_lastcommand(false) {}
 			}	terminal;
+
 	int			channel;
 
 	bool			myoutput;
@@ -233,6 +260,8 @@ public:
 	String	terminal_get_colour_terminal();
 	Command_status	terminal_set_sevenbit(const String& , bool);
 	String	terminal_get_sevenbit();
+	Command_status	terminal_set_emit_lastcommand(const String& , bool);
+	String	terminal_get_emit_lastcommand();
 	void	do_write(const char * c, int i);
 
 	int	process_output();

@@ -51,3 +51,5 @@ extern	void	set_signals		();
 extern	void	mud_main_loop		(int argc, char** argv);
 
 extern	void	smd_updated		();
+
+extern	void	set_last_command	(const String& command, dbref player);

@@ -1220,8 +1220,10 @@ const	String&	_command)
 	/* We've bombed out everywhere else; is this a straight, simple command? */
 	if (!command_done && ((entry = find_basic_command (a0)) != NULL))
 	{
+		set_last_command(entry->name, get_player());
 		(this->*(entry->context_address)) (get_arg1 (), get_arg2 ());
 		command_done = true;
+		set_last_command(NULLSTRING, NOTHING);
 	}
 
 	/* If we're still not done, we couldn't find it */
