@@ -12,6 +12,12 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Sort-of fixed the censorship code so that it doesn't hang the game under
+    certain circumstances. I've no idea why it could have got into the state
+    it was, but it wont happen again.
+    Fixed the error message on '.startup' commands to say who owns it, and
+    which command it is.
+
 um1_026 - Grimthorpe, Reaps - tagged by Reaps
     Made @email, @alias and @unalias write out the email address list
     each time they are used.

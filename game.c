@@ -684,7 +684,7 @@ execute_startups(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
-				Trace( "HACK: %s owns .startup command\n", getname(item));
+				Trace( "HACK: Non-wizard character %s(#%d) owns .startup command #%d\n", getname(db[item].get_owner()), db[item].get_owner(), item);
 	}
 #endif
 }

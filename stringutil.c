@@ -617,8 +617,10 @@ char *string)
                                      *string='*';
                                 string++;
                             }
+				return counter; // counter is exactly the number of characters to '*'
                         }
-                        return counter; // counter is exactly the number of characters to '*'
+			else
+				return 1; // Make sure we move on
                     }
                     else /* value > 0 */
                         bottom = mid + 1;
