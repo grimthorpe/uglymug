@@ -3573,8 +3573,7 @@ int	sig)
 {
 	char message[1024];
 #if defined (sun) // Sun's different
- 	extern char *sys_siglist[];
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 #elif defined (SYSV)
 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 #else
