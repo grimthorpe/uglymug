@@ -19,8 +19,11 @@ information doesn't get lost.
 	Stop do_examine from changing atime on objects.  IJC
 	Modified do_at_garbage_collect to account players/NPCs money to GOD_ID.  DJT: 20031105
 	Added create, modify and access timestamps.  IJC
+	fixed giver/taker order in sall to log_debit(). CCW 20031126
+
 um1_050
 	Altered set.c to not allow you to give or take money from things other than players and puppets.
+
 um1_049
 	Altered do_at_debit not to work in commands and only to work under
 		controls_for_write
@@ -30,6 +33,7 @@ um1_049
 
 	Added Puppet as an allowed type to do_query_commands in get.c. LEETC
 	Modify @stats to include currency and BPs after object stats. DJT: 20030826
+
 um1_048
 	Ozzard's changes to allow #id's to be used anywhere.
 

@@ -2937,7 +2937,7 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name().c_str());
 		notify(victim, "%s takes %d %s from you.", db[player].get_name().c_str(), amount, currency_name);
 	}
-	log_debit(get_effective_id(), db[get_effective_id()].get_name().c_str(), victim, db[victim].get_name().c_str(), amount, currency_name);
+	log_debit(victim, db[victim].get_name().c_str(), get_effective_id(), db[get_effective_id()].get_name().c_str(), amount, currency_name);
 
 	RETURN_SUCC;
 }
