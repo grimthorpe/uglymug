@@ -22,6 +22,7 @@ wizards, admin, etc
 	Modified @?connectedplayers, who, swho so they all use class WhoToShow to determine who should be shown.
 	Modified @?connectedplayers to use String append.
 	Fixed the peak users store in 'who' so that it only does it for users, not npcs.
+	Fixed character creation so that the password hiding is done the right way around.
 
 
 um1_039 - ARGH!

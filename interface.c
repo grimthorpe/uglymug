@@ -3415,7 +3415,7 @@ descriptor_data::check_connect (const char *input)
 						/* New player, password is ok too */
 						set_password(msg);	/* For confirmation */
 						queue_string (confirm_password);
-						set_echo(true);
+						set_echo(false);
 						set_connect_state(DESCRIPTOR_CONFIRM_PASSWORD);
 					}
 					else if (player == 0)
@@ -3445,7 +3445,7 @@ descriptor_data::check_connect (const char *input)
 
 
 			case DESCRIPTOR_CONFIRM_PASSWORD:
-				set_echo (false);
+				set_echo (true);
 				// Make sure that the password is IDENTICAL.
 				if(strcmp(msg, get_password().c_str())==0)
 				{
