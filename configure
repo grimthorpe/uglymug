@@ -14,7 +14,7 @@ CC_LIBPCRE=""
 for i in /usr /usr/local /opt/pcre; do
   if [ "$LD_LIBPCRE" = "" ]; then
     if [ -f $i/lib/libpcre.a ]; then
-      LD_LIBPCRE="-R$i/lib -lpcre"
+      LD_LIBPCRE="-B$i/lib -Xlinker -R$i/lib -lpcre"
       echo libpcre found in $i/lib
     fi
   fi
