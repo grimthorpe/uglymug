@@ -4503,6 +4503,40 @@ const	String& )
 	set_return_string (ok_return_string);
 }
 
+
+void
+context::do_query_connectedplayers (const String& objname, const String& name)
+{
+struct descriptor_data *d;
+int	found_one=0;
+char *buf;
+
+// Max name length + ; + \0 and some leeway.
+buf=(char *)malloc(MAX_USERS*(MAX_NAME_LENGTH+2)*sizeof(char));
+
+// The remaining players separated with semi-colons.
+// Set up 'victim' now to get the list 
+for (d = descriptor_list; d; d = d->next)
+{
+	if(d->IS_CONNECTED()) /* Connected players and NPCs */
+	{
+		if (found_one)
+		{
+			strcat(buf,";");
+			strcat(buf,db[d->get_player()].get_name().c_str());
+		}
+		else
+		{
+			strcat(buf,db[d->get_player()].get_name().c_str());
+			found_one=1;
+		}
+	}
+}
+return_status = COMMAND_SUCC;
+set_return_string (buf);
+}
+
+
 time_t get_idle_time (dbref player)
 {
 	struct descriptor_data *d;

@@ -96,6 +96,7 @@ command_details			command_table [] =
 	{"@?connected",		&context::do_query_connected,		LEGAL_COMMAND},
 	{"@?contents",		&context::do_query_contents,		LEGAL_COMMAND},
 	{"@?controller",	&context::do_query_controller,		LEGAL_COMMAND},
+	{"@?connectedplayers",	&context::do_query_connectedplayers,	LEGAL_COMMAND},
 	{"@?cstring",		&context::do_query_cstring,		LEGAL_COMMAND},
 	{"@?csucc",		&context::do_query_csucc,		LEGAL_COMMAND},
 	{"@?desc",		&context::do_query_description,		LEGAL_COMMAND},

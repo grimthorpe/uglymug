@@ -508,6 +508,7 @@ class	context
 	void				do_query_colour		(const String&, const String&);
 	void				do_query_commands	(const String&, const String&);
 	void				do_query_connected	(const String&, const String&);
+	void				do_query_connectedplayers (const String&, const String&);
 	void				do_query_contents	(const String&, const String&);
 	void				do_query_controller	(const String&, const String&);
 	void				do_query_cstring	(const String&, const String&);
