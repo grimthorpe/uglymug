@@ -426,6 +426,7 @@ class	context
 	void				do_dump			(const CString&, const CString&);
 	void				do_echo			(const CString&, const CString&);
 	void				do_email		(const CString&, const CString&);
+	void				dump_email_addresses		();
 	void				do_empty		(const CString&, const CString&);
 	void				do_enter		(const CString&, const CString&);
 	void				do_event		(const CString&, const CString&);
