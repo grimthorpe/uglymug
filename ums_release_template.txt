@@ -40,4 +40,16 @@ Added a command cache on each object that should improve the speed of things.\
 Fixed up 'who' and 'swho' to use the right colours.\
 Produce a HACK log when a retired wizard connects.
 
-@rem um1_044
+@rem um1_044 - Time to roll in some more fixes
+ums topic = UM Version
+ums add = um1_044 - Time to roll in some more fixes = Added log_credit() function. (CCW) \
+Removed extra # from log_create() output. (CCW) \
+Added 'who here' as one of the available who special keywords. (CCW) \
+Stopped players from attempting to move to 'NOTHING' (Grimthorpe) \
+Fixed can_move so that it checks that the object is an exit (Grimthorpe) \
+Changed @force to use the 'new style' context nesting (Grimthorpe) \
+Fixed @who so that it can't crash the game when called from a command using @force. (Grimthorpe) \
+Added 'LiteralInput' flag for people who don't want to use \$ and \{} expansion when they type commands (Grimthorpe) \
+Fixed the 'who' list so that the B flag isn't shown for wizard/apprentices/retired (Grimthorpe) \
+Added a template for adding Change Info to UMS in the game. (CCW)
+
