@@ -4,7 +4,7 @@
 #FreeBSD is covered by the Solaris syntax
 SOLMAKE_UNAME:sh=uname -sm|sed 's/ /-/g'
 GMAKE_UNAME=$(shell uname -sm|sed 's/ /-/g')
-SUFFIX:=.$(GMAKE_UNAME)$(SOLMAKE_UNAME)
+SUFFIX:=$(GMAKE_UNAME)$(SOLMAKE_UNAME)
  
 ####################################
 #          OS-specific strings
@@ -30,4 +30,4 @@ BUILD_ENVIRONMENT.MINGW32_NT-5.1-i686:=mingw32
 ####################################
 #  Our specific build environment
 ####################################
-BUILD_ENVIRONMENT:=$(BUILD_ENVIRONMENT$(SUFFIX))
+BUILD_ENVIRONMENT:=$(BUILD_ENVIRONMENT.$(SUFFIX))
