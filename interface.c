@@ -1444,6 +1444,12 @@ struct descriptor_data *new_connection(int sock)
 		return (0);
 	}
 
+	int one = 1;
+	if(setsockopt(newsock, SOL_SOCKET, SO_KEEPALIVE, &one, sizeof(one)) != 0)
+	{
+		Trace("BUG: KeepAlive option not set, errno=%d", errno);
+	}
+
 	Trace( "ACCEPT from |%s|%d| on descriptor |%d\n", convert_addr (&(addr.sin_addr)), ntohs (addr.sin_port), newsock);
 	return new descriptor_data (newsock, &addr);
 }
