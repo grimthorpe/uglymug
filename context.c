@@ -1056,6 +1056,12 @@ context	*c)
 {
 	char command_block[MAX_COMMAND_LEN];
 
+	/* Should we run now? */
+	if(!shouldrun())
+	{
+		return ACTION_STOP;
+	}
+
 	/* Go round again? */
 	c->command_executed();
 	if (current_line >= end_line)
@@ -1110,6 +1116,17 @@ const	char	*element_name)
 	}
 }
 
+bool
+With_loop::shouldrun () const
+{
+	if (Typeof(dict) == TYPE_FREE)
+		return false;
+
+	if (counter > (int)db[dict].get_number_of_elements ())
+		return false;
+
+	return true;
+}
 
 /*
  * loopagain: Check the next element and decide whether we need another
@@ -1121,11 +1138,12 @@ bool
 With_loop::loopagain ()
 
 {
-	if (Typeof(dict) == TYPE_FREE)
+	// Increment the counter *BEFORE* we check if we should run again.
+	counter++;
+
+	if(!shouldrun())
 		return false;
 
-	if (++counter > (int)db[dict].get_number_of_elements ())
-		return false;
 
 	switch (Typeof(dict))
 	{
@@ -1166,6 +1184,13 @@ const	String&name)
 	argument = addarg (name, workspace);
 }
 
+bool
+For_loop::shouldrun () const
+{
+	if(step > 0)
+		return start <= end;
+	return start >= end;
+}
 
 bool
 For_loop::loopagain ()
@@ -1177,10 +1202,7 @@ For_loop::loopagain ()
 	sprintf (workspace, "%d", start);
 	argument->set_value (workspace);
 
-	if (step > 0)
-		return start <= end;
-	else
-		return start >= end;
+	return shouldrun();
 }
 
 

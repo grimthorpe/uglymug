@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Fixed @with so that it doesn't run the contents of the loop if the array or dictionary is empty.
 	Re-added the 'help' hardcode command to make the game engine consistant.
 	.leave can no longer go infinitely-recursive any more.
 

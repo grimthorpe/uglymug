@@ -175,6 +175,7 @@ class	Loop
 					Loop		(const Scope &os);
 	virtual	const	int		line_for_outer_scope	()	const;
 	virtual		bool		loopagain	()			= 0;
+	virtual		bool		shouldrun	()	const		= 0;
     public:
 	virtual				~Loop		()			{}
 			Command_action	step_once	(context *);
@@ -193,6 +194,7 @@ private:
 			int		step;
 			String_pair	*argument;
     protected:
+	virtual		bool		shouldrun	()	const;
 	virtual		bool		loopagain	();
     public:
 					For_loop	(const Scope &os, int in_start, int in_end, int in_step, const String& name);
@@ -213,6 +215,7 @@ class	With_loop
 			String_pair	*index;
 			String_pair	*element;
     protected:
+	virtual		bool		shouldrun	()	const;
 	virtual		bool		loopagain	();
     public:
 					With_loop	(const Scope &os, dbref d, const char *index_name, const char *element_name);
