@@ -18,6 +18,8 @@ information doesn't get lost.
 	Modified @?connectedplayers so that it takes parameter as who does. npc
 wizards, admin, etc
 	Added MAX_NAME_LENGTH, and used in two obvious places
+	Modified @?connectedplayers, who, swho so they all use class WhoToShow to determine who should be shown.
+	Modified @?connectedplayers to use String append.
 
 
 um1_039 - ARGH!

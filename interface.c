@@ -3671,6 +3671,100 @@ const	char	*given)
 }
 
 
+struct WhoToShow
+{
+	const String&		wanted;
+	dbref			player;
+	bool			want_everyone;
+	bool			want_unconnected;
+	bool			want_me;
+	bool			want_wizards;
+	bool			want_apprentices;
+	bool			want_natter;
+	bool			want_guests;
+	bool			want_officers;
+	bool			want_builders;
+	bool			want_xbuilders;
+	bool			want_fighters;
+	bool			want_welcomers;
+	bool			want_npcs;
+	bool			want_area_who;
+	dbref 			wanted_location;
+
+	WhoToShow(const String& who, dbref p, bool unconnectedtoo) :
+		wanted			(who),
+		player			(p),
+		want_everyone		(!who),
+		want_unconnected	(want_everyone && unconnectedtoo),
+		want_me			(string_compare("me", who) == 0),
+		want_wizards		(string_compare("wizards", who) == 0),
+		want_apprentices	(string_compare("apprentices", who) == 0),
+		want_natter		(string_compare("natter", who) == 0),
+		want_guests		(string_compare("guests", who) == 0),
+		want_officers		(string_compare("officers", who) == 0),
+		want_builders		(string_compare("builders", who) == 0),
+		want_xbuilders		(string_compare("xbuilders", who) == 0),
+		want_fighters		(string_compare("fighters", who) == 0),
+		want_welcomers		((string_compare("welcomers", who) == 0)
+					 || (string_compare("welcomer", who) == 0)),
+		want_npcs		((string_compare("npc", who) == 0)
+					 || (string_compare("npcs", who) == 0)),
+		want_area_who		('#' == (who.c_str()[0])),
+		wanted_location		(0)
+	{
+		if(want_area_who)
+		{
+			wanted_location = atoi(who.c_str() + 1);
+		}
+		else if((want_natter) || (string_compare("admin", who) == 0))
+		{
+			want_wizards = want_apprentices = true;
+		}
+	}
+
+	bool Show(descriptor_data* d)
+	{
+		if(d->IS_FAKED())
+			return want_npcs;
+
+		if(!d->IS_CONNECTED())
+			return want_unconnected;
+
+		if(want_everyone)
+			return true;
+
+		if(!d->IS_CONNECTED())	// At this point the target has to be connected.
+			return false;
+
+		dbref target = d->get_player();
+		if(!Connected(target))	// Something screwy has happened...
+			return false;
+		if(want_me && (player == target))				return true;
+		if(want_wizards && Wizard(target))				return true;
+		if(want_apprentices && Apprentice(target))			return true;
+		if(want_natter && Natter(target))				return true;
+		if(want_guests && is_guest(target))				return true;
+		if(want_builders && Builder(target))				return true;
+		if(want_xbuilders && XBuilder(target))				return true;
+		if(want_fighters && Fighting(target))				return true;
+		if(want_welcomers && Welcomer(target))				return true;
+		if(want_area_who && in_area(target, wanted_location))		return true;
+
+		// We've run out of standard tests, go for the names...
+#ifdef ALIASES
+		if(db[target].has_alias(wanted))				return true;
+#endif
+		if(string_prefix(db[target].get_name(), wanted))		return true;
+
+		// If we get here, we definately don't want it.
+
+		return false;
+	}
+private:
+	WhoToShow(const WhoToShow&); // DUMMY
+	WhoToShow& operator=(const WhoToShow&); // DUMMY
+};
+
 /* Warning: don't forget when doing colour that e->player might be zero (ie. WHO before connecting) */
 
 void
@@ -3689,58 +3783,13 @@ int			flags)
 	int			builder = 0, wizard = 0, haven = 0;
 	int			uptime;
 	int			gotonealready = 0;
-	int			want_me = 0;
-	int			want_wizards = 0;
-	int			want_apprentices = 0;
-	int			want_natter = 0;
-	int			want_guests = 0;
-	int			want_officers = 0;
-	int			want_builders = 0;
-	int			want_xbuilders = 0;
-	int			want_fighters = 0;
-	int			want_welcomers = 0;
-	int			want_npcs = 0;
-	int			want_area_who = 0;
-	int 			wanted_location;
 
 	int			firstchar;
 
 	(void) time (&now);
 
-	if (victim)
-	{
-		if (!(string_compare(victim, "me")))
-			want_me = 1;
-		if (!(string_compare(victim, "wizards")))
-			want_wizards = 1;
-		if (!(string_compare(victim, "apprentices")))
-			want_apprentices = 1;
-		if (!(string_compare(victim, "admin")))
-			want_wizards = want_apprentices = 1;
-		if (!(string_compare(victim, "natter")))
-			want_natter = want_wizards = want_apprentices = 1;
-		if (!(string_compare(victim, "guests")))
-			want_guests = 1;
-		if (!(string_compare(victim, "officers")))
-			want_officers = 1;
-		if (!(string_compare(victim, "builders")))
-			want_builders = 1;
-		if (!(string_compare(victim, "xbuilders")))
-			want_xbuilders = 1;
-		if (!(string_compare(victim, "fighters")))
-			want_fighters = 1;
-		if ((!string_compare(victim, "welcomers")) || (!string_compare(victim, "welcomer")))
-			want_welcomers = 1;
-		if (!(string_compare(victim, "npc")) || (!string_compare(victim, "npcs")))
-			want_npcs=1;
-		if (victim[0] == '#')
-		{
-			want_area_who = 1;
-			victim++; /* Go past the # */
-			wanted_location = atoi(victim); 
-/* Set up the location for area who */
-		}
-	}
+	WhoToShow who(victim, get_player(), true);
+	
 	//Find size of current descriptor list
 	//Make new array
 	//Copy in
@@ -3748,38 +3797,7 @@ int			flags)
 
 	for (d = descriptor_list; d; d = d->next)
 	{
-		if(d->IS_FAKED() && (want_npcs==0))
-			continue;
-#ifdef ALIASES
-		if ((victim == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
-		    (!want_me && !want_wizards && !want_apprentices &&
-			  ((strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0) ||
-				(db[d->get_player()].has_alias(victim)))) ||
-		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
-		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
-		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
-			(want_guests && is_guest(d->get_player())) ||
-			(want_builders && Builder(d->get_player())) ||
-			(want_xbuilders && XBuilder(d->get_player())) ||
-			(want_fighters && Fighting(d->get_player())) ||
-			(want_welcomers && Welcomer(d->get_player())) ||
-			(want_area_who && in_area(d->get_player(), wanted_location)))
-#else
-		if ((victim == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
-		    (!want_me && !want_wizards && !want_apprentices &&
-			(strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0)) ||
-		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
-		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
-		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
-			(want_guests && is_guest(d->get_player())) ||
-			(want_builders && Builder(d->get_player())) ||
-			(want_xbuilders && XBuilder(d->get_player())) ||
-			(want_fighters && Fighting(d->get_player())) ||
-			(want_welcomers && Welcomer(d->get_player())) ||
-			(want_area_who && in_area(d->get_player(), wanted_location)))
-#endif
+		if(who.Show(d))
 		{
 			if (!gotonealready)
 			{
@@ -3787,7 +3805,7 @@ int			flags)
 					queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
 				if (victim == NULL)
 					queue_string ("Current Players:                                                          Idle\n");
-				else if (want_npcs==1)
+				else if (who.want_npcs)
 					queue_string ("Currently connected NPCs:                                                 Idle\n");
 				else
 					queue_string ("Specific player details (as requested):                                   Idle\n");
@@ -3828,7 +3846,7 @@ int			flags)
 			/* Format output: Name... */
 			if (d->IS_CONNECTED())
 			{
-				if (want_npcs==1)
+				if (who.want_npcs)
 				{
 					snprintf(scratch, sizeof(scratch), "#%-5d ", d->get_player());
 					remaining-=7;
@@ -3851,10 +3869,10 @@ int			flags)
 						colour= COLOUR_WIZARDS;
                                         if (thing==GOD_ID)
 						colour= COLOUR_GOD;
-					if (want_npcs==0)
+					if (!who.want_npcs)
 						strcat(buf, player_colour (get_player(), get_player(), colour));
 				}
-				if (want_npcs)
+				if (who.want_npcs)
 				{
 					snprintf(flag_buf, sizeof(flag_buf), "(%s)", db[db[d->get_player()].get_owner()].get_name().c_str());
 					snprintf(scratch, sizeof(scratch), "%-20s %-22s", db[d->get_player()].get_name().c_str(), flag_buf);
@@ -3923,7 +3941,7 @@ int			flags)
 				else
 					strcat (flag_buf, ")");
 
-				if (want_npcs)
+				if (who.want_npcs)
 					remaining-=18 + strlen(flag_buf) + 43;
 				else
 					remaining-=18 + strlen(flag_buf) + strlen(db[d->get_player()].get_name().c_str());
@@ -3941,7 +3959,7 @@ int			flags)
 				/* count the users. */
 				users++;
 
-				if (want_npcs==0)
+				if (!who.want_npcs)
 				{
 					/* ... and machine name */
 					if (d->address == LOGTHROUGH_HOST)
@@ -4270,16 +4288,19 @@ descriptor_data::dump_swho()
 
 void
 context::do_swho (
-const	String& ,
+const	String& victim,
 const	String& )
 
 {
 	struct descriptor_data *d;
 
+	WhoToShow who(victim, get_player(), false);
+
 	notify_colour(player, player, COLOUR_MESSAGES, "Current players:");
 	for (d = descriptor_list; d; d = d->next)
-		if (d->IS_CONNECTED() && (d->get_player() == player))
-			d->dump_swho ();
+		if(who.Show(d))
+			d->dump_swho();
+
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -4289,127 +4310,34 @@ void
 context::do_query_connectedplayers (const String& victim, const String& name)
 {
 struct	descriptor_data *d;
-// Variables stolen straight from 'dump_users'. 
-// These, plus associated routines really should be merged into one
-// Location
-	int	found_one=0;
-	int	want_me = 0;
-	int	want_wizards = 0;
-	int	want_apprentices = 0;
-	int	want_natter = 0;
-	int	want_guests = 0;
-	int	want_officers = 0;
-	int	want_builders = 0;
-	int	want_xbuilders = 0;
-	int	want_fighters = 0;
-	int	want_welcomers = 0;
-	int	want_npcs = 0;
-	int	want_area_who = 0;
-	int 	wanted_location;
-// Max name length + ; + \0 and some leeway.
-static	char	buf[MAX_USERS*(MAX_NAME_LENGTH+2)];
+bool found_one = false;
+String buf;
 
-if (victim)
-{
-	if (!(string_compare(victim, "me")))
-		want_me = 1;
-	if (!(string_compare(victim, "wizards")))
-		want_wizards = 1;
-	if (!(string_compare(victim, "apprentices")))
-		want_apprentices = 1;
-	if (!(string_compare(victim, "admin")))
-		want_wizards = want_apprentices = 1;
-	if (!(string_compare(victim, "natter")))
-		want_natter = want_wizards = want_apprentices = 1;
-	if (!(string_compare(victim, "guests")))
-		want_guests = 1;
-	if (!(string_compare(victim, "officers")))
-		want_officers = 1;
-	if (!(string_compare(victim, "builders")))
-		want_builders = 1;
-	if (!(string_compare(victim, "xbuilders")))
-		want_xbuilders = 1;
-	if (!(string_compare(victim, "fighters")))
-		want_fighters = 1;
-	if ((!string_compare(victim, "welcomers")) || (!string_compare(victim, "welcomer")))
-		want_welcomers = 1;
-	if (!(string_compare(victim, "npc")) || (!string_compare(victim, "npcs")))
-		want_npcs=1;
-// Don't worry about arguments starting with '#', makes no real
-// sense in this context.
-}
-// The remaining players separated with semi-colons.
-for (d = descriptor_list; d; d = d->next)
-{
-	if(d->IS_FAKED() && (want_npcs==0))
-		continue;
-	//if(d->IS_CONNECTED()) /* Connected players and NPCs */
+	WhoToShow who(victim, get_player(), false);
 
-#ifdef ALIASES
-		if ((victim.c_str() == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
-		    (!want_me && !want_wizards && !want_apprentices &&
-			  ((strncasecmp(victim.c_str(), db[d->get_player()].get_name().c_str(), strlen(victim.c_str()))==0) ||
-				(db[d->get_player()].has_alias(victim.c_str())))) ||
-		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
-		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
-		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
-			(want_guests && is_guest(d->get_player())) ||
-			(want_builders && Builder(d->get_player())) ||
-			(want_xbuilders && XBuilder(d->get_player())) ||
-			(want_fighters && Fighting(d->get_player())) ||
-			(want_welcomers && Welcomer(d->get_player())) ||
-			(want_area_who && in_area(d->get_player(), wanted_location)))
-#else
-		if ((victim.c_str() == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
-		    (!want_me && !want_wizards && !want_apprentices &&
-			(strncasecmp(victim.c_str(), db[d->get_player()].get_name().c_str(), strlen(victim.c_str()))==0)) ||
-		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
-		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
-		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
-			(want_guests && is_guest(d->get_player())) ||
-			(want_builders && Builder(d->get_player())) ||
-			(want_xbuilders && XBuilder(d->get_player())) ||
-			(want_fighters && Fighting(d->get_player())) ||
-			(want_welcomers && Welcomer(d->get_player())) ||
-			(want_area_who && in_area(d->get_player(), wanted_location)))
-#endif
+	// The remaining players separated with semi-colons.
+	for (d = descriptor_list; d; d = d->next)
 	{
-		if(d->IS_FAKED())  	// NPC, so give number
+		if(who.Show(d))
 		{
 			if (found_one)
 			{
-				snprintf(scratch, sizeof(scratch), ";#%d",d->get_player());
-				strcat(buf,scratch);
+				buf+=";";
 			}
-			else
+			if(d->IS_FAKED())  	// NPC, so give number
 			{
-				// snprintf straight into buffer to reset
-				// buffer from last time.
-				snprintf(buf, sizeof(buf), "#%d",d->get_player());
-				found_one=1;
+				snprintf(scratch, sizeof(scratch), "#%d",d->get_player());
+				buf+=scratch;
 			}
-		}
-		else 			// Normal player, so give name
-		{
-			if (found_one)
+			else 			// Normal player, so give name
 			{
-				strcat(buf,";");
-				strcat(buf,db[d->get_player()].get_name().c_str());
+				buf+=db[d->get_player()].get_name();
 			}
-			else
-			{
-				// snprintf straight into buffer to reset
-				// buffer from last time.
-				snprintf(buf, sizeof(buf), db[d->get_player()].get_name().c_str());
-				found_one=1;
-			}
+			found_one = true;
 		}
 	}
-}
-return_status = COMMAND_SUCC;
-set_return_string (buf);
+	return_status = COMMAND_SUCC;
+	set_return_string (buf);
 }
 
 
