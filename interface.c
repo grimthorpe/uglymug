@@ -286,6 +286,7 @@ public:
 				bool	recall;
 				bool	effects;
 				bool	halfquit;
+				bool	noflush;
 			}	terminal;
 	int			channel;
 
@@ -382,6 +383,7 @@ public:
 	Command_status	terminal_set_recall(const CString& , bool);
 	Command_status	terminal_set_effects(const CString& , bool);
 	Command_status	terminal_set_halfquit(const CString& , bool);
+	Command_status	terminal_set_noflush(const CString& , bool);
 	void	do_write(const char * c, int i)
 	{
 /*
@@ -481,6 +483,7 @@ struct terminal_set_command
 	{ "recall",	&descriptor_data::terminal_set_recall },
 	{ "effects",	&descriptor_data::terminal_set_effects },
 	{ "halfquit",	&descriptor_data::terminal_set_halfquit },
+	{ "noflush",	&descriptor_data::terminal_set_noflush },
 
 	{ NULL, NULL }
 };
@@ -2304,6 +2307,7 @@ int			channel)
 	terminal.recall		= true;
 	terminal.effects	= false;
 	terminal.halfquit	= false;
+	terminal.noflush	= false;
 	termcap.bold_on		= NULL;
 	termcap.bold_off	= NULL;
 	termcap.underscore_on	= NULL;
@@ -2426,9 +2430,12 @@ descriptor_data::queue_write(const char *b, int n)
 	if(IS_FAKED())
 		return n;
 
-	space = MAX_OUTPUT - output_size - n;
-	if (space < 0)
-		output_size -= flush_queue(&output, -space);
+	if(!terminal.noflush)
+	{
+		space = MAX_OUTPUT - output_size - n;
+		if (space < 0)
+			output_size -= flush_queue(&output, -space);
+	}
 	add_to_queue (&output, b, n);
 	output_size += n;
 
@@ -4439,6 +4446,32 @@ time_t get_idle_time (dbref player)
 
 	time(&now);
 	return (now - d->last_time);
+}
+
+Command_status
+descriptor_data::terminal_set_noflush(const CString& toggle, bool gagged)
+{
+	if(toggle)
+	{
+		if(string_compare(toggle, "on") == 0)
+		{
+			terminal.noflush = true;
+		}
+		else if(string_compare(toggle, "off") == 0)
+		{
+			terminal.noflush = false;
+		}
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal noflush=on' or '@terminal noflush=off'.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!gagged)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"noflush is %s", terminal.noflush?"on":"off");
+	}
+	return COMMAND_SUCC;
 }
 
 Command_status
