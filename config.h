@@ -153,7 +153,7 @@
 #define SMD_FILE	"smd.list"
 #define EMAIL_FILE	"email.list"
 /* This is the address that all non-player specific logs go to. */
-#define GOD_EMAIL	"um-gods@uglymug.org.uk"
+#define LOG_EMAIL	"otherlogs@uglymug.org.uk"
 
 const unsigned int MAX_MORTAL_ARRAY_ELEMENTS=100;
 const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;

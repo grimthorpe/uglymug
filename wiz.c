@@ -531,7 +531,7 @@ context::dump_email_addresses ()
 		fprintf(fp, "GOD_ID|");
 		for(int j = 0; j < MAX_ALIASES; j++)
 			fprintf(fp, "|");
-		fprintf(fp, "-1|" GOD_EMAIL "|NOHUH|NO_EMAIL_FORWARD\n");
+		fprintf(fp, "-1|" LOG_EMAIL "|NOHUH|NO_EMAIL_FORWARD\n");
 
 		for (i = 0; i < db.get_top (); i++)
 			if (Typeof (i) == TYPE_PLAYER)
