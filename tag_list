@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_045 - Emergency release for alarm-based crashes
 	Changed @remote so that it only pretends to move you. This may need fixes later on as we discover the side-effects. (Grimthorpe)
 	Altered do_at_location (teleport code) so that it's possible to teleport Things to a Wizard owned room in a wiz-chpid. (CCW)
 	Added a pointer to ums_release_template.txt in the tag_list comments. (CCW)
@@ -22,7 +23,7 @@ information doesn't get lost.
 	Removed stack.[ch], memory.[ch] - necessitating some fixes to pushing jobs. (PJC)
 	Made the string maps (player names, command names) compare strings with a hash function before using a string compare, which should be significantly faster. (Grimthorpe)
 	Stopped the compound command code from going stupidly recursive. (Grimthorpe)
-	Stopped destroying the room an alarm's owner is in from crashing the game
+	Stopped destroying the room an alarm's owner is in from crashing the game (Grimthorpe)
 
 um1_044 - Time to roll in some more fixes
 	Added log_credit() function. (CCW)
