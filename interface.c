@@ -4800,7 +4800,7 @@ void context::do_terminal_set(const CString& command, const CString& arg)
 	}
 
 	int		i;
-	bool		gag = arg?in_command():false;
+	bool		gag = arg?gagged_command():false;
 
 	for(i=0; terminal_set_command_table[i].name; i++)
 	{
