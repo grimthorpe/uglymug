@@ -50,6 +50,26 @@ const	char	*arg2)
 {
 	dbref	command;
 
+#ifdef HACK_HUNTING
+	// If we're inside a chpid...
+	if(get_effective_id() != player)
+	{
+		/* If we try to call a command that doesn't start
+		 * with '#' (ie an absolute number, or relative to
+		 * an absolute), then print a nasty warning.
+		 * We'll let commands relative to 'here' through...
+		 */
+		if((command_string[0] != '#')
+			&& (strncasecmp(command_string, "here:", 5) != 0))
+		{
+			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string);
+			Trace("HACK|%s(%d)| Command %s(%d) has non-absolute command '%s' called while in @chpid\n",
+				getname(get_effective_id()), get_effective_id(),
+				getname(get_current_command()), get_current_command(),
+				command_string);
+		}
+	}
+#endif /* HACK_HUNTING */
 	/* Match commands */
 	Matcher matcher (player, command_string, TYPE_COMMAND, get_effective_id ());
 	matcher.check_keys ();
@@ -67,17 +87,6 @@ const	char	*arg2)
 		return (False);
 	}
 
-#ifdef HACK_HUNTING
-	if((get_effective_id() != player)
-		&& (!matcher.was_absolute()))
-	{
-		notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string);
-		Trace("HACK|%s(%d)| Command %s(%d) has non-absolute command '%s' called while in @chpid\n",
-			getname(get_effective_id()), get_effective_id(),
-			getname(get_current_command()), get_current_command(),
-			command_string);
-	}
-#endif /* HACK_HUNTING */
 	/* Cannot directly do dark commands - if we find one, keep hunting. */
 	do
 	{
