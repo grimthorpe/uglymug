@@ -3,9 +3,10 @@
 
 /* Wizard-only commands */
 
-#if defined (linux) || (sun)
-  #include <crypt.h>
-#endif /* defined (linux) || (sun) */ 
+#include "os.h"
+#if NEEDS_CRYPT_H
+#	include <crypt.h>
+#endif /* NEEDS_CRYPT_H */
 
 #include "db.h"
 #include "interface.h"
@@ -537,9 +538,11 @@ context::dump_email_addresses ()
 		fclose(fp);
 
 		unlink(EMAIL_FILE); // Don't care if it fails.
-		link(EMAIL_FILE ".tmp", EMAIL_FILE);
-		unlink(EMAIL_FILE ".tmp"); // Remove the temporary file.
-//		notify_colour (player, player, COLOUR_MESSAGES, "Done.");
+
+// Linux, MinGW and Solaris all have rename() now. Others will have to take their chances. PJC 12/4/03.
+//		link(EMAIL_FILE ".tmp", EMAIL_FILE);
+//		unlink(EMAIL_FILE ".tmp"); // Remove the temporary file.
+		rename (EMAIL_FILE ".tmp", EMAIL_FILE);
 	}
 
 }
