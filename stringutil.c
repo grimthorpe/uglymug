@@ -118,10 +118,8 @@ const	CString& is_this)
 		return (true);
 
 	/* Check for one NULL */
-	if (!in_this)
+	if((!in_this) || (!is_this))
 		return (false);
-	if (!is_this)
-		return (true);
 
 	while(*m)
 	{
