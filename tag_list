@@ -13,6 +13,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	added #include <string.h> to mudstring.c to help it compile on 
+	non-solaris
+
 	Allow god to boot wizards without having to set them !W first..
 
 	Added port information in interfaces.c, thus WebGW and TelnetGW

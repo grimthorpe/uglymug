@@ -13,6 +13,7 @@
 #include "mudstring.h"
 #include "copyright.h"
 #include <time.h>
+#include <string.h>
 
 // NewBuffer - static method that returns a StringBuffer.
 StringBuffer*
