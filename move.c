@@ -1144,7 +1144,10 @@ const	CString& command)
 //	mud_scheduler.push_express_job (remote_context); 
 //	copy_returns_from (*remote_context);
 //	delete remote_context;
+	const int old_depth = call_stack.depth();
 	process_basic_command (command.c_str());
+	while(call_stack.depth() > old_depth)
+		step();
 //	mud_scheduler.push_express_job (this); 
 	//copy_returns_from (*remote_context);
 
