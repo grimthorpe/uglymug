@@ -308,15 +308,32 @@ const	String& reason)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player does not exist.");
 	if (recipient == player)
 	{
+/* Back in the days of allowing multiple connections to one player
+ * This was useful, now in the days of HALFQUIT and reconnects
+ * It isn't clear to me that this is JPK
+ */
 		if (connection_count (player) > 1)
 			allow=1;
 		else
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You cannot boot your last remaining connection - use QUIT to quit.");
 	}
 	else if ((!Wizard (player)) && (!Apprentice (player)))
+	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only Wizards and Apprentices may boot people.");
+	}
 	else if (Wizard (recipient))
+	{
+#ifndef NO_GOD
+		if (player == GOD_ID)
+		{
+			allow=1;
+		}
+		else
+#endif  /* NO_GOD */
+		{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Oy! No booting Wizards!");
+		}
+	}
 	else if ((Apprentice (recipient)) && (Apprentice (player)))
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Apprentices may not boot other apprentices.");
 	else
