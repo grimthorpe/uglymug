@@ -1253,15 +1253,19 @@ context	*c)
 	contexts.push (c);
 	/* Now keep going while the queue is deeper */
 // HACK: We might hit a loop here...
-int loop = 0;
+static int loop = 1;
+int old_loop = loop;
+
 	while ((contexts.get_depth () > old_depth) && (loop++ < 1500))
 		returned = step ();
 
-while(contexts.get_depth() > old_depth)
-{
-	returned = contexts.pop();
-}
+	while(contexts.get_depth() > old_depth)
+	{
+		returned = contexts.pop();
+	}
 
+	loop = old_loop; // We can safely reset it here, because we'll pop the jobs that cause the problem.
+		// I hope!
 
 	/* The last step that popped the queue must have returned something useful */
 	return returned;
