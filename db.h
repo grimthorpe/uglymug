@@ -582,6 +582,7 @@ class	object
 
 	virtual		void	add_recall_line			(const String& string);
 	virtual		void	output_recall			(const int lines, const context * con);
+	virtual		void	output_recall_conditional	(String match, const int lines, const context * con);
 	virtual		void	ditch_recall			();
 //	virtual	const	bool	write_array_elements		(FILE *)		const;
 //	virtual	const	bool	read_array_elements		(FILE *, const int, const int);

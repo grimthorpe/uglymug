@@ -674,6 +674,9 @@ void object::set_alias (const int, const String&)
 void object::add_recall_line (const String&)
 { IMPLEMENTATION_ERROR ("add_recall_line") }
 
+void object::output_recall_conditional (const String match, const int lines, const context * con)
+{ IMPLEMENTATION_ERROR ("output_recall_conditional") }
+
 void object::output_recall (const int lines, const context * con)
 { IMPLEMENTATION_ERROR ("output_recall") }
 
@@ -1604,6 +1607,62 @@ const context *	con)
         if(recall->buffer_build)
         {
                 notify_norecall(con->get_player(), "%s", recall->buffer_build);
+        }
+
+}
+
+void
+Player::output_recall_conditional (
+const String	match,
+const int	lines,
+const context *	con)
+{
+
+	int thelines = lines;
+
+        //Return if there is nothing in the buffer yet
+        if(!recall || (recall->buffer_next == 0 && recall->buffer_wrapped == 0))
+        {
+                return;
+        }
+
+        //Check there is enough in the buffer already
+        if(!recall->buffer_wrapped)
+        {
+                if(thelines > recall->buffer_next)
+                {
+                        thelines = recall->buffer_next;
+                }
+        }
+
+        int line_to_output=recall->buffer_next - thelines;
+
+        if(line_to_output < 0)
+        {
+                if(recall->buffer_wrapped)
+                {
+                        line_to_output = MAX_RECALL_LINES + line_to_output;
+                }
+                else
+                {
+                        line_to_output = 0;
+                }
+        }
+
+        for(int i=0;i<thelines;i++)
+        {
+                if(line_to_output >= MAX_RECALL_LINES)
+                {
+                        line_to_output = 0;
+                }
+
+                notify_norecall_conditional(match,con->get_player(), "%s", recall->buffer[line_to_output].c_str());
+                line_to_output++;
+        }
+
+        if(recall->buffer_build)
+        {
+                notify_norecall_conditional(match,con->get_player(), "%s", recall->buffer_build);
         }
 
 }

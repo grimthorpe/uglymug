@@ -46,6 +46,9 @@
 #include "game_predicates.h"
 #include "log.h"
 
+/* JPK - regexp needed for conditional output */
+#include "regexp_interface.h"
+
 #ifdef USE_TERMINFO
 #if defined (sun) || (linux)
 	#include <curses.h>
@@ -1027,6 +1030,40 @@ void notify(dbref player, const char *fmt, ...)
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
+}
+
+void notify_norecall_conditional(String match,dbref player, const char *fmt, ...)
+{
+
+	char    regexpbuf[ BUFFER_LEN ];
+        struct descriptor_data *d;
+        va_list vl;
+
+        va_start (vl, fmt);
+        vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+        va_end (vl);
+	
+	// JPK *FIXME*
+	if (! (match.c_str()[0]) == NULL )
+	{
+		compile(match.c_str(), regexpbuf, regexpbuf+BUFFER_LEN, '\0');
+		if (step(vsnprintf_result, regexpbuf))
+		{
+       	 		for (d = descriptor_list; d; d = d->next)
+       	        		if (d->IS_CONNECTED() && d->get_player() == player)
+       	        		{
+       	        		        d->queue_string (vsnprintf_result, 0, 0);
+       	        		}
+		}
+	}
+	else
+	{
+		for (d = descriptor_list; d; d = d->next)
+			if (d->IS_CONNECTED() && d->get_player() == player)
+			{
+				d->queue_string (vsnprintf_result, 0, 0);
+			}
+	}
 }
 
 void notify_norecall(dbref player, const char *fmt, ...)

@@ -146,7 +146,19 @@ const	String& is_this)
 	return(false);
 }
 
-
+// JPK *FIXME*
+//int string_substr_match(const   String& s1, const   String& s2)
+//{
+//strstr()
+//}
+/* Oh yeah, I know, we'll comment some code...                */
+/* string_compare does a case insensetive comparison between  */
+/* strings s1 and s2                                          */
+/*   returns 0  if the strings are the same                   */
+/*   returns -1 if s1 is null, but s2 isn't                   */
+/*   returns 1  if s2 is null, but s1 isn't                   */
+/*   returns the numerical difference between the lowercase   */
+/*     values of the first letter that doesn't match(!)       */
 int
 string_compare (
 const	String& s1,

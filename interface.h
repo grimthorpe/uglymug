@@ -24,6 +24,7 @@ extern	void	notify_censor_colour	(dbref player, dbref talker, int colour, const 
 extern	void	notify_public_colour	(dbref player, dbref talker, int colour, const char *fmt, ...);
 extern	void	notify			(dbref player, const char *fmt, ...);
 extern	void	notify_norecall		(dbref player, const char *fmt, ...);
+extern	void	notify_norecall_conditional (String match,dbref player, const char *fmt, ...);
 extern	void	notify_censor		(dbref player, dbref originator, const char *fmt, ...);
 
 extern	void	notify_public		(dbref player, dbref originator, const char *fmt, ...);

@@ -196,7 +196,7 @@ const	String& )
 void
 context::do_at_recall (
 const	String& lines,
-const	String& dummy)
+const	String& match)
 
 {
 	if(string_compare(lines, "clear") == 0)
@@ -226,9 +226,18 @@ const	String& dummy)
                 }
         }
 
-        notify_norecall (player, "%s %d %s", "---------------Recalling",num_lines,"lines-----------------------------\n");
-        db[player].output_recall(num_lines, this);
-        notify_norecall (player, "%s %d %s", "---------------End Recall of", num_lines, "lines-------------------------\n");
+	if ( match.c_str() == NULL )
+	{
+        notify_norecall(player, "%s %d %s", "---------------Recalling",num_lines,"lines-----------------------------\n");
+        db[player].output_recall_conditional("\0",num_lines, this);
+        notify_norecall(player, "%s %d %s", "---------------End Recall of", num_lines, "lines-------------------------\n");
+	}
+	else
+	{
+        notify_norecall(player, "%s %d %s %s %s", "----------Recalling",num_lines,"lines, showing matches to:", match.c_str(),"-------------\n");
+        db[player].output_recall_conditional(match,num_lines, this);
+        notify_norecall(player, "%s %d %s %s %s", "----------End Recall of", num_lines, "lines showing matches to:",match.c_str(),"----------\n");
+	}
 
 	RETURN_SUCC;
 }
