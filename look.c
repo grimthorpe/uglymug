@@ -1613,8 +1613,6 @@ const	String& )
 			notify(player, "%s", scratch_buffer);
 		}
 	}
-
-	Accessed (thing);
 }
 
 
