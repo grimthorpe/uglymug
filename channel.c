@@ -602,8 +602,6 @@ context::do_query_channel (const CString& arg1, const CString& arg2)
 void
 context::do_channel (const CString& arg1, const CString& arg2)
 {
-	bool silent_command = Silent(get_current_command());
-
 	if(Typeof(player) != TYPE_PLAYER)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "NPC's can't use channels.");
@@ -665,7 +663,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 	if(Unknown == command)
 	{
-		if(!silent_command)
+		if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "'%s' is not a valid @channel command", arg1.c_str());
 		RETURN_FAIL;
 	}
@@ -703,7 +701,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	{
 		if(!arg2)
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Which channel do you want to join?");
 			RETURN_FAIL;
 		}
@@ -725,13 +723,13 @@ context::do_channel (const CString& arg1, const CString& arg2)
 		Channel* channel = 0;
 		if(!arg2)
 		{
-			if(!silent_command)
+			if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Which channel do you want to leave?");
 			RETURN_FAIL;
 		}
 		if(string_compare(arg2, "all")==0)
 		{
-			if(!silent_command)
+			if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are no longer on any channels.",COLOUR_REVERT);
 			channel_disconnect(player, true);
 			RETURN_SUCC;
@@ -739,25 +737,25 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 		if(!Channel::ok_name(arg2))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't a valid channel name.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
 		if(!(channel=Channel::find(arg2)))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such channel.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
 		if(!channel->find_player(player))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You're not on channel %s.", channel->name().c_str());
 			RETURN_FAIL;
 		}
-			if(!silent_command)
+			if(!gagged_command())
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You have left channel %s.", channel->name().c_str());
 		if(db[player].get_channel() == channel)
 			db[player].set_channel(NULL);
@@ -773,7 +771,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 	if(!channel)
 	{
-			if(!silent_command)
+			if(!gagged_command())
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must belong to a channel to use this command.");
 		RETURN_FAIL;
 	}
@@ -839,7 +837,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 	if((!channel_player->controller()) && !Wizard(get_effective_id()))
 	{
-		if(!silent_command)
+		if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are not an operator on channel %s.", channel->name().c_str());
 		RETURN_FAIL;
 	}
@@ -873,7 +871,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 		{
 			if(channel->get_private())
 			{
-				if(!silent_command)
+				if(!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is already private.", channel->name().c_str());
 				RETURN_FAIL;
 			}
@@ -888,7 +886,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 		{
 			if(channel->get_censored())
 			{
-				if(!silent_command)
+				if(!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is already censored.", channel->name().c_str());
 				RETURN_FAIL;
 			}
@@ -903,7 +901,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 		{
 			if(!channel->get_censored())
 			{
-				if(!silent_command)
+				if(!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is already uncensored.", channel->name().c_str());
 				RETURN_FAIL;
 			}
@@ -913,7 +911,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 			channel->send(player, scratch_buffer, 1);
 			RETURN_SUCC;
 		}
-		if(!silent_command)
+		if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must specify either \"private\", \"public\", \"censored\" or \"uncensored\".",COLOUR_REVERT);
 		RETURN_FAIL;
 	}
@@ -922,14 +920,14 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	{
 		if(!arg2)
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must give a new name for the channel.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
 		if(!Channel::ok_name(arg2))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't a valid channel name.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
@@ -937,7 +935,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 		// Check the channel is not already in use.
 		if (Channel::find (arg2))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That channel name is already taken.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
@@ -954,7 +952,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	 */
 	if(!arg2)
 	{
-		if(!silent_command)
+		if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must specify a player to do that.");
 		RETURN_FAIL;
 	}
@@ -963,7 +961,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 	if((victim=lookup_player(player, arg2))==NOTHING)
 	{
-		if(!silent_command)
+		if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player \"%s\".", arg2.c_str());
 		RETURN_FAIL;
 	}
@@ -974,14 +972,14 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 		if(!(vc=channel->find_player(victim)))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not on channel %s.", db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
 		if(vc->controller())
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is already an operator on channel %s.", db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
@@ -1009,14 +1007,14 @@ context::do_channel (const CString& arg1, const CString& arg2)
 
 		if(!(vc=channel->find_player(victim)))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not on channel %s.",  db[victim].get_name().c_str(), channel->name().c_str(),COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
 		if(!vc->controller())
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not an operator on channel %s.", db[victim].get_name().c_str(), channel->name().c_str(),COLOUR_REVERT);
 			RETURN_FAIL;
 		}
@@ -1038,21 +1036,21 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	{
 		if(channel->find_player(victim))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is already on channel %s.",  db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
 		if(channel->player_banned(victim))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is banned from channel %s.",  db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
 		if(!Connected(victim))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not connected.", db[victim].get_name().c_str());
 			RETURN_FAIL;
 		}
@@ -1068,7 +1066,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 			}
 			else
 			{
-				if(!silent_command)
+				if(!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player is not currently invited.");
 			}
 		}
@@ -1079,7 +1077,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 			time(&now);
 			if((which=channel->find_invite(victim)) && (now-which->timestamp() < CHANNEL_INVITE_FREQUENCY))
 			{
-				if(!silent_command)
+				if(!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player is already invited (you can re-send the invite in %s).",time_string(CHANNEL_INVITE_FREQUENCY - now + which->timestamp()));
 			}
 			else
@@ -1106,13 +1104,13 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	{
 		if(player == victim)
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You cannot boot yourself from a channel. Use @channel leave instead");
 			RETURN_FAIL;
 		}
 		if(!channel->find_player(victim))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not on channel %s.", db[victim].get_name().c_str(), channel->name().c_str(),COLOUR_REVERT);
 			RETURN_FAIL;
 		}
@@ -1127,13 +1125,13 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	{
 		if(player == victim)
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You cannot ban yourself from a channel");
 			RETURN_FAIL;
 		}
 		if(channel->find_ban(victim))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is already banned from channel %s.", db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
@@ -1158,7 +1156,7 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	{
 		if(!channel->player_banned(victim))
 		{
-			if(!silent_command)
+			if(!gagged_command())
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not banned from channel %s.",  db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
