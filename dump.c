@@ -45,8 +45,8 @@ int main(int argc, char **argv)
 		if(lister != NOTHING && db[i].get_owner() != owner)
 			continue;
 
-		printf("#%d: %s [%s] ", i, db[i].get_name()
-		       , db[db[i].get_owner()].get_name());
+		printf("#%d: %s [%s] ", i, db[i].get_name().c_str ()
+		       , db[db[i].get_owner()].get_name().c_str ());
 		printf("at %s ", unparse_object(owner, db[i].get_location()));
 
 		printf(" Building Points: %d Type: ", db[i].get_pennies());
@@ -90,19 +90,19 @@ int main(int argc, char **argv)
 		if(db[i].get_flags() & ~TYPE_MASK)
 		{
 			printf("Flags: ");
-			FLAG(DARK, "DARK ");
-			FLAG(STICKY, "STICKY ");
-			FLAG(LISTEN, "LISTEN ");
-			FLAG(WIZARD, "WIZARD ");
-			if(db[i].get_flags() & (GENDER_MALE >> GENDER_SHIFT)) printf("MALE ");
-			if(db[i].get_flags() & (GENDER_FEMALE>> GENDER_SHIFT)) printf("FEMALE ");
-			if(db[i].get_flags() & (GENDER_NEUTER>> GENDER_SHIFT)) printf("NEUTER ");
+			FLAG(FLAG_DARK, "DARK ");
+			FLAG(FLAG_STICKY, "STICKY ");
+			FLAG(FLAG_LISTEN, "LISTEN ");
+			FLAG(FLAG_WIZARD, "WIZARD ");
+			if(db[i].get_flags() & (FLAG_GENDER_MALE >> GENDER_SHIFT)) printf("MALE ");
+			if(db[i].get_flags() & (FLAG_GENDER_FEMALE>> GENDER_SHIFT)) printf("FEMALE ");
+			if(db[i].get_flags() & (FLAG_GENDER_NEUTER>> GENDER_SHIFT)) printf("NEUTER ");
 
-			if(db[i].get_flags() & (ARTICLE_SINGULAR_CONS_FLAG)) printf("SINGULARCONSONANT ") ;
-			if(db[i].get_flags() & (ARTICLE_SINGULAR_VOWEL_FLAG)) printf("SINGULARVOWEL ") ;
-			if(db[i].get_flags() & (ARTICLE_PLURAL_FLAG)) printf("PLURAL ");
+			if(db[i].get_flags() & (FLAG_ARTICLE_SINGULAR_CONS_FLAG)) printf("SINGULARCONSONANT ") ;
+			if(db[i].get_flags() & (FLAG_ARTICLE_SINGULAR_VOWEL_FLAG)) printf("SINGULARVOWEL ") ;
+			if(db[i].get_flags() & (FLAG_ARTICLE_PLURAL_FLAG)) printf("PLURAL ");
 		#ifdef RESTRICTED_BUILDING
-			FLAG(BUILDER, "BUILDER ");
+			FLAG(FLAG_BUILDER, "BUILDER ");
 		#endif /* RESTRICTED_BUILDING */
 			FLAG(VISIBLE ,"VISIBLE ");
 			FLAG(OPENABLE, "OPENABLE ");
