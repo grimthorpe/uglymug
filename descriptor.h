@@ -82,6 +82,7 @@ public:
 	int			indirect_connection;	/* got hostname through a SNDLOC */
 	String			hostname;
 	unsigned long		address;
+	String			service; // What the port connected to is for
 	descriptor_data		*next;
 	descriptor_data		**prev; // Pointer to previous->next!
 	struct		{

@@ -2118,6 +2118,34 @@ int			channel)
 	indirect_connection     = 0;
 	if(a)
 	{
+	struct sockaddr_in	tmpname;
+	socklen_t		tmpnamelen;
+	u_short                 local_port;
+	char			tmpstring[7]; /* max num=65535=>5 digits+1 */
+
+
+		tmpnamelen=sizeof(tmpname);
+		getsockname(s,(struct sockaddr *)(&tmpname),&tmpnamelen);
+		local_port = tmpname.sin_port;
+		switch (local_port)
+		{
+			case 2323:
+				service="TelnetGW";
+				break;
+			case 1394:
+				service="Robot";
+				break;
+			case 6239:
+				service="Main";
+				break;
+			case 8080:
+				service="WebGW";
+				break;
+			default:
+				sprintf(tmpstring,"%d",local_port);
+				service=tmpstring;
+				break;
+		}
 		address = a->sin_addr.s_addr;
 		hostname = convert_addr(address);
         }
@@ -4007,7 +4035,7 @@ int			flags)
 				if (d->indirect_connection)
 					snprintf (flag_buf, sizeof(flag_buf), " <%s>", d->hostname.c_str());
 				else
-					snprintf (flag_buf, sizeof(flag_buf), " [%s]", d->hostname.c_str());
+					snprintf (flag_buf, sizeof(flag_buf), " [%s:%s]", d->hostname.c_str(),d->service.c_str());
 				strcat(buf, flag_buf);
 			}
 
