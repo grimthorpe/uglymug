@@ -529,12 +529,12 @@ dump_database_internal ()
 		db.write (db_writefile);
 		if(ferror(db_writefile))
 		{
-			notify_wizard_unconditional("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n",ferror(db_writefile));
+			notify_wizard("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n",ferror(db_writefile));
 			Trace("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n", ferror(db_writefile));
 		}
 		if(fclose (db_writefile))
 		{
-			notify_wizard_unconditional("Database dump didn't close properly\n");
+			notify_wizard("Database dump didn't close properly\n");
 			Trace("ERROR: Database dump #%d didn't close properly\n", epoch);
 		}
 		if (rename (tmpfile, dumpfile) < 0)
@@ -638,7 +638,7 @@ fork_and_dump ()
 	else if(child < 0)
 	{
 		perror("fork_and_dump: fork()");
-		notify_wizard_unconditional("ERROR:  FORK FAILED FOR DATABASE DUMP!\n");
+		notify_wizard("ERROR:  FORK FAILED FOR DATABASE DUMP!\n");
 	}
 	else
 	{	/* in the parent */

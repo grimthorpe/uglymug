@@ -548,7 +548,7 @@ const	CString& colour_codes)
 	if(strlen(new_colour) > 1024)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry, your colour information has grown too large. Please see a wizard.");
-		notify_wizard_unconditional("%s's colour string has grown too long. Could be trying to crash it.", player);
+		notify_wizard("%s's colour string has grown too long. Could be trying to crash it.", player);
 		return;
 	}
 

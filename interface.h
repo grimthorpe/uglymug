@@ -31,7 +31,6 @@ extern	void	notify_all		(const char *fmt, ...);
 extern	void	notify_listeners	(const char *fmt, ...);
 extern	void	notify_area		(dbref loc, dbref originator, const char *fmt, ...);
 extern	void	notify_wizard		(const char *fmt, ...);
-extern	void	notify_wizard_unconditional (const char *fmt, ...);
 extern	void	notify_wizard_natter	(const char *fmt, ...);
 extern	void	notify_welcomer_natter	(const char *fmt, ...);
 

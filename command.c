@@ -132,7 +132,7 @@ const	char	*arg2)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Ambiguous command.");
 		Trace( "BUG: Ambiguous command (%s) in #%d\n", command_string, COMMAND_LAST_RESORT);
-		notify_wizard_unconditional ("Error: There's an ambiguous match on '%s' in #%d!", command_string, COMMAND_LAST_RESORT);
+		notify_wizard ("Error: There's an ambiguous match on '%s' in #%d!", command_string, COMMAND_LAST_RESORT);
 		return (false);
 	}
 

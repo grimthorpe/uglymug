@@ -12,6 +12,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Reconnections are now announced as [foo has reconnected].
+    notify_wizard_unconditional has been removed from interface.c as the
+    first part of tidying up the code; All notify_wizard output goes to
+    all wizards, even if they are haven.
+
 um1_027
     Altered so second connection replaces first.
     Altered @recall to default to 50 if num_lines not recognised.
