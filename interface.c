@@ -96,7 +96,8 @@ extern	char	player_booting[BUFFER_LEN];
 extern	char	boot_reason[BUFFER_LEN];
 int		shutdown_flag = 0;
 dbref		shutdown_player = NOTHING;
-static	char	vsprintf_result[BUFFER_LEN];
+static	char	vsnprintf_result[BUFFER_LEN];
+static	char	scratch[BUFFER_LEN];
 static	int	check_descriptors;
 int			peak_users;
 
@@ -643,13 +644,13 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result, sizeof(vsnprintf_result),fmt, vl);
 	va_end (vl);
 
 	if (Censored(originator))
 	{
 		censorall= True;
-		censored=censor(vsprintf_result);
+		censored=censor(vsnprintf_result);
 		deruded=True;
 	}
 
@@ -663,14 +664,14 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 				if (deruded==False)
 				{
 					deruded=True;
-					censored=censor(vsprintf_result);
+					censored=censor(vsnprintf_result);
 				}
 				d->queue_string (censored);
 				d->queue_string ("\n");
 			}
 			else
 			{
-				d->queue_string (vsprintf_result);
+				d->queue_string (vsnprintf_result);
 				d->queue_string ("\n");
 			}
 			d->queue_string(COLOUR_REVERT);
@@ -684,13 +685,13 @@ void notify_listeners (const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Listen(d->get_player())))
 		{
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string(COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -705,14 +706,14 @@ void notify_all (const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED())
 		{
 			d->queue_string (db[d->get_player()].get_colour_at()[COLOUR_SHOUTS]);
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -724,13 +725,13 @@ void notify_wizard(const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())) && (!(Haven(d->get_player()))))
 		{
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -742,13 +743,13 @@ void notify_wizard_unconditional(const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice (d->get_player())))
 		{
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -760,7 +761,7 @@ void notify_wizard_natter(const char *fmt, ...)
 	va_list vl;
 
 	va_start(vl, fmt);
-	vsprintf(vsprintf_result, fmt, vl);
+	vsnprintf(vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end(vl);
 
 	for (d = descriptor_list; d; d=d->next)
@@ -769,7 +770,7 @@ void notify_wizard_natter(const char *fmt, ...)
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTER_TITLES]);
 			d->queue_string("[WIZARD]");
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTERS]);
-			d->queue_string(vsprintf_result);
+			d->queue_string(vsnprintf_result);
 			d->queue_string(COLOUR_REVERT);
 			d->queue_string("\n");
 		}
@@ -781,7 +782,7 @@ void notify_welcomer_natter(const char *fmt, ...)
 	va_list vl;
 
 	va_start(vl, fmt);
-	vsprintf(vsprintf_result, fmt, vl);
+	vsnprintf(vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end(vl);
 
 	for (d = descriptor_list; d; d=d->next)
@@ -790,7 +791,7 @@ void notify_welcomer_natter(const char *fmt, ...)
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTER_TITLES]);
 			d->queue_string("[WELCOMER]");
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTERS]);
-			d->queue_string(vsprintf_result);
+			d->queue_string(vsnprintf_result);
 			d->queue_string(COLOUR_REVERT);
 			d->queue_string("\n");
 		}
@@ -803,14 +804,14 @@ void colour_player_notify(dbref player, dbref victim, const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
 			d->queue_string (player_colour(player, victim, NO_COLOUR));
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -832,7 +833,7 @@ const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	/* I'm relying on the coders either calling it with 
@@ -845,7 +846,7 @@ const char *fmt, ...)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
 			d->queue_string (player_colour(player, talker, colour));
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -863,7 +864,7 @@ const char *fmt, ...)
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	/* I'm relying on the coders either calling it with 
@@ -881,12 +882,12 @@ const char *fmt, ...)
 				if (deruded==False)
 				{
 					deruded=True;
-					censored=censor(vsprintf_result);
+					censored=censor(vsnprintf_result);
 				}
 				d->queue_string(censored);
 			}
 			else
-				d->queue_string (vsprintf_result);
+				d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -905,7 +906,7 @@ const char *fmt, ...)
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	/* I'm relying on the coders either calling it with 
@@ -923,12 +924,12 @@ const char *fmt, ...)
 				if (deruded==False)
 				{
 					deruded=True;
-					censored=censor(vsprintf_result);
+					censored=censor(vsnprintf_result);
 				}
 				d->queue_string (censored);
 			}
 			else
-				d->queue_string (vsprintf_result);
+				d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -1001,13 +1002,13 @@ void notify(dbref player, const char *fmt, ...)
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
-			d->queue_string (vsprintf_result);
+			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -1024,7 +1025,7 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
@@ -1035,12 +1036,12 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 				if (deruded==False)
 				{
 					deruded=True;
-					censored=censor(vsprintf_result);
+					censored=censor(vsnprintf_result);
 				}
 				d->queue_string(censored);
 			}
 			else
-				d->queue_string (vsprintf_result);
+				d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -1058,7 +1059,7 @@ void notify_public(dbref player, dbref originator, const char *fmt, ...)
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsprintf (vsprintf_result, fmt, vl);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
@@ -1069,12 +1070,12 @@ void notify_public(dbref player, dbref originator, const char *fmt, ...)
 				if (deruded==False)
 				{
 					deruded=True;
-					censored=censor(vsprintf_result);
+					censored=censor(vsnprintf_result);
 				}
 				d->queue_string (censored);
 			}
 			else
-				d->queue_string (vsprintf_result);
+				d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -1808,12 +1809,12 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			break;
 
 		case TELOPT_TTYPE:
-			memcpy(scratch_buffer, buf+1, size);
-			scratch_buffer[size]=0;
+			memcpy(scratch, buf+1, size);
+			scratch[size]=0;
 #ifdef DEBUG_TELNET
-			Trace( "Descriptor %d terminal type is '%s'\n", get_descriptor(), scratch_buffer);
+			Trace( "Descriptor %d terminal type is '%s'\n", get_descriptor(), scratch);
 #endif
-			set_terminal_type(scratch_buffer);
+			set_terminal_type(scratch);
 			send_telnet_option(WONT, TELOPT_TTYPE);	/* To make sure we don't have to send it */
 			break;
 		
@@ -1823,13 +1824,13 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 				Trace( "Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST\n", get_descriptor());
 				break;
 			}
-			memcpy(scratch_buffer, buf, size);
-			scratch_buffer[size-1]=0;
+			memcpy(scratch, buf, size);
+			scratch[size-1]=0;
 #ifdef DEBUG_TELNET
-			Trace( "Descriptor %d location is '%s'\n", get_descriptor(), scratch_buffer);
+			Trace( "Descriptor %d location is '%s'\n", get_descriptor(), scratch);
 #endif
 			indirect_connection=1;
-			strcpy(hostname, scratch_buffer);
+			strcpy(hostname, scratch);
 			send_telnet_option(WONT, TELOPT_SNDLOC);
 			break;
 	}
@@ -1931,7 +1932,7 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 	{
 		if (termcap.underscore_off)
 			FREE(termcap.underscore_off);
-		termcap.underscore_off = safe_strdup(scratch_buffer);
+		termcap.underscore_off = safe_strdup(scratch);
 	}
 
 	return 1;
@@ -1983,52 +1984,52 @@ descriptor_data::set_terminal_type(const char *termtype)
 #endif
 	}
 
-/*	area=scratch_buffer;
+/*	area=scratch;
 	if(tgetstr("dl", &area))
 	{
 		if(termcap.clearline)
 			FREE(termcap.clearline);
-		termcap.clearline=safe_strdup(scratch_buffer);
+		termcap.clearline=safe_strdup(scratch);
 	}
 
-	area=scratch_buffer;
+	area=scratch;
 	if(tgetstr("dc", &area))
 	{
 		if(termcap.backspace)
 			FREE(termcap.backspace);
-		termcap.backspace=safe_strdup(scratch_buffer);
+		termcap.backspace=safe_strdup(scratch);
 	}*/
 
-	area=scratch_buffer;
+	area=scratch;
 	if(tgetstr("md", &area))
 	{
 		if(termcap.bold_on)
 			FREE(termcap.bold_on);
-		termcap.bold_on=safe_strdup(scratch_buffer);
+		termcap.bold_on=safe_strdup(scratch);
 	}
 
-	area=scratch_buffer;
+	area=scratch;
 	if(tgetstr("me", &area))
 	{
 		if(termcap.bold_off)
 			FREE(termcap.bold_off);
-		termcap.bold_off=safe_strdup(scratch_buffer);
+		termcap.bold_off=safe_strdup(scratch);
 	}
 
-	area=scratch_buffer;
+	area=scratch;
 	if(tgetstr("us", &area))
 	{
 		if(termcap.underscore_on)
 			FREE(termcap.underscore_on);
-		termcap.underscore_on=safe_strdup(scratch_buffer);
+		termcap.underscore_on=safe_strdup(scratch);
 	}
 
-	area=scratch_buffer;
+	area=scratch;
 	if(tgetstr("ue", &area))
 	{
 		if(termcap.underscore_off)
 			FREE(termcap.underscore_off);
-		termcap.underscore_off=safe_strdup(scratch_buffer);
+		termcap.underscore_off=safe_strdup(scratch);
 	}
 
 
@@ -2069,7 +2070,7 @@ struct	in_addr	*a)
 	else
 	{
 		/* Not local, or not found in db */
-		sprintf (buffer, "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
 	}
 	return (buffer);
 }
@@ -2701,8 +2702,8 @@ descriptor_data::splat_motd()
 	}
 	else
 	{
-		while(fgets(scratch_buffer, BUFFER_LEN, f))
-			queue_string (scratch_buffer);
+		while(fgets(scratch, BUFFER_LEN, f))
+			queue_string (scratch);
 		fclose(f);
 	}
 }
@@ -2721,7 +2722,7 @@ char *boldify(dbref player, const char *str)
 		return NULL;
 
 	if(d->termcap.bold_on && d->termcap.bold_off && d->terminal_type)
-		sprintf(buf, "%s%s%s", d->termcap.bold_on, str, d->termcap.bold_off);
+		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.bold_on, str, d->termcap.bold_off);
 	else
 		strcpy(buf, str);
 
@@ -2742,7 +2743,7 @@ char *underscorify(dbref player, const char *str)
 		return NULL;
 
 //	if(d->termcap.underscore_on && d->termcap.underscore_off && d->terminal_type)
-//		sprintf(buf, "%s%s%s", d->termcap.underscore_on, str, d->termcap.underscore_off);
+//		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.underscore_on, str, d->termcap.underscore_off);
 //	else
 		strcpy(buf, str);
 
@@ -2766,33 +2767,33 @@ descriptor_data::announce_player (announce_states state)
 	switch (state)
 	{
 		case ANNOUNCE_CONNECTED :
-			sprintf (scratch_buffer, "[%s has connected]\n", db[get_player()].get_name ());
-			sprintf (scratch_return_string, "[%s has connected from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name ());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has connected from %s]\n", db[get_player()].get_name (), hostname);
 			break;
 		case ANNOUNCE_CREATED :
-			sprintf (scratch_buffer, "[%s has connected]\n", db[get_player()].get_name());
-			sprintf (scratch_return_string, "[%s has been created from %s]\n", db[get_player()].get_name (), hostname);
-			sprintf (admin_buffer, "[%s has been created]\n", db[get_player()].get_name());
+			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been created from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (admin_buffer, sizeof(admin_buffer), "[%s has been created]\n", db[get_player()].get_name());
 			break;
 		case ANNOUNCE_BOOTED :
-			sprintf (scratch_buffer, "[%s has been booted by %s%s%s]\n", db[get_player()].get_name (), player_booting, blank (boot_reason)?"":" ", boot_reason);
-			sprintf (scratch_return_string, "[%s has been booted from %s by %s%s%s]\n", db[get_player()].get_name (), hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (scratch, sizeof(scratch), "[%s has been booted by %s%s%s]\n", db[get_player()].get_name (), player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been booted from %s by %s%s%s]\n", db[get_player()].get_name (), hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
 			break;
 		case ANNOUNCE_DISCONNECTED :
-			sprintf (scratch_buffer, "[%s has disconnected]\n", db[get_player()].get_name ());
-			sprintf (scratch_return_string, "[%s has disconnected from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s]\n", db[get_player()].get_name (), hostname);
 			break;
 		case ANNOUNCE_SMD :
-			sprintf (scratch_buffer, "[%s has disconnected]\n", db[get_player()].get_name ());
-			sprintf (scratch_return_string, "[%s has disconnected from %s due to an SMD read]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s due to an SMD read]\n", db[get_player()].get_name (), hostname);
 			break;
 		case ANNOUNCE_TIMEOUT :
-			sprintf (scratch_buffer, "[%s has disconnected]\n", db[get_player()].get_name ());
-			sprintf (scratch_return_string, "[%s has timed out from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has timed out from %s]\n", db[get_player()].get_name (), hostname);
 			break;
 		case ANNOUNCE_PURGE :
-			sprintf (scratch_buffer, "[%s has purged an idle connection]\n", db[get_player()].get_name ());
-			sprintf (scratch_return_string, "[%s has purged an idle connection from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has purged an idle connection]\n", db[get_player()].get_name ());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has purged an idle connection from %s]\n", db[get_player()].get_name (), hostname);
 			break;
 		default :
 			Trace( "BUG: Unknown state (%d) encounted in announce_player()\n", state);
@@ -2816,12 +2817,12 @@ descriptor_data::announce_player (announce_states state)
 						if (deruded==False)
 						{
 							deruded=True;
-							censored=censor(scratch_buffer);
+							censored=censor(scratch);
 						}
 						d->queue_string (underscorify (d->get_player(), censored));
 					}
 					else
-						d->queue_string (underscorify (d->get_player(), scratch_buffer));
+						d->queue_string (underscorify (d->get_player(), scratch));
 				}
 			}
 		}
@@ -3186,8 +3187,8 @@ descriptor_data::do_command (const char *command)
 			Trace("BUG:  %s: %s\n",HELP_FILE,sys_errlist[errno]);
 		else
 		{
-			while (fgets(scratch_buffer, BUFFER_LEN, fp)!=NULL)
-				queue_string (scratch_buffer);
+			while (fgets(scratch, BUFFER_LEN, fp)!=NULL)
+				queue_string (scratch);
 		}
 		fclose(fp);
 	}
@@ -3602,24 +3603,24 @@ int	sig)
 #ifdef linux
 // Yuck - I feel ill JPK
 	extern const char * const sys_siglist[];
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 #else
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 #endif
 //#if defined (sun) // Sun's different
-//	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+//	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 //#elif defined (SYSV)
-//	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+//	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 //#else
-//	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+//	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 //#endif
 
 // #if !defined (SYSV) // Fixing signal naming...
 // 	extern char *sys_siglist[];
 //
-// 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+// 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 // #else
-// 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+// 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 // #endif
 
 // Dump the last MAX_LAST_COMMANDS out.
@@ -3830,25 +3831,25 @@ int			flags)
 				if (get_player())
 					queue_string (player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS));
 				if (length < 60)
-					sprintf (buf, "    %02ds", length);
+					snprintf (buf, sizeof(buf), "    %02ds", length);
 				else if (length < 60 * 60)
-					sprintf (buf, "%2dm %02ds", length / 60, length % 60);
+					snprintf (buf, sizeof(buf), "%2dm %02ds", length / 60, length % 60);
 				else if (length < 8 * 60 * 60)
-					sprintf (buf, "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
+					snprintf (buf, sizeof(buf), "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
 				else if (length < 9 * 60 * 60)
-					sprintf (buf, "Muddict");
+					snprintf (buf, sizeof(buf), "Muddict");
 				else if (length < 24 * 60 * 60)
-					sprintf (buf, "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
+					snprintf (buf, sizeof(buf), "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					sprintf (buf, "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
+					snprintf (buf, sizeof(buf), "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
 				else
-					sprintf (buf, "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
+					snprintf (buf, sizeof(buf), "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 
 			}
 			else
 				strcpy (buf, " Broken");
 
-			strcat (buf, " ");
+			strncat (buf, " ", sizeof(buf));
 			int twidth= 80;
 			int remaining= twidth;
 
@@ -3857,9 +3858,9 @@ int			flags)
 			{
 				if (want_npcs==1)
 				{
-					sprintf(scratch_buffer, "#%-5d ", d->get_player());
+					snprintf(scratch, sizeof(scratch), "#%-5d ", d->get_player());
 					remaining-=7;
-					strcat(buf, scratch_buffer);
+					strcat(buf, scratch);
 				}
 
 				if (get_player())
@@ -3883,13 +3884,13 @@ int			flags)
 				}
 				if (want_npcs)
 				{
-					sprintf(flag_buf, "(%s)", db[db[d->get_player()].get_owner()].get_name());
-					sprintf(scratch_buffer, "%-20s %-22s", db[d->get_player()].get_name(), flag_buf);
+					snprintf(flag_buf, sizeof(flag_buf), "(%s)", db[db[d->get_player()].get_owner()].get_name());
+					snprintf(scratch, sizeof(scratch), "%-20s %-22s", db[d->get_player()].get_name(), flag_buf);
 				}
 				else
-					sprintf(scratch_buffer, "%s", db[d->get_player()].get_name());
+					snprintf(scratch, sizeof(scratch), "%s", db[d->get_player()].get_name());
 
-				strcat(buf, scratch_buffer);
+				strcat(buf, scratch);
 
 				flag_buf[0]='\0';
 
@@ -3996,26 +3997,26 @@ int			flags)
 			{
 				length = now - d->last_time;
 				if (length < 60)
-					sprintf (flag_buf, "    %02ds", length);
+					snprintf (flag_buf, sizeof(flag_buf), "    %02ds", length);
 				else if (length < 60 * 60)
-					sprintf (flag_buf, "%2dm %02ds", length / 60, length % 60);
+					snprintf (flag_buf, sizeof(flag_buf), "%2dm %02ds", length / 60, length % 60);
 				else if (length < 24 * 60 * 60)
-					sprintf (flag_buf, "%2dh %02dm", length / (60 * 60), (length / 60)  % 60);
+					snprintf (flag_buf, sizeof(flag_buf), "%2dh %02dm", length / (60 * 60), (length / 60)  % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					sprintf (flag_buf, "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
+					snprintf (flag_buf, sizeof(flag_buf), "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
 				else
-					sprintf (flag_buf, "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
+					snprintf (flag_buf, sizeof(flag_buf), "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 			}
 			else
-				sprintf (flag_buf, "TooLong");
+				snprintf (flag_buf, sizeof(flag_buf), "TooLong");
 
 			strcat(buf, flag_buf);
 			if (flags & DUMP_WIZARD)
 			{
 				if (d->indirect_connection)
-					sprintf (flag_buf, " <%s>", d->hostname);
+					snprintf (flag_buf, sizeof(flag_buf), " <%s>", d->hostname);
 				else
-					sprintf (flag_buf, " [%s]", d->hostname);
+					snprintf (flag_buf, sizeof(flag_buf), " [%s]", d->hostname);
 				strcat(buf, flag_buf);
 			}
 
@@ -4037,13 +4038,13 @@ int			flags)
 
 			uptime = time(NULL) - game_start_time;
 
-			sprintf (scratch_buffer, " Up: %s", small_time_string(uptime));
+			snprintf (scratch, sizeof(scratch), " Up: %s", small_time_string(uptime));
 			if (get_player())
 				queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
 			if (flags & DUMP_WIZARD)
-				sprintf (buf, "Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) %s\n", users, peak_users, local, inet, logthrough, scratch_buffer);
+				snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) %s\n", users, peak_users, local, inet, logthrough, scratch);
 			else
-				sprintf (buf, "Users: %d (Peak %d)  %s\n", users, peak_users, scratch_buffer);
+				snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  %s\n", users, peak_users, scratch);
 			queue_string (buf);
 			if (get_player())
 				queue_string (COLOUR_REVERT);
@@ -4281,7 +4282,7 @@ descriptor_data::dump_swho()
 	}
 	if(num % numperline)	/* Bit of a hack to get correct num of \n's */
 		queue_string("\n");
-	sprintf(linebuf, "%sUsers: %d%s\n",
+	snprintf(linebuf, sizeof(linebuf), "%sUsers: %d%s\n",
 		player_colour (get_player(), get_player(), COLOUR_MESSAGES),
 		num, COLOUR_REVERT);
 	queue_string(linebuf);
