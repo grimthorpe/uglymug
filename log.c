@@ -475,23 +475,23 @@ void log_reconnect (
 
 void log_recursion (
 			dbref		playerid,
-	const	String&	playername,
-			int			step_limit,
-	const	String&	command,
-	const	String&	argument
+	const	String&		playername,
+			dbref		commandid,
+	const	String&		commandname,
+	const	String&		arguments
 ) {
 	/*
-	 * RECURSION|timestamp|playerid|playername|step_limit|command|argument
+	 * RECURSION|timestamp|playerid|playername|commandid|commandname|arguments
 	 */
 
 	Trace(	"%cRECURSION%c%d%c%d%c%s%c%d%c%s%c%s%c\n",
-				RECORD_START,					FIELD_SEPARATOR,
-				time(NULL),						FIELD_SEPARATOR,
-				playerid,						FIELD_SEPARATOR,
-				playername.c_str(),						FIELD_SEPARATOR,
-				step_limit,						FIELD_SEPARATOR,
-				command.c_str(),						FIELD_SEPARATOR,
-				argument.c_str(),		RECORD_END
+				RECORD_START,						FIELD_SEPARATOR,
+				time(NULL),							FIELD_SEPARATOR,
+				playerid,							FIELD_SEPARATOR,
+				playername.c_str(),					FIELD_SEPARATOR,
+				commandid,							FIELD_SEPARATOR,
+				commandname.c_str(),				FIELD_SEPARATOR,
+				arguments.c_str(),					RECORD_END
 	);
 }
 

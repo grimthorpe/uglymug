@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Modified log_recursion() and the two callsa to it. This makes the information easier to process.
 	Modifed String so that you can append to it; just use +=
 	Modified @?connectedplayers so that it takes parameter as who does. npc
 wizards, admin, etc
@@ -42,6 +43,8 @@ um1_036 - Bug stopping time.
 	Stopped the recursion logging from crashing the game.
 	Removed the final bits of weapon code from the player object.
 	Improved the Natter flag setting process; checks controls_for_write, and if the target is a Wizard or Apprentice.
+	Added check to do_chat() so that Silent players can't chat on channels. (This was missed many moons ago)
+	Added missing # to id's printed in log_hack() call in game.c.
 
 um1_035 - Not very well tested.
 	Finally implemented all of @?terminal

@@ -38,7 +38,8 @@
 	void		log_panic			(const char *, ...);
 	void		log_reconnect		(dbref, const String&);
 	void		log_reconnect		(dbref, const String&, int);
-	void		log_recursion		(dbref, const String&, int, const String&, const String&);
+	// recursion: playerid, playername, commandid, commandname, arguments
+	void		log_recursion		(dbref, const String&, dbref, const String&, const String&);
 	void		log_shutdown		(dbref, const String&, const String&);
 	void		log_wall			(dbref, const String&, const String&);
 
