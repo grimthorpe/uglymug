@@ -21,6 +21,9 @@ static char SCCSid[] = "@(#)game.c 1.120 99/02/11@(#)";
 #include "interface.h"
 
 
+/* Fix up (failings in) Solaris NULL-pointer handling */
+static const char* ValueOrEmpty(const char* value) { return (value)?value:""; }
+
 /* Bits'n'pieces that SunOS appears not to define in any of its header files. PJC 15/4/96. 
 #ifdef	__sun
 extern	int	nice	(int);
@@ -641,7 +644,11 @@ reaper (
 int			sig)
 
 {
+#ifndef sun
 	union	wait	stat;
+#else
+	int *stat;
+#endif
 
 	while (wait3 ((int*)&stat, WNOHANG, NULL) > 0);
 	alarm_triggered = -1;
@@ -1138,10 +1145,12 @@ const	char	*original_command)
 			&& (!Wizard(get_current_command ())))
 			Trace(
 				"HACK: %s(%d) hacked %s(%d) (originally %s) giving %s %s=%s\n",
-				getname (player), player,
-				getname (get_current_command ()), get_current_command (),
-				original_command,
-				command, get_arg1 (), get_arg2 ());
+				ValueOrEmpty(getname (player)), player,
+				ValueOrEmpty(getname (get_current_command ())), get_current_command (),
+				ValueOrEmpty(original_command),
+				ValueOrEmpty(command),
+				ValueOrEmpty(get_arg1 ()),
+				ValueOrEmpty(get_arg2 ()));
 	}
 #endif	/* HACK_HUNTING */
 

@@ -3,9 +3,9 @@ static char SCCSid[] = "@(#)wiz.c	1.39\t10/19/95";
 
 /* Wizard-only commands */
 
-#if defined (linux)
+#if defined (linux) || (sun)
   #include <crypt.h>
-#endif /* defined (linux) */
+#endif /* defined (linux) || (sun) */ 
 
 #include "db.h"
 #include "interface.h"

@@ -2,9 +2,9 @@ static char SCCSid[] = "@(#)player.c	1.33\t7/27/95";
 #include "copyright.h"
 
 #include <string.h>
-#if defined (linux)
+#if defined (linux) || (sun)
   #include <crypt.h>
-#endif /* defined (linux) */
+#endif /* defined (linux) || (sun)*/
 #include "db.h"
 #include "objects.h"
 #include "config.h"

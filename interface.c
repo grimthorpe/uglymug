@@ -43,7 +43,11 @@ static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)";
 #include "game_predicates.h"
 
 #ifdef USE_TERMINFO
+#ifdef sun
+	#include <curses.h>
+#else
 	#include <ncurses.h>
+#endif
 	#include <term.h>
 #endif	/* USE_TERMINFO */
 
@@ -3127,7 +3131,9 @@ int
 descriptor_data::do_command (const char *command)
 {
 	FILE		*fp;
-	/* JPK extern	char	*sys_errlist[]; */
+#ifdef sun
+	extern	char	*sys_errlist[];
+#endif
 
 	if (!strcmp (command, QUIT_COMMAND))
 	{

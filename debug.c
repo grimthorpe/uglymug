@@ -26,6 +26,8 @@ time_t currtime;
 
 	va_list vl;
 	va_start(vl, fmt);
+/* JPK Hack */
+/* fprintf(stderr, "Argument fmt string was: %s\n", fmt); */
 	vfprintf(stderr, fmt, vl);
 	va_end(vl);
 }

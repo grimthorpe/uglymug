@@ -45,10 +45,18 @@ extern "C"
 //extern	unsigned long	inet_addr		(const char *cp);
 extern	int		strcasecmp		(const char *s1, const char *s2);
 //extern	int		strncasecmp		(const char *s1, const char *s2, int n);
-extern	int		tgetent			(char *bp, const char *name);
-extern	int		tgetnum			(const char *id);
-extern	char	*tgetstr		(const char *id, char **area);
-/* JPK extern	const	char	*tgetstr		(const char *id, char **area); */
+#ifdef sun
+/*  extern char     *tgetstr(char *, char **), */
+/* extern  const char	*tgetstr	(const char *id, char **area); */
+/* extern  int   tgetent(char *, char *), tgetflag(char *), tgetnum(char *), */
+/* extern  char  *tparm(), *tgoto(), *tgetstr(), *tigetstr(), */
+/* extern  int   tgetent(), tgetflag(), tgetnum(), */
+
+#else
+extern	char	*tgetstr	(const char *id, char **area);
+extern	int	tgetent		(char *bp, const char *name);
+extern	int	tgetnum		(const char *id);
+#endif
 };
 #endif /* linux */
 
