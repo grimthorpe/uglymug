@@ -311,12 +311,14 @@ Channel::send(dbref player, const String& msg, bool system)
 ChannelPlayer* iter;
 bool emote = false;
 const char* msgstart = msg.c_str();
-const char* censored = 0;
+String censoredstring;
 	if(msgstart[0] == ':')
 	{
 		emote = true;
 	}
-	censored = censor(msg);
+	censoredstring = censor(msg);
+
+	const char* censored = censoredstring.c_str();
 
 	for(iter = Players; iter != 0; iter = iter->next())
 	{
@@ -324,17 +326,17 @@ const char* censored = 0;
 		bool docensor = get_censored() || (!get_private() && Censorpublic(iter->player()));
 		if(system)
 		{
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], docensor?censored:msgstart, COLOUR_REVERT);
+			notify_colour(iter->player(), NOTHING, COLOUR_CHANNEL_NAMES, "[%s]%s %s%s%s", name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], docensor?censored:msgstart, COLOUR_REVERT);
 		}
 		else if(emote)
 		{
 			const char *emotemsg = docensor?(censored+1):(msgstart+1);
 
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s%s%s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), (*emotemsg=='\'' || *emotemsg=='`')? "":" ", emotemsg, COLOUR_REVERT);
+			notify_colour(iter->player(), NOTHING, COLOUR_CHANNEL_NAMES, "[%s]%s  %s%s%s%s%s", name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), (*emotemsg=='\'' || *emotemsg=='`')? "":" ", emotemsg, COLOUR_REVERT);
 		}
 		else
 		{
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s says \"%s\"%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), docensor?censored:msgstart, COLOUR_REVERT);
+			notify_colour(iter->player(), NOTHING, COLOUR_CHANNEL_NAMES, "[%s]%s  %s%s says \"%s\"%s", name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), docensor?censored:msgstart, COLOUR_REVERT);
 		}
 	}
 }

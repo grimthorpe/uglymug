@@ -737,7 +737,7 @@ int	colour)
 
 	tester.player = victim;
 
-	if (colour_play)
+	if ((victim != NOTHING) && colour_play)
 	{
 		if ((item = (cplay *)bsearch(&victim,
 			colour_play,
