@@ -70,7 +70,14 @@ dbref create_player(const String& name, const String& password, bool effective_w
 	db[player].set_flag		(FLAG_PRETTYLOOK);
 	db[player].set_flag		(FLAG_FCHAT);
 	Settypeof			(player, TYPE_PLAYER);
-	db[player].set_password		((char *) (crypt(password.c_str(), password.c_str()) +2));
+	if(password)
+	{
+		db[player].set_password		((char *) (crypt(password.c_str(), password.c_str()) +2));
+	}
+	else
+	{
+		db[player].set_password(NULLSTRING);
+	}
 	db[player].set_score		(0);
 	db[player].set_race		("Human");
 	db[player].set_gravity_factor	(STANDARD_PLAYER_GRAVITY);

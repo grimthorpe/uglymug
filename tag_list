@@ -13,6 +13,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed create_player so that it will deal with blank passwords properly.
+
 um1_037 - Back to stability perhaps?
 	Added an (optional) debugging version of dbref selectable via a #define and made the code compatible with both the normal dbref and the debugging one
 	Made Compound_command_and_arguments intialise the 'player' dbref.
