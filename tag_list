@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Changed victin from char* to String in dump_users. Probable cause of crashes in 040
 	Modified interface to fic a small bug where we used NULL instead of \0
 
 um1_040 - New characters are important to us!
