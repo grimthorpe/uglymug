@@ -543,6 +543,7 @@ class	context
 	void				do_query_set		(const CString&, const CString&);
 	void				do_query_size		(const CString&, const CString&);
 	void				do_query_success	(const CString&, const CString&);
+	void				do_query_terminal	(const CString&, const CString&);
 	void				do_query_time		(const CString&, const CString&);
 	void				do_query_typeof		(const CString&, const CString&);
 	void				do_query_variables	(const CString&, const CString&);

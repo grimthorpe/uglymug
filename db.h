@@ -610,6 +610,7 @@ class	object
 
 	virtual		void	add_recall_line			(const CString& string);
 	virtual		void	output_recall			(const int lines, const context * con);
+	virtual		void	ditch_recall			();
 //	virtual	const	bool	write_array_elements		(FILE *)		const;
 //	virtual	const	bool	read_array_elements		(FILE *, const int, const int);
 

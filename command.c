@@ -591,7 +591,8 @@ const	CString&arg2)
 		return_status = COMMAND_FAIL;
 		return;
 	}
-	if (!arg1 || !arg2)
+	// We want to support a NULL return value!
+	if (!arg1)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Usage: @return <true | false | current> = <return_string>.");
 		return_status = COMMAND_FAIL;

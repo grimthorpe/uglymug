@@ -383,6 +383,7 @@ class	Player
 
 		void		add_recall_line		(const CString& strung);
 		void		output_recall		(const int lines, const context * con);
+		void		ditch_recall		();
 
 		void		set_colour		(const char *new_colour);
 		CString		get_colour		()			const	{return colour;}

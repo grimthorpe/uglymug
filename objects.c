@@ -676,6 +676,9 @@ void object::add_recall_line (const CString&)
 void object::output_recall (const int lines, const context * con)
 { IMPLEMENTATION_ERROR ("output_recall") }
 
+void object::ditch_recall ()
+{ IMPLEMENTATION_ERROR ("ditch_recall") }
+
 void object::set_password (const CString&)
 { IMPLEMENTATION_ERROR ("password") }
 
@@ -1663,6 +1666,19 @@ const context *	con)
                 notify_norecall(con->get_player(), "%s", recall_buffer_build);
         }
 
+}
+
+void
+Player::ditch_recall()
+{
+/* Get rid of the recall buffer, because it wastes memory. */
+	for(int i = 0; i < MAX_RECALL_LINES; i++)
+	{
+		recall_buffer[i] = 0;
+	}
+	recall_buffer_build[0] = 0;
+	recall_buffer_wrapped = 0;
+	recall_buffer_next = 0;
 }
 
 void

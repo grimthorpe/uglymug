@@ -199,14 +199,22 @@ const	CString& lines,
 const	CString& dummy)
 
 {
+	if(string_compare(lines, "clear") == 0)
+	{
+		db[player].ditch_recall();
+		if(!gagged_command())
+			notify_colour(player, player, COLOUR_MESSAGES, "Recall buffer cleared.");
+		RETURN_SUCC;
+	}
+
         if (in_command())
         {
                 notify_colour (player, player, COLOUR_ERROR_MESSAGES,  "Sorry, @recall may not be used within compound commands.");
+		RETURN_FAIL;
                 return;
         }
 
         int num_lines = DEFAULT_RECALL_LINES;
-
 
         if(lines)
         {
@@ -221,6 +229,8 @@ const	CString& dummy)
         notify_norecall (player, "%s %d %s", "---------------Recalling",num_lines,"lines-----------------------------\n");
         db[player].output_recall(num_lines, this);
         notify_norecall (player, "%s %d %s", "---------------End Recall of", num_lines, "lines-------------------------\n");
+
+	RETURN_SUCC;
 }
 
 void

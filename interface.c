@@ -262,7 +262,7 @@ public:
 	class	descriptor_data	*next;
 	class	descriptor_data	**prev; // Pointer to previous->next!
 	int                     terminal_width;
-	int                     terminal_wrap;
+	bool			terminal_wrap;
 	int			terminal_height;
 	String			terminal_type;
 	struct		{
@@ -274,13 +274,14 @@ public:
 				String clearline;
 			}	termcap;
 	int			terminal_xpos;
-	int			terminal_lftocr;
-	int			terminal_pagebell;
+	bool			terminal_lftocr;
+	bool			terminal_pagebell;
+	bool			terminal_recall;
 	int			channel;
 
 	int			myoutput;
 
-	int			t_echo;
+	bool			t_echo;
 	int			t_lflow;
 	int			t_linemode;
 
@@ -354,7 +355,7 @@ public:
 	int	__process_telnet_options(unsigned char *&, unsigned char*&, unsigned char*);
 	void	get_value_from_subnegotiation(unsigned char *, unsigned char, int);
 
-	void	set_echo(int echo);
+	void	set_echo(bool echo);
 	int	set_terminal_type(const CString& terminal);
 	Command_status	terminal_set_termtype(const CString& , int);
 	Command_status	terminal_set_lftocr(const CString& , int);
@@ -362,6 +363,7 @@ public:
 	Command_status	terminal_set_width(const CString& , int);
 	Command_status	terminal_set_wrap(const CString& , int);
 	Command_status	terminal_set_echo(const CString& , int);
+	Command_status	terminal_set_recall(const CString& , int);
 	Command_status	really_do_terminal_set(const CString&, const CString&, int);
 	void	do_write(const char * c, int i)
 	{
@@ -453,6 +455,7 @@ struct terminal_set_command
 	{ "lftocr",	&descriptor_data::terminal_set_lftocr },
 	{ "pagebell",	&descriptor_data::terminal_set_pagebell },
 	{ "echo",	&descriptor_data::terminal_set_echo },
+	{ "recall",	&descriptor_data::terminal_set_recall },
 
 	{ NULL, NULL }
 };
@@ -1268,7 +1271,7 @@ void mud_main_loop(int argc, char** argv)
 				if(d->get_connect_state() == DESCRIPTOR_UNCONNECTED)
 				{
 					d->set_connect_state(DESCRIPTOR_NAME);
-					d->set_echo(1);
+					d->set_echo(true);
 					d->welcome_user();
 				}
 			}
@@ -1582,7 +1585,7 @@ int count = 0;
 				break;
 			case TELOPT_LFLOW:
 				t_lflow = 1;
-				t_echo = 0;
+				t_echo = false;
 				break;
 			}
 			return 0; // We've handled a telnet option
@@ -1606,7 +1609,7 @@ int count = 0;
 				t_lflow = 2;
 // We will enable echo as soon as we know it is char-at-a-time mode we
 // need.
-				t_echo = 0;
+				t_echo = false;
 				break;
 			}
 			t_iac = IAC_OUTSIDE_IAC;
@@ -1724,7 +1727,7 @@ descriptor_data::initial_telnet_options()
 }
 
 void
-descriptor_data::set_echo(int echo)
+descriptor_data::set_echo(bool echo)
 {
 static char buf[20];
 	if(IS_FAKED())
@@ -2155,9 +2158,9 @@ int			channel)
  *
  * Grimthorpe, 29-June-2000
  */
-	t_echo			= 0; // We've never set these before, and it
-	t_linemode		= 0; // worked for some reason.
-	t_lflow			= 0; // If it breaks now, then please analyse
+	t_echo			= false; // We've never set these before, and it
+	t_linemode		= false; // worked for some reason.
+	t_lflow			= false; // If it breaks now, then please analyse
 
 // Do processing depending on if this is an NPC or a real connection
 	if(s == 0 && a == NULL & channel == 0)
@@ -2193,9 +2196,10 @@ int			channel)
 	terminal_height		= 0;
 	terminal_type		= NULL;
 	terminal_xpos		= 0;
-	terminal_lftocr		= 1;
-	terminal_pagebell	= 1;
-	terminal_wrap		= 1;
+	terminal_lftocr		= true;
+	terminal_pagebell	= true;
+	terminal_wrap		= true;
+	terminal_recall		= true;
 	termcap.bold_on		= NULL;
 	termcap.bold_off	= NULL;
 	termcap.underscore_on	= NULL;
@@ -2215,7 +2219,7 @@ int			channel)
 
 	_got_an_iac		= 0;
 
-	set_echo(1);
+	set_echo(true);
 }
 
 
@@ -2396,9 +2400,8 @@ char *a,*a1,*b;
 
         if(get_player())
         {
-                if(store_in_recall_buffer)
+                if(store_in_recall_buffer && terminal_recall)
                 {
-//                      printf("ADDING: %s\n", s);
                         db[get_player()].add_recall_line(s);
                 }
         }
@@ -2857,7 +2860,7 @@ descriptor_data::process_input (int len)
 // So now we'll welcome them if they're not already connected.
 	if(get_connect_state() == DESCRIPTOR_UNCONNECTED)
 	{
-		set_echo(1);
+		set_echo(true);
 		welcome_user();
 		set_connect_state(DESCRIPTOR_NAME);
 	}
@@ -2910,7 +2913,7 @@ descriptor_data::process_input (int len)
 				if((t_lflow == 2) && (charcount > 0))
 				{
 					t_lflow = 1;
-					t_echo = 0;
+					t_echo = false;
 				}
 				if(*q == '\r')
 				{
@@ -3019,7 +3022,7 @@ charcount++;
 	if((t_lflow == 2) && (charcount > 0) && (gotline == 0))
 	{
 		t_lflow = 0;
-		t_echo = 1;
+		t_echo = true;
 		*p = '\0';
 // Output the chars used to influence the decision.
 		do_write((const char *)raw_input_at, strlen((char*)raw_input_at));
@@ -3438,7 +3441,7 @@ descriptor_data::check_connect (const char *msg)
 					}
 					else if(db[player].get_password())
 					{
-						set_echo(0);
+						set_echo(false);
 						queue_string (password_prompt);
 						set_connect_state(DESCRIPTOR_PASSWORD);
 					}
@@ -3465,7 +3468,7 @@ descriptor_data::check_connect (const char *msg)
 						else
 						{
 							queue_string (new_password_prompt);
-							set_echo (0);
+							set_echo (false);
 							set_connect_state(DESCRIPTOR_PASSWORD);
 						}
 					}
@@ -3492,7 +3495,7 @@ descriptor_data::check_connect (const char *msg)
 				break;
 
 			case DESCRIPTOR_PASSWORD:
-				set_echo(1);
+				set_echo(true);
 				queue_string ("\n");
 				if(ok_password(msg))
 				{
@@ -3502,7 +3505,7 @@ descriptor_data::check_connect (const char *msg)
 						/* New player, password is ok too */
 						set_password(msg);	/* For confirmation */
 						queue_string (confirm_password);
-						set_echo(0);
+						set_echo(true);
 						set_connect_state(DESCRIPTOR_CONFIRM_PASSWORD);
 					}
 					else if (player == 0)
@@ -3533,7 +3536,7 @@ descriptor_data::check_connect (const char *msg)
 
 
 			case DESCRIPTOR_CONFIRM_PASSWORD:
-				set_echo (1);
+				set_echo (false);
 				// Make sure that the password is IDENTICAL.
 				if(strcmp(msg, get_password().c_str())==0)
 				{
@@ -4379,39 +4382,73 @@ time_t get_idle_time (dbref player)
 	return (now - d->last_time);
 }
 
+Command_status
+descriptor_data::terminal_set_recall(const CString& toggle, int commands_executed)
+{
+	if(toggle)
+	{
+		if(string_compare(toggle, "on") == 0)
+		{
+			terminal_recall = true;
+		}
+		else if(string_compare(toggle, "off") == 0)
+		{
+			terminal_recall = false;
+		}
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal recall=on' or '@terminal recall=off'.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!commands_executed)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Recall is %s", terminal_recall?"on":"off");
+	}
+	return COMMAND_SUCC;
+}
 
 Command_status
-descriptor_data::terminal_set_echo(const CString& toggle, int)
+descriptor_data::terminal_set_echo(const CString& toggle, int commands_executed)
 {
 	if(toggle)
 	{
 		if(string_compare(toggle, "on")==0)
-			t_echo = 1;
+			t_echo = true;
 		else if(string_compare(toggle, "off")==0)
-			t_echo = 0;
+			t_echo = false;
 		else
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  'set echo=on' or 'set echo=off'.");
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal echo=on' or '@terminal echo=off'.");
+			return COMMAND_FAIL;
+		}
 	}
 
-	notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Echo is %s.", t_echo? "on":"off");
+	if(!commands_executed)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Echo is %s", t_echo?"on":"off");
+	}
 
 	return COMMAND_SUCC;
 }
 
 Command_status
-descriptor_data::terminal_set_pagebell(const CString& toggle, int)
+descriptor_data::terminal_set_pagebell(const CString& toggle, int commands_executed)
 {
 	if(toggle)
 	{
 		if(string_compare(toggle, "on")==0)
-			terminal_pagebell=1;
+			terminal_pagebell=true;
 		else if(string_compare(toggle, "off")==0)
-			terminal_pagebell=0;
+			terminal_pagebell=false;
 		else
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  'set pagebell=on' or 'set pagebell=off'.");
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal pagebell=on' or '@terminal pagebell=off'.");
 	}
 
-	notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Pagebell is %s.", terminal_pagebell? "on":"off");
+	if(!commands_executed)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Pagebell is %s", terminal_pagebell?"on":"off");
+	}
 
 	return COMMAND_SUCC;
 }
@@ -4420,7 +4457,7 @@ descriptor_data::terminal_set_pagebell(const CString& toggle, int)
 
 
 Command_status
-descriptor_data::terminal_set_termtype (const CString& termtype, int)
+descriptor_data::terminal_set_termtype (const CString& termtype, int commands_executed)
 {
 	if(termtype)
 	{
@@ -4484,34 +4521,50 @@ descriptor_data::terminal_set_wrap(const CString& width, int commands_executed)
 
 	if(width)
 	{
-		i = atoi (width.c_str());
-		if (i<0)
+		if(string_compare(width, "on") == 0)
 		{
-			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
-			return COMMAND_FAIL;
+			terminal_wrap = true;
 		}
-		if (i)
-			i = MIN(MAX(i,20),256);
-// If wrap is not zero, set terminal width to the value and set wrap on.
-// If wrap is zero, leave terminal width, but set wrap off.
-		if(i > 0)
+		else if(string_compare(width, "off") == 0)
 		{
-			terminal_width = i;
-			terminal_wrap = 1;
+			terminal_wrap = false;
 		}
 		else
 		{
-			terminal_wrap = 0;
+			i = atoi (width.c_str());
+			if(isdigit(width.c_str()[0]) || (i != 0))
+			{
+				notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Deprecated usage: @terminal wrap=<number>. Please use @terminal width instead");
+
+				if (i<0)
+				{
+					notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
+					return COMMAND_FAIL;
+				}
+				if (i)
+					i = MIN(MAX(i,20),256);
+		// If wrap is not zero, set terminal width to the value and set wrap on.
+		// If wrap is zero, leave terminal width, but set wrap off.
+				if(i > 0)
+				{
+					terminal_width = i;
+					terminal_wrap = true;
+				}
+				else
+				{
+					terminal_wrap = false;
+				}
+			}
+			else
+			{
+				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal pagebell=on' or '@terminal pagebell=off'.");
+			}
 		}
 	}
 	if(!commands_executed)
 	{
-		if(terminal_wrap == 0)
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is off");
-		else
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap width is %d", terminal_width);
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is %s", terminal_width?"on":"off");
 	}
-
 	return COMMAND_SUCC;
 }
 
@@ -4523,24 +4576,21 @@ descriptor_data::terminal_set_lftocr(const CString& z, int commands_executed)
 	{
 		if(string_compare(z, "on") == 0)
 		{
-			terminal_lftocr = 1;
+			terminal_lftocr = true;
 		}
 		else if(string_compare(z, "off") == 0)
 		{
-			terminal_lftocr = 0;
+			terminal_lftocr = false;
 		}
 		else
 		{
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  'set lftocr=on' or 'set lftocr=off'.");
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal lftocr=on' or '@terminal lftocr=off'.");
 			return COMMAND_FAIL;
 		}
 	}
 	if(!commands_executed)
 	{
-		if(terminal_lftocr)
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"lftocr is on");
-		else
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "lftocr is off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"lftocr is %s", terminal_lftocr?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4631,12 +4681,26 @@ void context::do_terminal_set(const CString& command, const CString& arg)
 			break;
 
 	if(!d)
+	{
 		return;
+	}
 
 	return_status = d->really_do_terminal_set (command, arg, commands_executed);
 	set_return_string ((return_status==COMMAND_SUCC) ? ok_return_string : error_return_string);
 }
 
+void
+context::do_query_terminal(const CString& command, const CString& arg)
+{
+	struct descriptor_data *d;
+
+	for(d=descriptor_list; d; d=d->next)
+		if(d->get_player()==player)
+			break;
+
+	if(!d)
+		return;
+}
 
 Command_status
 descriptor_data::really_do_terminal_set(const CString& command, const CString& arg, int commands_executed)

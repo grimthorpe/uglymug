@@ -12,6 +12,12 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Added @terminal as an alternative to 'set'; 'set' should be deprecated
+    and removed soon.
+    Added @terminal recall option; you can choose to turn it off.
+    Added @recall clear to clear all entries in the recall buffer.
+    @return can now return an empty value.
+
 um1_030 - Chisel; fixed showstopper with HALFQUIT
     Fixed the Trace() call for HALFQUIT so that it doesn't try to use
     now->foo, when now hasn't been initialised.
