@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)";
+/* static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)"; */
 /*
  * Waaaah, someone took our comment out!
  *
@@ -46,7 +46,8 @@ static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)";
 #ifdef sun
 	#include <curses.h>
 #else
-	#include <ncurses.h>
+	/* #include <ncurses.h> */
+	#include "local_curses.h"
 #endif
 	#include <term.h>
 #endif	/* USE_TERMINFO */
@@ -1874,20 +1875,21 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 	}
 
 /*	const char *const clearline = tigetstr("dl1");
-	if (clearline != (char *)-1)
-	{
-		if (termcap.clearline)
-			FREE(termcap.clearline);
-		termcap.clearline = safe_strdup(clearline);
-	}
-
-	const char *const backspace = tigetstr("dch1");
-	if (backspace != (char *)-1)
-	{
-		if (termcap.backspace)
-			FREE (termcap.backspace);
-		termcap.backspace = safe_strdup(backspace);
-	}*/
+ *	if (clearline != (char *)-1)
+ *	{
+ *		if (termcap.clearline)
+ *			FREE(termcap.clearline);
+ *		termcap.clearline = safe_strdup(clearline);
+ *	}
+ *
+ *	const char *const backspace = tigetstr("dch1");
+ *	if (backspace != (char *)-1)
+ *	{
+ *		if (termcap.backspace)
+ *			FREE (termcap.backspace);
+ *		termcap.backspace = safe_strdup(backspace);
+ *	}
+ */
 
 	const char *const bold = tigetstr("bold");
 	if (bold != (char *)-1)
