@@ -54,6 +54,9 @@
 #endif
 	#include <term.h>
 #endif	/* USE_TERMINFO */
+#ifdef clear // Stupid curses/ncurses defines this as a macro.
+	#undef clear
+#endif
 
 #ifdef DEBUG_TELNET
 #define	TELOPTS		/* make telnet.h define telopts[] */
@@ -116,7 +119,8 @@ static const char *first_shutdown_message =
 static const char *second_shutdown_message =
 	" has shut down the game";
 static const char *reject_message =
-	"Connections to UglyMUG from your site have been banned. Sorry.\n";
+	"Connections to UglyMUG from your site have been banned.\n"
+	"Please email uglymug@uglymug.org.uk for more information.\n";
 static const char *reject_updatedsmd =
 	"Connections from your current location have been stopped\n"
 	"Please email uglymug@uglymug.org.uk for more information.\n";
@@ -365,6 +369,7 @@ public:
 	void	set_echo(bool echo);
 	int	set_terminal_type(const CString& terminal);
 	Command_status	terminal_set_termtype(const CString& , int);
+	String	terminal_get_termtype();
 	Command_status	terminal_set_lftocr(const CString& , int);
 	Command_status	terminal_set_pagebell(const CString& , int);
 	Command_status	terminal_set_width(const CString& , int);
@@ -374,7 +379,7 @@ public:
 	Command_status	terminal_set_effects(const CString& , int);
 	Command_status	terminal_set_halfquit(const CString& , int);
 	Command_status	really_do_terminal_set(const CString&, const CString&, int);
-	CString		really_do_terminal_query(const CString&, const CString&, bool);
+	String		really_do_terminal_query(const CString&, const CString&, bool);
 	void	do_write(const char * c, int i)
 	{
 /*
@@ -457,10 +462,12 @@ struct terminal_set_command
 {
 	const char	*name;
 	Command_status	(descriptor_data::*set_function) (const CString&, int);
-	CString		(descriptor_data::*query_function) (const CString&, const CString&);
+	String		(descriptor_data::*query_function) ();
+	bool		deprecated;
 } terminal_set_command_table[] =
 {
-	{ "termtype",	&descriptor_data::terminal_set_termtype },
+	{ "termtype",	&descriptor_data::terminal_set_termtype, &descriptor_data::terminal_get_termtype },
+	{ "type",	&descriptor_data::terminal_set_termtype, &descriptor_data::terminal_get_termtype, true },
 	{ "width",	&descriptor_data::terminal_set_width },
 	{ "wrap",	&descriptor_data::terminal_set_wrap },
 	{ "lftocr",	&descriptor_data::terminal_set_lftocr },
@@ -734,6 +741,24 @@ void notify_wizard(const char *fmt, ...)
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
+		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())) && (!(Haven(d->get_player()))))
+		{
+			d->queue_string (vsnprintf_result);
+			d->queue_string (COLOUR_REVERT);
+			d->queue_string ("\n");
+		}
+}
+
+void notify_wizard_unconditional(const char *fmt, ...)
+{
+	struct descriptor_data *d;
+	va_list vl;
+
+	va_start (vl, fmt);
+	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	va_end (vl);
+
+	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())))
 		{
 			d->queue_string (vsnprintf_result);
@@ -952,9 +977,9 @@ void terminal_underline(dbref player, const char *string)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
-			twidth= d->terminal_width;
+			twidth= d->terminal_width-1;
 			if (twidth<=0)
-				twidth = 80; // A reasonable default
+				twidth = 79; // A reasonable default
 			if (twidth > ulen)
 				twidth=ulen;
 			d->queue_string (chop_string(string, twidth));
@@ -1488,7 +1513,21 @@ struct descriptor_data *new_connection(int sock)
 
 	if (is_banned (host_addr))
 	{
-		write (newsock, reject_message, sizeof (reject_message) - 1);
+		int i;
+		int len = sizeof(reject_message);
+		int offset = 0;
+		do
+		{
+			i = write (newsock, reject_message+offset, len);
+			if(i < 0)
+			{
+				if(errno == EWOULDBLOCK)
+					continue;
+				break;
+			}
+			offset+= i;
+			len -=i;
+		} while(len > 0);
 		shutdown(newsock, 2);
 		close (newsock);
 		errno = ECONNREFUSED;
@@ -2069,12 +2108,12 @@ descriptor_data::shutdownsock()
 			mud_disconnect_player (get_player());
 			time (&stamp);
 			now = localtime (&stamp);
-			Trace( "DISCONNECT descriptor |%d|%d| player |%s|%d| at |%02d/%02d/%02d %02d:%02d\n",
+			Trace( "DISCONNECT descriptor |%d|%d| player |%s|%d| at |%04d/%02d/%02d %02d:%02d\n",
 			CHANNEL(),
 			channel,
 			getname (get_player()),
 			get_player(),
-			now->tm_year,
+			now->tm_year+1900,
 			now->tm_mon+1,
 			now->tm_mday,
 			now->tm_hour,
@@ -4532,6 +4571,11 @@ descriptor_data::terminal_set_pagebell(const CString& toggle, int commands_execu
 
 
 
+String
+descriptor_data::terminal_get_termtype()
+{
+	return terminal_type;
+}
 
 Command_status
 descriptor_data::terminal_set_termtype (const CString& termtype, int commands_executed)
@@ -4540,7 +4584,7 @@ descriptor_data::terminal_set_termtype (const CString& termtype, int commands_ex
 	{
 		if(string_compare(termtype, "none")==0)
 		{
-			terminal_type.empty();
+			terminal_type = (const char*)0;
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Your terminal type is no longer set.");
 		}
 		else
@@ -4573,11 +4617,9 @@ descriptor_data::terminal_set_width(const CString& width, int commands_executed)
 		i = atoi (width.c_str());
 		if (i<0)
 		{
-			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
+			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word terminal width");
 			return COMMAND_FAIL;
 		}
-		if (i)
-			i = MAX(i,20); // Don't have an upper limit, cos someone might want it that wide.
 		terminal_width = i;
 	}
 	if(!commands_executed)
@@ -4640,7 +4682,7 @@ descriptor_data::terminal_set_wrap(const CString& width, int commands_executed)
 	}
 	if(!commands_executed)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is %s", terminal_width?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is %s", terminal_wrap?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4744,7 +4786,7 @@ const CString& string)
 		if (error_count==0)
 			notify_colour(player, player, COLOUR_MESSAGES, "Underlined.");
 		else if (ok_count == 0)
-			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only @underline to yourself or to people in rooms that you control.");
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only @truncate to yourself or to people in rooms that you control.");
 		else
 			notify_colour(player, player, COLOUR_MESSAGES, "(Warning): %d player%s that you do not control so did not get underlined to.", error_count, (error_count==1) ? " is in a room" : "s are in rooms");
 	}
@@ -4781,7 +4823,7 @@ context::do_query_terminal(const CString& command, const CString& arg)
 	set_return_string(d->really_do_terminal_query(command, arg, gagged_command()));
 }
 
-CString
+String
 descriptor_data::really_do_terminal_query(const CString& command, const CString& arg, bool gagged)
 {
 static char retbuf[4096];
@@ -4790,7 +4832,7 @@ static char retbuf[4096];
 	{
 		for(int i=0; terminal_set_command_table[i].name; i++)
 		{
-			if(i != 0)
+			if((i != 0) && (!terminal_set_command_table[i].deprecated))
 				strcat(retbuf, ";");
 			strcat(retbuf, terminal_set_command_table[i].name);
 		}
@@ -4806,7 +4848,7 @@ static char retbuf[4096];
 	{
 		if(terminal_set_command_table[i].query_function)
 		{
-			return (this->*(terminal_set_command_table[i].query_function))(command, arg);
+			return (this->*(terminal_set_command_table[i].query_function))();
 		}
 		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "@?terminal %s not implemented yet", command.c_str());
 		return "Error";
@@ -4833,7 +4875,7 @@ descriptor_data::really_do_terminal_set(const CString& command, const CString& a
 				break;
 			}
 		}
-		else
+		else if(!terminal_set_command_table[i].deprecated)
 			(this->*(terminal_set_command_table[i].set_function))(NULL, commands_executed);
 	}
 
