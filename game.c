@@ -892,7 +892,17 @@ const	char	*original_command)
 		tracer = NOTHING;
 
 	if (tracer != NOTHING)
-		notify(tracer, "%s[%s, %s]%s %s%s", colour_at[COLOUR_TITLES], getname (player), in_command() ? getname (get_current_command ()) : "(top): ", colour_at[COLOUR_TRACING], original_command, COLOUR_REVERT);
+	{
+		notify(tracer, "%s[%s, %s]%s %s%s",
+			colour_at[COLOUR_TITLES],
+			value_or_empty(getname (player)),
+			in_command() ?
+				value_or_empty(getname (get_current_command ())) :
+				"(top): ",
+			colour_at[COLOUR_TRACING],
+			value_or_empty(original_command),
+			COLOUR_REVERT);
+	}
 	else if (Debug(player) && ( !in_command() || (trace_command != get_current_command())))
 	{
 		trace_command= get_current_command();
