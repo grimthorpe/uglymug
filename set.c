@@ -2350,10 +2350,13 @@ const	String& new_location_string)
 			}
 			break;
 		case TYPE_THING:
-			if (!controls_for_write (new_location)
-				|| !(controls_for_write (victim) || db[victim].get_location() == NOTHING || controls_for_read (db [victim].get_location()))
-
-				|| ((Typeof (new_location) == TYPE_THING) && !(controls_for_write (db[new_location].get_location()))))
+			if (
+				/* if they don't have controls-for-write AND (it's not a wiz-chpid where the new location is a room) */
+				(!controls_for_write(new_location) && !(Wizard(get_effective_id()) && Typeof(new_location) == TYPE_ROOM))
+				||
+				!(controls_for_write (victim) || db[victim].get_location() == NOTHING || controls_for_read (db [victim].get_location()))
+				||
+				((Typeof (new_location) == TYPE_THING) && !(controls_for_write (db[new_location].get_location()))))
 			{
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 				return;

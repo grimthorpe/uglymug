@@ -8,10 +8,14 @@ can always pull out the correct version. In reverse order.
 Leave the Name: tag at the top of the file to get the correct release tag
 embedded in the game when you build it.
 Add an entry into UglyMUG's UMS (Topic: UM Version) for the release as well.
+(see ums_release_template.txt for how to do this)
 
 Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
+
+	Altered do_at_location (teleport code) so that it's possible to teleport Things to a Wizard owned room in a wiz-chpid. (CCW)
+	Added a pointer to ums_release_template.txt in the tag_list comments. (CCW)
 
 um1_044 - Time to roll in some more fixes
 	Added log_credit() function. (CCW)
