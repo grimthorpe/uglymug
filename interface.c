@@ -1251,10 +1251,11 @@ void mud_main_loop(int port)
 			{
 				if (!(newd = new_connection (sock)))
 				{
-					if (errno != EINTR && errno != EMFILE && errno != ECONNREFUSED)
+					if (errno != EINTR && errno != EMFILE && errno != ECONNREFUSED && errno != EWOULDBLOCK && errno != ENFILE)
 					{
-						perror ("new_connection");
-						abort();
+sprintf(stderr, "new_connection returned %d, errno=%d\nThe old code would have ABORTED here, but we're continuing.", newd, errno);
+						//perror ("new_connection");
+						//abort();
 					}
 				}
 				else
@@ -1467,8 +1468,8 @@ struct descriptor_data *new_connection(int sock)
 	{
 		write (newsock, reject_message, sizeof (reject_message) - 1);
 		shutdown(newsock, 2);
-		errno = ECONNREFUSED;
 		close (newsock);
+		errno = ECONNREFUSED;
 		return (0);
 	}
 
