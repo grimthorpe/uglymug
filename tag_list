@@ -14,6 +14,7 @@ information doesn't get lost.
 
 	Removed all of the combat stuff.
 	Added @warn, that displays an error message, unless the command chain is SILENT.
+	Added value_or_empty() around get_arg1() and get_arg2() in log_hack call in game.c
 
 
 um1_031 - The Grimthorpe and Chisel show.

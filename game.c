@@ -1322,8 +1322,8 @@ const	char	*original_command)
 					getname (get_current_command ()),		get_current_command(),
 					original_command,
 					command,
-					get_arg1(),
-					get_arg2()
+					value_or_empty(get_arg1()),
+					value_or_empty(get_arg2())
 		);
 #endif /* NEW_LOGGING */
 	}
