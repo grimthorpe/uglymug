@@ -13,6 +13,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Made .reconnect be run *BEFORE* the descriptors are swapped around in the list so any @terminal commands will work on the latest connection.
+	Cleaned up descriptor_data so that there is a 'terminal' structure (rather than naming everything terminal_foo).
+	Cleaned up hostname handling so we don't use strdup, and then put the result into a String.
 	Removed all of the '#ifndef NEW_LOGGING' blocks containing old Trace()/fputs() calls.
 	Removed (old) context::log_recursion function and prototypes
 	Added missing log_recursion() call in context.c

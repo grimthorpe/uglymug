@@ -238,6 +238,7 @@ class descriptor_data
 {
 public:
 	descriptor_data(int sock, sockaddr_in *a, int conc = 0);
+	~descriptor_data();
 private:
 	int			_descriptor;
 	dbref			_player;	/* Initilized to zero; hence (d->get_player() == 0) implies never connected */
@@ -262,14 +263,10 @@ public:
 	int			backslash_pending;
 	int			cr_pending;
 	int			indirect_connection;	/* got hostname through a SNDLOC */
-	char			hostname [MAXHOSTNAMELEN];
+	String			hostname;
 	struct	sockaddr_in	address;
-	class	descriptor_data	*next;
-	class	descriptor_data	**prev; // Pointer to previous->next!
-	int                     terminal_width;
-	bool			terminal_wrap;
-	int			terminal_height;
-	String			terminal_type;
+	descriptor_data		*next;
+	descriptor_data		**prev; // Pointer to previous->next!
 	struct		{
 				String bold_on;
 				String bold_off;
@@ -278,12 +275,18 @@ public:
 				String backspace;
 				String clearline;
 			}	termcap;
-	int			terminal_xpos;
-	bool			terminal_lftocr;
-	bool			terminal_pagebell;
-	bool			terminal_recall;
-	bool			terminal_effects;
-	bool			terminal_halfquit;
+	struct		{
+				int	width;
+				int	height;
+				String	type;
+				int	xpos;
+				bool	wrap;
+				bool	lftocr;
+				bool	pagebell;
+				bool	recall;
+				bool	effects;
+				bool	halfquit;
+			}	terminal;
 	int			channel;
 
 	int			myoutput;
@@ -422,7 +425,10 @@ public:
 	void	dump_users(const char *victim, int flags);
 	void	dump_swho();
 private:
+	// Declared but not implemented.
 	descriptor_data();
+	descriptor_data(const descriptor_data&);
+	descriptor_data& operator=(const descriptor_data&);
 };
 
 
@@ -976,7 +982,7 @@ void terminal_underline(dbref player, const char *string)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
-			twidth= d->terminal_width-1;
+			twidth= d->terminal.width-1;
 			if (twidth<=0)
 				twidth = 79; // A reasonable default
 			if (twidth > ulen)
@@ -1097,7 +1103,7 @@ void beep (dbref player)
 	{
 		if (d->IS_CONNECTED()
 			&& (d->get_player() == player)
-			&& d->terminal_pagebell)
+			&& d->terminal.pagebell)
 		{
 			d->queue_write("\007", 1);
 			d->process_output();
@@ -1389,7 +1395,7 @@ void mud_main_loop(int argc, char** argv)
 						d->warning_level = 0;
 						if (!d->process_input ())
 						{
-							if(d->terminal_halfquit)
+							if(d->terminal.halfquit)
 							{
 								d->HALFQUIT();
 							}
@@ -1842,16 +1848,16 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 	switch(option)
 	{
 		case TELOPT_NAWS:
-			terminal_width=buf[0]*256 + buf[1];
-			terminal_height=buf[2]*256 + buf[3];
+			terminal.width=buf[0]*256 + buf[1];
+			terminal.height=buf[2]*256 + buf[3];
 #ifdef DEBUG_TELNET
-			log_debug("Descriptor %d terminal dimensions:  %d x %d", get_descriptor(), terminal_width, terminal_height);
+			log_debug("Descriptor %d terminal dimensions:  %d x %d", get_descriptor(), terminal.width, terminal.height);
 #endif
-			if(terminal_width < 20 || terminal_height < 5)
+			if(terminal.width < 20 || terminal.height < 5)
 			{
-				log_bug("Descriptor %d gave silly terminal dimensions (%d x %d)", get_descriptor(), terminal_width, terminal_height);
-				terminal_width=0;
-				terminal_height=0;
+				log_bug("Descriptor %d gave silly terminal dimensions (%d x %d)", get_descriptor(), terminal.width, terminal.height);
+				terminal.width=0;
+				terminal.height=0;
 			}
 			send_telnet_option(WONT, TELOPT_NAWS);	/* To make sure we don't have to send it */
 			break;
@@ -1878,7 +1884,7 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			log_debug("Descriptor %d location is '%s'", get_descriptor(), scratch);
 #endif
 			indirect_connection=1;
-			strcpy(hostname, scratch);
+			hostname = scratch;
 			send_telnet_option(WONT, TELOPT_SNDLOC);
 			break;
 	}
@@ -1893,41 +1899,41 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
  */
 int descriptor_data::set_terminal_type (const CString& termtype)
 {
-	char *terminal;
+	char *term;
 
-	terminal = strdup(termtype.c_str());
+	term = strdup(termtype.c_str());
 
-	for(int i = 0; terminal[i]; i++)
-		terminal[i] = tolower(terminal[i]);
+	for(int i = 0; term[i]; i++)
+		term[i] = tolower(term[i]);
 
 	int setupterm_error;
-	if (setupterm (terminal, get_descriptor(), &setupterm_error) != OK)
+	if (setupterm (term, get_descriptor(), &setupterm_error) != OK)
 	{
 		if (setupterm_error == -1)
 			log_bug("Terminfo database could not be found.");
 #ifdef DEBUG_TELNET
 		else if (setupterm_error == 0)
-			log_bug("Terminal type '%s' from descriptor %d not in the terminfo database", terminal, get_descriptor());
+			log_bug("Terminal type '%s' from descriptor %d not in the terminfo database", term, get_descriptor());
 #endif
-		FREE(terminal);
+		FREE(term);
 		return 0;
 	}
 
-	terminal_type = terminal;
-	FREE(terminal);
+	terminal.type = term;
+	FREE(term);
 
-	if (terminal_width == 0)
+	if (terminal.width == 0)
 	{
-		terminal_width = tigetnum(const_cast<char *>("cols"));
+		terminal.width = tigetnum(const_cast<char *>("cols"));
 #ifdef DEBUG_TELNET
-		log_debug("Terminal width (from terminfo):  %d", terminal_width);
+		log_debug("Terminal width (from terminfo):  %d", terminal.width);
 #endif
 	}
-	if (terminal_height == 0)
+	if (terminal.height == 0)
 	{
-		terminal_height = tigetnum(const_cast<char *>("lines"));
+		terminal.height = tigetnum(const_cast<char *>("lines"));
 #ifdef DEBUG_TELNET
-		log_debug("Terminal height (from terminfo):  %d", terminal_height);
+		log_debug("Terminal height (from terminfo):  %d", terminal.height);
 #endif
 	}
 
@@ -1996,21 +2002,21 @@ descriptor_data::set_terminal_type(const CString& termtype)
 		return 0;
 	}
 
-	terminal_type=terminal;
+	terminal.type=terminal;
 	FREE(terminal);
 
-	if(terminal_width == 0)
+	if(terminal.width == 0)
 	{
-		terminal_width=tgetnum("co");
+		terminal.width=tgetnum("co");
 #ifdef DEBUG_TELNET
-	log_debug("Terminal width (from termcap):  %d", terminal_width);
+	log_debug("Terminal width (from termcap):  %d", terminal.width);
 #endif
 	}
-	if(terminal_height == 0)
+	if(terminal.height == 0)
 	{
-		terminal_height=tgetnum("li");
+		terminal.height=tgetnum("li");
 #ifdef DEBUG_TELNET
-	log_debug("Terminal height (from termcap):  %d", terminal_height);
+	log_debug("Terminal height (from termcap):  %d", terminal.height);
 #endif
 	}
 
@@ -2202,12 +2208,7 @@ descriptor_data::shutdownsock()
 
 	if(!IS_HALFQUIT())
 	{
-		*prev = next;
-		if (next)
-			next->prev = prev;
-
-		delete (this);
-		ndescriptors--;
+		delete this;
 	}
 	else
 	{
@@ -2215,6 +2216,14 @@ descriptor_data::shutdownsock()
 	}
 }
 
+
+descriptor_data::~descriptor_data()
+{
+	*prev = next;
+	if (next)
+		next->prev = prev;
+	ndescriptors--;
+}
 
 /* Call with (socket, address) for normal connections, or (0, NULL, channel) for concentrator connections. */
 
@@ -2274,30 +2283,27 @@ int			channel)
 	if(a)
 	{
 		address = *a;
-		strncpy (hostname,
-			convert_addr (&(a->sin_addr)),
-			sizeof (hostname) - 1);
-		hostname [sizeof (hostname) - 1] = '\0';
+		hostname = convert_addr (&(a->sin_addr));
         }
         else
-		strcpy (hostname, "Concentrator");
+		hostname = "Concentrator";
 
         if (descriptor_list)
                 descriptor_list->prev = &next;
 
         next			= descriptor_list;
 	prev			= &descriptor_list;
-	terminal_xpos		= 0;
-	terminal_width		= 0;
-	terminal_height		= 0;
-	terminal_type		= NULL;
-	terminal_xpos		= 0;
-	terminal_lftocr		= true;
-	terminal_pagebell	= true;
-	terminal_wrap		= true;
-	terminal_recall		= true;
-	terminal_effects	= false;
-	terminal_halfquit	= false;
+	terminal.xpos		= 0;
+	terminal.width		= 0;
+	terminal.height		= 0;
+	terminal.type		= NULL;
+	terminal.xpos		= 0;
+	terminal.lftocr		= true;
+	terminal.pagebell	= true;
+	terminal.wrap		= true;
+	terminal.recall		= true;
+	terminal.effects	= false;
+	terminal.halfquit	= false;
 	termcap.bold_on		= NULL;
 	termcap.bold_off	= NULL;
 	termcap.underscore_on	= NULL;
@@ -2498,7 +2504,7 @@ char *a,*a1,*b;
 
         if(get_player())
         {
-                if(store_in_recall_buffer && terminal_recall)
+                if(store_in_recall_buffer && terminal.recall)
                 {
                         db[get_player()].add_recall_line(s);
                 }
@@ -2515,7 +2521,7 @@ char *a,*a1,*b;
 // Do word-wrap.
 // We want to wrap at the last <space> before the end-of-line. If there isn't
 // one, don't try to wrap.
-	if((terminal_width > 0) && (terminal_wrap))
+	if((terminal.width > 0) && (terminal.wrap))
 	{
 		int percent_primed= 0; /* Take acct of %colour *not* affecting wrap */
 		char* last_space = 0; /* The last place we saw a space. */
@@ -2528,7 +2534,7 @@ char *a,*a1,*b;
 				break;
 
 			case '\n':
-				terminal_xpos = 0; // We increment the position
+				terminal.xpos = 0; // We increment the position
 				last_space = 0;
 				a++;
 				continue;
@@ -2545,7 +2551,7 @@ char *a,*a1,*b;
 				break;
 
 			case '%':
-				terminal_xpos--;
+				terminal.xpos--;
 				percent_primed = !percent_primed;
 				break;
 
@@ -2568,7 +2574,7 @@ char *a,*a1,*b;
 			{
 				break;
 			}
-			if(terminal_xpos+2 >= terminal_width)
+			if(terminal.xpos+2 >= terminal.width)
 			{
 				if(last_space != 0)
 				{
@@ -2576,19 +2582,19 @@ char *a,*a1,*b;
 					last_space = 0;
 					*a++ = '\n';
 				}
-				terminal_xpos = 0;
+				terminal.xpos = 0;
 				a++;
 			}
 			else
 			{
-				terminal_xpos++;
+				terminal.xpos++;
 				a++;
 			}
 		}
 	}
-	if(terminal_xpos < 0)
-		terminal_xpos = 0;
-	if(terminal_lftocr)
+	if(terminal.xpos < 0)
+		terminal.xpos = 0;
+	if(terminal.lftocr)
 	{
 		/* I apologise for the messyness of the next bit, but it is to implement */
 		/* LF to LF/CR conversion (for Jimbo) */
@@ -2636,7 +2642,7 @@ char *a,*a1,*b;
 				if(percent_loaded)
 				{
 					percent_loaded = 0;
-					if(colour || terminal_effects)
+					if(colour || terminal.effects)
 					{
 						/* They want the colour codes transfered*/
 
@@ -2801,7 +2807,7 @@ char *boldify(dbref player, const char *str)
 	if(!d)
 		return NULL;
 
-	if(d->termcap.bold_on && d->termcap.bold_off && d->terminal_type)
+	if(d->termcap.bold_on && d->termcap.bold_off && d->terminal.type)
 		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.bold_on.c_str(), str, d->termcap.bold_off.c_str());
 	else
 		strcpy(buf, str);
@@ -2822,7 +2828,7 @@ char *underscorify(dbref player, const char *str)
 	if(!d)
 		return NULL;
 
-//	if(d->termcap.underscore_on && d->termcap.underscore_off && d->terminal_type)
+//	if(d->termcap.underscore_on && d->termcap.underscore_off && d->terminal.type)
 //		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.underscore_on.c_str(), str, d->termcap.underscore_off.c_str());
 //	else
 		strcpy(buf, str);
@@ -2857,43 +2863,43 @@ descriptor_data::announce_player (announce_states state)
 		case ANNOUNCE_CONNECTED :
 			mortal_string = " has connected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has connected from %s]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has connected from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_CREATED :
 			mortal_string = " has connected]\n";
 			app_string = " has been created]\n";
-			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_BOOTED :
 			snprintf (scratch, sizeof(scratch), " has been booted by %s%s%s]\n", player_booting, blank (boot_reason)?"":" ", boot_reason);
 			mortal_string = scratch;
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has been booted from %s by %s%s%s]\n", hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (wizard_string, sizeof(wizard_string), " has been booted from %s by %s%s%s]\n", hostname.c_str(), player_booting, blank (boot_reason)?"":" ", boot_reason);
 			break;
 		case ANNOUNCE_DISCONNECTED :
 			mortal_string = " has disconnected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_SMD :
 			mortal_string = " has disconnected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s due to an SMD read]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s due to an SMD read]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_TIMEOUT :
 			mortal_string = " has disconnected]\n";
 			app_string = " has timed out]\n";
-			snprintf (wizard_string, sizeof(wizard_string), " has timed out from %s]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has timed out from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_PURGE :
 			mortal_string = " has purged an idle connection]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has purged an idle connection from %s]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has purged an idle connection from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_RECONNECT:
 			mortal_string = " has reconnected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has reconnected from %s]\n", hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has reconnected from %s]\n", hostname.c_str());
 			break;
 		default :
 			log_bug("Unknown state (%d) encounted in announce_player()", state);
@@ -3349,6 +3355,9 @@ descriptor_data::connect_a_player (
 		}
 
 
+	set_connect_state(DESCRIPTOR_CONNECTED);
+	set_player( player );
+
 	if(!already_here)
 	{
 		if (announce_type == ANNOUNCE_CREATED) {
@@ -3357,52 +3366,46 @@ descriptor_data::connect_a_player (
 		else {
 			log_connect(true, CHANNEL(), player, db[player].get_name().c_str());
 		}
-	}
-	else
-	{
-		log_reconnect(player, db[player].get_name().c_str(), CHANNEL());
-
-		//Swap current position and the last descriptor
-		//Swapping - last_one and this
-		//And transfer connect times
-
-			start_time = last_one->start_time;
-
-			if(next)
-			{
-				next->prev = &(last_one->next);
-			}
-
-			if(last_one->next)
-			{
-				last_one->next->prev = &(this_one->next);
-			}
-
-			temp_next = this_one->next;
-			this_one->next = last_one->next;
-			last_one->next = temp_next;
-
-			*prev = last_one;
-			*last_one->prev = this_one;
-
-			temp_prev = prev;
-			prev = last_one->prev;
-			last_one->prev = temp_prev;
-	}
-	set_connect_state(DESCRIPTOR_CONNECTED);
-	set_player( player );
-	if(!already_here)
-	{
 		mud_connect_player (get_player());
 		announce_player (announce_type);
 	}
 	else
 	{
+		log_reconnect(player, db[player].get_name().c_str(), CHANNEL());
+
+		//transfer connect times
+
+		start_time = last_one->start_time;
+
 		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please use '@recall <number of lines to view>'");
 		announce_player(ANNOUNCE_RECONNECT);
 		mud_run_dotcommand(get_player(), ".reconnect");
-	}
 
+		//Swap current position and the last descriptor
+		//Swapping - last_one and this
+		// This has to be done after running .reconnect so that any @terminal commnds go to the right descriptor.
+
+		if(next)
+		{
+			next->prev = &(last_one->next);
+		}
+
+		if(last_one->next)
+		{
+			last_one->next->prev = &(this_one->next);
+		}
+
+		temp_next = this_one->next;
+		this_one->next = last_one->next;
+		last_one->next = temp_next;
+
+		*prev = last_one;
+		*last_one->prev = this_one;
+
+		temp_prev = prev;
+		prev = last_one->prev;
+		last_one->prev = temp_prev;
+	}
 }
 
 int
@@ -4129,9 +4132,9 @@ int			flags)
 			if (flags & DUMP_WIZARD)
 			{
 				if (d->indirect_connection)
-					snprintf (flag_buf, sizeof(flag_buf), " <%s>", d->hostname);
+					snprintf (flag_buf, sizeof(flag_buf), " <%s>", d->hostname.c_str());
 				else
-					snprintf (flag_buf, sizeof(flag_buf), " [%s]", d->hostname);
+					snprintf (flag_buf, sizeof(flag_buf), " [%s]", d->hostname.c_str());
 				strcat(buf, flag_buf);
 			}
 
@@ -4363,7 +4366,7 @@ descriptor_data::dump_swho()
 	static	char		linebuf [4096];
 	struct	descriptor_data	*d;
 	int			num = 0;
-	int			numperline = (terminal_width-1) / 25;
+	int			numperline = (terminal.width-1) / 25;
 
 	if(numperline == 0) numperline = 3;
 
@@ -4445,11 +4448,11 @@ descriptor_data::terminal_set_halfquit(const CString& toggle, bool gagged)
 	{
 		if(string_compare(toggle, "on") == 0)
 		{
-			terminal_halfquit = true;
+			terminal.halfquit = true;
 		}
 		else if(string_compare(toggle, "off") == 0)
 		{
-			terminal_halfquit = false;
+			terminal.halfquit = false;
 		}
 		else
 		{
@@ -4459,7 +4462,7 @@ descriptor_data::terminal_set_halfquit(const CString& toggle, bool gagged)
 	}
 	if(!gagged)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Auto-HALFQUIT is %s", terminal_halfquit?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Auto-HALFQUIT is %s", terminal.halfquit?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4471,11 +4474,11 @@ descriptor_data::terminal_set_effects(const CString& toggle, bool gagged)
 	{
 		if(string_compare(toggle, "on") == 0)
 		{
-			terminal_effects = true;
+			terminal.effects = true;
 		}
 		else if(string_compare(toggle, "off") == 0)
 		{
-			terminal_effects = false;
+			terminal.effects = false;
 		}
 		else
 		{
@@ -4485,7 +4488,7 @@ descriptor_data::terminal_set_effects(const CString& toggle, bool gagged)
 	}
 	if(!gagged)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Effects are %s", terminal_effects?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Effects are %s", terminal.effects?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4497,11 +4500,11 @@ descriptor_data::terminal_set_recall(const CString& toggle, bool gagged)
 	{
 		if(string_compare(toggle, "on") == 0)
 		{
-			terminal_recall = true;
+			terminal.recall = true;
 		}
 		else if(string_compare(toggle, "off") == 0)
 		{
-			terminal_recall = false;
+			terminal.recall = false;
 		}
 		else
 		{
@@ -4511,7 +4514,7 @@ descriptor_data::terminal_set_recall(const CString& toggle, bool gagged)
 	}
 	if(!gagged)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Recall is %s", terminal_recall?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Recall is %s", terminal.recall?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4546,16 +4549,16 @@ descriptor_data::terminal_set_pagebell(const CString& toggle, bool gagged)
 	if(toggle)
 	{
 		if(string_compare(toggle, "on")==0)
-			terminal_pagebell=true;
+			terminal.pagebell=true;
 		else if(string_compare(toggle, "off")==0)
-			terminal_pagebell=false;
+			terminal.pagebell=false;
 		else
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal pagebell=on' or '@terminal pagebell=off'.");
 	}
 
 	if(!gagged)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Pagebell is %s", terminal_pagebell?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Pagebell is %s", terminal.pagebell?"on":"off");
 	}
 
 	return COMMAND_SUCC;
@@ -4566,7 +4569,7 @@ descriptor_data::terminal_set_pagebell(const CString& toggle, bool gagged)
 String
 descriptor_data::terminal_get_termtype()
 {
-	return terminal_type;
+	return terminal.type;
 }
 
 Command_status
@@ -4576,7 +4579,7 @@ descriptor_data::terminal_set_termtype (const CString& termtype, bool gagged)
 	{
 		if(string_compare(termtype, "none")==0)
 		{
-			terminal_type = (const char*)0;
+			terminal.type = (const char*)0;
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Your terminal type is no longer set.");
 		}
 		else
@@ -4589,8 +4592,8 @@ descriptor_data::terminal_set_termtype (const CString& termtype, bool gagged)
 	}
 	else
 	{
-		if(terminal_type)
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is '%s'.", terminal_type.c_str());
+		if(terminal.type)
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is '%s'.", terminal.type.c_str());
 		else
 			notify_colour(get_player(),get_player(), COLOUR_MESSAGES, "Your terminal type is not set.");
 	}
@@ -4612,14 +4615,14 @@ descriptor_data::terminal_set_width(const CString& width, bool gagged)
 			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word terminal width");
 			return COMMAND_FAIL;
 		}
-		terminal_width = i;
+		terminal.width = i;
 	}
 	if(!gagged)
 	{
-		if(terminal_width == 0)
+		if(terminal.width == 0)
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is unset");
 		else
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is %d", terminal_width);
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is %d", terminal.width);
 	}
 
 	return COMMAND_SUCC;
@@ -4634,11 +4637,11 @@ descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
 	{
 		if(string_compare(width, "on") == 0)
 		{
-			terminal_wrap = true;
+			terminal.wrap = true;
 		}
 		else if(string_compare(width, "off") == 0)
 		{
-			terminal_wrap = false;
+			terminal.wrap = false;
 		}
 		else
 		{
@@ -4658,12 +4661,12 @@ descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
 		// If wrap is zero, leave terminal width, but set wrap off.
 				if(i > 0)
 				{
-					terminal_width = i;
-					terminal_wrap = true;
+					terminal.width = i;
+					terminal.wrap = true;
 				}
 				else
 				{
-					terminal_wrap = false;
+					terminal.wrap = false;
 				}
 			}
 			else
@@ -4674,7 +4677,7 @@ descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
 	}
 	if(!gagged)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is %s", terminal_wrap?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is %s", terminal.wrap?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4687,11 +4690,11 @@ descriptor_data::terminal_set_lftocr(const CString& z, bool gagged)
 	{
 		if(string_compare(z, "on") == 0)
 		{
-			terminal_lftocr = true;
+			terminal.lftocr = true;
 		}
 		else if(string_compare(z, "off") == 0)
 		{
-			terminal_lftocr = false;
+			terminal.lftocr = false;
 		}
 		else
 		{
@@ -4701,7 +4704,7 @@ descriptor_data::terminal_set_lftocr(const CString& z, bool gagged)
 	}
 	if(!gagged)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"lftocr is %s", terminal_lftocr?"on":"off");
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"lftocr is %s", terminal.lftocr?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
@@ -4895,12 +4898,9 @@ u_long	host_addr;
 		}
 		else
 		{
-			if((*(d->hostname) >= '0') && (*(d->hostname) <= '9'))
+			if(((d->hostname.c_str()[0]) >= '0') && ((d->hostname.c_str()[0]) <= '9'))
 			{
-				strncpy (d->hostname,
-					convert_addr (&(d->address.sin_addr)),
-					sizeof (d->hostname) - 1);
-				d->hostname [sizeof (d->hostname) - 1] = '\0';
+				d->hostname=convert_addr (&(d->address.sin_addr));
 			}
 		}
 		
