@@ -1,0 +1,45 @@
+#!/bin/echo "Use . up fule"
+# Ok, something doesn't work about the above.  Just use . up to run the
+# script.  Alright!
+
+umask 002
+ulimit -c unlimited
+ulimit -f unlimited
+ulimit -d unlimited
+ulimit -l unlimited
+ulimit -m unlimited
+ulimit -n unlimited
+ulimit -s unlimited
+ulimit -t unlimited
+
+SCAT=./scat
+PORTS="6239 2323 1394 8080"
+
+# Save all the logs.
+if [ -z $SCAT ]; then
+	cat logs/stderr >> logs/stderr-`date +%Y-%m-%d-%H%M`
+	mv -f logs/stderr logs/stderr-prev
+fi
+
+# back up the database
+if [ ! -f db/ugly.db.current-`date +%Y-%m-%d-%H%M` -a -f db/ugly.db.end ]
+then
+	mv -f db/ugly.db.current db/ugly.db.current-`date +%Y-%m-%d-%H%M`
+	mv -f db/ugly.db.end db/ugly.db.current
+fi
+
+# save core
+if [ -f core ]
+then
+	mv -f core core-`date +%Y-%m-%d-%H%M`
+fi
+
+echo "Starting netmud..."
+if [ -z $SCAT ]; then
+	./netmud db/ugly.db.current db/ugly.db.end $PORTS 1> /dev/null 2> logs/stderr &
+else
+	./netmud db/ugly.db.current db/ugly.db.end $PORTS 2>&1 | $SCAT logs/scat.tmp logs/uglymug.log &
+fi
+
+echo $! > logs/ugly.pid
+echo "Done."
