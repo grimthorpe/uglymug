@@ -8,6 +8,9 @@ Leave the Name: tag at the top of the file to get
 the correct release tag embedded in the game when you
 build it.
 
+um1_017 = Grimthorpe
+    Egg on face time. @<softcodecommand> didn't work due to the fix.
+
 um1_016 - Grimthorpe
     More string stuff, this time finishing off the stringutil.c stuff.
     Also, |foo should now check #4 for 'foo', as it used to.
