@@ -13,6 +13,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Fixed swho so that it dumps the output to the user that requested
+	it, rather than the intended players to list.
+
 	added #include <string.h> to mudstring.c to help it compile on 
 	non-solaris
 

@@ -40,12 +40,22 @@ struct text_block
 	text_block	*nxt;
 	char		*start;
 	char		*buf;
+
+	text_block() : nchars(0), nxt(NULL), start(NULL), buf(NULL) {}
+private:
+	text_block(const text_block&); // DUMMY
+	text_block& operator=(const text_block&); // DUMMY
 };
 
 struct text_queue
 {
 	text_block	*head;
 	text_block	**tail;
+
+	text_queue() : head(NULL), tail(&head) {}
+private:
+	text_queue(const text_queue&); // DUMMY
+	text_queue& operator=(const text_queue&); // DUMMY
 };
 
 class descriptor_data
@@ -77,7 +87,7 @@ public:
         time_t                  time_since_idle;
 	int			warning_level;
 	int			quota;
-	int			backslash_pending;
+	bool			backslash_pending;
 	int			cr_pending;
 	int			indirect_connection;	/* got hostname through a SNDLOC */
 	String			hostname;
@@ -85,15 +95,16 @@ public:
 	String			service; // What the port connected to is for
 	descriptor_data		*next;
 	descriptor_data		**prev; // Pointer to previous->next!
-	struct		{
+	struct Termcap	{
 				String bold_on;
 				String bold_off;
 				String underscore_on;
 				String underscore_off;
 				String backspace;
 				String clearline;
+				Termcap() : bold_on(), bold_off(), underscore_on(), underscore_off(), backspace("\010 \010"), clearline("\r\n") {}
 			}	termcap;
-	struct		{
+	struct	Terminal{
 				int	width;
 				int	height;
 				String	type;
@@ -105,10 +116,11 @@ public:
 				bool	effects;
 				bool	halfquit;
 				bool	noflush;
+				Terminal() : width(0), height(0), type(), xpos(0), wrap(true), lftocr(true), pagebell(true), recall(true), effects(false), halfquit(false), noflush(false) {}
 			}	terminal;
 	int			channel;
 
-	int			myoutput;
+	bool			myoutput;
 
 	bool			t_echo;
 	int			t_lflow;
@@ -229,7 +241,6 @@ public:
 	int	do_command(const char *c);
 
 	void	dump_users(const char *victim, int flags);
-	void	dump_swho();
 private:
 	// Declared but not implemented.
 	descriptor_data();

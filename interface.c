@@ -2067,41 +2067,51 @@ descriptor_data::~descriptor_data()
 descriptor_data::descriptor_data (
 int			s,
 struct	sockaddr_in	*a,
-int			channel)
-
+int			chanl)
+:
+	_descriptor(s),
+	_player(0),
+	_player_name(),
+	_password(),
+	_connect_state(DESCRIPTOR_UNCONNECTED),
+	_output_prefix(),
+	_output_suffix(),
+	connect_attempts(3),
+	output_size(0),
+	output(),
+	input(),
+	raw_input(NULL),
+	raw_input_at(NULL), // Gets reset in the constructor.
+	start_time(time(0)),
+	last_time(start_time),
+	time_since_idle(start_time),
+	warning_level(0),
+	quota(COMMAND_BURST_SIZE),
+	backslash_pending(false),
+	cr_pending(0),
+	indirect_connection(false),
+	hostname(),
+	address(0),
+	service(),
+        next(descriptor_list),
+	prev(&descriptor_list),
+	termcap(),
+	terminal(),
+	channel(chanl),
+	myoutput(false),
+	t_echo(false),
+	t_lflow(0),
+	t_linemode(0),
+	t_iac(IAC_OUTSIDE_IAC),
+	t_iacbuf(0),
+	t_piacbuf(0),
+	t_liacbuf(0),
+	t_iac_command(0),
+	t_iac_option(0),
+	_got_an_iac(false)
 {
-	time_t now;
-
-	(void) time (&now);
-
 	ndescriptors++;
-	_descriptor		= s;
-	channel			= channel;
-	_player			= 0;
-	connect_attempts	= 3;
 	if(s) make_nonblocking (s);
-	output_size		= 0;
-	output.head		= NULL;
-	output.tail		= &output.head;
-	input.head		= NULL;
-	input.tail		= &input.head;
-	raw_input		= NULL;
-	quota			= COMMAND_BURST_SIZE;
-	start_time		= now;
-	last_time		= now;
-	warning_level		= 0;
-/*
- * The following threee variables have never been initialised until now.
- * For some reason the code worked before. I assume that was luck.
- * They have been fixed mainly because Purify shouts loudly at them
- * being used unitialised.
- * If things break, then just comment out these lines!
- *
- * Grimthorpe, 29-June-2000
- */
-	t_echo			= false; // We've never set these before, and it
-	t_linemode		= false; // worked for some reason.
-	t_lflow			= false; // If it breaks now, then please analyse
 
 // Do processing depending on if this is an NPC or a real connection
 	if(s == 0 && a == NULL & channel == 0)
@@ -2115,7 +2125,6 @@ int			channel)
 	}
 	raw_input_at		= raw_input;
 
-	indirect_connection     = 0;
 	if(a)
 	{
 	struct sockaddr_in	tmpname;
@@ -2155,38 +2164,7 @@ int			channel)
         if (descriptor_list)
                 descriptor_list->prev = &next;
 
-        next			= descriptor_list;
-	prev			= &descriptor_list;
-	terminal.xpos		= 0;
-	terminal.width		= 0;
-	terminal.height		= 0;
-	terminal.type		= NULL;
-	terminal.xpos		= 0;
-	terminal.lftocr		= true;
-	terminal.pagebell	= true;
-	terminal.wrap		= true;
-	terminal.recall		= true;
-	terminal.effects	= false;
-	terminal.halfquit	= false;
-	terminal.noflush	= false;
-	termcap.bold_on		= NULL;
-	termcap.bold_off	= NULL;
-	termcap.underscore_on	= NULL;
-	termcap.underscore_off	= NULL;
-// Naive assumption of terminal capabilities, which will probably work.
-	termcap.backspace	= "\010 \010";
-	termcap.clearline	= "\r\n";
-
-	backslash_pending	= 0;
-	cr_pending		= 0;
-
-	last_time		= time(NULL);
-
 	descriptor_list		= this;
-
-	t_iac			= IAC_OUTSIDE_IAC;
-
-	_got_an_iac		= false;
 
 	set_echo(true);
 }
@@ -2872,10 +2850,10 @@ descriptor_data::process_input (int len)
 						*p++ = '\\';
 						*p++ = *q;
 					}
-					backslash_pending = 0;
+					backslash_pending = false;
 				}
 				else
-					backslash_pending = 1;
+					backslash_pending = true;
 				break;
 			case '\n':
 				gotline = 1;
@@ -2902,7 +2880,7 @@ descriptor_data::process_input (int len)
 				{
 					if (p < pend)
 						*p++ = '\n';
-					backslash_pending = 0;
+					backslash_pending = false;
 				}
 				else
 				{
@@ -2926,10 +2904,10 @@ descriptor_data::process_input (int len)
 				while(*x && (x < p))
 				{
 					if((*(x++) == '\\')
-						 && (backslash_pending == 0))
-						backslash_pending = 1;
+						 && (!backslash_pending))
+						backslash_pending = true;
 					else
-						backslash_pending = 0;
+						backslash_pending = false;
 				}
 				break;
 			case '\022':	// ^R
@@ -2982,7 +2960,7 @@ descriptor_data::process_input (int len)
 				do_write(termcap.clearline.c_str(), termcap.clearline.length());
 				p = raw_input;
 				*p = 0;
-				backslash_pending = 0;
+				backslash_pending = false;
 			}
 			default:
 				if (p < pend && isascii (*q) && isprint (*q))
@@ -2992,7 +2970,7 @@ charcount++;
 					{
 						if (p + 1 < pend)
 							*p++ = '\\';
-						backslash_pending = 0;
+						backslash_pending = false;
 					}
 					do_write((const char *)q, 1);
 					*p++ = *q;
@@ -4278,18 +4256,34 @@ struct	descriptor_data	*d;
 }
 
 void
-descriptor_data::dump_swho()
+context::do_swho (
+const	String& victim,
+const	String& )
+
 {
 	static	char		linebuf [4096];
+	String			line;
 	struct	descriptor_data	*d;
 	int			num = 0;
-	int			numperline = (terminal.width-1) / 25;
 
-	if(numperline == 0) numperline = 3;
-
-	for (d = descriptor_list; d; d = d->next)
+	int			width = 0;
+	for(d = descriptor_list; d; d = d->next)
 	{
-		if(d->IS_CONNECTED() && (Typeof(d->get_player()) != TYPE_PUPPET))
+		if(d->get_player() == player)
+		{
+			width = d->terminal.width;
+			break;
+		}
+	}
+	int			numperline = (width-1) / 25;
+
+	if(numperline <= 0) numperline = 3;
+
+	WhoToShow who(victim, get_player(), false);
+
+	notify_colour(player, player, COLOUR_MESSAGES, "Current players:");
+	for (d = descriptor_list; d; d = d->next)
+		if(who.Show(d))
 		{
 			int thing= d->get_player();
 			int colour=COLOUR_MORTALS;
@@ -4310,34 +4304,17 @@ descriptor_data::dump_swho()
 				player_colour (get_player(), get_player(), colour),
 				db[d->get_player()].get_name().c_str(),
 				COLOUR_REVERT);
-			queue_string(linebuf);
+			line += linebuf;
 			if((++num % numperline) == 0)
-				queue_string("\n");
+			{
+				notify(player, "%s", line.c_str());
+				line = "";
+			}
 		}
-	}
-	if(num % numperline)	/* Bit of a hack to get correct num of \n's */
-		queue_string("\n");
-	snprintf(linebuf, sizeof(linebuf), "%sUsers: %d%s\n",
-		player_colour (get_player(), get_player(), COLOUR_MESSAGES),
-		num, COLOUR_REVERT);
-	queue_string(linebuf);
-}
 
-
-void
-context::do_swho (
-const	String& victim,
-const	String& )
-
-{
-	struct descriptor_data *d;
-
-	WhoToShow who(victim, get_player(), false);
-
-	notify_colour(player, player, COLOUR_MESSAGES, "Current players:");
-	for (d = descriptor_list; d; d = d->next)
-		if(who.Show(d))
-			d->dump_swho();
+	if(line)
+		notify(player, "%s", line.c_str());
+	notify_colour(player, player, COLOUR_MESSAGES, "Users: %d", num);
 
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
@@ -5094,13 +5071,10 @@ void concentrator_disconnect(void)
  * Member functions
  */
 
-descriptor_data::descriptor_data()
-{}
-
 void
 descriptor_data::output_prefix()
 {
-	myoutput = 1;
+	myoutput = true;
 	if(IS_FAKED())
 		return;
 	if(_output_prefix)
@@ -5113,7 +5087,7 @@ descriptor_data::output_prefix()
 void
 descriptor_data::output_suffix()
 {
-	myoutput = 0;
+	myoutput = false;
 	if(IS_FAKED())
 		return;
 	if(_output_suffix)
