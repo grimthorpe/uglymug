@@ -645,7 +645,7 @@ context::context (const bool is_default)
 /* Initialisation changed to SUCC from INIT by PJC 14/1/96 */
 , return_status (COMMAND_SUCC)
 , called_from_command (false)
-, creator(*(context*)0)
+, creator(*this)
 , m_scheduled (false)
 , dependency (0)
 
