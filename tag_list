@@ -12,6 +12,7 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    Made swho work out how many entries to display properly.
     Added @?version which returns the Release string (eg um1_026)
     Made WelcomerTitles modifiable; Don't know exactly how, don't know why
     it didn't work before.

@@ -4146,7 +4146,7 @@ descriptor_data::dump_swho()
 	static	char		linebuf [4096];
 	struct	descriptor_data	*d;
 	int			num = 0;
-	int			numperline = terminal_width / 25;
+	int			numperline = (terminal_width-1) / 25;
 
 	if(numperline == 0) numperline = 3;
 
