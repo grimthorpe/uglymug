@@ -293,6 +293,7 @@ context::do_query_commands (const String& name, const String&)
 			case TYPE_ROOM:
 			case TYPE_THING:
 			case TYPE_PLAYER:
+			case TYPE_PUPPET:
 				set_return_string (unparse_for_return (*this, db[thing].get_commands()));
 				return_status = COMMAND_SUCC;
 				break;

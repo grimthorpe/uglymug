@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added Puppet as an allowed type to do_query_commands in get.c. LEETC
 	Modify @stats to include currency and BPs after object stats. DJT: 20030826
 um1_048
 	Ozzard's changes to allow #id's to be used anywhere.
