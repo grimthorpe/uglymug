@@ -473,8 +473,8 @@ context::dump_email_addresses ()
 	FILE	*fp;
 
 	/* Flup's email dumping routine */
-	if ((fp=fopen (EMAIL_FILE, "w"))==NULL)
-		log_bug("couldn't open %s (%s)", EMAIL_FILE, sys_errlist[errno]);
+	if ((fp=fopen (EMAIL_FILE ".tmp", "w"))==NULL)
+		log_bug("couldn't open %s (%s)", EMAIL_FILE ".tmp", sys_errlist[errno]);
 	else
 	{
 		for (i = 0; i < db.get_top (); i++)
@@ -495,6 +495,9 @@ context::dump_email_addresses ()
 				);
 			}
 		fclose(fp);
+
+		unlink(EMAIL_FILE); // Don't care if it fails.
+		link(EMAIL_FILE ".tmp", EMAIL_FILE);
 //		notify_colour (player, player, COLOUR_MESSAGES, "Done.");
 	}
 
