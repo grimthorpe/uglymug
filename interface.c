@@ -2028,7 +2028,8 @@ unsigned long addr)
 		}
 		else
 		{
-			snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+			long bsaddr = ntohl(addr);
+			snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
 		}
 		set_cached_addr(addr, buffer);
 	}
