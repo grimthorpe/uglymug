@@ -584,6 +584,7 @@ class	context
 	void				do_volume		(const CString&, const CString&);
 	void				do_volume_limit		(const CString&, const CString&);
 	void				do_wall			(const CString&, const CString&);
+	void				do_at_warn		(const CString&, const CString&);
 	void				do_weapon		(const CString&, const CString&);
 	void				do_wear			(const CString&, const CString&);
 	void				do_welcome		(const CString&, const CString&);

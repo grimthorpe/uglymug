@@ -12,6 +12,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added @warn, that displays an error message, unless the command chain is SILENT.
+
+
 um1_031 - The Grimthorpe and Chisel show.
 	Added log.h and logging functions to log.c
 	Added NEW_LOGGING to config.h

@@ -279,6 +279,7 @@ command_details			command_table [] =
 	{"@volume",		&context::do_volume,		NO_COMMAND_FLAGS},
 	{"@volumelimit",	&context::do_volume_limit,	NO_COMMAND_FLAGS},
 	{"@wall",		&context::do_wall,		FULL_COMPARE},
+	{"@warn",		&context::do_at_warn,		FULL_COMPARE},
 	{"@weapon",		&context::do_weapon,		NO_COMMAND_FLAGS},
 	{"@welcomer",		&context::do_welcome,		NO_COMMAND_FLAGS},
 	{"@who",		&context::do_at_who,		NO_COMMAND_FLAGS},
@@ -1649,5 +1650,20 @@ const CString&,
 const CString&)
 {
 	return;		// Do nothing.
+}
+
+/*
+ * Print a warning, unless the context is gagged.
+ */
+void
+context::do_at_warn(
+const CString& arg1,
+const CString& arg2)
+{
+	if(!gagged_command())
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", reconstruct_message(arg1, arg2));
+	}
+	RETURN_SUCC;
 }
 
