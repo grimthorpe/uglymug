@@ -151,7 +151,7 @@ $(BUILD_DIR): $(BUILDS_DIR)
 	mkdir -p $(BUILD_DIR)
 
 $(LIBUGLY): $(LIB_OBJECTS)
-	ar rv $@ $(LIB_OBJECTS)
+	ar rv $@ $?
 	ranlib $@
 
 $(BUILD_DIR)/netmud$(EXESUFFIX): $(LIBUGLY) $(BUILD_DIR)/netmud.o
@@ -218,6 +218,7 @@ newversion:
 	fi
 
 version.h: newversion
+	@echo "Making new version..."
 	@echo \#define RELEASE \"$(VERSION)\" > version.h
 	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" >> version.h
 
