@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Modified interface to fic a small bug where we used NULL instead of \0
 
 um1_040 - New characters are important to us!
 	Modified log_recursion() and the two callsa to it. This makes the information easier to process.
