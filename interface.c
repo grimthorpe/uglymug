@@ -3766,20 +3766,14 @@ int			flags)
 					sprintf (buf, "%2dm %02ds", length / 60, length % 60);
 				else if (length < 8 * 60 * 60)
 					sprintf (buf, "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
-				else if (length < 10 * 60 * 60)
+				else if (length < 9 * 60 * 60)
 					sprintf (buf, "Muddict");
-				else if (length < 11 * 60 * 60)
-					sprintf (buf, "DamnSad");
-				else if (length < 12 * 60 * 60)
-					sprintf (buf, "No Life");
-				else if (length < 13 * 60 * 60)
-					sprintf (buf, "NoPulse");
-				else if (length < 14 * 60 * 60)
-					sprintf (buf, " Reebok");
 				else if (length < 24 * 60 * 60)
-					sprintf (buf, "    NUS");
+					sprintf (buf, "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
+				else if (length < 7 * 24 * 60 * 60)
+					sprintf (buf, "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
 				else
-					sprintf (buf, "Eternal");
+					sprintf (buf, "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 
 			}
 			else
@@ -3936,16 +3930,12 @@ int			flags)
 					sprintf (flag_buf, "    %02ds", length);
 				else if (length < 60 * 60)
 					sprintf (flag_buf, "%2dm %02ds", length / 60, length % 60);
-				else if (length < 90 * 60)
-					sprintf (flag_buf, "  Aeons");
-				else if (length < 120 * 60)
-					sprintf (flag_buf, "Eoghans");
-				else if (length < 150 * 60)
-					sprintf (flag_buf, " IntMax");
-				else if (length < 180 * 60)
-					sprintf (flag_buf, "Forever");
+				else if (length < 24 * 60 * 60)
+					sprintf (flag_buf, "%2dh %02dm", length / (60 * 60), length % (60 * 60));
+				else if (length < 7 * 24 * 60 * 60)
+					sprintf (flag_buf, "%2dd %02dh", length / (24 * 60 * 60), length % (24 * 60 * 60));
 				else
-					sprintf (flag_buf, " Always");
+					sprintf (flag_buf, "%2dw %02dd", length / (7 * 24 * 60 * 60), length % (7 * 24 * 60 * 60));
 			}
 			else
 				sprintf (flag_buf, "TooLong");
