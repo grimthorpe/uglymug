@@ -548,12 +548,12 @@ class	context
 	void				do_query_weight		(const CString&, const CString&);
 	void				do_query_who		(const CString&, const CString&);
 	void				do_quit			(const CString&, const CString&);
-	void				do_race			(const CString&, const CString&);
-	void				do_recall		(const CString&, const CString&);
+	void				do_at_race		(const CString&, const CString&);
+	void				do_at_recall		(const CString&, const CString&);
 	void				do_at_rem		(const CString&, const CString&);
 	void				do_remote		(const CString&, const CString&);
-	void				do_return		(const CString&, const CString&);
-	void				do_returnchain		(const CString&, const CString&);
+	void				do_at_return		(const CString&, const CString&);
+	void				do_at_returnchain	(const CString&, const CString&);
 	void				do_say			(const CString&, const CString&);
 	void				do_score		(const CString&, const CString&);
 	void				do_set			(const CString&, const CString&);

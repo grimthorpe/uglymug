@@ -194,7 +194,7 @@ const	CString& )
 }
 
 void
-context::do_recall (
+context::do_at_recall (
 const	CString& lines,
 const	CString& dummy)
 

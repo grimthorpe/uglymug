@@ -277,7 +277,7 @@ const	CString& )
 }
 
 void
-context::do_race (
+context::do_at_race (
 const	CString& name,
 const	CString& newrace)
 
