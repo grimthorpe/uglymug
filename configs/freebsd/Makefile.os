@@ -5,4 +5,4 @@
 # PJC, 20/4/2003.
 WHOAMI:=whoami | sed 's, .*,,'
 LIBS:= -lm -lncurses -lcrypt
-CFLAGS:= -g -DJPK_FREEBSD
+CFLAGS:= -g

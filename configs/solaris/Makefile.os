@@ -5,4 +5,4 @@
 # PJC, 20/4/2003.
 WHOAMI:=who am i | sed 's, .*,,'
 LIBS:= -lcurses -lm -ltermcap -lsocket -lnsl
-CFLAGS:= -g -DJPK_SPARC
+CFLAGS:= -g
