@@ -577,6 +577,38 @@ const	String& )
 				RETURN_SUCC;
 				return;
 			}
+
+			if((!Visible(thing)) && (!can_link (*this, thing)) && (!controls_for_read (thing)))
+			{
+				switch(Typeof(thing))
+				{
+					case TYPE_ROOM:
+						if(db[player].get_location() != thing) 
+						{
+							notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
+							RETURN_SUCC;
+							return;
+						}
+						break;
+					case TYPE_EXIT:
+					case TYPE_PLAYER:
+					case TYPE_PUPPET:
+					case TYPE_THING:
+						if(db[player].get_location() != db[thing].get_location()) 
+						{
+							notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
+							RETURN_SUCC;
+							return;
+						}
+						break;
+					default:
+							notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
+							RETURN_SUCC;
+							return;
+					break;
+				}
+			}
+
 			switch(Typeof(thing))
 			{
 				case TYPE_ROOM:
