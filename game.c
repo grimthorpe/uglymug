@@ -1,6 +1,7 @@
 /* static char SCCSid[] = "@(#)game.c 1.120 99/02/11@(#)"; */
 #include "copyright.h"
 
+#include "os.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>
