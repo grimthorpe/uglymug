@@ -7,16 +7,19 @@
 
 // Linux
 #ifdef linux
+#	define	HAS_CURSES	1
 #	define	HAS_FORK	1
 #	define	HAS_SIGNALS	1
 #	define	NEEDS_CRYPT_H	1
 #	define	NEEDS_RESOURCES	0
+#	define	NEEDS_STRSIGNAL	1
 #	define	USE_BSD_SOCKETS	1
 #	define	USE_WINSOCK2	0
 #endif /* linux */ 
 
 // Sun - typically Solaris these days.
 #if sun
+#	define	HAS_CURSES	1
 #	define	HAS_FORK	1
 #	define	HAS_SIGNALS	1
 #	define	NEEDS_CRYPT_H	1
@@ -26,17 +29,23 @@
 
 // MinGW
 #ifdef __MINGW32__
-#	define	HAS_FORK	0
-#	define	HAS_SIGNALS	0
-#	define	HAS_SRAND48	0
-#	define	NEEDS_CRYPT_H	1
-#	define	NEEDS_GETOPT	1
-#	define	NEEDS_RESOURCES	0
-#	define	USE_BSD_SOCKETS	0
-#	define	USE_WINSOCK2	1
+#	define	HAS_CURSES		0
+#	define	HAS_FORK		0
+#	define	HAS_SIGNALS		0
+#	define	HAS_SRAND48		0
+#	define	NEEDS_CRYPT_H		1
+#	define	NEEDS_GETDTABLESIZE	1
+#	define	NEEDS_GETOPT		1
+#	define	NEEDS_RESOURCES		0
+#	define	NEEDS_STRSIGNAL		1
+#	define	USE_BSD_SOCKETS		0
+#	define	USE_WINSOCK2		1
 #endif
 
 // Defaults - assume a UNIX of some kind.
+#ifndef	HAS_CURSES
+#	define	HAS_CURSES	1
+#endif
 #ifndef	HAS_FORK
 #	define	HAS_FORK	1
 #endif
@@ -46,8 +55,18 @@
 #ifndef	HAS_SRAND48
 #	define	HAS_SRAND48	1
 #endif
+#ifndef	NEEDS_GETDTABLESIZE
+#	ifdef	SYSV
+#		define	NEEDS_GETDTABLESIZE	1
+#	else
+#		define	NEEDS_GETDTABLESIZE	1
+#	endif	/* SYSV */
+#endif
 #ifndef	NEEDS_RESOURCES
 #	define	NEEDS_RESOURCES	1
+#endif
+#ifndef	NEEDS_STRSIGNAL
+#	define	NEEDS_STRSIGNAL	0
 #endif
 #ifndef	USE_WINSOCK2
 #	define	USE_WINSOCK2	0
