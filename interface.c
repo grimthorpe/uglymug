@@ -1385,7 +1385,7 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 //		next->prev = prev;
 
 				case 0: /* 5 mins */
-					if (diff > 30)
+					if (diff > 300)
 					{
 						if (!d->IS_CONNECTED())
 						{
