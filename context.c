@@ -1135,7 +1135,7 @@ const	char	*element_name)
 	case TYPE_DICTIONARY:
 		for(i = 1; i <= total; i++)
 		{
-			String_pair entry(db[d].get_index(1), db[d].get_element(i));
+			String_pair entry(db[d].get_index(i), db[d].get_element(i));
 			elements.push_back(entry);
 		}
 		break;
