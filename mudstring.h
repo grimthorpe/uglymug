@@ -99,7 +99,7 @@ class	String
 
 // Private DUMMY members. Defined so that the main code can't use them,
 // DUMMY so that we don't use them internally.
-	operator int() const;
+//	operator int() const;
 //	bool operator==(const String& str);
 	bool operator==(int);
 
