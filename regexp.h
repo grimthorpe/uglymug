@@ -49,9 +49,7 @@ static int	size;
 
 static char	bittab[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
-static void
-getrnge(str)
-register char *str;
+static void getrnge(register char *str)
 {
 	register int sizecode;
 
@@ -64,10 +62,12 @@ register char *str;
 }
 
 /*ARGSUSED*/
-char *
-compile(instring, ep, endbuf, seof)
-register char *ep;
-char *instring, *endbuf;
+char *compile(char *instring,register char *ep, char *endbuf, int seof)
+// char *instring;
+// register char *ep;
+// char *endbuf;
+// int seof;
+
 {
 	INIT	/* Dependent declarations and initializations */
 	register int c;
@@ -327,10 +327,11 @@ char *instring, *endbuf;
 	}
 	/*NOTREACHED*/
 }
-int advance(lp, ep)
-register char *lp;
-register int *ep;
+
+
+int advance(register char *lp, register char *ep)
 {
+        int tmp;
 	register char *curlp;
 	register int c;
 	char *bbeg; 
@@ -380,11 +381,13 @@ register int *ep;
 			return(0);
 		
 		case CBRA:
-			braslist[*ep++] = lp;
+			tmp=*ep++;
+			braslist[tmp] = lp;
 			continue;
 	
 		case CKET:
-			braelist[*ep++] = lp;
+			tmp=*ep++;
+			braelist[tmp] = lp;
 			continue;
 	
 		case CCHR | RNGE:
@@ -456,8 +459,10 @@ register int *ep;
 			goto star;
 	
 		case CBACK:
-			bbeg = braslist[*ep];
-			ct = braelist[*ep++] - bbeg;
+			tmp = *ep;
+			bbeg = braslist[tmp];
+			tmp = *ep++;
+			ct = braelist[tmp] - bbeg;
 	
 			if(ecmp(bbeg, lp, ct)) {
 				lp += ct;
@@ -466,8 +471,10 @@ register int *ep;
 			return(0);
 	
 		case CBACK | STAR:
-			bbeg = braslist[*ep];
-			ct = braelist[*ep++] - bbeg;
+			tmp = *ep;
+			bbeg = braslist[tmp];
+			tmp = *ep++;
+			ct = braelist[tmp] - bbeg;
 			curlp = lp;
 			while(ecmp(bbeg, lp, ct))
 				lp += ct;
@@ -526,7 +533,8 @@ register int *ep;
 			}
 
 			if(*ep == CBACK) {
-				c = *(braslist[ep[1]]);
+				tmp = ep[1];
+				c = *(braslist[tmp]);
 				do {
 					if(*lp != c)
 						continue;
@@ -567,8 +575,7 @@ register int *ep;
 	/*NOTREACHED*/
 }
 
-int step(p1, p2)
-register char *p1, *p2; 
+int step(register char *p1, register char *p2)
 {
 	register int c;
 
