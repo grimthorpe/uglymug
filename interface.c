@@ -4268,7 +4268,7 @@ descriptor_data::terminal_set_termtype (const CString& termtype, int)
 	{
 		if(string_compare(termtype, "none")==0)
 		{
-			terminal_type.clear();
+			terminal_type.empty();
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Your terminal type is no longer set.");
 		}
 		else

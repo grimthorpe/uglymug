@@ -18,7 +18,7 @@ private:
 		operator int()	const;
 		bool operator==(const CString& str);
 		bool operator==(int);
-	void clear()
+	void empty()
 	{
 		buf = 0;
 		len = 0;
@@ -26,7 +26,7 @@ private:
 public:
 	CString()
 	{
-		clear();
+		empty();
 	}
 	CString(const char* str)
 	{
@@ -37,7 +37,7 @@ public:
 		}
 		else
 		{
-			clear();
+			empty();
 		}
 	}
 	CString(const CString& str)
@@ -63,7 +63,7 @@ public:
 		}
 		else
 		{
-			clear();
+			empty();
 		}
 		return *this;
 	}
@@ -103,7 +103,7 @@ protected:
 	{
 		if(str != buf)
 		{
-			clear();
+			empty();
 			if(str && *str)
 			{
 				buf = strdup(str);
@@ -115,7 +115,7 @@ protected:
 	{
 		if(str != buf)
 		{
-			clear();
+			empty();
 			if(str && *str)
 			{
 				buf = strdup(str);
@@ -146,9 +146,9 @@ public:
 	}
 	~String()
 	{
-		clear();
+		empty();
 	}
-	void clear()
+	void empty()
 	{
 		if(buf)
 		{
@@ -169,7 +169,7 @@ public:
 		}
 		else
 		{
-			clear();
+			empty();
 		}
 		return *this;
 	}
@@ -181,7 +181,7 @@ public:
 		}
 		else
 		{
-			clear();
+			empty();
 		}
 		return *this;
 	}
@@ -193,7 +193,7 @@ public:
 		}
 		else
 		{
-			clear();
+			empty();
 		}
 		return *this;
 	}
@@ -225,7 +225,7 @@ inline CString::CString(const String& str)
 	}
 	else
 	{
-		clear();
+		empty();
 	}
 }
 inline CString& CString::operator=(const String& str)
@@ -237,7 +237,7 @@ inline CString& CString::operator=(const String& str)
 	}
 	else
 	{
-		clear();
+		empty();
 	}
 	return *this;
 }
