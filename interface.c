@@ -2776,7 +2776,7 @@ descriptor_data::announce_player (announce_states state)
 		case ANNOUNCE_CREATED :
 			mortal_string = " has connected]\n";
 			app_string = " has been created]\n";
-			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", db[get_player()].get_name ().c_str(), hostname);
+			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", hostname);
 			break;
 		case ANNOUNCE_BOOTED :
 			snprintf (scratch, sizeof(scratch), " has been booted by %s%s%s]\n", player_booting, blank (boot_reason)?"":" ", boot_reason);
