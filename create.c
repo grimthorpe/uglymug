@@ -1,7 +1,9 @@
 /* static char SCCSid[] = "@(#)create.c	1.26\t12/2/94"; */
 #include "copyright.h"
 
-/* Commands that create new objects */
+/** \file
+ * Commands that create new objects in the database.
+ */
 
 #include <math.h>
 #include <time.h>
@@ -17,16 +19,17 @@
 #include "colour.h"
 #include "log.h"
 
-/* Macro to choose between using the effective id and using the build_id */
+/** Macro to choose between using the effective id and using the build_id */
 #define ID (player!=get_effective_id())?(get_effective_id()):(db[player].get_build_id())
 
 
-/* The only scratch_return_string we use is for #id, so it can be short */
+/** The only scratch_return_string we use is for #id, so it can be short */
 static	char	scratch_return_string [11];
 
-/*
- * parse_linkable_room: Get a room number, and check that it's possible to
- *	link to it.
+
+/**
+ * Given a context and a source for the link, find a location for the destination
+ *	link name and check that it's possible to link to it.
  */
 
 extern dbref
@@ -87,9 +90,13 @@ const	String&	link_dest_name)
 }
 
 
-/*
- * check_hierarchy: Check that player is able to link between room1
- *	and room2.
+/**
+ * Check that this context is able to link between room1 and room2.  Rules:
+ * - The two locations must share a common parent;
+ * - The linker must control_for_write that common parent and everything below it.
+ *
+ * The intention is to allow players to link freely within their own areas, but not between
+ * areas.
  */
 
 static int
@@ -165,8 +172,8 @@ dbref	room2)
 }
 
 
-/*
- * do_at_open: Create an exit in the location of player, called direction.
+/**
+ * Create an exit in the location of player, called direction.
  *	If linkto is non-NULL, try to parse it into a room to link to.
  */
 void
@@ -271,8 +278,8 @@ const	String& linkto)
 }
 
 
-/*
- * do_at_link: Link a player or thing to a home; link a room to its dropto; link
+/**
+ * Link a player or thing to a home; link a room to its dropto; link
  *	an exit to its destination.
  */
 
@@ -445,7 +452,10 @@ const	String& room_name)
 }
 
 
-/* use this to create a room */
+/**
+ * Create a new room.  Note that it is not, at this point, part of the area hierarchy.
+ */
+
 void
 context::do_at_dig (
 const	String& name,
@@ -504,6 +514,11 @@ const	String& desc)
 	set_return_string (scratch_return_string);
 }
 
+
+/**
+ * Create a new Thing with the given name and description, and add it to the player's
+ * inventory.  All other properties are defaulted.
+ */
 
 void
 context::do_at_create (
@@ -575,8 +590,8 @@ const	String& desc)
 }
 
 
-/*
- * do_at_command: Creates a command attached to player.
+/**
+ * Create a command attached to the context's player.
  *	Its name is in name; a command list is in commands.
  */
 
@@ -656,8 +671,9 @@ const	String& commands)
 }
 
 
-/*
- * do_at_array: creates a variable called name.
+/**
+ * Create an Array called name (the second parameter is not used). The array is attached
+ * to the context's player, and contains no elements.
  */
 
 void
@@ -717,8 +733,9 @@ const	String& )
 }
 
 
-/*
- * do_at_dictionary: creates a dictionary called name.
+/**
+ * Create a new empty Dictionary called name (the second parameter is not used) and attaches
+ *	it to the context's player.
  */
 
 void
@@ -777,8 +794,9 @@ const	String& )
 	set_return_string (scratch_return_string);
 }
 
-/*
- * do_at_property: creates a property called name.
+/**
+ * Create a new Property called name, with value as its description.  Attach it to the context's
+ *	player.
  */
 
 void
@@ -840,9 +858,11 @@ const	String& value)
 
 
 /*
- * do_at_variable: creates a variable called name.
- * No colour added cos @var is obsolete :-)
-*/
+ * Create a new Variable called name, with value as its description.
+ *	NOTE: Variables are deprecated - use Properties instead.
+ *	No colour strings have been added as @var is obsolete.
+ */
+
 void
 context::do_at_variable (
 const	String& variable_name,
@@ -912,9 +932,9 @@ notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a d
 }
 
 
-/*
- * parse_linkable_command: Make sure the destination is a command or HOME,
- *	and that we can link to it. Used by do_at_csuccess and do_at_cfailure.
+/**
+ * Try to turn a command name into a command or HOME,
+ *	ensuring that we can link to it. Used by do_at_csuccess and do_at_cfailure.
  */
 
 dbref
@@ -952,7 +972,7 @@ const	String& command_name)
 
 
 /*
- * do_at_csuccess: Set up the success pointer for this command.
+ * Set the success pointer for the command 'name' to be the start of 'command_name'.
  */
 
 void
@@ -1021,7 +1041,7 @@ const	String& command_name)
 
 
 /*
- * do_at_cfailure: Set up the failure pointer for this command.
+ * Set the failure pointer for the command 'name' to be the start of 'command_name'.
  */
 
 void
@@ -1087,6 +1107,12 @@ const	String& command_name)
 }
 
 
+/**
+ * Create a new Fuse called 'name' that fires 'command_name' and put it on the player. Note that
+ *	this is a different convention to almost every other create command; the others set
+ *	the description as the second parameter.
+ */
+
 void
 context::do_at_fuse (const String& fuse_name, const String& command_name)
 {
@@ -1145,6 +1171,10 @@ context::do_at_fuse (const String& fuse_name, const String& command_name)
 	set_return_string (scratch_return_string);
 }
 
+
+/**
+ * Create a new Alarm on the player, with a time string of time_of_execution.
+ */
 
 void
 context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
@@ -1207,6 +1237,10 @@ context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
 	set_return_string (scratch_return_string);
 }
 
+
+/*
+ * Create a new Puppet in the player's location, owned by the player.
+ */
 
 void
 context::do_at_puppet (
