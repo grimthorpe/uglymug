@@ -14,8 +14,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
-	Fixed @with with arrays (Grimthorpe)
 
+um1_052
+	Actually committed code for mortals to see IDs there are a number of
+	issues with this but we can work them out later.
+	Fixed @with with arrays (Grimthorpe)
 um1_051
 	Changed @with to take a copy of the data in the dictionary / array so it doesn't get affected by changes in the loop (Grimthorpe)
 	Changed @?id not to require controls_for_read
