@@ -89,6 +89,26 @@ const	String& command)
 
 	/* force victim to do command */
 	{
+		dbref old_player = get_player();
+		dbref old_unchpid_id = unchpid_id;
+		dbref old_effective_id = get_effective_id();
+		player = victim;
+		unchpid_id = victim;
+		if(!call_stack.is_empty())
+		{
+			call_stack.top()->set_effective_id(victim);
+		}
+		const int old_depth = call_stack.depth();
+		process_basic_command(command.c_str());
+		while(call_stack.depth() > old_depth)
+			step();
+		if(!call_stack.is_empty())
+		{
+			call_stack.top()->set_effective_id(old_effective_id);
+		}
+		player = old_player;
+		unchpid_id = old_unchpid_id;
+/*
 		context	*victim_context = new context (victim, *this);
 		if (in_command ())
 			victim_context->calling_from_command ();
@@ -97,12 +117,13 @@ const	String& command)
 		victim_context->step_limit = step_limit;
 		victim_context->process_basic_command (command.c_str());
 		mud_scheduler.push_express_job (victim_context);
-		/* Copy context information */
+		// Copy context information
 		copy_returns_from (*victim_context);
-		if (!in_command())
-			notify_colour(player,  player, COLOUR_MESSAGES, "Forced.");
 		commands_executed = victim_context->commands_executed;
 		delete victim_context;
+*/
+		if (!in_command())
+			notify_colour(player,  player, COLOUR_MESSAGES, "Forced.");
 	}
 }
 

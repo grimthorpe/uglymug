@@ -1021,7 +1021,7 @@ const	char	*original_command)
 	 *
 	 * PJC 18/2/97.
 	 */
-	if(!in_command() && LiteralInput(player))
+	if(!in_command() && LiteralInput(player) && (call_stack.depth() == 0))
 	{
 		strcpy(command, smashed_original);
 	}

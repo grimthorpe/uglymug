@@ -306,6 +306,13 @@ dbref	loc)
 	dbref		overlap_room;
 	fit_result	fit_error;
 
+	/* Make sure we haven't managed to 'walk' through an unlinked exit */
+	if(loc == NOTHING)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't enter NOTHING.");
+		return;
+	}
+
 	/* check for room == HOME and fix it to a real location */
 	if(loc == HOME)
 		loc = db[player].get_destination(); /* home */
@@ -550,7 +557,9 @@ const String&	direction)
 	/* otherwise match on exits */
 	Matcher exit_matcher (c.get_player (), direction, TYPE_EXIT, c.get_effective_id ());
 	exit_matcher.match_exit();
-	return(exit_matcher.last_match_result() != NOTHING);
+	dbref exit = exit_matcher.last_match_result();
+
+	return((exit != NOTHING) && (Typeof(exit) == TYPE_EXIT));
 }
 
 void
@@ -594,6 +603,11 @@ const	String&)
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't go that way.");
 				break;
 			default:
+				if(Typeof(exit) != TYPE_EXIT)
+				{
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't an exit.");
+					break;
+				}
 				/* we got one */
 				count_down_fuses (*this, exit, !TOM_FUSE);
 				/* check to see if we got through */
