@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Removed call to value_or_empty on a CString on log_recursion()
 	Added .reconnect handling (runs when you RECONNECT)
 	Cleaned up .login/.logout handling (share common code)
 	More changes of char* -> String, this time in Command_and_arguments (and related)
