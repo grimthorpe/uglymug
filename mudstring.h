@@ -234,105 +234,111 @@ public:
 
 #define STRINGBUFFER_GROWSIZE	64
 
+class StringBuffer
+{
+	int		_ref;
+	char*		_buf;
+	unsigned int	_len;
+	unsigned int	_capacity;
+
+	void init()
+	{
+		_capacity = 0;
+		_len = 0;
+		_buf = 0;
+		_ref = 0;
+	}
+	void resize(unsigned int newsize, bool copy=true)
+	{
+		if(newsize <= _capacity)
+			return;
+		_capacity = newsize + 2;
+		//while(newsize > _capacity)
+		//	_capacity += STRINGBUFFER_GROWSIZE;
+		char* tmp = (char*)malloc(_capacity+2); // Allow for slight overrun (JIC)
+		if(_buf && copy)
+		{
+			// We use memcpy because the regions will not overlap.
+			memcpy(tmp, _buf, _len); // Copy the \0 terminator
+			tmp[_len+1] = 0;
+		}
+		if(_buf)
+			free(_buf);
+		_buf = tmp;
+	}
+	static int CreationCount;
+	~StringBuffer() // Private so that nobody can delete this. Use the reference counting!
+	{
+		if(_buf)
+			free(_buf);
+		CreationCount--;
+	}
+	StringBuffer& operator=(const StringBuffer&);
+	StringBuffer(const StringBuffer&);
+
+	StringBuffer(unsigned int capacity = 0)
+	{
+		init();
+		resize(capacity);
+	}
+	StringBuffer(const char* str)
+	{
+		init();
+		if(str && *str)
+		{
+			assign(str, strlen(str));
+		}
+	}
+	StringBuffer(const char* str, unsigned int len)
+	{
+		init();
+		if(str && *str)
+		{
+			assign(str, len);
+		}
+	}
+	static StringBuffer EMPTYBUFFER;
+public:
+	static StringBuffer* NewBuffer(const char*str, unsigned int len = 0);
+
+	void assign(const char* str, int len)
+	{
+		resize(len, false);
+		if(str)
+		{
+			memcpy(_buf, str, len);
+			_len = len;
+		}
+		else
+		{
+			_len = 0;
+		}
+		if(_buf)
+			_buf[len] = 0; // NULL terminate.
+	}
+	void ref()
+	{
+		if(this)
+			_ref++;
+	}
+	void unref()
+	{
+		if((this) && ((--_ref) == 0))
+		{
+			delete const_cast<StringBuffer*>(this);
+		}
+	}
+	int		refcount()	const	{ return _ref; }
+	const char*	c_str()		const	{ return _buf?_buf:""; }
+	unsigned int	length()	const	{ return _len; }
+};
+
+extern StringBuffer EMPTYBUFFER;
+
 class	String
 {
 public:
-	class Buffer
-	{
-		friend	class	::String;	// Doesn't have to be a friend, but it stops
-						// gcc from complaining.
-
-		int		_ref;
-		char*		_buf;
-		unsigned int	_len;
-		unsigned int	_capacity;
-
-		void init()
-		{
-			_capacity = 0;
-			_len = 0;
-			_buf = 0;
-			_ref = 0;
-		}
-		void resize(unsigned int newsize, bool copy=true)
-		{
-			if(newsize <= _capacity)
-				return;
-			while(newsize > _capacity)
-				_capacity += STRINGBUFFER_GROWSIZE;
-			char* tmp = (char*)malloc(_capacity+2); // Allow for slight overrun (JIC)
-			if(_buf && copy)
-			{
-				// We use memcpy because the regions will not overlap.
-				memcpy(tmp, _buf, _len); // Copy the \0 terminator
-				tmp[_len+1] = 0;
-			}
-			if(_buf)
-				free(_buf);
-			_buf = tmp;
-		}
-		~Buffer() // Private so that nobody can delete this. Use the reference counting!
-		{
-			if(_buf)
-				free(_buf);
-		}
-		Buffer& operator=(const Buffer&);
-		Buffer(const Buffer&);
-	public:
-		void assign(const char* str, int len)
-		{
-			resize(len, false);
-			if(str)
-			{
-				memcpy(_buf, str, len);
-				_len = len;
-			}
-			else
-			{
-				_len = 0;
-			}
-			if(_buf)
-				_buf[len] = 0; // NULL terminate.
-		}
-		Buffer(unsigned int capacity = 0)
-		{
-			init();
-			resize(capacity);
-		}
-		Buffer(const char* str)
-		{
-			init();
-			if(str && *str)
-			{
-				assign(str, strlen(str));
-			}
-		}
-		Buffer(const char* str, unsigned int len)
-		{
-			init();
-			if(str && *str)
-			{
-				assign(str, len);
-			}
-		}
-		void ref()
-		{
-			if(this)
-				_ref++;
-		}
-		void unref()
-		{
-			if((this) && ((--_ref) == 0))
-			{
-				delete const_cast<Buffer*>(this);
-			}
-		}
-		int		refcount()	const	{ return _ref; }
-		const char*	c_str()		const	{ return _buf?_buf:""; }
-		unsigned int	length()	const	{ return _len; }
-	};
-
-	Buffer*	_buffer;
+	StringBuffer*	_buffer;
 
 	operator int() const;
 	bool operator==(const String& str);
@@ -345,7 +351,7 @@ public:
 	}
 	String(const char* str = 0)
 	{
-		_buffer = new Buffer(str);
+		_buffer = StringBuffer::NewBuffer(str);
 		_buffer->ref();
 	}
 	String(const String& str)
@@ -355,7 +361,12 @@ public:
 	}
 	String(const CString& str)
 	{
-		_buffer = new Buffer(str.c_str(), str.length());
+		_buffer = StringBuffer::NewBuffer(str.c_str(), str.length());
+		_buffer->ref();
+	}
+	String(StringBuffer* buf)
+	{
+		_buffer = buf;
 		_buffer->ref();
 	}
 	String& operator=(const String& cstr)
@@ -373,7 +384,7 @@ public:
 		if(_buffer->refcount () != 1)
 		{
 			_buffer->unref();
-			_buffer = new Buffer(cstr.c_str(), cstr.length());
+			_buffer = StringBuffer::NewBuffer(cstr.c_str(), cstr.length());
 			_buffer->ref();
 		}
 		else
@@ -385,7 +396,7 @@ public:
 		if(_buffer->refcount () != 1)
 		{
 			_buffer->unref();
-			_buffer = new Buffer(cstr);
+			_buffer = StringBuffer::NewBuffer(cstr);
 			_buffer->ref();
 		}
 		else if(cstr)
