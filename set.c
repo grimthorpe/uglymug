@@ -1507,6 +1507,11 @@ const	String& flag)
 	case FLAG_GOD_MAKE_WIZARD:
 	case FLAG_GOD_PASSWORD_RESET:
 	case FLAG_GOD_DEEP_POCKETS:
+		if(in_command())
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't change that flag in a command.");
+			return;
+		}
 		if(Typeof(thing) == TYPE_PLAYER)
 		{
 			if(!SetGodPower(player))
