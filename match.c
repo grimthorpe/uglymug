@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)match.c	1.48\t7/27/95";
+/* static char SCCSid[] = "@(#)match.c	1.48\t7/27/95"; */
 #include "copyright.h"
 
 /* Routines for parsing arguments */
@@ -462,9 +462,10 @@ Matcher::match_player ()
  void
  Matcher::match_array_or_dictionary()
  {
- 	char	*begin;
- 	char	*end;
-	dbref	temp;
+ /*	char	*begin;
+  *	char	*end;
+  *	dbref	temp;
+  */
 
 	if((absolute_loc != NOTHING) && (absolute_loc != AMBIGUOUS))
 		match_variable_list (absolute_loc);
