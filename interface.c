@@ -4795,7 +4795,7 @@ descriptor_data::terminal_set_height(const String& height, bool gagged)
 	if(!gagged)
 	{
 		if(terminal.height == 0)
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is unset");
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal height is unset");
 		else
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal height is %d", terminal.height);
 	}
