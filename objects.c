@@ -1046,17 +1046,13 @@ Array_storage::insert_element (
 const	int	index,
 const	CString& element)
 {
-	if(index > number)
-	{
-		resize(index);
-	}
-	else
-	{
-		int count;
-		for(count = number -1;count >= index;count--)
-			elements[count] = elements[count - 1];
-		elements[index-1]=element;
-	}
+	resize(number+1);
+
+	for(int count = number-1;count >= index;count--)
+		elements[count] = elements[count - 1];
+
+	elements[index-1]=element;
+
 	size += element.length();
 }
 
