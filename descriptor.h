@@ -1,3 +1,7 @@
+/*\file
+ * Connection descriptors.
+ */
+
 #ifndef _DESCRIPTOR_H_
 #define _DESCRIPTOR_H_
 
@@ -7,16 +11,16 @@
 
 enum connect_states
 {
-	DESCRIPTOR_UNCONNECTED,			/* Just initialised */
-	DESCRIPTOR_NAME,			/* Await player name */
-	DESCRIPTOR_PASSWORD,			/* Await password */
-	DESCRIPTOR_NEW_CHARACTER_PROMPT,	/* New Character? */
-	DESCRIPTOR_CONFIRM_PASSWORD,		/* Re-enter password */
-	DESCRIPTOR_CONNECTED,			/* Player is connected */
-	DESCRIPTOR_LIMBO_RECONNECTED,		/* Player is has been reconnected on another descriptor */
-	DESCRIPTOR_LIMBO,			/* Awaiting disconnection */
-	DESCRIPTOR_FAKED,			/* Faked connection; NPC */
-	DESCRIPTOR_HALFQUIT			/* Player has 'HALFQUIT' */
+	DESCRIPTOR_UNCONNECTED,			///< Just initialised
+	DESCRIPTOR_NAME,			///< Await player name
+	DESCRIPTOR_PASSWORD,			///< Await password
+	DESCRIPTOR_NEW_CHARACTER_PROMPT,	///< New Character?
+	DESCRIPTOR_CONFIRM_PASSWORD,		///< Re-enter password
+	DESCRIPTOR_CONNECTED,			///< Player is connected
+	DESCRIPTOR_LIMBO_RECONNECTED,		///< Player has been reconnected on another descriptor
+	DESCRIPTOR_LIMBO,			///< Awaiting disconnection
+	DESCRIPTOR_FAKED,			///< Faked connection; NPC
+	DESCRIPTOR_HALFQUIT			///< Player has 'HALFQUIT'
 };
 
 enum announce_states
@@ -61,12 +65,12 @@ private:
 class descriptor_data
 {
 public:
-	descriptor_data(int sock, sockaddr_in *a, int conc = 0);
+	descriptor_data(SOCKET sock, sockaddr_in *a, int conc = 0);
 	~descriptor_data();
 	static bool		check_descriptors;
 private:
 
-	int			_descriptor;
+	SOCKET			_descriptor;
 	dbref			_player;	/* Initilized to zero; hence (d->get_player() == 0) implies never connected */
 	String			_player_name;	/* Used at connect time - not necessarily correct outside check_connect */
 	String			_password;	/* Used at connect time - not necessarily correct outside check_connect */
@@ -180,7 +184,7 @@ public:
 	void	set_connect_state(enum connect_states cs)
 					{ _connect_state = cs; }
 	void	connect_a_player	(dbref player, announce_states connect_state);
-	int	get_descriptor()	{ return _descriptor; }
+	SOCKET	get_descriptor()	{ return _descriptor; }
 	int	get_player()		{ return _player; }
 	const String& 	get_player_name()	{ return _player_name;}
 	const String&	get_password()		{ return _password;}
@@ -202,7 +206,7 @@ public:
 	void	get_value_from_subnegotiation(unsigned char *, unsigned char, int);
 
 	void	set_echo(bool echo);
-	int	set_terminal_type(const String& terminal);
+	bool	set_terminal_type(const String& terminal);
 	Command_status	terminal_set_termtype(const String& , bool);
 	String	terminal_get_termtype();
 	Command_status	terminal_set_lftocr(const String& , bool);
