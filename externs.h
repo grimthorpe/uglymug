@@ -174,7 +174,7 @@ extern	int		excluded;
 /* From utils.c */
 extern	bool		contains		(dbref thing, dbref container);
 extern	bool		contains_inherited	(dbref thing, dbref container);
-extern  const   char    *getarticle		(int article_base, dbref thing);
+extern  const   char    *getarticle		(dbref thing, int article_base);
 extern	const	char	*getname		(dbref thing);
 extern	const	char	*getname_inherited	(dbref thing);
 extern	bool		in_area			(dbref thing, dbref area);

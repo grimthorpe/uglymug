@@ -259,6 +259,7 @@ const	dbref	eid,
 {
 	const	char	*err;
 
+	player = c->get_player();
 	if ((err = (set_command (cmd))) != 0)
 	{
 		notify(c->get_player(), "%s %s", err, unparse_object(*c, cmd));

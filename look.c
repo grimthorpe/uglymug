@@ -434,7 +434,7 @@ int 	prettylook_is_on
 				/* If it's unlinked, print its name and ref */
 				if (db[exit].get_destination() == NOTHING)
 					if (!(Number(c.get_player())))
-						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit);
+						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit);
 					else
 						sprintf (scratch_buffer, "  %s%s%s is unlinked.", ca[COLOUR_EXITS],namebuf, COLOUR_REVERT);
 				else
@@ -442,17 +442,17 @@ int 	prettylook_is_on
 					if (c.controls_for_read (exit) && !(Number(c.get_player())))
 					{
 						if (Opaque(exit))
-							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit);
+							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit);
 						else
 						{
 							if (!strcmp("some ",getarticle(exit,ARTICLE_LOWER_INDEFINITE)))
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) lead to %s%s%s.",
-									 ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit, ca[COLOUR_ROOMNAME], 
+									 ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME], 
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
 									 COLOUR_REVERT);
 							else
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) leads to %s%s%s.",
-									 ca[COLOUR_EXITS],namebuf,COLOUR_REVERT, exit, ca[COLOUR_ROOMNAME],
+									 ca[COLOUR_EXITS],namebuf,COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME],
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
 									 COLOUR_REVERT);
 						}

@@ -88,7 +88,7 @@ putref (
 const	dbref	ref)
 
 {
-	fprintf(f, "%d%c", ref, FIELD_SEPARATOR);
+	fprintf(f, "%d%c", (int)ref, FIELD_SEPARATOR);
 }
 
 
@@ -182,14 +182,14 @@ const	boolexp	*b,
 			*((*buf_ptr)++) = ')';
 			break;
 		case BOOLEXP_CONST:
-			sprintf(temp_buf, "%d", b->thing);
+			sprintf(temp_buf, "%d", (int)(b->thing));
 			strcpy(*buf_ptr, temp_buf);
 			*buf_ptr += strlen(temp_buf)*sizeof(char);
 			break;
 		case BOOLEXP_FLAG:
 			*((*buf_ptr)++) = '(';
 			*((*buf_ptr)++) = COMMAND_TOKEN;
-			sprintf(temp_buf, "%d", b->thing);
+			sprintf(temp_buf, "%d", (int)(b->thing));
 			strcpy(*buf_ptr, temp_buf);
 			*buf_ptr += strlen(temp_buf)*sizeof(char);
 			*((*buf_ptr)++) = ')';
@@ -1606,13 +1606,13 @@ const
 	fprintf (f, "***UglyMug Beta(tagged) DUMP Format 0***\n");
 
 	/* Write the number of objects in the database */
-	fprintf (f, "Objects: %d\n", top);
+	fprintf (f, "Objects: %d\n", (int)top);
 
 	/* Write each object */
 	for (i = 0; i < top; i++)
 		if (db + i != NULL)
 		{
-			sprintf (buf, "%c#%d", OBJECT_SEPARATOR, i);
+			sprintf (buf, "%c#%d", OBJECT_SEPARATOR, (int)i);
 			putstring (f, buf);
 			/* Then put the type field since it is not
 			   available inside the object, the flags
@@ -1836,9 +1836,11 @@ FILE	*f)
 	}
 
 	getc(f);				/* Remove newline */
-	if (fscanf (f, "Objects: %d", &i) != 1) /* Read the number of objects */
+	int size;
+	if (fscanf (f, "Objects: %d", &size) != 1) /* Read the number of objects */
 		return (NOTHING);		/* in the database. */
 	getc(f);				/* grab newline */
+	i = size;
 	grow (i);			/* Allocate the main data structure */
 
 	initialise_load_buffer(f);
@@ -2240,3 +2242,15 @@ player_cache_struct::compare(const player_cache_struct* other) const
 	return -1;
 }
 
+#ifdef DBREF_BUG_HUNTING
+void
+dbref::assign(int i)
+{
+	int dbsize = db.get_top();
+	if((i < -3) || ((i > (dbsize + 1024)) && (dbsize > 0)))
+	{
+		fprintf(stderr, "DBREF out of bounds! was %d, now %d\n", _ref, i);
+	}
+	_ref = i;
+}
+#endif // DBREF_BUG_HUNTING

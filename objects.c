@@ -116,7 +116,7 @@ const	dbref	newtop)
 
 {
 	int	index;
-	dbref	real_newtop = (array == NULL) ? newtop : (newtop + (DB_GROWSIZE - 1)) & (~(DB_GROWSIZE - 1));
+	dbref	real_newtop = (array == NULL) ? (int)newtop : (newtop + (DB_GROWSIZE - 1)) & (~(DB_GROWSIZE - 1));
 
 	if(newtop > top)
 	{
@@ -224,8 +224,8 @@ const dbref	oldobj)
 
 void
 Database::set_free_between (
-const	int	from,
-const	int	to)
+const	dbref	from,
+const	dbref	to)
 
 {
 	int	entry;

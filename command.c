@@ -182,7 +182,7 @@ Matcher		&matcher)
 	if ((call_stack.depth () >= depth_limit) || (!call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()))))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Recursion in command");
-		log_recursion(player, db[player].get_name(), depth_limit, unparse_object (GOD_ID, command), reconstruct_message(get_arg1(), get_arg2()));
+		log_recursion(player, db[player].get_name(), depth_limit, unparse_object ((context)GOD_ID, command), reconstruct_message(get_arg1(), get_arg2()));
 		return_status= COMMAND_HALT;
 		return ACTION_HALT;
 	}
@@ -818,8 +818,8 @@ const String&)
 
 	/* Should never get here */
 	log_bug("@end processed by %s in a command with no scope (%s)",
-			unparse_object (GOD_ID, player),
-			unparse_object (GOD_ID, get_current_command ())
+			unparse_object ((context)GOD_ID, player),
+			unparse_object ((context)GOD_ID, get_current_command ())
 	);
 }
 

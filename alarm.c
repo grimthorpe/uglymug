@@ -44,7 +44,7 @@ db_patch_alarms ()
 		{
 			context *c = new context (GOD_ID);
 			char tmpnum[20];
-			sprintf(tmpnum, "#%d", i);
+			sprintf(tmpnum, "#%d", (int)i);
 			db[i].clear_flag(FLAG_CONNECTED);
 			c->do_at_connect(tmpnum, NULLSTRING);
 			delete mud_scheduler.push_express_job (c);

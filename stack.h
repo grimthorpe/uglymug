@@ -16,6 +16,9 @@ extern void panic(const char *);
 template <class T>
 class	Array_stack
 {
+private:
+	Array_stack(const Array_stack&); // DUMMY
+	Array_stack& operator=(const Array_stack&); // DUMMY
     private:
 			int	size;
 			int	where;
@@ -38,6 +41,10 @@ template <class T> class Link_iterator;
 template <class T>
 class	Link_element
 {
+private:
+	Link_element(const Link_element&); // DUMMY
+	Link_element& operator=(const Link_element&); // DUMMY
+
 		friend class Link_stack <T>;
 		friend class Link_iterator <T>;
 		T			object;
@@ -52,6 +59,10 @@ class	Link_element
 template <class T>
 class	Link_iterator
 {
+private:
+	Link_iterator(const Link_iterator&); // DUMMY
+	Link_iterator& operator=(const Link_iterator&); // DUMMY
+
     private:
 		const	Link_stack <T>	*stack;
 			Link_element<T>	*current_elem;
@@ -68,6 +79,10 @@ class	Link_iterator
 template <class T>
 class	Link_stack
 {
+private:
+	Link_stack(const Link_stack&); // DUMMY
+	Link_stack& operator=(const Link_stack&); // DUMMY
+
     friend class Link_iterator <T>;
     private:
 		int			depth;

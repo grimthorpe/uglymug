@@ -16,6 +16,9 @@
 class	Information
 : public object
 {
+private:
+	Information(const Information&); // DUMMY
+	Information& operator=(const Information&); // DUMMY
 	protected:
 		int		number;			/* Number of elements in array */
 		String		*elements;		/* Elements for array */
@@ -27,6 +30,9 @@ class	Information
 class	Array_storage
 :public Information
 {
+private:
+	Array_storage(const Array_storage&); // DUMMY
+	Array_storage& operator=(const Array_storage&); // DUMMY
 	private:
 		int		size;
 	public:
@@ -34,11 +40,11 @@ class	Array_storage
 	virtual			~Array_storage		();
 		void		empty_object		();
 		void		resize			(const int newsize);
-		void		set_element		(const int element, const String& string);
+	virtual	void		set_element		(const int element, const String& string);
 	const	String&		get_element		(const int element)	const;
 
 		void		destroy_element		(const int element);
-	const	int		exist_element		(const int)		const;
+	virtual const	int		exist_element		(const int)		const;
 		void		insert_element		(const int, const String&);
 	const	bool		destroy			(const dbref);
     		void		set_size		(const int value)	{ size = value; }
@@ -51,6 +57,9 @@ class	Array_storage
 class	Dictionary
 : public Information
 {
+private:
+	Dictionary(const Dictionary&); // DUMMY
+	Dictionary& operator=(const Dictionary&); // DUMMY
     private:
 		String		*indices;		/* Index strings */
     public:
@@ -59,9 +68,9 @@ class	Dictionary
 		void		empty_object		();
 		void		resize			(const int newsize);
 	const	String&		get_element		(const int element)	const;
-		void		set_element		(const int element, const String& index, const String& string);
+	virtual	void		set_element		(const int element, const String& index, const String& string);
 		void		destroy_element		(const int element);
-	const	int		exist_element		(const String& )		const;
+	virtual const	int		exist_element		(const String& )		const;
 	const	bool		destroy			(const dbref);
 	const	String&		get_index		(const int)		const;
 		void		set_index		(const int, const String& );
@@ -74,7 +83,11 @@ class	Dictionary
 class	Array
 : public Array_storage
 {
+private:
+	Array(const Array&); // DUMMY
+	Array& operator=(const Array&); // DUMMY
     public:
+	Array() {}
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
 	const	dbref		get_next		()			const;
@@ -90,7 +103,11 @@ class	Task
 class	Describable_object
 : public Array_storage
 {
+private:
+	Describable_object(const Describable_object&); // DUMMY
+	Describable_object& operator=(const Describable_object&); // DUMMY
     public:
+	Describable_object() {}
 	virtual			~Describable_object	();
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
@@ -102,6 +119,9 @@ class	Describable_object
 class	Lockable_object
 : public Describable_object
 {
+private:
+	Lockable_object(const Lockable_object&); // DUMMY
+	Lockable_object& operator=(const Lockable_object&); // DUMMY
     private:
 		boolexp		*key;		/* if not TRUE_BOOLEXP, must have this to do op */
 		String		fail_message;	/* what you see if op fails */
@@ -137,6 +157,9 @@ class	Lockable_object
 class	Inheritable_object
 : public Lockable_object
 {
+private:
+	Inheritable_object(const Inheritable_object&); // DUMMY
+	Inheritable_object& operator=(const Inheritable_object&); // DUMMY
     private:
 	dbref			parent;
     public:
@@ -155,6 +178,9 @@ class	Inheritable_object
 class	Old_object
 : public Inheritable_object
 {
+private:
+	Old_object(const Old_object&); // DUMMY
+	Old_object& operator=(const Old_object&); // DUMMY
     private:
 	dbref			commands;	/* Commands attached to this object */
 	dbref			contents;	/* pointer to first item */
@@ -191,6 +217,9 @@ class	Massy_object
 : public Old_object
 
 {
+private:
+	Massy_object(const Massy_object&); // DUMMY
+	Massy_object& operator=(const Massy_object&); // DUMMY
     private:
 	double			gravity_factor;
 	double			mass;
@@ -218,7 +247,11 @@ class	Alarm
 : public Old_object
 
 {
+private:
+	Alarm(const Alarm&); // DUMMY
+	Alarm& operator=(const Alarm&); // DUMMY
     public:
+	Alarm() {}
 	const	bool		destroy			(const dbref);
 	const	dbref		get_csucc		()			const	{ return (get_destination ()); }
 		void		set_csucc		(const dbref o)			{ set_destination (o); }
@@ -229,6 +262,9 @@ class	Command
 : public Old_object
 
 {
+private:
+	Command(const Command&); // DUMMY
+	Command& operator=(const Command&); // DUMMY
     private:
 		unsigned short	*parse_helper;
 		unsigned	lines_in_command_block(const unsigned) const;
@@ -255,7 +291,11 @@ class	Exit
 : public Old_object
 
 {
+private:
+	Exit(const Exit&); // DUMMY
+	Exit& operator=(const Exit&); // DUMMY
     public:
+	Exit() {}
 	const	bool		destroy			(const dbref);
 };
 
@@ -264,7 +304,11 @@ class	Fuse
 : public Old_object
 
 {
+private:
+	Fuse(const Fuse&); // DUMMY
+	Fuse& operator=(const Fuse&); // DUMMY
     public:
+	Fuse() {}
 	const	bool		destroy			(const dbref);
 	const	dbref		get_csucc		()			const	{ return (get_contents ()); }
 	const	dbref		get_cfail		()			const	{ return (get_exits ()); }
@@ -275,6 +319,9 @@ class	Fuse
 class	puppet
 : public Massy_object
 {
+private:
+	puppet(const puppet&); // DUMMY
+	puppet& operator=(const puppet&); // DUMMY
     private:
 	int			pennies;
 	long			score;
@@ -336,6 +383,9 @@ class	Player
 : public puppet
 
 {
+private:
+	Player(const Player&); // DUMMY
+	Player& operator=(const Player&); // DUMMY
     private:
 	struct RecallBuffer
 	{
@@ -344,7 +394,7 @@ class	Player
 		int	buffer_next;		//Next place to put a line
 		bool	buffer_wrapped;		//Have we wrapped the buffer yet
 		char	buffer_build[BUFFER_LEN];//Buffer to build lines
-		RecallBuffer() { buffer_next = 0; buffer_wrapped = 0; buffer_build[0] = 0; }
+		RecallBuffer() : buffer_next(0), buffer_wrapped(false) { buffer_build[0] = 0; }
 	};
 	RecallBuffer*		recall;
 
@@ -412,6 +462,9 @@ class	Room
 : public Massy_object
 
 {
+private:
+	Room(const Room&); // DUMMY
+	Room& operator=(const Room&); // DUMMY
     private:
 	String			contents_string;
         time_t			last_entry_time;
@@ -438,6 +491,9 @@ class	Thing
 : public Massy_object
 
 {
+private:
+	Thing(const Thing&); // DUMMY
+	Thing& operator=(const Thing&); // DUMMY
     private:
 		String		contents_string;	/* the string shown when the container is looked at and contains something */
 		boolexp		*lock_key;		/* the objects required to lock/unlock a container */
@@ -465,7 +521,11 @@ class	Variable
 : public Lockable_object
 
 {
+private:
+	Variable(const Variable&); // DUMMY
+	Variable& operator=(const Variable&); // DUMMY
     public:
+	Variable() {}
 	const	bool		destroy			(const dbref);
 	const	dbref		get_next		()			const;
 };
@@ -473,7 +533,11 @@ class	Variable
 class	Property
 : public Describable_object
 {
+private:
+	Property(const Property&); // DUMMY
+	Property& operator=(const Property&); // DUMMY
     public:
+	Property() {}
 	const	bool		destroy			(const dbref);
 	const	dbref		get_next		()			const;
 };

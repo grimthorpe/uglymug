@@ -447,9 +447,9 @@ const	String& arg2)
 	else
 	{
 		sprintf(scratch_buffer, "GRIPE from %s(%d) in %s%s(%d): %s\n",
-			getname_inherited (player), player,
+			getname_inherited (player), (int)player,
 			getarticle (loc, ARTICLE_LOWER_INDEFINITE),
-			getname_inherited (loc), loc,
+			getname_inherited (loc), (int)loc,
 			value_or_empty(message));
 		log_gripe(	player, getname_inherited(player),
 					loc,	getname_inherited(loc),

@@ -235,7 +235,7 @@ const	String& linkto)
 			notify_colour(player, player, COLOUR_MESSAGES,"Exit #%d opened.", exit);
 
 		return_status = COMMAND_SUCC;
-		sprintf (scratch_return_string, "#%d", exit);
+		sprintf (scratch_return_string, "#%d", (int)exit);
 		set_return_string (scratch_return_string);
 
 		/* check second arg to see if we should do a link */
@@ -500,7 +500,7 @@ const	String& desc)
 		notify_colour(player, player, COLOUR_MESSAGES, "%s created with room number #%d", name.c_str(), room);
 	}
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", room);
+	sprintf (scratch_return_string, "#%d", (int)room);
 	set_return_string (scratch_return_string);
 }
 
@@ -651,7 +651,7 @@ const	String& commands)
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -712,7 +712,7 @@ const	String& )
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -773,7 +773,7 @@ const	String& )
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -834,7 +834,7 @@ const	String& value)
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -907,7 +907,7 @@ notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a d
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -1141,7 +1141,7 @@ context::do_at_fuse (const String& fuse_name, const String& command_name)
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -1201,7 +1201,7 @@ context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
 		db.pend (thing);
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
 
@@ -1275,6 +1275,6 @@ const	String& )
 	PUSH (thing, db [player].get_location (), contents);
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", thing);
+	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }

@@ -73,6 +73,8 @@ extern	Matcher_state matcher_state_array [];
 
 class	Matcher
 {
+private:
+	Matcher& operator=(const Matcher&); // DUMMY
     private:
 	dbref			exact_match;		/* holds result of exact match */
 	bool			checking_keys;

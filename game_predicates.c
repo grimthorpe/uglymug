@@ -596,7 +596,7 @@ dbref player)
 {
         int guest_match;
 	char element[BUFFER_LEN];
-       	sprintf(element, "#%d", player);
+       	sprintf(element, "#%d", (int)player);
 	Matcher matcher (GOD_ID, "guest_dictionary", TYPE_DICTIONARY, GOD_ID);
 	matcher.match_variable_remote(COMMAND_LAST_RESORT);
 	matcher.match_array_or_dictionary();

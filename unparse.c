@@ -126,7 +126,7 @@ dbref		thing)
 		default:
 			if (Typeof (thing) == TYPE_FREE)
 			{
-				sprintf (buf, "*FREE:#%d*", thing);
+				sprintf (buf, "*FREE:#%d*", (int)thing);
 				return buf;
 			}
 			if(!(db[c.get_player ()].get_flag(FLAG_NUMBER))
@@ -134,7 +134,7 @@ dbref		thing)
 					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
 			{
 				/* show everything */
-				sprintf(buf, "%s%s(#%d%s)", getname(thing), COLOUR_REVERT, thing, unparse_flags(thing));
+				sprintf(buf, "%s%s(#%d%s)", getname(thing), COLOUR_REVERT, (int)thing, unparse_flags(thing));
 				return buf;
 			}
 			else
@@ -181,7 +181,7 @@ const	dbref	thing,
 					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
 			{
 				/* show everything */
-				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname (thing), COLOUR_REVERT, thing, unparse_flags (thing));
+				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing));
 				return buf;
 			}
 			else
@@ -216,7 +216,7 @@ const	dbref	thing)
 					|| can_link_to (c, thing)))*/
 			{
 				/* show everything */
-				sprintf(buf, "%s%s(#%d%s)", getname_inherited (thing), COLOUR_REVERT, thing, unparse_flags (thing));
+				sprintf(buf, "%s%s(#%d%s)", getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing));
 				return buf;
 			}
 			else
@@ -257,7 +257,7 @@ const	dbref	thing,
 			/*if (!(db[c.get_player ()].get_flag(FLAG_NUMBER) || Visible(thing)) && (c.controls_for_read (thing) || can_link_to (c, thing)))*/
 			{
 				/* show everything */
-				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname_inherited (thing), COLOUR_REVERT, thing, unparse_flags (thing));
+				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing));
 				return buf;
 			}
 			else
@@ -287,7 +287,7 @@ const	dbref	thing)
 			if (c.controls_for_read (thing)
 				|| can_link_to(c, thing))
 			{
-				sprintf(buf, "#%d", thing);
+				sprintf(buf, "#%d", (int)thing);
 				return buf;
 			}
 			else
@@ -314,7 +314,7 @@ const	dbref	thing)
 			if (c.controls_for_read (thing)
 				|| can_link_to(c, thing))
 			{
-				sprintf(buf, "#%d", thing);
+				sprintf(buf, "#%d", (int)thing);
 				return buf;
 			}
 			else

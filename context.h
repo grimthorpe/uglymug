@@ -79,7 +79,7 @@ class	Variable_stack
     private:
 		String_pair_stack variable_stack;
     public:
-				~Variable_stack		();
+	virtual			~Variable_stack		();
 		String_pair	*addarg			(const String& n, const String& v);
 		String_pair	*check_and_add_arg	(const String& n, const String& v);
 		bool		updatearg		(const String& n, const String& v);
@@ -90,6 +90,9 @@ class	Variable_stack
 class	Scope
 : public Variable_stack
 {
+private:
+	Scope& operator=(const Scope&); // DUMMY
+
     private:
 
 		const	Scope		*outer_scope;
@@ -178,6 +181,9 @@ class	Loop
 class	For_loop
 : public Loop
 {
+private:
+	For_loop(const For_loop&); // DUMMY
+	For_loop& operator=(const For_loop&); // DUMMY
     private:
 			int		start;
 			int		end;
@@ -212,6 +218,9 @@ class	With_loop
 class	Command_and_arguments
 {
     private:
+	Command_and_arguments(const Command_and_arguments&);
+	Command_and_arguments& operator=(const Command_and_arguments&);
+
 			Matcher		*matcher;
 			Pending_fuse	*sticky_fuses;
 			String		simple_command;
@@ -238,6 +247,10 @@ class	Compound_command_and_arguments
 : public Command_and_arguments
 , public Scope
 {
+private:
+	Compound_command_and_arguments(const Compound_command_and_arguments&); // DUMMY
+	Compound_command_and_arguments& operator=(const Compound_command_and_arguments&); // DUMMY
+
     private:
 			dbref		command;
 			dbref		player;
@@ -286,7 +299,9 @@ class	context
     friend Scheduler;
     friend Dependency;
     private:
-	context(const context&); // Dummy constructor.
+	context(const context&);		// Dummy constructor.
+	context();				// Another dummy
+	context& operator=(const context&);	// Even more dummy.
 
 		dbref			player;
 		dbref			trace_command;

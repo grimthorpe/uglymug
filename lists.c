@@ -94,7 +94,7 @@ set_reverse_map(dbref bloke_being_ladded, dbref bloke_doing_ladd, int value)
 	char smallbuf[10];
 	char smallbuf2[10];
 	dbref lists=find_list_dictionary(bloke_being_ladded, reverseplist_dictionary);
-	sprintf(smallbuf,"%d", bloke_doing_ladd);
+	sprintf(smallbuf,"%d", (int)bloke_doing_ladd);
 	dbref element=db[lists].exist_element(smallbuf);
 	sprintf(smallbuf2, "%d", value);
 	db[lists].set_element(element, smallbuf, smallbuf2);
@@ -105,7 +105,7 @@ delete_reverse_map(dbref bloke_being_deleted, dbref bloke_doing_delete)
 {
 	char smallbuf[10];
 	dbref lists=find_list_dictionary(bloke_being_deleted, reverseplist_dictionary);
-	sprintf(smallbuf,"%d", bloke_doing_delete);
+	sprintf(smallbuf,"%d", (int)bloke_doing_delete);
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
 		log_bug("Attempting to remove a reverse player mapping where none exists.");
@@ -121,7 +121,7 @@ add_clist_reference(dbref bloke_being_ladded, dbref bloke_doing_ladd)
 	int value;
 
 	dbref lists=find_list_dictionary(bloke_being_ladded, reverseclist_dictionary);
-	sprintf(smallbuf,"%d", bloke_doing_ladd);
+	sprintf(smallbuf,"%d", (int)bloke_doing_ladd);
 	dbref element=db[lists].exist_element(smallbuf);
 	value= element ? atoi(db[lists].get_element(element).c_str()) : 0;
 	sprintf(smallbuf2, "%d", value + 1);
@@ -136,7 +136,7 @@ remove_clist_reference(dbref bloke_being_lremoved, dbref bloke_doing_lremove)
 	int value;
 
 	dbref lists=find_list_dictionary(bloke_being_lremoved, reverseclist_dictionary);
-	sprintf(smallbuf,"%d", bloke_doing_lremove);
+	sprintf(smallbuf,"%d", (int)bloke_doing_lremove);
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
 	{
@@ -218,7 +218,7 @@ context::do_lset(const String& victims, const String& flag)
 	dbref target=targets.get_first();
 	while (target != NOTHING)
 	{
-		sprintf(smallbuf,"%d", target);
+		sprintf(smallbuf,"%d", (int)target);
 		if ((element=db[lists].exist_element(smallbuf))==0)
 		{
 			db[lists].set_element(0, smallbuf, "0");
@@ -247,7 +247,7 @@ context::do_lset(const String& victims, const String& flag)
 	}
 }
 
-int
+dbref
 Player_list::get_first()
 {
 	if ((list==NULL) || (filtered_size==0))
@@ -263,7 +263,7 @@ Player_list::get_first()
 		return NOTHING; // Should never happen
 }
 
-int 
+dbref 
 Player_list::get_next()
 {
 	if (!current)
@@ -565,7 +565,7 @@ Player_list::filter_out_if_set(const int f, const char *message=NULL)
 }
 
 int
-Player_list::exclude(int player, const char *message=NULL)
+Player_list::exclude(dbref player, const char *message=NULL)
 {
 	PLE *temp;
 	if ((temp=find_player(player)))
@@ -659,7 +659,7 @@ Player_list::include(int player)
 /* adds a player to a player_list, returns true if we succeeded */
 
 bool
-Player_list::add_player(int player, bool fromlist=false)
+Player_list::add_player(dbref player, bool fromlist=false)
 {
 	if (Typeof(player) != TYPE_PLAYER)
 	{
@@ -1045,7 +1045,7 @@ void context::do_ladd(const String& arg1, const String& arg2)
 		int  added=0;
 		for(int i=0; i<victim_count; i++)
 		{
-			sprintf(smallbuf, "%d", victims[i]);
+			sprintf(smallbuf, "%d", (int)(victims[i]));
 			if(db[lists].exist_element(smallbuf))
 			{
 				if (!in_command())
@@ -1093,7 +1093,7 @@ void context::do_ladd(const String& arg1, const String& arg2)
 			if(!number)
 			{
 				notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1.c_str(), ca[COLOUR_MESSAGES]);
-				sprintf(buf, "%s%d", *mylist? ";":"", victims[i]);
+				sprintf(buf, "%s%d", *mylist? ";":"", (int)(victims[i]));
 				strcat(mylist, buf);
 				add_clist_reference(victims[i], player);
 			}
@@ -1108,7 +1108,7 @@ void context::do_ladd(const String& arg1, const String& arg2)
 		{
 			notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1.c_str(), ca[COLOUR_MESSAGES]);
 			add_clist_reference(victims[i], player);
-			sprintf(buf, "%s%d", i==0? "":";", victims[i]);
+			sprintf(buf, "%s%d", i==0? "":";", (int)(victims[i]));
 			strcat(scratch_buffer, buf);
 		}
 
@@ -1266,7 +1266,7 @@ void context::do_lremove(const String& arg1, const String& arg2)
 		target=targets.get_first();
 		while (target != NOTHING)
 		{
-			sprintf(smallbuf, "%d", target);
+			sprintf(smallbuf, "%d", (int)target);
 			if ((element= db[lists].exist_element(smallbuf)))
 			{
 				db[lists].destroy_element(element);

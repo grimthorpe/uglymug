@@ -83,7 +83,7 @@ CFLAGS.FreeBSD-i386=$(CFLAGS.freebsd)
 
 WHOAMI=$(WHOAMI$(SUFFIX))
 LIBS=$(LIBS$(SUFFIX))
-CFLAGS=$(CFLAGS$(SUFFIX))
+CFLAGS=$(CFLAGS$(SUFFIX)) #-Woverloaded-virtual -Weffc++
 
 VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 

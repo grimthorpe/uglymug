@@ -93,7 +93,7 @@ const	String& player_string)
 				unparse_object(*this, db[player].get_build_id()));
 			if(members !=NOTHING)
 			{
-				sprintf(idstring, "#%d", player);
+				sprintf(idstring, "#%d", (int)player);
 				notify(player, "The group contains %d member%s, of which %d support%s you.",
 				db[members].get_number_of_elements(),
 				PLURAL(db[members].get_number_of_elements()),
@@ -144,7 +144,7 @@ const	String& player_string)
 			Settypeof(members, TYPE_DICTIONARY);
 			PUSH (members, player, info_items);
 			/* Put in the founder member */
-			sprintf(idstring, "#%d", founder);
+			sprintf(idstring, "#%d", (int)founder);
 			db[members].set_element(0, idstring, "Founder");
 
 			notify(player, "Group conversion kit fitted.");
@@ -205,7 +205,7 @@ const	String& player_string)
 	members = matcher.match_result();
 
 	/* Make up an ID string ("#42") for matching in the dictionary */
-	sprintf(idstring,"#%d", player);
+	sprintf(idstring,"#%d", (int)player);
 	if(canvasser == NOTHING) /* i.e. they are not trying to
 				    do any supporting or withdrawing */
 	{
@@ -323,7 +323,7 @@ const	String& player_string)
 		   and we know who they are supporting or !ing. */
 
 		/* Create a new ID string for the canvasser */
-		sprintf(idstring,"#%d", canvasser);
+		sprintf(idstring,"#%d", (int)canvasser);
 		if((tmp = db[support_list].exist_element(idstring)) == 0)
 		{
 			if(against)
@@ -471,7 +471,9 @@ int add_up_votes(dbref	members,
 	for(i = 1; i <= db[members].get_number_of_elements(); i++)
 	{
 		/*Check existence of member*/
-		sscanf(db[members].get_index(i).c_str(),"#%d", &current_member);
+		int id;
+		sscanf(db[members].get_index(i).c_str(),"#%d", &id);
+		current_member = id;
 		if(Typeof(current_member) != TYPE_PLAYER)
 		{
 			/*Delete current_member from list*/

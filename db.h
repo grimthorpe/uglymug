@@ -10,7 +10,31 @@
 #include "mudstring.h"
 #include "config.h"
 #include "colour.h"
+
+#ifdef DBREF_BUG_HUNTING
+class dbref
+{
+private:
+	int	_ref;
+	void	assign(int i);
+public:
+	dbref(int i = -1) { assign(i); }
+	operator int() const { return _ref; }
+	dbref& operator=(int i) { assign(i); return *this; }
+
+	dbref operator++() { return dbref(++_ref); }
+	dbref operator++(int) { return dbref(_ref++); }
+
+	bool operator<(const dbref& other) const { return _ref < other._ref; }
+	bool operator<(const int other) const { return _ref < other; }
+	bool operator>(const dbref& other) const { return _ref > other._ref; }
+	bool operator>(const int other) const { return _ref > other; }
+	bool operator==(const dbref& other) const { return _ref == other._ref; }
+	bool operator==(const int other) const { return _ref == other; }
+};
+#else // DBREF_BUG_HUNTING
 typedef	int	dbref;		/* offset into db */
+#endif // DBREF_BUG_HUNTING
 typedef int	typeof_type;
 typedef unsigned char	flag_type;
 typedef int object_flag_type;
@@ -507,6 +531,9 @@ class	Matcher;
 class	boolexp
 {
     private:
+	boolexp(const boolexp&); // DUMMY
+	boolexp& operator=(const boolexp&); // DUMMY
+
 	boolexp_type		type;
 	boolexp			*sub1;
 	boolexp			*sub2;
@@ -752,13 +779,16 @@ class	object
 class	object_and_flags
 {
     private:
+	object_and_flags(const object_and_flags&); // DUMMY
+	object_and_flags& operator=(const object_and_flags&); // DUMMY
+
 	int			type;
 	object			*obj;
 	dbref			freelist;
     public:
     	typeof_type		get_type	()			const	{ return (type); }
 	void			set_type	(const typeof_type i)		{ type = i; }
-				object_and_flags ()				{ obj = NULL; type = TYPE_FREE; }
+				object_and_flags () : type(TYPE_FREE), obj(NULL), freelist(NOTHING)				{}
 	bool			is_free		()			const	{ return (type == TYPE_FREE); }
 	dbref			get_free	()			const	{ return (freelist); }
 	object			*get_obj	()			const	{ return (type == TYPE_FREE ? (object*)NULL : obj); }
@@ -784,6 +814,8 @@ struct player_cache_struct
 class	Database
 {
     private:
+	Database(const Database&); // DUMMY
+	Database& operator=(const Database&); // DUMMY
 	object_and_flags	*array;
 	dbref			top;
 	dbref			free_start;

@@ -533,7 +533,7 @@ const	String& colour_codes)
 	if(colour_player == NOTHING)
 		sprintf(little_buffer, " %c", cia_table[i].code);
 	else
-		sprintf(little_buffer, " %d%%", colour_player);
+		sprintf(little_buffer, " %d%%", (int)colour_player);
 
 	if((ptr=find_cia(colour_string, little_buffer)) == NULL)
 	{
@@ -553,7 +553,7 @@ const	String& colour_codes)
 		if(colour_player == NOTHING)
 			sprintf(new_colour+strlen(new_colour), " %c%s",cia_table[i].code, colour_codes.c_str());
 		else
-			sprintf(new_colour+strlen(new_colour), " %d%s",colour_player, colour_codes.c_str());
+			sprintf(new_colour+strlen(new_colour), " %d%s",(int)colour_player, colour_codes.c_str());
 	}
 	
 

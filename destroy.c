@@ -480,7 +480,7 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 	int element;
 	dbref who;
 	char smallbuf[10];
-	sprintf(smallbuf,"%d", zap_player);
+	sprintf(smallbuf,"%d", (int)zap_player);
 	int nowarning=1;
 	int deadlists=0;
 
