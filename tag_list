@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Modified do_at_garbage_collect to account players/NPCs money to GOD_ID.  DJT: 20031105
 	Added create, modify and access timestamps.  IJC
 um1_050
 	Altered set.c to not allow you to give or take money from things other than players and puppets.
