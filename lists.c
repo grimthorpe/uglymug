@@ -233,7 +233,7 @@ context::do_lset(const CString& victims, const CString& flag)
 			newflags=atoi(db[lists].get_element(element).c_str()) | f;
 
 		sprintf(smallbuf,"%d", newflags);
-		db[lists].set_element(element, NULL, smallbuf);
+		db[lists].set_element(element, NULLCSTRING, smallbuf);
 		set_reverse_map(target, player, newflags);
 		target=targets.get_next();
 	}

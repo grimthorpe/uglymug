@@ -615,7 +615,7 @@ context	&c)
 context::context (
 dbref	new_player,
 context &your_maker)
-: Command_and_arguments (0, 0, 0, 0)
+: Command_and_arguments (NULLCSTRING, NULLCSTRING, NULLCSTRING, 0)
 , player (new_player)
 , trace_command (NOTHING)
 , unchpid_id (new_player)
@@ -640,7 +640,6 @@ context &your_maker)
 context::~context ()
 
 {
-	set_return_string (0);
 }
 
 
@@ -1065,8 +1064,8 @@ const	char	*element_name)
 : Loop (os)
 , counter (1)
 , dict (d)
-, index (addarg (index_name, 0))
-, element (addarg (element_name, 0))
+, index (addarg (index_name, NULLCSTRING))
+, element (addarg (element_name, NULLCSTRING))
 
 {
 	/* Make safe for immediate return if the collection is empty */

@@ -1608,7 +1608,7 @@ const	CString& )
 		}
 	}
 
-	do_score(NULL, NULL);
+	do_score(NULLCSTRING, NULLCSTRING);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }

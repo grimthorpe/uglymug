@@ -114,7 +114,7 @@ const	CString& is_this)
 	const	char	*m = in_this.c_str();
 
 	/* Check for both NULL or both the same string */
-	if (in_this == is_this)
+	if (in_this.c_str() == is_this.c_str())
 		return (true);
 
 	/* Check for one NULL */

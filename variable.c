@@ -455,7 +455,7 @@ const	int	depth,
 	 */
 
 	const	String_pair	*arg;
-		CString		value = 0;
+		CString		value = NULLCSTRING;
 	unsigned int		length;
 
 	/* ... check for $[0123], else match... */

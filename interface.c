@@ -2181,11 +2181,11 @@ descriptor_data::shutdownsock()
 			mud_disconnect_player (get_player());
 			time (&stamp);
 			now = localtime (&stamp);
-			log_disconnect(get_player(), getname(get_player()), CHANNEL(), channel, NULL, true);
+			log_disconnect(get_player(), getname(get_player()), CHANNEL(), channel, NULLCSTRING, true);
 		}
 		else
 		{
-			log_disconnect(0, NULL, CHANNEL(), 0, NULL, false);
+			log_disconnect(0, NULLCSTRING, CHANNEL(), 0, NULLCSTRING, false);
 		}
 	}
 	process_output ();
@@ -4586,7 +4586,10 @@ descriptor_data::terminal_set_pagebell(const CString& toggle, bool gagged)
 		else if(string_compare(toggle, "off")==0)
 			terminal.pagebell=false;
 		else
+		{
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal pagebell=on' or '@terminal pagebell=off'.");
+			return COMMAND_FAIL;
+		}
 	}
 
 	if(!gagged)
@@ -4620,7 +4623,10 @@ descriptor_data::terminal_set_termtype (const CString& termtype, bool gagged)
 			if(set_terminal_type(termtype))
 				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is now '%s'.", termtype.c_str());
 			else
+			{
 				notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal '%s'.", termtype.c_str());
+				return COMMAND_FAIL;
+			}
 		}
 	}
 	else
@@ -4683,29 +4689,12 @@ descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
 			{
 				notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Deprecated usage: @terminal wrap=<number>. Please use @terminal width instead");
 
-				if (i<0)
-				{
-					notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
-					return COMMAND_FAIL;
-				}
-				if (i)
-					i = MIN(MAX(i,20),256);
-		// If wrap is not zero, set terminal width to the value and set wrap on.
-		// If wrap is zero, leave terminal width, but set wrap off.
-				if(i > 0)
-				{
-					terminal.width = i;
-					terminal.wrap = true;
-				}
-				else
-				{
-					terminal.wrap = false;
-				}
 			}
 			else
 			{
-				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal pagebell=on' or '@terminal pagebell=off'.");
+				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal wrap=on' or '@terminal wrap=off'.");
 			}
+			return COMMAND_FAIL;
 		}
 	}
 	if(!gagged)
@@ -4848,7 +4837,7 @@ void context::do_terminal_set(const CString& command, const CString& arg)
 		}
 		// If @terminal is run with no parameter then ignore the in_command bit
 		else if(!terminal_set_command_table[i].deprecated)
-			(d->*(terminal_set_command_table[i].set_function))(NULL, false);
+			(d->*(terminal_set_command_table[i].set_function))(NULLCSTRING, false);
 	}
 
 	if(command && !terminal_set_command_table[i].name)

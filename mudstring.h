@@ -10,15 +10,17 @@
  * Define OLD_STRING whilst Adrian sorts out bugs in the new string code.
  */
 
-#define OLD_STRING
+//#define OLD_STRING
 
 class	String;
-class	CString;
+typedef String CString;
+//class	CString;
 
 extern String NULLSTRING;
 extern CString NULLCSTRING;
 
 
+#ifdef CSTRING
 class	CString
 {
 private:
@@ -28,55 +30,16 @@ private:
 		operator int()	const;
 		bool operator==(const CString& str);
 		bool operator==(int);
-	void empty()
-	{
-		buf = 0;
-		len = 0;
-	}
+	void empty();
 public:
-	CString()
-	{
-		empty();
-	}
-	CString(const char* str)
-	{
-		if(str && *str)
-		{
-			buf = str;
-			len = strlen(buf);
-		}
-		else
-		{
-			empty();
-		}
-	}
-	CString(const CString& str)
-	{
-		buf = str.buf;
-		len = str.len;
-	}
+	CString();
+	CString(const char* str);
+	CString(const CString& str);
 	CString(const String& str);
-	~CString() {}
+	~CString();
 
-	CString& operator=(const CString& str)
-	{
-		buf = str.buf;
-		len = str.len;
-		return *this;
-	}
-	CString& operator=(const char* str)
-	{
-		if(str && *str)
-		{
-			buf = str;
-			len = strlen(str);
-		}
-		else
-		{
-			empty();
-		}
-		return *this;
-	}
+	CString& operator=(const CString& str);
+	CString& operator=(const char* str);
 	CString& operator=(const String& str);
 
 		operator bool()		const { return len != 0; }
@@ -84,15 +47,9 @@ public:
 	unsigned int	length()	const { return len; }
 
 	// Strict equivalence
-	bool operator==(const CString& str) const
-	{
-		if(str.buf == buf)
-		{
-			return true;
-		}
-		return false;
-	}
+	bool operator==(const CString& str) const;
 };
+#endif
 
 #ifdef OLD_STRING
 
@@ -236,98 +193,28 @@ public:
 
 class StringBuffer
 {
-	int		_ref;
 	char*		_buf;
 	unsigned int	_len;
 	unsigned int	_capacity;
+	int		_ref;
 
-	void init()
-	{
-		_capacity = 0;
-		_len = 0;
-		_buf = 0;
-		_ref = 0;
-	}
-	void resize(unsigned int newsize, bool copy=true)
-	{
-		if(newsize <= _capacity)
-			return;
-		_capacity = newsize + 2;
-		//while(newsize > _capacity)
-		//	_capacity += STRINGBUFFER_GROWSIZE;
-		char* tmp = (char*)malloc(_capacity+2); // Allow for slight overrun (JIC)
-		if(_buf && copy)
-		{
-			// We use memcpy because the regions will not overlap.
-			memcpy(tmp, _buf, _len); // Copy the \0 terminator
-			tmp[_len+1] = 0;
-		}
-		if(_buf)
-			free(_buf);
-		_buf = tmp;
-	}
-	static int CreationCount;
-	~StringBuffer() // Private so that nobody can delete this. Use the reference counting!
-	{
-		if(_buf)
-			free(_buf);
-		CreationCount--;
-	}
+	void init();
+	void resize(unsigned int newsize, bool copy=true);
+	~StringBuffer(); // Private so that nobody can delete this. Use the reference counting!
 	StringBuffer& operator=(const StringBuffer&);
 	StringBuffer(const StringBuffer&);
 
-	StringBuffer(unsigned int capacity = 0)
-	{
-		init();
-		resize(capacity);
-	}
-	StringBuffer(const char* str)
-	{
-		init();
-		if(str && *str)
-		{
-			assign(str, strlen(str));
-		}
-	}
-	StringBuffer(const char* str, unsigned int len)
-	{
-		init();
-		if(str && *str)
-		{
-			assign(str, len);
-		}
-	}
+	StringBuffer(unsigned int capacity = 0);
+	StringBuffer(const char* str);
+	StringBuffer(const char* str, unsigned int len);
 	static StringBuffer EMPTYBUFFER;
+
 public:
 	static StringBuffer* NewBuffer(const char*str, unsigned int len = 0);
 
-	void assign(const char* str, int len)
-	{
-		resize(len, false);
-		if(str)
-		{
-			memcpy(_buf, str, len);
-			_len = len;
-		}
-		else
-		{
-			_len = 0;
-		}
-		if(_buf)
-			_buf[len] = 0; // NULL terminate.
-	}
-	void ref()
-	{
-		if(this)
-			_ref++;
-	}
-	void unref()
-	{
-		if((this) && ((--_ref) == 0))
-		{
-			delete const_cast<StringBuffer*>(this);
-		}
-	}
+	void assign(const char* str, int len);
+	void ref();
+	void unref();
 	int		refcount()	const	{ return _ref; }
 	const char*	c_str()		const	{ return _buf?_buf:""; }
 	unsigned int	length()	const	{ return _len; }
@@ -337,85 +224,32 @@ extern StringBuffer EMPTYBUFFER;
 
 class	String
 {
-public:
+private:
 	StringBuffer*	_buffer;
 
 	operator int() const;
 	bool operator==(const String& str);
 	bool operator==(int);
 public:
-	~String()
-	{
-		if(_buffer)
-			_buffer->unref();
-	}
-	String(const char* str = 0)
-	{
-		_buffer = StringBuffer::NewBuffer(str);
-		_buffer->ref();
-	}
-	String(const String& str)
-	{
-		_buffer=str._buffer;
-		_buffer->ref();
-	}
-	String(const CString& str)
-	{
-		_buffer = StringBuffer::NewBuffer(str.c_str(), str.length());
-		_buffer->ref();
-	}
-	String(StringBuffer* buf)
-	{
-		_buffer = buf;
-		_buffer->ref();
-	}
-	String& operator=(const String& cstr)
-	{
-		if(cstr._buffer != _buffer)
-		{
-			_buffer->unref();
-			_buffer = cstr._buffer;
-			_buffer->ref();
-		}
-		return *this;
-	}
-	String& operator=(const CString& cstr)
-	{
-		if(_buffer->refcount () != 1)
-		{
-			_buffer->unref();
-			_buffer = StringBuffer::NewBuffer(cstr.c_str(), cstr.length());
-			_buffer->ref();
-		}
-		else
-			_buffer->assign(cstr.c_str(), cstr.length());
-		return *this;
-	}
-	String& operator=(const char* cstr)
-	{
-		if(_buffer->refcount () != 1)
-		{
-			_buffer->unref();
-			_buffer = StringBuffer::NewBuffer(cstr);
-			_buffer->ref();
-		}
-		else if(cstr)
-		{
-			_buffer->assign(cstr, strlen(cstr));
-		}
-		else
-		{
-			_buffer->assign(0, 0);
-		}
-		return *this;
-	}
+	~String();
+	String(const char* str = 0);
+	String(const String& str);
+	String(StringBuffer* buf);
+	String& operator=(const String& cstr);
+	String& operator=(const char* cstr);
 	const char*	c_str()		const	{ return _buffer->c_str(); }
 	unsigned int	length()	const	{ return _buffer->length(); }
 	operator bool()			const	{ return _buffer->length() > 0; }
+#ifdef CSTRING
+	String(const CString& str);
+	String& operator=(const CString& cstr);
+#endif
 };
 
 #endif // OLD_STRING
 
+#ifdef OLD_STRING
+#ifdef CSTRING
 inline CString::CString(const String& str)
 {
 	if(str)
@@ -442,5 +276,6 @@ inline CString& CString::operator=(const String& str)
 	return *this;
 }
 
-
+#endif // CSTRING
+#endif // OLD_STRING
 #endif /* _MUDSTRING_H */

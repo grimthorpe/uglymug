@@ -547,7 +547,7 @@ const	CString& desc)
 		db[thing].set_destination (NOTHING);
 		db[thing].set_owner (ID);
 		Settypeof(thing, TYPE_THING);
-		db[thing].set_contents_string (NULL);
+		db[thing].set_contents_string (NULLCSTRING);
 		db[thing].set_gravity_factor (STANDARD_THING_GRAVITY);
 		db[thing].set_mass (0);
 		db[thing].set_volume (0);
@@ -1116,7 +1116,7 @@ context::do_fuse (const CString& fuse_name, const CString& command_name)
 
 	/* initialize everything */
 	db[thing].set_name (fuse_name);
-	db[thing].set_description (NULL);
+	db[thing].set_description (NULLCSTRING);
 	db[thing].set_location (player);
 	db[thing].set_destination (NOTHING);
 	db[thing].set_owner (ID);
@@ -1258,7 +1258,7 @@ const	CString& )
 
 	/* initialize everything */
 	db[thing].set_name (puppet_name);
-	db[thing].set_description (NULL);
+	db[thing].set_description (NULLCSTRING);
 	db[thing].set_location (db[player].get_location());
 	if(controls_for_write(db[db[player].get_location()].get_owner()))
 		db[thing].set_destination (db[player].get_location());

@@ -954,8 +954,8 @@ const	char	*original_command)
 	if (!in_command())
 	{
 		set_simple_command (smashed_original);
-		set_arg1 (NULL);
-		set_arg2 (NULL);
+		set_arg1 (NULLCSTRING);
+		set_arg2 (NULLCSTRING);
 		abort_from_fuse = 0;
 		count_down_abort_fuses (*this, player);
 		count_down_abort_fuses (*this, db[player].get_location());
@@ -1023,13 +1023,13 @@ const	char	*original_command)
 	{
 		set_simple_command ("say");
 		set_arg1 (command + 1);
-		set_arg2 (NULL);
+		set_arg2 (NULLCSTRING);
 	}
 	else if (*command == POSE_TOKEN)
 	{
 		set_simple_command ("pose");
 		set_arg1 (command + 1);
-		set_arg2 (NULL);
+		set_arg2 (NULLCSTRING);
 		legal_command = 1;
 	}
 	else if (*command == NOTIFY_TOKEN)
@@ -1043,7 +1043,7 @@ const	char	*original_command)
 		/* command is an exact match for an exit */
 		set_simple_command ("go");
 		set_arg1 (command);
-		set_arg2 (NULL);
+		set_arg2 (NULLCSTRING);
 		legal_command = 1;
 	}
 	else

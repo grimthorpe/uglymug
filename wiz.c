@@ -276,7 +276,7 @@ const	CString& password)
 		}
 		else
 		{
-			db[victim].set_password(NULL);
+			db[victim].set_password(NULLCSTRING);
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Password set to NOTHING. The game will not prompt for a password");
 		}
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Password changed.");

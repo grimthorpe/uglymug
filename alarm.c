@@ -46,7 +46,7 @@ db_patch_alarms ()
 			char tmpnum[20];
 			sprintf(tmpnum, "#%d", i);
 			db[i].clear_flag(FLAG_CONNECTED);
-			c->do_at_connect(tmpnum, NULL);
+			c->do_at_connect(tmpnum, NULLCSTRING);
 			delete mud_scheduler.push_express_job (c);
 		}
 

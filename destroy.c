@@ -571,7 +571,7 @@ log_message("Player list updated");
 				if (*newlist)
 				{
 					newlist[strlen(newlist)-1]='\0';
-					db[hislist].set_element(j, NULL, newlist);
+					db[hislist].set_element(j, NULLCSTRING, newlist);
 					j++;
 log_message("Custom list updated");
 				}
@@ -1030,6 +1030,8 @@ const	CString& )
 					break;
 				case TYPE_PLAYER:
 					aplayers++;
+					if(kill_players)
+						remove_player_from_any_lists_he_is_on(i);
 					break;
 				default:
 					break;
@@ -1099,10 +1101,13 @@ const	CString& )
 		{
 			switch (Typeof (i))
 			{
+				case TYPE_PLAYER:
+					if(!kill_players)
+						continue;	// If we're not killing players, don't mess with them.
+					// FALLTHROUGH!
+				case TYPE_PUPPET:
 				case TYPE_THING:
 				case TYPE_ROOM:
-				case TYPE_PLAYER:
-				case TYPE_PUPPET:
 					/* Go through the contents of the container, sending them home. */
 					temp = db[i].get_contents();
 					while (temp != NOTHING)

@@ -80,8 +80,8 @@ dbref create_player(const CString& name, const CString& password)
 	db[player].set_volume_limit	(STANDARD_PLAYER_VOLUME_LIMIT);
 	db[player].set_controller	(player);
 	db[player].set_build_id		(player);
-	db[player].set_who_string	(NULL);
-	db[player].set_email_addr	(NULL);
+	db[player].set_who_string	(NULLCSTRING);
+	db[player].set_email_addr	(NULLCSTRING);
 
 	db[player].clear_flag		(FLAG_REFERENCED);
 	

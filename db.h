@@ -617,7 +617,7 @@ class	object
 	virtual	const	int	get_money			()			const	{return 0;}
 	virtual		void	set_money			(const int);
 	virtual		void	set_colour			(const char *);
-	virtual		CString	get_colour			()			const	{return NULL;}
+	virtual		CString	get_colour			()			const	{return NULLCSTRING;}
 	virtual		void	set_colour_at			(colour_at*);
 	virtual	const	colour_at&	get_colour_at	()			const	{return default_colour_at;}
 	virtual		void	set_colour_play			(cplay *);
