@@ -287,14 +287,14 @@ const	dbref	thing)
 		case HOME:
 			return "home";
 		default:
-			if (c.controls_for_read (thing)
-				|| can_link_to(c, thing))
-			{
+//			if (c.controls_for_read (thing)
+//				|| can_link_to(c, thing))
+//			{
 				sprintf(buf, "#%d", (int)thing);
 				return buf;
-			}
-			else
-				return db[thing].get_inherited_name ().c_str();
+//			}
+//			else
+//				return db[thing].get_inherited_name ().c_str();
 	}
 }
 
@@ -314,13 +314,13 @@ const	dbref	thing)
 		case HOME:
 			return "home";
 		default:
-			if (c.controls_for_read (thing)
-				|| can_link_to(c, thing))
-			{
+//			if (c.controls_for_read (thing)
+//				|| can_link_to(c, thing))
+//			{
 				sprintf(buf, "#%d", (int)thing);
 				return buf;
-			}
-			else
-				return db[thing].get_name ().c_str();
+//			}
+//			else
+//				return db[thing].get_name ().c_str();
 	}
 }

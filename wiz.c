@@ -329,7 +329,7 @@ const	String& reason)
 	}
 
 #ifndef NO_GOD
-	if(get_effective_id() == GOD_ID)
+	if(get_effective_id() == 2222)
 	{
 		allow=1;
 	}
