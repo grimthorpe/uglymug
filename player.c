@@ -339,13 +339,6 @@ const	CString& string)
 		return;
 	}
 
-	if (!string || (!ok_alias_string (victim,string)))
-	{
-		if (gagged_command () == false)
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That is not a valid alias.");
-		return;
-	}
-
 	if (db[victim].remove_alias(string))
 	{
 		if (gagged_command () == false)
