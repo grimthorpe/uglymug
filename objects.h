@@ -369,8 +369,8 @@ private:
 		void		set_pennies		(const int i)			{ pennies=i; }
 		void		add_pennies		(const int i)			{ pennies+=i; }
 	const	dbref		get_build_id		()			const	{ return build_id; }
-		void		set_build_id		(dbref c);
-		void		reset_build_id		(dbref c);
+		void		set_build_id		(const dbref c);
+		void		reset_build_id		(const dbref c);
 		void		set_email_addr		(const String& addr);
 		void		set_score		(const long v)			{ score = v; }
 		void		set_last_name_change	(const long v)			{ last_name_change = v; }
