@@ -136,10 +136,11 @@ public:
 	bool operator==(const String& other)	const;
 };
 
-class less<String>
-{
-public:
-	bool operator() (const String& s1, const String& s2) const { return s1 < s2; }
-};
+namespace std {
+	template<> class less<String> {
+	public:
+		bool operator() (const String& s1, const String& s2) const { return s1 < s2; }
+	};
+};	
 
 #endif /* _MUDSTRING_H */
