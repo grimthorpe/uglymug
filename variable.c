@@ -527,6 +527,8 @@ const	int	depth,
 			value = no_such_variable;
 		else if (variable == AMBIGUOUS)
 			value = ambiguous_variable;
+		else if(Private(variable) && !controls_for_private(variable))
+			value = "PermissionDenied";
 		else switch(Typeof(variable))
 		{
 			case TYPE_VARIABLE:

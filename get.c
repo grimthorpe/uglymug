@@ -472,6 +472,9 @@ context::do_query_description (const String& name, const String&)
 	if ((thing = matcher.noisy_match_result ()) == NOTHING)
 		return;
 
+	if(Private(thing) && !controls_for_private(thing))
+		return;
+
 	switch(Typeof(thing))
 	{
 		case TYPE_COMMAND:

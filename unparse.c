@@ -80,6 +80,8 @@ struct	flag_stuff	flag_list [] =
 
 	{"DontAnnounce",FLAG_DONTANNOUNCE,	'-'},
 	{"LiteralInput",FLAG_LITERALINPUT,	'\0'},
+
+	{"Private",	FLAG_PRIVATE,		'~'},
 	{NULL,		0,		'\0'}
 };
 

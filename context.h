@@ -367,6 +367,7 @@ public:
 		void			copy_returns_from	(const context &source);
 	const	bool			controls_for_read	(const dbref what) const;
 	const	bool			controls_for_write	(const dbref what) const;
+	const	bool			controls_for_private	(const dbref what) const;
 		String_pair		*locate_innermost_arg	(const String& name)	const;
 #ifndef	NO_GAME_CODE
 	bool				allow_another_step	();

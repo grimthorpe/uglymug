@@ -165,6 +165,8 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define FLAG_GOD_MAKE_WIZARD		60	// Can set Wizard on a Player
 #define FLAG_GOD_PASSWORD_RESET		61	// Can set any player's password
 #define	FLAG_GOD_DEEP_POCKETS		62	// Has an infinite supply of Drogna
+/* We're running out of bits here guys... */
+#define FLAG_PRIVATE			63	// Object is private and can't be looked at normally.
 
 /* Used inside the code and not stored in the db */
 /* Lee says so and I belive him! */
@@ -255,6 +257,8 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define	MakeWizard(x)	(db[(x)].get_flag(FLAG_GOD_MAKE_WIZARD))
 #define	PasswordReset(x)	(db[(x)].get_flag(FLAG_GOD_PASSWORD_RESET))
 #define	MoneyMaker(x)	(db[(x)].get_flag(FLAG_GOD_DEEP_POCKETS))
+
+#define Private(x)	(db[(x)].get_flag(FLAG_PRIVATE))
 
 
 #define PLAYER_PID_STACK_SIZE 16

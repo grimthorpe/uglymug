@@ -571,6 +571,11 @@ const	String& )
 		{
 			Accessed (thing);
 
+			if(Private(thing) && !controls_for_private(thing))
+			{
+				notify (player, "There's an S.E.P. field around that!");
+				return;
+			}
 			switch(Typeof(thing))
 			{
 				case TYPE_ROOM:
@@ -756,7 +761,8 @@ const	String& )
 			return;
 	}
 
-	if((!can_link (*this, thing)) && (!controls_for_read (thing)))
+	if((Private(thing) && !controls_for_private(thing)) ||
+	  ((!can_link (*this, thing)) && (!controls_for_read (thing))))
 	{
 		notify (player, "%sOwner:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object_inherited (*this, db[thing].get_owner()));
 		return;
