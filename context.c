@@ -162,11 +162,11 @@ const	char	*sc,
 const	char	*a1,
 const	char	*a2,
 	Matcher	*m)
-: simple_command (alloc_string (a1))
+: matcher ((Matcher *)NULL)
+, sticky_fuses (0)
+, simple_command (alloc_string (a1))
 , arg1 (alloc_string (a1))
 , arg2 (alloc_string (a2))
-, matcher ((Matcher *)NULL)
-, sticky_fuses (0)
 {
 	set_matcher (m);
 }
@@ -175,9 +175,9 @@ const	char	*a2,
 Command_and_arguments::~Command_and_arguments ()
 
 {
-	ASSIGN_STRING (simple_command, (const char *) 0);
-	ASSIGN_STRING (arg1, (const char *) 0);
-	ASSIGN_STRING (arg2, (const char *) 0);
+	ASSIGN_STRING (const_cast <char *> (simple_command), (const char *) 0);
+	ASSIGN_STRING (const_cast <char *> (arg1), (const char *) 0);
+	ASSIGN_STRING (const_cast <char *> (arg2), (const char *) 0);
 	set_matcher ((Matcher *)NULL);
 }
 
@@ -199,7 +199,7 @@ Command_and_arguments::set_simple_command (
 const	char	*s)
 
 {
-	ASSIGN_STRING (simple_command, s);
+	ASSIGN_STRING (const_cast <char *> (simple_command), s);
 }
 
 
@@ -208,7 +208,7 @@ Command_and_arguments::set_arg1 (
 const	char	*s)
 
 {
-	ASSIGN_STRING (arg1, s);
+	ASSIGN_STRING (const_cast <char *> (arg1), s);
 }
 
 
@@ -217,7 +217,7 @@ Command_and_arguments::set_arg2 (
 const	char	*s)
 
 {
-	ASSIGN_STRING (arg2, s);
+	ASSIGN_STRING (const_cast <char *> (arg2), s);
 }
 
 
@@ -839,7 +839,7 @@ const
 		&& s != unset_return_string
 		&& s != ok_return_string
 		&& s != error_return_string)
-		free (s);
+		free (const_cast <char *> (s));
 }
 
 
@@ -855,7 +855,7 @@ const	char	*rs)
 		&& return_string != ok_return_string
 		&& return_string != error_return_string)
 	{
-		free (return_string);
+		free (const_cast <char *> (return_string));
 		return_string = 0;
 	}
 
@@ -1096,10 +1096,10 @@ const	Scope	&os,
 const	char	*index_name,
 const	char	*element_name)
 : Loop (os)
+, counter (1)
 , dict (d)
 , index (addarg (index_name, 0))
 , element (addarg (element_name, 0))
-, counter (1)
 
 {
 	/* Make safe for immediate return if the collection is empty */

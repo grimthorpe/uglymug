@@ -865,8 +865,8 @@ int		colour)
 		}
 	if (docensor)
 	{
-		free (mymsg);
-		free (myprefix);
+		free (const_cast <char *> (mymsg));
+		free (const_cast <char *> (myprefix));
 	}
 }
 
@@ -923,7 +923,7 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 	if (blank(arg1))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: tell <playerlist> [=] message");
-		return;
+		return False;
 	}
 	if (blank(arg2))
 	{

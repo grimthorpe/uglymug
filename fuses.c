@@ -199,11 +199,11 @@ Pending_fuse::~Pending_fuse ()
 
 {
 	if (command)
-		free (command);
+		free (const_cast <char *> (command));
 	if (arg1)
-		free (arg1);
+		free (const_cast <char *> (arg1));
 	if (arg2)
-		free (arg2);
+		free (const_cast <char *> (arg2));
 }
 
 

@@ -148,7 +148,7 @@ addr_numtoint(const char *addr, int inet)
 }
 
 static u_long
-addr_nametoint(char *addr, int inet)
+addr_nametoint(const char *addr, int inet)
 {
 	struct hostent *a;
 	if(inet)

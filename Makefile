@@ -4,7 +4,7 @@ by_default_just_make: netmud
 
 # Whatever you put in for $(CC) must be able to grok ANSI C.
 CC=gcc
-CPLUSPLUS=g++28
+CPLUSPLUS=g++
 OPTIM=
  
 # CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wno-unused -Wwrite-strings -Wconversion

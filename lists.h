@@ -44,11 +44,11 @@ class	Player_list
 		int		get_filtered_size()	{ return filtered_size;}
 		int		get_first();
 		int		get_next();
-		PLE		*add_player(int	p, Boolean fromlist=/*False*/0);
+		PLE		*add_player(int	p, Boolean fromlist=False);
 		PLE		*find_player(int p);
 
 		int		build_from_text(int player, const char *text);
-		const char	*generate_courtesy_string(int source, int dest, Boolean myself=/*False*/0);
+		const char	*generate_courtesy_string(int source, int dest, Boolean myself=False);
 		void		notify(int player, const char *prefix, const char *suffix, const char *string);
 		void		beep();
 

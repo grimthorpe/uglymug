@@ -36,7 +36,8 @@ extern	const   char		*fit_errlist [];
 
 /** External stuff, which shouldn't really be in here **/
 /* Added the ifndef cos noone's got a linux box as broken as wyrm is - Abs */
-#ifndef linux
+/* #ifndef linux JPK */
+#if !defined linux && !defined __FreeBSD__
 extern "C"
 {
 //extern	unsigned long	inet_addr		(const char *cp);

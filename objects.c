@@ -504,7 +504,7 @@ void
 object::set_name (
 const	char	*str)
 {
-	ASSIGN_STRING (name, str);
+	ASSIGN_STRING (const_cast <char *> (name), str);
 }
 
 
@@ -791,7 +791,7 @@ Dictionary::~Dictionary()
 	for(number--;number >= 0;number--)
 	{
 		if(indices[number])
-			free(indices[number]);
+			free(const_cast <char *> (indices[number]));
 		if(elements[number])
 			free(elements[number]);
 	}
@@ -810,7 +810,7 @@ Dictionary::empty_object()
 	for(number--;number >= 0;number--)
 	{
 		if(indices[number])
-			free(indices[number]);
+			free(const_cast <char *> (indices[number]));
 		if(elements[number])
 			free(elements[number]);
 	}
@@ -845,7 +845,7 @@ const	char	*string)
 	else
 	{
 		number++;
-		if((REALLOC(indices, sizeof(char *) * number)) == NULL)
+		if((REALLOC(const_cast <char **> (indices), sizeof(char *) * number)) == NULL)
 			panic("Realloc failed.");
 		if((REALLOC(elements, sizeof(char *) * number)) == NULL)
 			panic("Realloc failed.");
@@ -853,7 +853,7 @@ const	char	*string)
 		indices[number - 1] = NULL;
 		elements[number - 1] = NULL;
 
-		ASSIGN_STRING (indices[number - 1], index);
+		ASSIGN_STRING (const_cast <char *> (indices[number - 1]), index);
 		ASSIGN_STRING (elements[number - 1], string);
 	}
 }
@@ -874,7 +874,7 @@ const	int	index,
 const	char	*value)
 
 {
-	ASSIGN_STRING(indices[index - 1], value);
+	ASSIGN_STRING(const_cast <char *> (indices[index - 1]), value);
 }
 
 
@@ -911,7 +911,7 @@ const	int	element)
 
 {
 	if(indices[element - 1])
-		free(indices[element - 1]);
+		free(const_cast <char *> (indices[element - 1]));
 	if(elements[element - 1])
 		free(elements[element - 1]);
 
@@ -923,7 +923,7 @@ const	int	element)
 
 	number--;
 
-	if((REALLOC(indices, sizeof(char *) * number)) == NULL && number)
+	if((REALLOC(const_cast <char **> (indices), sizeof(char *) * number)) == NULL && number)
 		panic("Realloc failed.");
 	if((REALLOC(elements, sizeof(char *) * number)) == NULL && number)
 		panic("Realloc failed.");
@@ -1267,7 +1267,7 @@ Lockable_object::set_fail_message (
 const	char	*str)
 
 {
-	ASSIGN_STRING (fail_message, str);
+	ASSIGN_STRING (const_cast <char *> (fail_message), str);
 }
 
 
@@ -1276,7 +1276,7 @@ Lockable_object::set_drop_message (
 const	char	*str)
 
 {
-	ASSIGN_STRING (drop_message, str);
+	ASSIGN_STRING (const_cast <char *> (drop_message), str);
 }
 
 
@@ -1285,7 +1285,7 @@ Lockable_object::set_succ_message (
 const	char	*str)
 
 {
-	ASSIGN_STRING (succ_message, str);
+	ASSIGN_STRING (const_cast <char *> (succ_message), str);
 }
 
 
@@ -1294,7 +1294,7 @@ Lockable_object::set_ofail (
 const	char	*str)
 
 {
-	ASSIGN_STRING (ofail, str);
+	ASSIGN_STRING (const_cast <char *> (ofail), str);
 }
 
 
@@ -1303,7 +1303,7 @@ Lockable_object::set_osuccess (
 const	char	*str)
 
 {
-	ASSIGN_STRING (osuccess, str);
+	ASSIGN_STRING (const_cast <char *> (osuccess), str);
 }
 
 
@@ -1312,7 +1312,7 @@ Lockable_object::set_odrop (
 const	char	*str)
 
 {
-	ASSIGN_STRING (odrop, str);
+	ASSIGN_STRING (const_cast <char *> (odrop), str);
 }
 
 
@@ -1460,7 +1460,7 @@ Room::set_contents_string (
 const	char	*c)
 
 {
-	ASSIGN_STRING (contents_string, c);
+	ASSIGN_STRING (const_cast <char *> (contents_string), c);
 }
 
 
@@ -1995,7 +1995,7 @@ Thing::set_contents_string (
 const	char	*c)
 
 {
-	ASSIGN_STRING (contents_string, c);
+	ASSIGN_STRING (const_cast <char *> (contents_string), c);
 }
 
 

@@ -909,23 +909,25 @@ const char *arg1)
 	return count;
 }
 
-
-static int singing_la_la_la_cant_hear_you(dbref player, dbref target)
-{
-	dbref dict;
-	int element;
-
-	dict=find_list_dictionary(target, playerlist_dictionary);
-		return 0;
-	
-	if(!(element=db[dict].exist_element(player)))
-		return 0;
-	
-	if ( (atoi(db[dict].get_element(element))) & PLIST_IGNORE)
-		return 1;
-
-	return 0;
-}
+/* Not used, might as well remove warning.
+ * 
+ * static int singing_la_la_la_cant_hear_you(dbref player, dbref target)
+ * {
+ * 	dbref dict;
+ * 	int element;
+ * 
+ * 	dict=find_list_dictionary(target, playerlist_dictionary);
+ * 		return 0;
+ * 	
+ * 	if(!(element=db[dict].exist_element(player)))
+ * 		return 0;
+ * 	
+ * 	if ( (atoi(db[dict].get_element(element))) & PLIST_IGNORE)
+ * 		return 1;
+ * 
+ * 	return 0;
+ * }
+ */
 
 static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const char *str)
 {

@@ -27,7 +27,7 @@ static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)";
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/param.h>
-#include <malloc.h>
+/* JPK #include <malloc.h> */
 #include <stdarg.h>
 
 #include "db.h"
@@ -1450,7 +1450,11 @@ struct descriptor_data *new_connection(int sock)
 {
 	int			newsock;
 	struct	sockaddr_in	addr;
+#if defined (linux) || defined (__FreeBSD__)
+	socklen_t		addr_len;
+#else
 	int			addr_len;
+#endif /* defined (linux) */
 	u_long			host_addr;
 
 	addr_len = sizeof (addr);

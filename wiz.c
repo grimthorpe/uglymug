@@ -3,6 +3,9 @@ static char SCCSid[] = "@(#)wiz.c	1.39\t10/19/95";
 
 /* Wizard-only commands */
 
+#if defined (linux)
+  #include <crypt.h>
+#endif /* defined (linux) */
 
 #include "db.h"
 #include "interface.h"
@@ -414,7 +417,9 @@ const	char	*email_addr)
 	dbref	victim;
 	int	i;
 	FILE	*fp;
+#if !defined (linux) && !defined(__FreeBSD__) 
 	extern	char	*sys_errlist[];
+#endif /* !defined (linux) && !defined(__FreeBSD__) */
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
