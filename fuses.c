@@ -41,6 +41,7 @@ int	tom_fuse)
 		if ((!Locked (fuse))
 			&& (tom_fuse == Tom (fuse))
 			&& could_doit (c, fuse)
+			&& (Typeof(fuse) != TYPE_FREE)
 			&& (!Abort (fuse))
 			&& (db[fuse].get_description ()))
 		{
@@ -50,7 +51,8 @@ int	tom_fuse)
 			{
 				/* BANG! */
 				if ((db[fuse].get_csucc () != NOTHING)
-					&& (could_doit (c, db[fuse].get_csucc ())))
+					&& (could_doit (c, db[fuse].get_csucc ()))
+					&& (Typeof(fuse) != TYPE_FREE))
 				{
 					if (Sticky (fuse))
 						c.pend_fuse (fuse, true, "SUCC", command_arg1, command_arg2, matcher);
@@ -74,7 +76,8 @@ int	tom_fuse)
 			{
 				/* Normal countdown */
 				if ((db[fuse].get_cfail () != NOTHING)
-					&& (could_doit (c, db[fuse].get_cfail ())))
+					&& (could_doit (c, db[fuse].get_cfail ()))
+					&& (Typeof(fuse) != TYPE_FREE))
 				{
 					if (Sticky (fuse))
 						c.pend_fuse (fuse, false, "FAIL", command_arg1, command_arg2, matcher);
@@ -119,6 +122,7 @@ dbref	object)
 	{
 		if ((!Locked (fuse))
 			&& could_doit (c, fuse)
+			&& (Typeof(fuse) != TYPE_FREE)
 			&& (Abort (fuse))
 			&& (db[fuse].get_description ()))
 		{
@@ -128,7 +132,8 @@ dbref	object)
 			{
 				/* BANG! */
 				if ((db[fuse].get_csucc () != NOTHING)
-					&& (could_doit (c, db[fuse].get_csucc ())))
+					&& (could_doit (c, db[fuse].get_csucc ()))
+					&& (Typeof(fuse) != TYPE_FREE))
 				{
 					context	*fuse_context = new context (c.get_player (), c);
 					fuse_context->set_unchpid_id (db [fuse].get_owner ());
@@ -151,7 +156,8 @@ dbref	object)
 			{
 				/* Normal countdown */
 				if ((db[fuse].get_cfail () != NOTHING)
-					&& (could_doit (c, db[fuse].get_cfail ())))
+					&& (could_doit (c, db[fuse].get_cfail ()))
+					&& (Typeof(fuse) != TYPE_FREE))
 				{
 					if (Sticky (fuse))
 						c.pend_fuse (fuse, false, "FAIL", command_arg1, command_arg2, matcher);

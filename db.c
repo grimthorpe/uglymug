@@ -271,12 +271,21 @@ object::read (
 		switch(fieldtype)
 		{
 		case OBJECT_FLAGS:
-			field = get_next_field(f);
-
-			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
-				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				field = get_next_field(f);
+
+				int len = strlen(field) / 2;
+				if(len > FLAGS_WIDTH)
+				{
+					// We've got a problem - the flags are too big for us!
+					log_bug("Problem loading object - flags are too big to load. Expecting %d bytes, got %d bytes", FLAGS_WIDTH, len);
+					exit(1);
+				}
+				for(int count=0;count < len;count++)
+				{
+					sscanf(&field[count*2], "%02x", &byte);
+					set_flag_byte(count, byte);
+				}
 			}
 			break;
 		case OBJECT_NAME:
@@ -1404,6 +1413,7 @@ const
 	putint		(f, hit_points);
 	putint		(f, experience);
 #endif
+	String colour = get_colour_string();
 	if(colour)
 	{
 		putfieldtype(f, PLAYER_COLOUR);
@@ -1542,7 +1552,7 @@ Player::read (
 			reset_build_id (getref (f));
 			break;
 		case PLAYER_COLOUR:
-			set_colour(getstring(f));
+			set_colour_string(getstring(f));
 			break;
 		case PLAYER_ALIASES:
 			for (i = 0; i < MAX_ALIASES; i++)

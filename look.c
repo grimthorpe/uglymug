@@ -340,7 +340,7 @@ dbref	thing)
 
 {
 	dbref	looper;
-	int	colour;
+	ColourAttribute	colour;
 	const colour_at& ca=db[c.get_player()].get_colour_at();
 
 	switch (Typeof(thing))

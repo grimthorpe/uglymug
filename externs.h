@@ -71,10 +71,8 @@ extern	long		time_of_next_cron	(const char *cron_format);
 extern	dbref		command_pending		(int time);
 
 /* From colour.c */
-extern		int	rank_colour		(dbref);
-extern		cplay	*make_colour_play	(const dbref, const String&);
-extern	const	char*	player_colour		(dbref, dbref, int);
-extern	const	int	find_number_of_players	(const String&);
+extern	ColourAttribute	rank_colour		(dbref);
+extern	const	char*	player_colour		(dbref, dbref, ColourAttribute);
 
 /* From create.c */
 extern	dbref		parse_linkable_room	(dbref player, const String& room_name);

@@ -574,7 +574,7 @@ void notify_all (const char *fmt, ...)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED())
 		{
-			d->queue_string (db[d->get_player()].get_colour_at()[COLOUR_SHOUTS]);
+			d->queue_string (db[d->get_player()].get_colour_attr(COLOUR_SHOUTS));
 			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
@@ -667,7 +667,7 @@ void notify_welcomer_natter(const char *fmt, ...)
 void notify_colour(
 dbref player,
 dbref talker,
-int colour,
+ColourAttribute colour,
 const char *fmt, ...)
 {
 	struct descriptor_data *d;
@@ -696,7 +696,7 @@ const char *fmt, ...)
 void notify_censor_colour(
 dbref player,
 dbref talker,
-int colour,
+ColourAttribute colour,
 const char *fmt, ...)
 {
 	struct descriptor_data *d;
@@ -737,7 +737,7 @@ const char *fmt, ...)
 void notify_public_colour(
 dbref player,
 dbref talker,
-int colour,
+ColourAttribute colour,
 const char *fmt, ...)
 {
 	struct descriptor_data *d;
@@ -2501,7 +2501,7 @@ char *a,*a1,*b;
 
 	String output;
 
-	int colour = 0;
+	bool colour = false;
 	if(get_player())
 		colour = Colour(get_player());  /* Stores whether we need to substitute in the codes */
 	int percent_loaded = 0;		/* Indicates whether we have already hit a % sign */
@@ -3869,7 +3869,7 @@ int			flags)
 				if (get_player())
 				{
 					int thing= d->get_player();
-					int colour=rank_colour(thing);
+					ColourAttribute colour=rank_colour(thing);
 					if (!who.want_npcs)
 						strcat(buf, player_colour (get_player(), get_player(), colour));
 				}
@@ -4284,7 +4284,7 @@ const	String& )
 		if(who.Show(d))
 		{
 			int thing= d->get_player();
-			int colour=rank_colour(thing);
+			ColourAttribute colour=rank_colour(thing);
 			char rankchar= Retired(d->get_player())?'-':
 					(Wizard(d->get_player())?'*':
 						(Apprentice(d->get_player())?'~':' '));

@@ -378,7 +378,6 @@ private:
 		void		set_who_string		(const String& s);
 		void		set_money		(const int i)			{ money=i; }
 
-	const	colour_at&	get_colour_at		()			const	{ return default_colour_at; }
 	const	int		get_pennies		()			const	{ return (pennies); }
 	const	dbref		get_controller		()			const	{ return owner(); }
 	const	dbref		controller		()			const	{ return owner(); }
@@ -425,10 +424,8 @@ private:
 #endif /* ALIASES */
 
 	 /* Colour struct */
-    	char *			colour;
-	colour_at*		col_at;
-	cplay *			colour_play;
-	int			colour_play_size;
+	colour_at		colour_attrs;
+	mutable colour_pl		colour_players;
 
 	Channel*		channel;
 
@@ -444,14 +441,14 @@ private:
 		void		output_recall_conditional (String match, const int lines, const context * con);
 		void		ditch_recall		();
 
-		void		set_colour		(const char *new_colour);
-		String		get_colour		()			const	{return colour;}
-		void		set_colour_at		(colour_at* c)		{ if(c != col_at) delete col_at; col_at = c; }
-	const	colour_at&	get_colour_at		()  	   		const	{ return col_at?(*col_at):default_colour_at; }
-		void		set_colour_play		(cplay *c)  			{if(colour_play) delete[] colour_play; colour_play = c;}
-	const	cplay *		get_colour_play		()			const	{return colour_play;}
-		void		set_colour_play_size	(const int c)			{colour_play_size=c;}
-	const	int		get_colour_play_size	()			const	{return colour_play_size;}
+		void		set_colour_string	(const String&);
+		String		get_colour_string	()			const;
+		void		set_colour_attr		(ColourAttribute, const String&);
+	const	String&		get_colour_attr		(ColourAttribute) 	const;
+	const	colour_at&	get_colour_at		()			const	{ return colour_attrs; }
+		void		set_colour_player	(dbref, const String&);
+	const	String&		get_colour_player	(dbref)			const;
+	const	colour_pl&	get_colour_players	()			const	{return colour_players; }
 		void		set_controller		(const dbref c);
 		void		set_password		(const String& p);
 		void		set_channel		(Channel *c)		{channel = c;}

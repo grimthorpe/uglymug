@@ -19,9 +19,9 @@ extern	 int	init_game		(const char *infile, const char *outfile);
 extern	 void	dump_database		(void);
 
 extern	void	terminal_underline	(dbref player, const char *);
-extern	void	notify_colour		(dbref player, dbref talker, int colour, const char *fmt, ...);
-extern	void	notify_censor_colour	(dbref player, dbref talker, int colour, const char *fmt, ...);
-extern	void	notify_public_colour	(dbref player, dbref talker, int colour, const char *fmt, ...);
+extern	void	notify_colour		(dbref player, dbref talker, ColourAttribute colour, const char *fmt, ...);
+extern	void	notify_censor_colour	(dbref player, dbref talker, ColourAttribute colour, const char *fmt, ...);
+extern	void	notify_public_colour	(dbref player, dbref talker, ColourAttribute colour, const char *fmt, ...);
 extern	void	notify			(dbref player, const char *fmt, ...);
 extern	void	notify_norecall		(dbref player, const char *fmt, ...);
 extern	void	notify_norecall_conditional (String match,dbref player, const char *fmt, ...);

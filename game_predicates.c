@@ -110,26 +110,31 @@ const	char	*default_fail_msg)
 	char	buf[BUFFER_LEN];
 
 	if ((loc = getloc(c.get_player ())) == NOTHING)
-		return 0;
+		return false;
 
-	if(!could_doit(c, thing))
+	if((!could_doit(c, thing)) || (Typeof(thing) == TYPE_FREE))
 	{
 		/* can't do it */
 
-		if(db[thing].get_inherited_fail_message())
-			notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, "%s", db[thing].get_inherited_fail_message().c_str());
+		if(Typeof(thing) != TYPE_FREE)
+		{
+			if(db[thing].get_inherited_fail_message())
+				notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, "%s", db[thing].get_inherited_fail_message().c_str());
+			else if(default_fail_msg)
+				notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, default_fail_msg);
+		
+			if(db[thing].get_inherited_ofail() && !Dark(c.get_player ()))
+			{
+				pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ());
+				notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
+			}
+		}
 		else if(default_fail_msg)
 			notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, default_fail_msg);
-		
-		if(db[thing].get_inherited_ofail() && !Dark(c.get_player ()))
-		{
-			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ());
-			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
-		}
 
-		return 0;
+		return false;
 	}
-	else
+	else if(Typeof(thing) != TYPE_FREE)
 	{
 		/* can do it */
 		if(db[thing].get_inherited_succ_message())
@@ -141,8 +146,10 @@ const	char	*default_fail_msg)
 			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
 		}
 
-		return 1;
+		return true;
 	}
+	// Object is TYPE_FREE - can always 'do' that!
+	return true;
 }
 
 bool

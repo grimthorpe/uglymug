@@ -242,6 +242,11 @@ String::operator==(const String& other) const
 	return string_compare(*this, other) == 0;
 }
 
+bool
+String::operator!=(const String& other) const
+{
+	return string_compare(*this, other) != 0;
+}
 
 std::ostream &
 operator<< (

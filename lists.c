@@ -20,7 +20,6 @@
 #include <string.h>
 #include <time.h>
 
-#include "colour.h"
 #include "context.h"
 #include "command.h"
 #include "db.h"
@@ -28,6 +27,7 @@
 #include "interface.h"
 #include "lists.h"
 #include "objects.h"
+#include "colour.h"
 
 #include "config.h"
 #include "log.h"
@@ -315,7 +315,7 @@ Player_list::trigger_command(const char *command, context &c)
 
 			new_context->set_depth_limit (c.get_depth_limit () - 1);
 			// Maybe need to set commands_executed here...
-			if (!Dark (automatic) && could_doit (*new_context, automatic))
+			if (!Dark (automatic) && could_doit (*new_context, automatic) && (Typeof(automatic) == TYPE_COMMAND))
 			{
 				new_context->prepare_compound_command (automatic, command, getname_inherited (c.get_player()), "");
 				delete mud_scheduler.push_new_express_job(new_context);

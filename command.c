@@ -104,7 +104,7 @@ const	String& arg2)
 	{
 		if (!Dark (command))
 		{
-			if (could_doit (*this, command))
+			if (could_doit (*this, command) && (Typeof(command) != TYPE_FREE))
 			{
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
 				return true;
@@ -149,7 +149,7 @@ const	String& arg2)
 
 	do {
 		if (!Dark (command) && Wizard (command))
-			if (could_doit (*this, command))
+			if (could_doit (*this, command) && (Typeof(command) != TYPE_FREE))
 			{
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
 				return (true);

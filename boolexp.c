@@ -90,6 +90,10 @@ const
 					//return (thing == c.get_effective_id () || ::contains(thing, c.get_player ()));
 				if (!could_doit (c, thing))
 					return false; /* Automatically fails */
+				else if(Typeof (thing) != TYPE_COMMAND) // could_doit could destroy the command.
+				{
+					return true;
+				}
 				else
 				{
 					/* The idea is that the player still gets to see what's going on, but the command can't unchpid to the player... */

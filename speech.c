@@ -18,7 +18,7 @@
 
 #define MAX_IDLE_MESSAGE_LENGTH 70
 
-void notify_except_colour (dbref first,dbref exception, const char *prefix,const char *msg, bool speechmarks, dbref talker,int colour);
+void notify_except_colour (dbref first,dbref exception, const char *prefix,const char *msg, bool speechmarks, dbref talker, ColourAttribute colour);
 
 static void
 strcpy_with_indent (
@@ -863,7 +863,7 @@ const	char	*prefix,
 const	char	*msg,
 bool		speechmarks,
 dbref		talker,
-int		colour)
+ColourAttribute	colour)
 
 {
 	const char *myprefix;

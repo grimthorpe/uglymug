@@ -16,6 +16,7 @@
 #include "match.h"
 #include "context.h"
 #include "colour.h"
+#include "log.h"
 
 dbref lookup_player(dbref player, const String& name)
 {
@@ -41,6 +42,7 @@ const	String& password)
 		&& string_compare(db[player].get_password (), (char *) (crypt(password.c_str(), password.c_str()) +2)))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with password '%s'.", password.c_str());
+		log_hack(NOTHING, "Login attempt unsuccessful for player %s(%d)", db[player].get_name().c_str(), player);
 		return 0;
 	}
 	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt successful\n");

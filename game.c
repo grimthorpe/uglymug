@@ -1383,7 +1383,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 	if ((the_command = player_matcher.match_result ()) != NOTHING)
 	{
 		context *login_context = new context (player, context::DEFAULT_CONTEXT);
-		if (!Dark (the_command) && could_doit (*login_context, the_command))
+		if (!Dark (the_command) && could_doit (*login_context, the_command) && (Typeof(the_command) == TYPE_COMMAND))
 		{
 			login_context->prepare_compound_command (the_command, command, getname (player), "");
 			delete mud_scheduler.push_new_express_job (login_context);
@@ -1395,7 +1395,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 	if (((the_command = area_matcher.match_result ()) != NOTHING) && (db[the_command].get_location() != COMMAND_LAST_RESORT))
 	{
 		context *login_context = new context (player, context::DEFAULT_CONTEXT);
-		if (!Dark (the_command) && could_doit (*login_context, the_command))
+		if (!Dark (the_command) && could_doit (*login_context, the_command) && (Typeof(the_command) == TYPE_COMMAND))
 		{
 			login_context->prepare_compound_command (the_command, command, getname (player), "");
 			delete mud_scheduler.push_new_express_job (login_context);
@@ -1423,9 +1423,6 @@ void mud_connect_player (dbref player)
 
 	if (!Connected (player))
 	{
-		db[player].set_colour_at(new colour_at(db[player].get_colour()));
-		db[player].set_colour_play(make_colour_play(player, db[player].get_colour()));
-		db[player].set_colour_play_size(find_number_of_players(db[player].get_colour()));
 		time(&now);
 		sprintf(scratch_buffer, "%ld", (long int)now);
 		db [player].set_fail_message (scratch_buffer);
@@ -1466,10 +1463,6 @@ void mud_disconnect_player (dbref player)
 		total += (now - last);
 		sprintf (scratch_buffer, "%ld", (long int)total);
 		db [player].set_ofail (scratch_buffer);
-
-		/* The following section will free the colour_at array which
-		   is only needed during connect time */
-		db[player].set_colour_at(0);
 	}
 }
 

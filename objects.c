@@ -665,17 +665,14 @@ void object::set_channel (Channel *)
 void object::set_money (int)
 { IMPLEMENTATION_ERROR ("money") }
 
-void object::set_colour (const char *)
-{ IMPLEMENTATION_ERROR ("colour") }
+void object::set_colour_string (const String&)
+{ IMPLEMENTATION_ERROR ("colour_string") }
 
-void object::set_colour_at (colour_at*)
-{ IMPLEMENTATION_ERROR ("colour_at") }
+void object::set_colour_attr (ColourAttribute, const String&)
+{ IMPLEMENTATION_ERROR ("colour_attr") }
 
-void object::set_colour_play (cplay *)
-{ IMPLEMENTATION_ERROR ("colour_play") }
-
-void object::set_colour_play_size (int)
-{ IMPLEMENTATION_ERROR ("colour_play_size") }
+void object::set_colour_player (dbref, const String&)
+{ IMPLEMENTATION_ERROR ("colour_player") }
 
 void object::set_controller (const dbref)
 { IMPLEMENTATION_ERROR ("controller") }
@@ -1528,10 +1525,8 @@ Player::Player ()
 : recall(NULL)
 , password()
 , m_controller(NOTHING)
-, colour(NULL)
-, col_at(NULL)
-, colour_play(NULL)
-, colour_play_size(0)
+, colour_attrs()
+, colour_players()
 , channel(NULL)
 {
 #ifdef ALIASES
@@ -1730,15 +1725,6 @@ Player::ditch_recall()
 	delete recall;
 	recall = 0;
 }
-
-void
-Player::set_colour (
-const	char	*new_colour)
-
-{
-	ASSIGN_STRING(colour, new_colour);
-}
-
 
 void
 Player::set_controller (

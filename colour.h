@@ -2,12 +2,11 @@
 #define COLOUR_H_INCLUDED
 
 #include "mudstring.h"
+#include "db.h"
 
-/* The next number is the *MAXIMUM* number of colour attributes in
- * the cia_table. Remember that arrays start at index 0!
+/*
+ * The string to revert back to normal.
  */
-#define NUMBER_OF_COLOUR_ATTRIBUTES	70 /* Make room for expansion */
-//#define COLOUR_REVERT			"\033[0m"
 #define COLOUR_REVERT			"%z"
 
 /*
@@ -18,128 +17,137 @@
  * to queue_string what is being output.
  */
 
-#define NO_COLOUR		-1
-#define COLOUR_ROOMS		0
-#define COLOUR_PLAYERS		1
-#define COLOUR_THINGS		2
-#define COLOUR_NPCS		3
-#define COLOUR_COMMANDS		4
-#define COLOUR_PROPERTIES	5
-#define COLOUR_DICTIONARIES	6
-#define COLOUR_ARRAYS		7
-#define COLOUR_FUSES		8
-#define COLOUR_ALARMS		9
+enum ColourAttribute
+{
+	NO_COLOUR		= -1,
+	COLOUR_FIRSTCOLOUR	= 0,
+	COLOUR_ROOMS		= 0,
+	COLOUR_PLAYERS		= 1,
+	COLOUR_THINGS		= 2,
+	COLOUR_NPCS		= 3,
+	COLOUR_COMMANDS		= 4,
+	COLOUR_PROPERTIES	= 5,
+	COLOUR_DICTIONARIES	= 6,
+	COLOUR_ARRAYS		= 7,
+	COLOUR_FUSES		= 8,
+	COLOUR_ALARMS		= 9,
 
-#define COLOUR_UNUSED1		10
-#define COLOUR_UNUSED2		11
-#define COLOUR_UNUSED3		12
+	COLOUR_UNUSED1		= 10,
+	COLOUR_UNUSED2		= 11,
+	COLOUR_UNUSED3		= 12,
 
-#define COLOUR_UNDERLINES	13
+	COLOUR_UNDERLINES	= 13,
 
-#define COLOUR_ROOMNAME		14
-#define COLOUR_THINGNAME	15
-#define COLOUR_ROOMDESCRIPTION	16
-#define COLOUR_THINGDESCRIPTION	17
-#define COLOUR_PLAYERDESCRIPTION	18
-#define COLOUR_WHOSTRINGS	19
-#define COLOUR_HOST		20
+	COLOUR_ROOMNAME		= 14,
+	COLOUR_THINGNAME	= 15,
+	COLOUR_ROOMDESCRIPTION	= 16,
+	COLOUR_THINGDESCRIPTION	= 17,
+	COLOUR_PLAYERDESCRIPTION	= 18,
+	COLOUR_WHOSTRINGS	= 19,
+	COLOUR_HOST		= 20,
 
-#define COLOUR_SAYS		21
-#define COLOUR_PAGES		22
-#define COLOUR_EMOTES		23
-#define COLOUR_TELLMESSAGES	24
+	COLOUR_SAYS		= 21,
+	COLOUR_PAGES		= 22,
+	COLOUR_EMOTES		= 23,
+	COLOUR_TELLMESSAGES	= 24,
 
-#define COLOUR_SUCCESS		25
-#define COLOUR_FAILURE		26
-#define COLOUR_CSUCCESS		27
-#define COLOUR_CFAILURE		28
-#define COLOUR_OSUCCESS		29
-#define COLOUR_OFAILURE		30
-#define COLOUR_DROP		31
-#define COLOUR_ODROP		32
+	COLOUR_SUCCESS		= 25,
+	COLOUR_FAILURE		= 26,
+	COLOUR_CSUCCESS		= 27,
+	COLOUR_CFAILURE		= 28,
+	COLOUR_OSUCCESS		= 29,
+	COLOUR_OFAILURE		= 30,
+	COLOUR_DROP		= 31,
+	COLOUR_ODROP		= 32,
 
-#define COLOUR_MASS		33
-#define COLOUR_VOLUME		34
+	COLOUR_MASS		= 33,
+	COLOUR_VOLUME		= 34,
 
-#define COLOUR_CONNECTS		35
-#define COLOUR_DISCONNECTS	36
-#define COLOUR_BOOTS		37
+	COLOUR_CONNECTS		= 35,
+	COLOUR_DISCONNECTS	= 36,
+	COLOUR_BOOTS		= 37,
 
-#define COLOUR_SHOUTS		38
-#define COLOUR_NATTERS		39
-#define COLOUR_NATTER_TITLES	40
+	COLOUR_SHOUTS		= 38,
+	COLOUR_NATTERS		= 39,
+	COLOUR_NATTER_TITLES	= 40,
 
-#define COLOUR_WHISPERS		41
-#define COLOUR_EXITS		42
-#define COLOUR_CONTENTS		43
+	COLOUR_WHISPERS		= 41,
+	COLOUR_EXITS		= 42,
+	COLOUR_CONTENTS		= 43,
 
-#define COLOUR_WIZARDS		44
-#define COLOUR_APPRENTICES	45
-#define COLOUR_BUILDERS		46
-#define COLOUR_MORTALS		47
-#define COLOUR_XBUILDERS	48
-#define COLOUR_WELCOMERS	49
-#define COLOUR_GOD		50
+	COLOUR_WIZARDS		= 44,
+	COLOUR_APPRENTICES	= 45,
+	COLOUR_BUILDERS		= 46,
+	COLOUR_MORTALS		= 47,
+	COLOUR_XBUILDERS	= 48,
+	COLOUR_WELCOMERS	= 49,
+	COLOUR_GOD		= 50,
 
-#define COLOUR_ERROR_MESSAGES	51
-#define COLOUR_MESSAGES		52
+	COLOUR_ERROR_MESSAGES	= 51,
+	COLOUR_MESSAGES		= 52,
 
-#define COLOUR_LAST_CONNECTED	53
-#define COLOUR_TOTAL_CONNECTED	54
+	COLOUR_LAST_CONNECTED	= 53,
+	COLOUR_TOTAL_CONNECTED	= 54,
 
-#define COLOUR_TITLES		55
-#define COLOUR_TRACING		56
+	COLOUR_TITLES		= 55,
+	COLOUR_TRACING		= 56,
 
-#define COLOUR_DESCRIPTIONS	57
+	COLOUR_DESCRIPTIONS	= 57,
 
-#define COLOUR_CHANNEL_NAMES	58
-#define COLOUR_CHANNEL_MESSAGES	59
+	COLOUR_CHANNEL_NAMES	= 58,
+	COLOUR_CHANNEL_MESSAGES	= 59,
 
-#define COLOUR_TELLS		60
-#define	COLOUR_WELCOMER_TITLES	61
+	COLOUR_TELLS		= 60,
+	COLOUR_WELCOMER_TITLES	= 61,
 
-#define	COLOUR_RETIRED		62
+	COLOUR_RETIRED		= 62,
 
-#define	COLOUR_TIMESTAMPS	63
+	COLOUR_TIMESTAMPS	= 63,
+
+	// Put all colour numbers above this point.
+	COLOUR_LASTCOLOUR
+};
 
 struct colour_table_type
 {
-	const char	*name;
-	const char	*ansi;
+	const String	name;
+	const String	ansi;
 	bool		is_effect;	// Set true if not really a colour, but something like highlight
 };
 
 extern struct colour_table_type	colour_table[];
 
-
-struct cplay
-{
-	cplay() : player(-1), output_string() {}
-		int		player;
-		String		output_string;
-};
+typedef std::map<dbref, String>	colour_pl;
 
 class colour_at
 {
-	String colours[NUMBER_OF_COLOUR_ATTRIBUTES];
+	String colours[COLOUR_LASTCOLOUR];
+
 	colour_at(const colour_at&);
 	colour_at& operator=(const colour_at& c);
 public:
-	colour_at() {}
-	colour_at(const String&);
+	colour_at();
 
-	const char* operator[](unsigned int i) const
+	const char* operator[](ColourAttribute i) const
 	{
-		if(i < NUMBER_OF_COLOUR_ATTRIBUTES)
+		if(i < COLOUR_LASTCOLOUR)
 		{
 			return colours[i].c_str();
 		}
 		return "";
 	}
+	void set_colour(ColourAttribute i, const String& c)
+	{
+		colours[i] = c;
+	}
 
+	const String& get_colour(ColourAttribute i) const
+	{
+		return colours[i];
+	}
 };
 
 extern colour_at default_colour_at;
-
+extern colour_pl default_colour_players;
 #endif
 

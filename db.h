@@ -31,7 +31,6 @@
 
 #include "mudstring.h"
 #include "config.h"
-#include "colour.h"
 
 #ifdef DBREF_BUG_HUNTING
 class dbref
@@ -57,6 +56,8 @@ public:
 #else // DBREF_BUG_HUNTING
 typedef	int	dbref;		///< Offset into db array, used as an object identity.
 #endif // DBREF_BUG_HUNTING
+
+#include "colour.h"		// colour.h relies on dbref
 
 // special dbrefs
 const	dbref	NOTHING		(-1);		///< null dbref
@@ -372,14 +373,14 @@ class	object
 	virtual		void	set_channel			(Channel *);
 	virtual	const	int	get_money			()			const	{return 0;}
 	virtual		void	set_money			(const int);
-	virtual		void	set_colour			(const char *);
-	virtual		String	get_colour			()			const	{return NULLSTRING;}
-	virtual		void	set_colour_at			(colour_at*);
-	virtual	const	colour_at&	get_colour_at	()			const	{return default_colour_at;}
-	virtual		void	set_colour_play			(cplay *);
-	virtual	const	cplay 	*get_colour_play		()			const	{return NULL;}
-	virtual		void	set_colour_play_size		(const int);
-	virtual	const	int	get_colour_play_size		()			const	{return 0;}
+	virtual		void	set_colour_string		(const String&);
+	virtual		String	get_colour_string		()			const	{return NULLSTRING;}
+	virtual		void	set_colour_attr			(ColourAttribute, const String&);
+	virtual	const	String&	get_colour_attr			(ColourAttribute)	const	{return NULLSTRING;}
+	virtual const	colour_at& get_colour_at		()			const	{return default_colour_at; }
+	virtual		void	set_colour_player		(dbref, const String&);
+	virtual	const	String&	get_colour_player		(dbref)			const	{return NULLSTRING;}
+	virtual const	colour_pl& get_colour_players		()			const	{return default_colour_players; }
 	virtual		void	set_pennies			(const int i);
 	virtual		void	add_pennies			(const int i);
 	virtual		void	set_build_id			(const dbref c);
