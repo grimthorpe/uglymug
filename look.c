@@ -1347,14 +1347,13 @@ const	CString& )
 			case TYPE_PUPPET:
 				if (db[thing].get_contents() != NOTHING)
 				{
-//					int colour= COLOUR_MORTALS;
 					notify_colour(player, player, COLOUR_CONTENTS, "Contents:");
 					DOLIST(looper, db[thing].get_contents())
 					{
 						switch(Typeof(looper))
 						{
 							case TYPE_PLAYER:
-								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), ca[rank_colour(thing)], unparse_object(*this, looper), COLOUR_REVERT);
+								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), ca[rank_colour(looper)], unparse_object(*this, looper), COLOUR_REVERT);
 								break;
 							default:
 								notify_public_colour(player, player, COLOUR_THINGS, "  %s", unparse_object(*this, looper));

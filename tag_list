@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Fixed the examine code so that Players in a contents list get shown in the colour of their rank, not the room's rank.
 	Added 'noflush' option to @terminal to stop <Output Flushed> happening.
 	email.list generation is semi-atomic; at least it has been reduced to a race condition of the file not being there, rather than writing to it while the log handler uses it.
 	@gc doesn't try to report Weapon, Armour and Ammunition as destroyed, even though they don't exist any more.
