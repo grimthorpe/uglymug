@@ -42,6 +42,7 @@ CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
 
+VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 
 HEADERS = \
 	alarm.h \
@@ -268,7 +269,6 @@ newversion:
 	fi
 
 version.h: newversion
-	VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[\#-%],,'`
 	@echo \#define RELEASE \"$(VERSION)\" > version.h
 	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" >> version.h
 
