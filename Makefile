@@ -123,7 +123,8 @@ SOURCES	= \
 	utils.c \
 	variable.c \
 	wiz.c \
-	debug.c
+	debug.c \
+	mudstring.c
 
 UTIL_OBJECTS = \
 	db.o \
@@ -131,7 +132,8 @@ UTIL_OBJECTS = \
 	predicates.o \
 	unparse.o \
 	utils.o \
-	debug.o
+	debug.o \
+	mudstring.o
 
 OBJECTS	= \
 	$(UTIL_OBJECTS) \
@@ -651,6 +653,9 @@ wiz.o: wiz.c \
 	interface.h \
 	match.h \
 	log.h
+
+mudstring.o: mudstring.c \
+	mudstring.h
 
 concentrator.o: concentrator.c \
 	concentrator.h \

@@ -414,7 +414,6 @@ const	CString& arg2)
 				controls_for_read (db[player].get_location()) ? true : false,
 				message
 		);
-		fflush(stderr);
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Your note has been logged.");
 		return_status = COMMAND_SUCC;

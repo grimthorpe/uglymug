@@ -24,7 +24,8 @@
 
 #define FIELD_SEPARATOR '\027'
 #define	OBJECT_SEPARATOR '\002'
-#define LOAD_BUFFER_SIZE (8*BUFFER_LEN)
+//#define LOAD_BUFFER_SIZE (8*BUFFER_LEN)
+#define LOAD_BUFFER_SIZE (1024*1024)
 
 #ifdef DEBUG
 #define FREE(x) { if((x)==NULL) \
@@ -1921,10 +1922,10 @@ FILE	*f)
 					case TYPE_WEAPON:
 					case TYPE_ARMOUR:
 					case TYPE_AMMUNITION:
-						fputs("Weapon, Armour and Ammunition types not supported since um1_031.\n", stderr);
+						log_bug("Weapon, Armour and Ammunition types not supported since um1_031.\n");
 						break;
 					default:
-						fputs ("Illegal object type in database load.\n", stderr);
+						log_bug ("Illegal object type in database load.\n");
 				}
 				array [i].set_obj (*obj);
 				Settypeof(i, type);

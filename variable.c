@@ -299,7 +299,7 @@ const	CString& val)
 		if (!addarg (name, val))
 		{
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "BUG: @local: Couldn't add local variable.") ;
-			fputs ("BUG: @global: Couldn't add variable\n", stderr);
+			log_bug("@global: Couldn't add variable\n", stderr);
 			return;
 		}
 

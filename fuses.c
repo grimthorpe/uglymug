@@ -13,6 +13,7 @@
 #include "match.h"
 #include "alarm.h"
 #include "context.h"
+#include "log.h"
 
 
 void	insert_into_pending_queue_fuse	(dbref player, dbref fuse, dbref command, const char *string);
@@ -229,7 +230,7 @@ context	&c)
 		if ((command_id = success ? db [get_object ()].get_csucc () : db [get_object ()].get_cfail ()) != NOTHING)
 		{
 			if (Typeof (command_id) != TYPE_COMMAND)
-				fputs ("BUG: Pended fuse does not fire a command.", stderr);
+				log_bug(" Pended fuse does not fire a command.");
 			else
 			{
 				context	*fuse_context = new context (c.get_player ());

@@ -126,7 +126,7 @@ const	dbref	newtop)
 			/* Extend it */
 			if((array = (object_and_flags *) realloc(array, real_newtop * sizeof(object_and_flags))) == NULL)
 			{
-				fputs ("Fatal: grow: realloc failed extending database\n", stderr);
+				log_bug("Fatal: grow: realloc failed extending database\n");
 				abort();
 			}
 

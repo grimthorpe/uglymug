@@ -261,7 +261,7 @@ const	int	start_line,
 				line = With_loop::parse_command (cmd, line, errs);
 				break;
 			default:
-				fputs ("BUG: Unknown next in parse_command\n", stderr);
+				log_bug("Unknown next in parse_command");
 				line = -1;
 		}
 		if (line != -1)
@@ -316,7 +316,7 @@ const	int	start_line,
 				line = With_loop::parse_command (cmd, line, errs);
 				break;
 			default:
-				fputs ("BUG: Unknown next in parse_command\n", stderr);
+				log_bug(" Unknown next in parse_command");
 				line = -1;
 		}
 		if (line != -1)
@@ -373,7 +373,7 @@ const	int	start_line,
 				line = With_loop::parse_command (cmd, line, errs);
 				break;
 			default:
-				fputs ("BUG: Unknown next in parse_command\n", stderr);
+				log_bug(" Unknown next in parse_command");
 				line = -1;
 		}
 		if (line != -1)
@@ -436,7 +436,7 @@ const	int	start_line,
 				line = With_loop::parse_command (cmd, line, errs);
 				break;
 			default:
-				fputs ("BUG: Unknown next in parse_command\n", stderr);
+				log_bug(" Unknown next in parse_command");
 				line = -1;
 		}
 

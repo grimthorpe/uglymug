@@ -470,7 +470,6 @@ const	CString& arg2)
 	{
 		log_shutdown(player, getname(player), "no apparent reason");
 	}
-	fflush (stderr);
 	shutdown_flag = 2;
 	shutdown_player = player;
 	return_status = COMMAND_SUCC;
@@ -984,7 +983,7 @@ const	char	*original_command)
 	if (!variable_substitution (smashed_original, command, MAX_COMMAND_LEN))
 	{
 #ifdef	DEBUG
-		fputs ("Backing out of braced command.\n", stderr);
+		log_debug ("Backing out of braced command.\n");
 #endif
 
 		/* Unblock alarms during the back-out, but don't bother checking anything else */

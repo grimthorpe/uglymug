@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Fixed up more BUG logs to use log_bug instead of fprintf/fputs
 	More updates to the String code; this time get the buffer sharing done right for empty strings.
 	Most of the set-commands had the wrong error message saying that you couldn't do something because the object is ReadOnly when it wasn't. Fixed to now say if it is ReadOnly if the object is set ReadOnly, otherwise give the standard Permission Denied.
 	Fixed the examine code so that Players in a contents list get shown in the colour of their rank, not the room's rank.
