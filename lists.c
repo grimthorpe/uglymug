@@ -374,7 +374,25 @@ Player_list::warn_me_if_idle()
 			if (*scratch_buffer)
 				notify_censor_colour (originator, current->player, COLOUR_MESSAGES, "Idle message from %s who has been inactive for %d minutes:\n%s", getname_inherited (current->player), get_idle_time(current->player)/60, scratch_buffer);
 			else
-				notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle for %d minutes.",  getname_inherited (current->player), get_idle_time(current->player)/60);
+			{
+				int the_idle_time = get_idle_time(current->player);
+				if (the_idle_time > (7 *24 * 60 * 60))
+				{
+					notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle for %d weeks and %d days.",  getname_inherited (current->player), the_idle_time/(7 * 24 * 3600), the_idle_time%(24 * 3600));
+				}
+				else if (the_idle_time > 24 * 60 * 60)
+				{
+					notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle for %d days and %d hours.",  getname_inherited (current->player), the_idle_time/(24 * 3600), the_idle_time%3600);
+				}
+				else if(the_idle_time > 60 * 60)
+				{
+					notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle for %d hours and %d minutes.",  getname_inherited (current->player), the_idle_time/3600, the_idle_time%60);
+				}
+				else
+				{
+					notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle for %d minutes.",  getname_inherited (current->player), the_idle_time/60);
+				}
+			}
 	current=current->next;
 	}
 }
