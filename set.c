@@ -262,6 +262,8 @@ context::do_at_peak
 (const	String& number,
 const	String& )
 {
+char buf[100]; // '@peak <maxint>\0'
+
 	if(!Wizard(player))
 	{
 		notify(player, "Don't be silly.");
@@ -271,6 +273,16 @@ const	String& )
 	{
 		peak_users = atoi(number.c_str());
 		notify(player, "Peak set to %d.", peak_users);
+// Do some logging, cos someone is abusing @peak
+sprintf(buf,"@peak %d",peak_users);
+log_command(    player,
+                getname(player),
+                get_effective_id(),
+                getname(get_effective_id()),
+                db[player].get_location(),
+                getname(db[player].get_location()),
+                buf
+                );
 	}
 
 	RETURN_SUCC;
