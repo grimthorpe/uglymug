@@ -82,7 +82,7 @@ struct	flag_stuff	flag_list [] =
 	{"LiteralInput",FLAG_LITERALINPUT,	'\0'},
 
 	{"Private",	FLAG_PRIVATE,		'~'},
-	{NULL,		0,		'\0'}
+	{NULL,		(object_flag_type)0,		'\0'}
 };
 
 

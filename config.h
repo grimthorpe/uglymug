@@ -190,8 +190,10 @@ const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 /* Acceptable character set (currently ISO-8859-15).
    For systems that don't support this standard, use the second definition below. */
 
+inline bool is_printable(const unsigned char c) { return ((c >= 0x20) && (c <= 0x7e)) || (c >=0xa0); }
+/*
 #define	is_printable(c)		(((unsigned char)(c)>=0x20 && (unsigned char)(c)<=0x7e) \
-							|| ((unsigned char)(c)>=0xa0 && (unsigned char)(c)<=0xff))
+							|| ((unsigned char)(c)>=0xa0 && (unsigned char)(c)<=0xff))*/
 /*#define	is_printable(c)	isprint((c))*/
 
 #endif

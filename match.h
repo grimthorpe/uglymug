@@ -121,8 +121,8 @@ private:
 	void			match_variable_list		(dbref base);
     public:
 				Matcher				(const Matcher &src);
-				Matcher				(dbref player, const String& name, object_flag_type type, dbref effective_player);
-				Matcher				(dbref player, dbref object, object_flag_type type, dbref effective_player);
+				Matcher				(dbref player, const String& name, typeof_type type, dbref effective_player);
+				Matcher				(dbref player, dbref object, typeof_type type, dbref effective_player);
 				~Matcher			();
 	void			set_beginning			(const char *str);
 	void			check_keys			();

@@ -55,15 +55,15 @@ class	Player_list
 		void		notify(dbref player, const char *prefix, const char *suffix, const char *string);
 		void		beep();
 
-		int		include_if_unset(const int f);
-		int		include_if_set(const int f);
+		int		include_if_unset(const object_flag_type f);
+		int		include_if_set(const object_flag_type f);
 		int		include(int who);
 		int		include_from_list(dbref player, int flag);
 		int		exclude_from_list(dbref player, int flag, const char *message=NULL);
 		int		include_from_reverse_list(dbref player, int flag);
 		int		exclude_from_reverse_list(dbref player, int flag, const char *message=NULL);
-		int		filter_out_if_unset(const int f, const char *message = NULL);
-		int		filter_out_if_set(const int f, const char *message = NULL);
+		int		filter_out_if_unset(const object_flag_type f, const char *message = NULL);
+		int		filter_out_if_set(const object_flag_type f, const char *message = NULL);
 		int		exclude(dbref who, const char *message=NULL);
 
 		void		warn_me_if_idle();

@@ -972,12 +972,15 @@ void context::do_tleave(const char *arg1, const char *arg2)
 
 	/* All OK - do it. */
 
-	if(blank(arg2))
-		notify_channel(player, channel, ":has left the channel.");
-	else
+	if(!DontAnnounce(player))
 	{
-		sprintf(scratch_buffer, ":has left the channel %s", arg2);
-		notify_channel(player, channel, scratch_buffer);
+		if(blank(arg2))
+			notify_channel(player, channel, ":has left the channel.");
+		else
+		{
+			sprintf(scratch_buffer, ":has left the channel %s", arg2);
+			notify_channel(player, channel, scratch_buffer);
+		}
 	}
 
 	notify_colour(player, player, COLOUR_MESSAGES, "You have left channel %d.", channel);

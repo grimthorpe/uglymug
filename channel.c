@@ -403,6 +403,10 @@ bool forced = false;
 	{
 		sprintf(scratch_buffer, "%s has overridden permission and joined the channel", db[player].get_name().c_str());
 	}
+	else if(DontAnnounce(player))
+	{
+		return true;
+	}
 	else
 	{
 		sprintf(scratch_buffer, "%s has joined the channel", db[player].get_name().c_str());
@@ -771,8 +775,15 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You have left channel %s.", channel->name().c_str());
 		if(db[player].get_channel() == channel)
 			db[player].set_channel(NULL);
-		sprintf(scratch_buffer, "%s has left the channel.", db[player].get_name().c_str());
-		channel->remove_player_and_send(player, player, scratch_buffer);
+		if(!DontAnnounce(player))
+		{
+			sprintf(scratch_buffer, "%s has left the channel.", db[player].get_name().c_str());
+			channel->remove_player_and_send(player, player, scratch_buffer);
+		}
+		else
+		{
+			channel->remove_player(player);
+		}
 		RETURN_SUCC;
 	}
 

@@ -80,12 +80,7 @@ Database::Database ()
 , free_start(0)
 , alarms(NULL)
 , player_count(0)
-#ifdef GRIMTHORPE_CANT_CODE
-, player_cache(NULL)
-, changed_player_list(NULL)
-#else
 , player_cache()
-#endif
 {
 }
 /*

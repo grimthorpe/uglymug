@@ -25,7 +25,7 @@ class String;
 struct flag_stuff
 {
 	const	char	*string;
-	int		flag;
+	object_flag_type flag;
 	char		quick_flag;
 };
 

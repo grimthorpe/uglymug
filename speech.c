@@ -317,7 +317,11 @@ const	String& arg2)
 	if(Silent(loc) && !Wizard(player) && !Apprentice(player))
 	{
 	
-	  if(strcmp(message,"has connected")==0);
+	  if(strcmp(message,"has connected")==0)
+	  {
+		  if(DontAnnounce(player))
+			  return;
+	  }
 	  else
 	  {
 		Matcher matcher_prop(player, ".silent", TYPE_PROPERTY, get_effective_id());

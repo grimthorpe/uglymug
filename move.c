@@ -1112,6 +1112,9 @@ const	String& where)
 						return;
 				}
 				break;
+			default:
+				log_bug("Trying to move something bad (#%d)", thing);
+				break;
 		}
 		if (!in_command())
 			notify_colour (player, player, COLOUR_DROP, "Dropped.");

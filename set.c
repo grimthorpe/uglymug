@@ -1520,6 +1520,9 @@ const	String& flag)
 				return;
 			}
 		}
+		break;
+	default:
+		break;
 	}
 
 	if ((f==FLAG_DONTANNOUNCE) && (*flag.c_str() != NOT_TOKEN))
@@ -2552,6 +2555,10 @@ const	String& new_location_string)
 					return;
 			}
 			break;
+		default:
+			notify_colour (player,  player, COLOUR_MESSAGES, "That object can't be moved.");
+			log_bug("do_at_location tried to move an invalid object type (#%d)", victim);
+			return;
 	}
 
 	/* If we've got this far, it's legal. (but they might not fit in the destination) */

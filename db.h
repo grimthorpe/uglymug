@@ -65,7 +65,6 @@ const	dbref	HOME		(-3);		///< virtual room representing mover's home
 const	dbref	UNPARSE_ID	(-4);		///< Generic 'can always UNPARSE'
 
 typedef unsigned char	flag_type;
-typedef int		object_flag_type;
 
 class	Channel;
 
@@ -81,92 +80,97 @@ class	Channel;
  *	an object associated with it.
  */
 
-typedef int		typeof_type;
-const typeof_type TYPE_NO_TYPE		(1);
-const typeof_type TYPE_FREE		(2);
-const typeof_type TYPE_PLAYER		(3);
-const typeof_type TYPE_PUPPET		(4);
-const typeof_type TYPE_ROOM		(5);
-const typeof_type TYPE_THING		(6);
-const typeof_type TYPE_EXIT		(7);
-const typeof_type TYPE_COMMAND		(8);
-const typeof_type TYPE_VARIABLE		(9);
-const typeof_type TYPE_PROPERTY		(10);
-const typeof_type TYPE_ARRAY		(11);
-const typeof_type TYPE_DICTIONARY	(12);
-const typeof_type TYPE_ALARM		(13);
-const typeof_type TYPE_FUSE		(14);
-const typeof_type TYPE_TASK		(15);
-const typeof_type TYPE_SEMAPHORE	(16);
+enum typeof_type
+{
+	TYPE_NO_TYPE		=1,
+	TYPE_FREE		=2,
+	TYPE_PLAYER		=3,
+	TYPE_PUPPET		=4,
+	TYPE_ROOM		=5,
+	TYPE_THING		=6,
+	TYPE_EXIT		=7,
+	TYPE_COMMAND		=8,
+	TYPE_VARIABLE		=9,
+	TYPE_PROPERTY		=10,
+	TYPE_ARRAY		=11,
+	TYPE_DICTIONARY	=12,
+	TYPE_ALARM		=13,
+	TYPE_FUSE		=14,
+	TYPE_TASK		=15,
+	TYPE_SEMAPHORE	=16
+};
 
 
 /* Flag definitions */
-#define FLAG_WIZARD			1
-#define FLAG_APPRENTICE 		2
-#define FLAG_BUILDER			3
-#define FLAG_LISTEN			4
-#define FLAG_CONNECTED			5
-#define FLAG_ERIC			6
-#define FLAG_MALE			7
-#define FLAG_FEMALE			8
-#define FLAG_NEUTER			9
-#define FLAG_DARK			10
-#define FLAG_SILENT			11
-#define FLAG_STICKY			12
-#define FLAG_VISIBLE			13
-#define FLAG_OPENABLE			14
-#define FLAG_OPEN			15
-#define FLAG_OPAQUE			16
-#define FLAG_INHERITABLE		17
-#define FLAG_LOCKED			18
-#define FLAG_CHOWN_OK			19
-#define FLAG_FIGHTING			20
-#define FLAG_HAVEN			21
-#define FLAG_TRACING			22
-#define FLAG_NUMBER			23
-#define FLAG_ABORT			24
-#define FLAG_TOM			25
-#define	FLAG_ASHCAN			26
-#define FLAG_REFERENCED			27
-#define FLAG_READONLY			28
-#define FLAG_ARTICLE_NOUN		29	/* This will be the default */
-#define FLAG_ARTICLE_PLURAL		30
-#define FLAG_ARTICLE_SINGULAR_VOWEL	31
-#define FLAG_ARTICLE_SINGULAR_CONS	32
-#define	FLAG_ABODE_OK			33
-#define	FLAG_LINK_OK			34
-#define	FLAG_JUMP_OK			35
-#define FLAG_COLOUR			36
-#define FLAG_HOST			37
-#define FLAG_OFFICER			38
-#define FLAG_WELCOMER			39
-#define FLAG_XBUILDER			40
-#define FLAG_PRETTYLOOK			41
-#define FLAG_BACKWARDS			42
-#define FLAG_LINENUMBERS		43
-#define FLAG_CENSORALL			44
-#define FLAG_CENSORED			45
-#define FLAG_CENSORPUBLIC		46
-#define FLAG_PUBLIC			47
-#define FLAG_FCHAT			48
-#define FLAG_NOHUHLOGS			49
-#define FLAG_DEBUG			50
-#define FLAG_DONTANNOUNCE		51
+enum object_flag_type
+{
+	FLAG_WIZARD			= 1,
+	FLAG_APPRENTICE			= 2,
+	FLAG_BUILDER			= 3,
+	FLAG_LISTEN			= 4,
+	FLAG_CONNECTED			= 5,
+	FLAG_ERIC			= 6,
+	FLAG_MALE			= 7,
+	FLAG_FEMALE			= 8,
+	FLAG_NEUTER			= 9,
+	FLAG_DARK			= 10,
+	FLAG_SILENT			= 11,
+	FLAG_STICKY			= 12,
+	FLAG_VISIBLE			= 13,
+	FLAG_OPENABLE			= 14,
+	FLAG_OPEN			= 15,
+	FLAG_OPAQUE			= 16,
+	FLAG_INHERITABLE		= 17,
+	FLAG_LOCKED			= 18,
+	FLAG_CHOWN_OK			= 19,
+	FLAG_FIGHTING			= 20,
+	FLAG_HAVEN			= 21,
+	FLAG_TRACING			= 22,
+	FLAG_NUMBER			= 23,
+	FLAG_ABORT			= 24,
+	FLAG_TOM			= 25,
+	FLAG_ASHCAN			= 26,
+	FLAG_REFERENCED			= 27,
+	FLAG_READONLY			= 28,
+	FLAG_ARTICLE_NOUN		= 29,	/* This will be the default */
+	FLAG_ARTICLE_PLURAL		= 30,
+	FLAG_ARTICLE_SINGULAR_VOWEL	= 31,
+	FLAG_ARTICLE_SINGULAR_CONS	= 32,
+	FLAG_ABODE_OK			= 33,
+	FLAG_LINK_OK			= 34,
+	FLAG_JUMP_OK			= 35,
+	FLAG_COLOUR			= 36,
+	FLAG_HOST			= 37,
+	FLAG_OFFICER			= 38,
+	FLAG_WELCOMER			= 39,
+	FLAG_XBUILDER			= 40,
+	FLAG_PRETTYLOOK			= 41,
+	FLAG_BACKWARDS			= 42,
+	FLAG_LINENUMBERS		= 43,
+	FLAG_CENSORALL			= 44,
+	FLAG_CENSORED			= 45,
+	FLAG_CENSORPUBLIC		= 46,
+	FLAG_PUBLIC			= 47,
+	FLAG_FCHAT			= 48,
+	FLAG_NOHUHLOGS			= 49,
+	FLAG_DEBUG			= 50,
+	FLAG_DONTANNOUNCE		= 51,
 /* Flags to allow specific privs */
-#define FLAG_NATTER			52
-#define	FLAG_RETIRED			53
-#define	FLAG_LITERALINPUT		54
-#define FLAG_NO_EMAIL_FORWARD		55
+	FLAG_NATTER			= 52,
+	FLAG_RETIRED			= 53,
+	FLAG_LITERALINPUT		= 54,
+	FLAG_NO_EMAIL_FORWARD		= 55,
 /* God-like powers */
-#define FLAG_GOD_SET_GOD			56	// Catch-22, have to have this set in order to set it...
-#define FLAG_GOD_WRITE_ALL		57	// Overide all controls_for_write, apart from @password
-#define FLAG_GOD_BOOT_ALL		58	// Override all @boot checks
-#define FLAG_GOD_CHOWN_ALL		59	// Override all @chown checks
-#define FLAG_GOD_MAKE_WIZARD		60	// Can set Wizard on a Player
-#define FLAG_GOD_PASSWORD_RESET		61	// Can set any player's password
-#define	FLAG_GOD_DEEP_POCKETS		62	// Has an infinite supply of Drogna
+	FLAG_GOD_SET_GOD		= 56,	// Catch-22, have to have this set in order to set it...
+	FLAG_GOD_WRITE_ALL		= 57,	// Overide all controls_for_write, apart from @password
+	FLAG_GOD_BOOT_ALL		= 58,	// Override all @boot checks
+	FLAG_GOD_CHOWN_ALL		= 59,	// Override all @chown checks
+	FLAG_GOD_MAKE_WIZARD		= 60,	// Can set Wizard on a Player
+	FLAG_GOD_PASSWORD_RESET		= 61,	// Can set any player's password
+	FLAG_GOD_DEEP_POCKETS		= 62,	// Has an infinite supply of Drogna
 /* We're running out of bits here guys... */
-#define FLAG_PRIVATE			63	// Object is private and can't be looked at normally.
+	FLAG_PRIVATE			= 63	// Object is private and can't be looked at normally.
+};
 
 /* Used inside the code and not stored in the db */
 /* Lee says so and I belive him! */
@@ -183,62 +187,12 @@ const typeof_type TYPE_SEMAPHORE	(16);
 
 #define TOM_FUSE	2	///< This is for count_down_fuses last parameter - tom_state
 
-
-
-#ifdef	ABORT_FUSES
-#define Abort(x)	(db[(x)].get_flag(FLAG_ABORT) != 0)
-#endif
-#define Apprentice(x)	(db[(x)].get_flag(FLAG_APPRENTICE) != 0)
-#define Retired(x)	(db[(x)].get_flag(FLAG_RETIRED) != 0)
-#define Natter(x)	(db[(x)].get_flag(FLAG_NATTER) != 0)
-#define LiteralInput(x)	(db[(x)].get_flag(FLAG_LITERALINPUT) != 0)
-
 #define Articleof(x)	((db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_CONS))?FLAG_ARTICLE_SINGULAR_CONS:(db[(x)].get_flag(FLAG_ARTICLE_PLURAL))?FLAG_ARTICLE_PLURAL:(db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_VOWEL))?FLAG_ARTICLE_SINGULAR_VOWEL:FLAG_ARTICLE_NOUN)
-#define Backwards(x)	(db[(x)].get_flag(FLAG_BACKWARDS))
 #define ConvertArticle(x)	((db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_CONS))?VALUE_ARTICLE_SINGULAR_CONS:(db[(x)].get_flag(FLAG_ARTICLE_PLURAL))?VALUE_ARTICLE_PLURAL:(db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_VOWEL))?VALUE_ARTICLE_SINGULAR_VOWEL:VALUE_ARTICLE_NOUN)
-#define	Abode(x)	(db[(x)].get_flag(FLAG_ABODE_OK))
-#define Ashcan(x)	(db[(x)].get_flag(FLAG_ASHCAN) != 0)
 #ifdef RESTRICTED_BUILDING
 #define Builder(x)	((db[(x)].get_flag(FLAG_WIZARD)||db[(x)].get_flag(FLAG_BUILDER)) != 0)
 #endif /* RESTRICTED_BUILDING */
-#define Censorall(x)	(db[(x)].get_flag(FLAG_CENSORALL) !=0)
-#define Censored(x)	(db[(x)].get_flag(FLAG_CENSORED) !=0)
-#define Censorpublic(x)	(db[(x)].get_flag(FLAG_CENSORPUBLIC) !=0)
-#define Chown_ok(x)	(db[(x)].get_flag(FLAG_CHOWN_OK) !=0)
-#define Colour(x)	(db[(x)].get_flag(FLAG_COLOUR) !=0)
-#define Connected(x)	(db[(x)].get_flag(FLAG_CONNECTED) !=0)
 #define Container(x)	((db[(x)].get_flag(FLAG_OPENABLE) || db[(x)].get_flag(FLAG_OPEN)) && (Typeof (x) == TYPE_THING))
-#define Dark(x)		(db[(x)].get_flag(FLAG_DARK))
-#define Debug(x)	(db[(x)].get_flag(FLAG_DEBUG))
-#define Eric(x)		(db[(x)].get_flag(FLAG_ERIC))
-#define Fchat(x)	(db[(x)].get_flag(FLAG_FCHAT))
-#define Female(x)	(db[(x)].get_flag(FLAG_FEMALE))
-#define Fighting(x)	(db[(x)].get_flag(FLAG_FIGHTING))
-#define Number(x)	(db[(x)].get_flag(FLAG_NUMBER))
-#define Haven(x)	(db[(x)].get_flag(FLAG_HAVEN))
-#define Inheritable(x)	(db[(x)].get_flag(FLAG_INHERITABLE))
-#define	Jump(x)		(db[(x)].get_flag(FLAG_JUMP_OK))
-#define Linenumbers(x)	(db[(x)].get_flag(FLAG_LINENUMBERS))
-#define	Link(x)		(db[(x)].get_flag(FLAG_LINK_OK))
-#define	Listen(x)	(db[(x)].get_flag(FLAG_LISTEN))
-#define Locked(x)	(db[(x)].get_flag(FLAG_LOCKED))
-#define Male(x)		(db[(x)].get_flag(FLAG_MALE))
-#define Neuter(x)	(db[(x)].get_flag(FLAG_NEUTER))
-#define NoHuhLogs(x)	(db[(x)].get_flag(FLAG_NOHUHLOGS))
-#define Officer(x)	(db[(x)].get_flag(FLAG_OFFICER))
-#define	Opaque(x)	(db[(x)].get_flag(FLAG_OPAQUE))
-#define	Open(x)		(db[(x)].get_flag(FLAG_OPEN))
-#define	Openable(x)	(db[(x)].get_flag(FLAG_OPENABLE))
-#define Prettylook(x)	(db[(x)].get_flag(FLAG_PRETTYLOOK))
-#define Public(x)	(db[(x)].get_flag(FLAG_PUBLIC))
-#define	Puppet(x)	(db [(x)].get_controller () != (x))
-#define Readonly(x)	(db[(x)].get_flag(FLAG_READONLY))
-#define Referenced(x)	(db[(x)].get_flag(FLAG_REFERENCED))
-#define Silent(x)       (db[(x)].get_flag(FLAG_SILENT))
-#define Sticky(x)	(db[(x)].get_flag(FLAG_STICKY))
-#define Tom(x)		(db[(x)].get_flag(FLAG_TOM))
-#define Tracing(x)	(db[(x)].get_flag(FLAG_TRACING))
-#define Typeof(x)	(db.get_typeof((x)))
 #define Unassigned(x)	(!((db[(x)].get_flag(FLAG_NEUTER)) || (db[(x)].get_flag(FLAG_MALE)) || (db[(x)].get_flag(FLAG_FEMALE))))
 #define Settypeof(x,y)	(db.set_typeof((x),(y)))
 #define Visible(x)	(db[(x)].get_flag(FLAG_VISIBLE))
@@ -246,6 +200,7 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define Wizard(x)	(db[(x)].get_flag(FLAG_WIZARD))
 #define XBuilder(x)	(db[(x)].get_flag(FLAG_XBUILDER))
 #define NoForwardEmail(x)	(db[(x)].get_flag(FLAG_NO_EMAIL_FORWARD))
+#define DontAnnounce(x)	(db[(x)].get_flag(FLAG_DONTANNOUNCE))
 #define	Created(x)	{if((x) != NOTHING) (db[(x)].set_ctime());}
 #define	Modified(x)	{if((x) != NOTHING) (db[(x)].set_mtime());}
 #define	Accessed(x)	{if((x) != NOTHING) (db[(x)].set_atime());}
@@ -321,7 +276,7 @@ class	object
 	std::list<String>	namelist;	///< A list of name-components (';' separated bits of name)
 	dbref			location;	///< pointer to container
 	dbref			next;		///< pointer to next in contents/exits/etc chain
-	unsigned char		flags[FLAGS_WIDTH];	///< Flag list (bits)
+	flag_type		flags[FLAGS_WIDTH];	///< Flag list (bits)
 //	typeof_type		type;		///< Type of object
 	dbref			m_owner;	///< who controls this object
 	time_t			m_ctime;	///< creation time
@@ -347,11 +302,11 @@ class	object
 	virtual	const	bool	destroy				(const dbref);
 	/* set functions */
 
-			void	set_flag			(const int f)			{ flags[f/8] |= (1<<(f%8)); }
-			void	clear_flag			(const int f)			{ flags[f/8] &= ~(1<<(f%8)); }
-			int	get_flag			(const int f)			{ return(flags[f/8] & (1<<(f%8))); }
+			void	set_flag			(const object_flag_type f)	{ flags[f/8] |= (1<<(f%8)); }
+			void	clear_flag			(const object_flag_type f)	{ flags[f/8] &= ~(1<<(f%8)); }
+			bool	get_flag			(const object_flag_type f)	{ return (flags[f/8] & (1<<(f%8))) != 0; }
 			void	set_flag_byte			(const int c, const flag_type v){ flags[c] = v; }
-			unsigned char	get_flag_byte		(const int c)			const { return (flags[c]); }
+			flag_type	get_flag_byte		(const int c)			const { return (flags[c]); }
 
 			void	set_referenced			()				{ set_flag(FLAG_REFERENCED); }
 
@@ -562,7 +517,7 @@ class	object_and_flags
 	object_and_flags(const object_and_flags&); // DUMMY
 	object_and_flags& operator=(const object_and_flags&); // DUMMY
 
-	int			type;
+	typeof_type		type;
 	object			*obj;
     public:
     	typeof_type		get_type	()			const	{ return (type); }
@@ -576,21 +531,6 @@ class	object_and_flags
 };
 
 
-#ifdef GRIMTHORPE_CANT_CODE
-#define	CACHE_INVALID	0
-#define	CACHE_VALID	1
-
-struct player_cache_struct
-{
-	String		name;
-	dbref		player;
-	int		state;
-
-	player_cache_struct() : name(), player(NOTHING), state(CACHE_INVALID) {}
-	int compare(const player_cache_struct* other) const;
-};
-#endif
-
 class	Database
 {
     private:
@@ -601,18 +541,7 @@ class	Database
 	dbref			free_start;
 	Pending_alarm		*alarms;
 	int			player_count;
-#ifdef GRIMTHORPE_CANT_CODE
-	struct player_cache_struct *player_cache;
-	struct changed_player_list_struct
-	{
-		char	*name;
-		dbref	player;
-		struct	changed_player_list_struct	*next;
-		struct	changed_player_list_struct	*prev;
-	} *changed_player_list;
-#else
 	std::map<String, dbref> player_cache;
-#endif
 	void			grow		(dbref newsize);
 	void			build_player_cache	(int player_count);
     public:
@@ -643,6 +572,7 @@ class	Database
 extern	Database		db;
 
 
+inline typeof_type	Typeof	(dbref x) { return db.get_typeof(x); }
 extern	const	dbref			parse_dbref	(const char *);
 
 
@@ -650,5 +580,51 @@ extern	const	dbref			parse_dbref	(const char *);
 #define	DOREALLIST(var, first)	for((var) = (first); (var) != NOTHING; (var) = db[(var)].get_real_next ())
 #define	PUSH(thing,index,field)	{ db[(thing)].set_next (db[(index)].get_##field ()); db[(index)].set_##field ((thing)); }
 #define	getloc(thing)		(db[thing].get_location ())
+
+inline bool Abort		(dbref x) { return db[x].get_flag(FLAG_ABORT); }
+inline bool Apprentice		(dbref x) { return db[x].get_flag(FLAG_APPRENTICE); }
+inline bool Retired		(dbref x) { return db[x].get_flag(FLAG_RETIRED); }
+inline bool Natter		(dbref x) { return db[x].get_flag(FLAG_NATTER); }
+inline bool LiteralInput	(dbref x) { return db[x].get_flag(FLAG_LITERALINPUT); }
+inline bool Backwards		(dbref x) { return db[x].get_flag(FLAG_BACKWARDS); }
+inline bool Abode		(dbref x) { return db[x].get_flag(FLAG_ABODE_OK); }
+inline bool Ashcan		(dbref x) { return db[x].get_flag(FLAG_ASHCAN); }
+inline bool Censorall		(dbref x) { return db[x].get_flag(FLAG_CENSORALL); }
+inline bool Censored		(dbref x) { return db[x].get_flag(FLAG_CENSORED); }
+inline bool Censorpublic	(dbref x) { return db[x].get_flag(FLAG_CENSORPUBLIC); }
+inline bool Chown_ok		(dbref x) { return db[x].get_flag(FLAG_CHOWN_OK); }
+inline bool Colour		(dbref x) { return db[x].get_flag(FLAG_COLOUR); }
+inline bool Connected		(dbref x) { return db[x].get_flag(FLAG_CONNECTED); }
+inline bool Dark		(dbref x) { return db[x].get_flag(FLAG_DARK); }
+inline bool Debug		(dbref x) { return db[x].get_flag(FLAG_DEBUG); }
+inline bool Eric		(dbref x) { return db[x].get_flag(FLAG_ERIC); }
+inline bool Fchat		(dbref x) { return db[x].get_flag(FLAG_FCHAT); }
+inline bool Female		(dbref x) { return db[x].get_flag(FLAG_FEMALE); }
+inline bool Fighting		(dbref x) { return db[x].get_flag(FLAG_FIGHTING); }
+inline bool Number		(dbref x) { return db[x].get_flag(FLAG_NUMBER); }
+inline bool Haven		(dbref x) { return db[x].get_flag(FLAG_HAVEN); }
+inline bool Inheritable		(dbref x) { return db[x].get_flag(FLAG_INHERITABLE); }
+inline bool Jump		(dbref x) { return db[x].get_flag(FLAG_JUMP_OK); }
+inline bool Linenumbers		(dbref x) { return db[x].get_flag(FLAG_LINENUMBERS); }
+inline bool Link		(dbref x) { return db[x].get_flag(FLAG_LINK_OK); }
+inline bool Listen		(dbref x) { return db[x].get_flag(FLAG_LISTEN); }
+inline bool Locked		(dbref x) { return db[x].get_flag(FLAG_LOCKED); }
+inline bool Male		(dbref x) { return db[x].get_flag(FLAG_MALE); }
+inline bool Neuter		(dbref x) { return db[x].get_flag(FLAG_NEUTER); }
+inline bool NoHuhLogs		(dbref x) { return db[x].get_flag(FLAG_NOHUHLOGS); }
+inline bool Officer		(dbref x) { return db[x].get_flag(FLAG_OFFICER); }
+inline bool Opaque		(dbref x) { return db[x].get_flag(FLAG_OPAQUE); }
+inline bool Open		(dbref x) { return db[x].get_flag(FLAG_OPEN); }
+inline bool Openable		(dbref x) { return db[x].get_flag(FLAG_OPENABLE); }
+inline bool Prettylook		(dbref x) { return db[x].get_flag(FLAG_PRETTYLOOK); }
+inline bool Public		(dbref x) { return db[x].get_flag(FLAG_PUBLIC); }
+inline bool Puppet		(dbref x) { return db[x].get_controller() != x; }
+inline bool Readonly		(dbref x) { return db[x].get_flag(FLAG_READONLY); }
+inline bool Referenced		(dbref x) { return db[x].get_flag(FLAG_REFERENCED); }
+inline bool Silent		(dbref x) { return db[x].get_flag(FLAG_SILENT); }
+inline bool Sticky		(dbref x) { return db[x].get_flag(FLAG_STICKY); }
+inline bool Tom			(dbref x) { return db[x].get_flag(FLAG_TOM); }
+inline bool Tracing		(dbref x) { return db[x].get_flag(FLAG_TRACING); }
+
 
 #endif /* _DB_H */

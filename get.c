@@ -1735,6 +1735,10 @@ context::do_query_typeof (const String& name, const String& type)
 			case TYPE_DICTIONARY:
 				truebool = string_prefix ("dictionary", type);
 				break;
+			default:
+				log_bug("@?typeof - checking the type of an invalid object (#%d)", thing);
+				truebool = false;
+				break;
 		}
 		if (truebool)
 		{

@@ -168,7 +168,7 @@ Matcher_state	matcher_state_array [] =
 Matcher::Matcher (
 dbref			player,
 const	String&	name,
-object_flag_type	type,
+typeof_type	type,
 dbref			effective_player)
 
 : exact_match			(NOTHING)
@@ -277,7 +277,7 @@ dbref			effective_player)
 Matcher::Matcher (
 dbref			player,
 dbref			object,
-object_flag_type	type,
+typeof_type	type,
 dbref			effective_player)
 
 : exact_match			(NOTHING)

@@ -54,38 +54,43 @@ const	String&	link_dest_name)
 		return (NOTHING);
 
 	/* Well, we got something... is it linkable? */
-	if ((link_dest >= 0)
-		&& (link_dest < db.get_top ()))
+	if ((link_dest >= 0) && (link_dest < db.get_top ()))
+	{
 		switch (Typeof (link_dest))
 		{
-			case TYPE_PLAYER:
-			case TYPE_PUPPET:
-				if (c.controls_for_write (link_dest))
-					return (link_dest);
-				else
-				{
-					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You don't control the Player you're trying to link to.");
-					return (NOTHING);
-				}
-			case TYPE_THING:
-				if (!Container (link_dest))
-				{
-					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You can't link objects to a Thing - it has to be a container.");
-					return (NOTHING);
-				}
-				/* FALLTHROUGH */
-			case TYPE_ROOM:
-				if (can_link_to (c, link_dest) || (Typeof (link_src)==TYPE_PLAYER && Abode (link_dest))
+		case TYPE_PLAYER:
+		case TYPE_PUPPET:
+			if (c.controls_for_write (link_dest))
+				return (link_dest);
+			else
+			{
+				notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You don't control the Player you're trying to link to.");
+				return (NOTHING);
+			}
+		case TYPE_THING:
+			if (!Container (link_dest))
+			{
+				notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You can't link objects to a Thing - it has to be a container.");
+				return (NOTHING);
+			}
+			/* FALLTHROUGH */
+		case TYPE_ROOM:
+			if (can_link_to (c, link_dest) || (Typeof (link_src)==TYPE_PLAYER && Abode (link_dest))
 					|| (Typeof (link_src)==TYPE_EXIT && Link (link_dest)))
-					return link_dest;
+				return link_dest;
 
-				/* In the database, right type, but no link control */
-				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You can't link it to that!");
-				return NOTHING;
+			/* In the database, right type, but no link control */
+			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You can't link it to that!");
+			return NOTHING;
+
+		default:
+			notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "You can't link it to that!");
+			return NOTHING;
 		}
+	}
 
-	/* It's out of the database or an invalid type for a link */
-	notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "You can't link to that!");
+	/* It's out of the database */
+	notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That doesn't exist!");
 	return NOTHING;
 }
 

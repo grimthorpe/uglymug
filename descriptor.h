@@ -219,8 +219,8 @@ public:
 	void	set_player_name(const String& p) { _player_name = p; }
 	void	set_password(const String& p) { _password = p; }
 
-	int	queue_string(const char *, int show_literally = 0, int store_in_recall_buffer = 1);
-	int	queue_string(const String& s, int show_literally = 0, int store_in_recall_buffer = 1)
+	int	queue_string(const char *, bool show_literally = false, bool store_in_recall_buffer = true);
+	int	queue_string(const String& s, bool show_literally = false, bool store_in_recall_buffer = true)
 	{
 		return queue_string(s.c_str(), show_literally, store_in_recall_buffer);
 	}

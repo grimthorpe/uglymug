@@ -117,7 +117,7 @@ const
 					if (flag_list[i].flag == thing)
 						break;
 				if (flag_list[i].string != NULL)
-					return db[c.get_player ()].get_flag (thing);
+					return db[c.get_player ()].get_flag ((object_flag_type)thing);
 				else
 				{
 					log_bug("eval_internal: bad flag number: %d", thing);

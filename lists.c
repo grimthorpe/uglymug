@@ -502,7 +502,7 @@ Player_list::find_player(dbref player)
 }
 
 int
-Player_list::include_if_unset(const int f)
+Player_list::include_if_unset(const object_flag_type f)
 {
 	PLE *temp;
 	for (int i=0; i<db.get_top(); i++)
@@ -521,7 +521,7 @@ Player_list::include_if_unset(const int f)
 }
 
 int
-Player_list::include_if_set(const int f)
+Player_list::include_if_set(const object_flag_type f)
 {
 	PLE *temp;
 	for (int i=0; i<db.get_top(); i++)
@@ -541,7 +541,7 @@ Player_list::include_if_set(const int f)
 
 // message=NULL set in definition
 int
-Player_list::filter_out_if_unset(const int f, const char *message)
+Player_list::filter_out_if_unset(const object_flag_type f, const char *message)
 {
 	PLE *current=list;
 	while (current)
@@ -555,7 +555,7 @@ Player_list::filter_out_if_unset(const int f, const char *message)
 
 // message defaults to NULL in the definition
 int
-Player_list::filter_out_if_set(const int f, const char *message)
+Player_list::filter_out_if_set(const object_flag_type f, const char *message)
 {
 	PLE *current=list;
 	while (current)

@@ -1148,6 +1148,9 @@ const	char	*element_name)
 			elements.push_back(entry);
 		}
 		break;
+	default:
+		log_bug("With_loop doesn't refer to a dictionary or array. Object #%d, type %d", d, Typeof(d));
+		break;
 	}
 
 	pos = elements.begin();

@@ -1,4 +1,3 @@
-/* static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)"; */
 /** \file interface.c
  * The socket interface, along with all the other grubbiness that means players can connect.
  *
@@ -594,8 +593,7 @@ void notify_wizard(const char *fmt, ...)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())) && (!(Haven(d->get_player()))))
 		{
-			d->queue_string (vsnprintf_result);
-			d->queue_string (COLOUR_REVERT);
+			d->queue_string (vsnprintf_result, true);
 			d->queue_string ("\n");
 		}
 }
@@ -2329,7 +2327,7 @@ descriptor_data::queue_write(const char *b, int n)
    than one default value... */
 
 int
-descriptor_data::queue_string(const char *s, int show_literally, int store_in_recall_buffer)
+descriptor_data::queue_string(const char *s, bool show_literally, bool store_in_recall_buffer)
 {
 static char b1[2*BUFFER_LEN];
 static char b2[2*BUFFER_LEN];

@@ -900,6 +900,8 @@ const	String& )
 		case TYPE_PUPPET:
 			notify_public(player, player, "%sRace:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_race ().c_str());
 			break;
+		default:
+			break;
 	}
 
 /* Do fail message for object */
@@ -1429,6 +1431,8 @@ const	String& )
 				}
 			}
 			break;
+		default:
+			break;
 		/* default: do nothing */
 	}
 
@@ -1563,6 +1567,8 @@ const	String& )
 					}
 				}
 			}
+		default:
+			break;
 	}
 
 	switch(Typeof(thing))
@@ -2005,7 +2011,7 @@ const	String& string)
 	else if (string_prefix("edestination", descriptor))
 	{
 	/* ok, so the second string should either be 'here' or an absolute number */
-		Matcher matcher (player, string, NOTHING, get_effective_id ());
+		Matcher matcher (player, string, TYPE_NO_TYPE, get_effective_id ());
 		matcher.match_here ();
 		matcher.match_absolute ();
 		if ((room = matcher.noisy_match_result ()) == NOTHING)
@@ -2032,7 +2038,7 @@ const	String& string)
 	{
 	/* ok, so the second string should either be 'here' or an absolute number */
 		dbref command = NOTHING;
-		Matcher matcher (player, string, NOTHING, get_effective_id ());
+		Matcher matcher (player, string, TYPE_NO_TYPE, get_effective_id ());
 		matcher.match_command ();
 		matcher.match_absolute ();
 		if ((command = matcher.noisy_match_result ()) == NOTHING)

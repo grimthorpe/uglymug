@@ -321,6 +321,12 @@ dbref	i)
 						range++;
 						ok = 0;
 						break;
+					default:
+						violate (i, "RANGE RULES: OBJECT IS WRONG TYPE", TYPE);
+						range++;
+						ok = 0;
+						break;
+
 				}
 	}
 
@@ -429,6 +435,8 @@ dbref	i)
 				violate (i, "puppet rules: Builder is also a puppet", CONTROLLER);
 				broken++;
 			}
+		default:
+			break;
 	}
 }
 
@@ -548,7 +556,7 @@ dbref	i)
 
 {
 	dbref			destination = db[i].get_destination();
-	object_flag_type	dest_type = TYPE_NO_TYPE;
+	typeof_type	dest_type = TYPE_NO_TYPE;
 
 	if ((destination >= 0) && (destination < db.get_top()))
 		dest_type = Typeof (destination);
@@ -613,6 +621,7 @@ dbref	i)
 			}
 			break;
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:
 			if ((dest_type != TYPE_ROOM) && (dest_type != TYPE_THING))
 			{
 				violate (i, "TYPE RULES: DESTINATION (HOME) IS NOT A ROOM OR A CONTAINER", DESTINATION);
@@ -631,6 +640,8 @@ dbref	i)
 		case TYPE_PROPERTY:
 		case TYPE_DICTIONARY:
 		case TYPE_ARRAY:
+			break;
+		default:
 			break;
 	}
 }
@@ -665,6 +676,7 @@ dbref	i)
 	switch(Typeof(i))
 	{
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:
 			if ((Typeof (loc) != TYPE_THING) && (Typeof (loc) != TYPE_ROOM))
 			{
 				violate (i, "TYPE RULES: LOCATION IS NOT A ROOM OR THING", LOCATION);
@@ -750,6 +762,9 @@ dbref	i)
 				fatal++;
 			}
 			break;
+		default:
+			violate(i, "CONTENTS RULES: OBJECT TYPE IS NOT VALID", TYPE);
+			break;
 	}
 }
 
@@ -762,11 +777,14 @@ check_pennies (dbref i)
 	switch(Typeof(i))
 	{
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:
 			if ((pennies <0 || pennies > bp_check) && bp_check)
 			{
 				violate(i, "building points rules: Player is too rich", PENNIES);
 				broken++;
 			}
+			break;
+		default:
 			break;
 	}
 }

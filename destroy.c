@@ -281,6 +281,8 @@ dbref	zap_room)
 					ok = false;
 				}
 				break;
+			default:
+				break;
 		}
 	}
 	if (!ok)
@@ -325,6 +327,8 @@ dbref	zap_room)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Room %s: Dropto removed.", unparse_object (c, i));
 					db[i].set_destination(NOTHING);
 					Modified (i);
+					break;
+				default:
 					break;
 			}
 		}
@@ -420,6 +424,8 @@ dbref	zap_thing)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is linked to that thing.", unparse_object (c, i));
 					ok = false;
 				}
+			default:
+				break;
 		}
 	}
 
@@ -462,6 +468,8 @@ dbref	zap_thing)
                                         notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Room %s: Dropto removed.", unparse_object (c, i));
                                         db[i].set_destination(NOTHING);
                                         break;
+				default:
+					break;
                         }
                 }
 	}
@@ -783,6 +791,8 @@ dbref	zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command.", unparse_object (c, i));
 					ok = false;
 				}
+				break;
+			default:
 				break;
 		}
 		if ((Typeof (i) != TYPE_FREE) && (db[i].get_key()->contains (zap_command)))

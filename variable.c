@@ -544,6 +544,10 @@ const	int	depth,
 				if(db[variable].exist_element(matcher.match_index_result()))
 					value = db[variable].get_element(db[variable].exist_element(matcher.match_index_result())).c_str();
 				break;
+			default:
+				log_bug("dollar_substitute: Invalid object searched for (#%d)", variable);
+				value = no_such_variable;
+				break;
 		}
 	}
 
