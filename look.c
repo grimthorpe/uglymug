@@ -1784,7 +1784,11 @@ const	char	*string)
 		notify_colour(player, player, COLOUR_MESSAGES, "What do you want to list?");
 		return;
 	}
-
+	if ((descriptor==NULL) || (*descriptor == '\0'))
+	{
+		notify_colour(player, player, COLOUR_MESSAGES, "Who's things do you want to list?");
+		return;
+	}
 
 	/*
 	 * Special 'victim' of the game itself. This allows us to list Ashcanned objects as a last minute check.
