@@ -19,7 +19,9 @@
 #include "config.h"
 #include "externs.h"
 
-#define	PRIO_PROCESS	0	/* From sys/resource.h, gcc doesn't like it */
+/* Code using this has been commented out anyway */ 
+/* From sys/resource.h, gcc doesn't like it */
+/*#define  PRIO_PROCESS  0  */
 
 /* SunOS doesn't define these anywhere useful, apparently. */
 #ifdef	__sun
