@@ -1021,7 +1021,11 @@ const	char	*original_command)
 	 *
 	 * PJC 18/2/97.
 	 */
-	if (!variable_substitution (smashed_original, command, MAX_COMMAND_LEN))
+	if(!in_command() && LiteralInput(player))
+	{
+		strcpy(command, smashed_original);
+	}
+	else if (!variable_substitution (smashed_original, command, MAX_COMMAND_LEN))
 	{
 #ifdef	DEBUG
 		log_debug ("Backing out of braced command.\n");

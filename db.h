@@ -162,6 +162,7 @@ class	Channel;
 #define FLAG_NATTER			52
 
 #define	FLAG_RETIRED			53
+#define	FLAG_LITERALINPUT		54
 
 /* Used inside the code and not stored in the db */
 /* Lee, says so and I belive him !*/
@@ -186,6 +187,7 @@ class	Channel;
 #define Apprentice(x)	(db[(x)].get_flag(FLAG_APPRENTICE) != 0)
 #define Retired(x)	(db[(x)].get_flag(FLAG_RETIRED) != 0)
 #define Natter(x)	(db[(x)].get_flag(FLAG_NATTER) != 0)
+#define LiteralInput(x)	(db[(x)].get_flag(FLAG_LITERALINPUT) != 0)
 
 #define Articleof(x)	((db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_CONS))?FLAG_ARTICLE_SINGULAR_CONS:(db[(x)].get_flag(FLAG_ARTICLE_PLURAL))?FLAG_ARTICLE_PLURAL:(db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_VOWEL))?FLAG_ARTICLE_SINGULAR_VOWEL:FLAG_ARTICLE_NOUN)
 #define Backwards(x)	(db[(x)].get_flag(FLAG_BACKWARDS))
