@@ -378,7 +378,7 @@ main (void)
 		close (pipefd2[0]);
 		close (pipefd2[1]);
 		/* execlp ("telnet", "telnet", server, port, NULL); */
-		execlp ("telnet", "telnet", "uglymug.org.uk", "6239", NULL);
+		execlp ("telnet", "telnet", "uglymug.org.uk", "8080", NULL);
 		exit (2); /* shouldn't reach here */
 
 	} else /* parent */ {
