@@ -12,6 +12,12 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added log.h and logging functions to log.c
+	Added NEW_LOGGING to config.h
+	Wrapped all old logging (Trace(...), fputs(stderr,...)) in #ifndef NEW_LOGGING; old logging is deprecated but
+	left for reference until new logging is 'proven'.
+	Put all new logging (log_...()) into #else for the #ifndef NEW_LOGGING
+	Made log messages (for bugs, etc) more verbose
     Added @terminal as an alternative to 'set'; 'set' should be deprecated
     and removed soon.
     Added @terminal recall option; you can choose to turn it off.
