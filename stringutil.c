@@ -1,5 +1,6 @@
 /* static char SCCSid[] = "@(#)stringutil.c	1.13\t3/20/95"; */
 #include "copyright.h"
+#include "os.h"
 
 /* String utilities */
 
@@ -462,7 +463,10 @@ const String& string)
 	// i tells us where to put the new word 
 
 	while (value > i)
-		rude_words[value]=rude_words[--value];
+	{
+		rude_words[value]=rude_words[value - 1];
+		value--;
+	}
 
 
 	rude_words[i]=strdup(string.c_str());
