@@ -1782,6 +1782,10 @@ const	String& flag)
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Flag set.");
 	}
+	if(f==FLAG_NO_EMAIL_FORWARD)
+	{
+		dump_email_addresses();
+	}
 
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);

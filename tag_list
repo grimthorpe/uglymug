@@ -14,6 +14,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_046
+	Made effective GOD_ID able to boot anyone (so we can have boot commands)
+	Added a flag that allows people to turn off the email forwarding
+	system on something.
+
 um1_045 - Emergency release for alarm-based crashes
 	Changed @remote so that it only pretends to move you. This may need fixes later on as we discover the side-effects. (Grimthorpe)
 	Altered do_at_location (teleport code) so that it's possible to teleport Things to a Wizard owned room in a wiz-chpid. (CCW)
