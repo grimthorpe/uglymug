@@ -159,7 +159,7 @@ $(LIBUGLY): $(LIB_OBJECTS)
 	ar rv $@ $?
 	ranlib $@
 
-$(BUILD_DIR)/netmud$(EXESUFFIX): $(LIBUGLY) $(BUILD_DIR)/netmud.o
+$(BUILD_DIR)/netmud$(EXESUFFIX): newversion $(LIBUGLY) $(BUILD_DIR)/netmud.o
 	-rm -f $@
 	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/netmud.o $(LIBUGLY) $(LIBS)
 
@@ -216,16 +216,16 @@ $(LIB_OBJECTS) $(OUTERMEDIATES):
 	$(CPLUSPLUS) -c -o $@ $(CPPFLAGS) $<
 
 newversion:
+	@echo "Making new version..."
 	@if [ ! -f .version ]; then \
 		echo 1 > .version; \
 	else \
 		expr `cat .version` + 1 > .version; \
 	fi
 
-version.h: newversion
-	@echo "Making new version..."
+version.h:
 	@echo \#define RELEASE \"$(VERSION)\" > version.h
-	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" >> version.h
+	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI}` at `date`]\" >> version.h
 
 # Generate our prerequisites.  Plagiarised from the gmake manual by PJC 12/4/03.
 # C and C++ files...
