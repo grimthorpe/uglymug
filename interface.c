@@ -4286,32 +4286,127 @@ const	String& )
 
 
 void
-context::do_query_connectedplayers (const String& objname, const String& name)
+context::do_query_connectedplayers (const String& victim, const String& name)
 {
-struct descriptor_data *d;
-int	found_one=0;
-char *buf;
+struct	descriptor_data *d;
+	int	found_one=0;
+	int	want_me = 0;
+	int	want_wizards = 0;
+	int	want_apprentices = 0;
+	int	want_natter = 0;
+	int	want_guests = 0;
+	int	want_officers = 0;
+	int	want_builders = 0;
+	int	want_xbuilders = 0;
+	int	want_fighters = 0;
+	int	want_welcomers = 0;
+	int	want_npcs = 0;
+	int	want_area_who = 0;
+	int 	wanted_location;
+// Max name length + ; + \0 and some leeway.
+static	char	buf[MAX_USERS*(MAX_NAME_LENGTH+2)];
+//static	char	*buf;
 
 // Max name length + ; + \0 and some leeway.
-buf=(char *)malloc(MAX_USERS*(MAX_NAME_LENGTH+2)*sizeof(char));
+//buf=(char *)malloc(MAX_USERS*(MAX_NAME_LENGTH+2)*sizeof(char));
 
+if (victim)
+{
+	if (!(string_compare(victim, "me")))
+		want_me = 1;
+	if (!(string_compare(victim, "wizards")))
+		want_wizards = 1;
+	if (!(string_compare(victim, "apprentices")))
+		want_apprentices = 1;
+	if (!(string_compare(victim, "admin")))
+		want_wizards = want_apprentices = 1;
+	if (!(string_compare(victim, "natter")))
+		want_natter = want_wizards = want_apprentices = 1;
+	if (!(string_compare(victim, "guests")))
+		want_guests = 1;
+	if (!(string_compare(victim, "officers")))
+		want_officers = 1;
+	if (!(string_compare(victim, "builders")))
+		want_builders = 1;
+	if (!(string_compare(victim, "xbuilders")))
+		want_xbuilders = 1;
+	if (!(string_compare(victim, "fighters")))
+		want_fighters = 1;
+	if ((!string_compare(victim, "welcomers")) || (!string_compare(victim, "welcomer")))
+		want_welcomers = 1;
+	if (!(string_compare(victim, "npc")) || (!string_compare(victim, "npcs")))
+		want_npcs=1;
+	//if (victim[0] == '#')
+	//{
+	//	want_area_who = 1;
+	//	victim++; /* Go past the # */
+	//	wanted_location = atoi(victim); 
+/* Set up the location for area who */
+	//}
+}
 // The remaining players separated with semi-colons.
-// Set up 'victim' now to get the list 
 for (d = descriptor_list; d; d = d->next)
 {
-	if(d->IS_FAKED())
+	if(d->IS_FAKED() && (want_npcs==0))
 		continue;
-	if(d->IS_CONNECTED()) /* Connected players and NPCs */
+	//if(d->IS_CONNECTED()) /* Connected players and NPCs */
+
+#ifdef ALIASES
+		if ((victim.c_str() == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
+		    (!want_me && !want_wizards && !want_apprentices &&
+			  ((strncasecmp(victim.c_str(), db[d->get_player()].get_name().c_str(), strlen(victim.c_str()))==0) ||
+				(db[d->get_player()].has_alias(victim.c_str())))) ||
+		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
+		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
+		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
+		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
+			(want_guests && is_guest(d->get_player())) ||
+			(want_builders && Builder(d->get_player())) ||
+			(want_xbuilders && XBuilder(d->get_player())) ||
+			(want_fighters && Fighting(d->get_player())) ||
+			(want_welcomers && Welcomer(d->get_player())) ||
+			(want_area_who && in_area(d->get_player(), wanted_location)))
+#else
+		if ((victim.c_str() == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
+		    (!want_me && !want_wizards && !want_apprentices &&
+			(strncasecmp(victim.c_str(), db[d->get_player()].get_name().c_str(), strlen(victim.c_str()))==0)) ||
+		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
+		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
+		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
+		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
+			(want_guests && is_guest(d->get_player())) ||
+			(want_builders && Builder(d->get_player())) ||
+			(want_xbuilders && XBuilder(d->get_player())) ||
+			(want_fighters && Fighting(d->get_player())) ||
+			(want_welcomers && Welcomer(d->get_player())) ||
+			(want_area_who && in_area(d->get_player(), wanted_location)))
+#endif
 	{
-		if (found_one)
+		if(d->IS_FAKED())  	// NPC, so give number
 		{
-			strcat(buf,";");
-			strcat(buf,db[d->get_player()].get_name().c_str());
+			if (found_one)
+			{
+				snprintf(scratch, sizeof(scratch), ";#%d",d->get_player());
+				strcat(buf,scratch);
+			}
+			else
+			{
+				snprintf(buf, sizeof(buf), "#%d",d->get_player());
+				found_one=1;
+			}
 		}
-		else
+		else 			// Normal player, so give name
 		{
-			strcat(buf,db[d->get_player()].get_name().c_str());
-			found_one=1;
+			if (found_one)
+			{
+				strcat(buf,";");
+				strcat(buf,db[d->get_player()].get_name().c_str());
+			}
+			else
+			{
+				snprintf(buf, sizeof(buf), db[d->get_player()].get_name().c_str());
+				found_one=1;
+			}
 		}
 	}
 }
