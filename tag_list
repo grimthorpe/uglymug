@@ -13,6 +13,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added a template for adding Change Info to UMS in the game. (CCW)
+
 um1_043 - For a retired person he's working too much.
 	Fixed the player name cache so that it removes players when they are destroyed.
 	Added a command cache on each object that should improve the speed of things.

@@ -1,0 +1,43 @@
+@rem Change To The Relevant UMS Topic:
+ums topic = UM Version
+
+
+@rem Add A News Item
+ums add = um1_0xx - <tag line> = <changelog>
+
+
+
+@rem Real Entries As They Get Released
+@rem Please Don't Re-Add Existing UMS Items
+
+@rem um1_042 - I thought Grimthorpe had retired...
+ums topic = UM Version
+ums add = um1_042 - I thought Grimthorpe had retired... = Coloured Retired players bright-blue.\
+Re-implemented the player-list, so name lookups should be faster now.\
+Got rid of the free object list, as it is easier to just search for the first free object.\
+Added @channel list = #channelname\
+Added the 'Retired' flag. It hides the Wizard/Apprentice flags in unparse_object and 'who'.\
+Modified 'who' so that it displays the 'X' flag for Wizards & Apprentices that are set XBuilder (compare to Welcomer flag). It never shows for GOD, but if required can be changed easily.\
+Fixed @boot so that if the target doesn't exist we don't crash the game.\
+Changed get code (do_get) so you can't get things from other players (aka theft).\
+Changed drop code (do_drop) so you can only drop things that you are carrying.\
+  This prevents "drop here:object" and "drop <player>:object" which are just silly.\
+Changed teleport code (do_at_location) to let players teleport their puppets and NPCs\
+Changed idle-message from "...who has been inactive for 3 minutes." to "...who has been inactive for 3 minutes:". It's just slightly nicer.\
+Modified @?hardcodecommands to use String concatenation.\
+Implemented @?my name, to return the name that the current command was called as.\
+Commands locked against a player no longer stop the search for a useable command.\
+Changed @for so that if the step is 'the wrong way' we ignore it silently (so that @for i=1 to 0 step 1 will do nothing, rather than bug out)\
+Fixed @with so that it doesn't run the contents of the loop if the array or dictionary is empty.\
+Re-added the 'help' hardcode command to make the game engine consistant.\
+.leave can no longer go infinitely-recursive any more.
+
+
+@rem um1_043 - For a retired person he's working too much.
+ums topic = UM Version
+ums add = um1_043 - For a retired person he's working too much. = Fixed the player name cache so that it removes players when they are destroyed.\
+Added a command cache on each object that should improve the speed of things.\
+Fixed up 'who' and 'swho' to use the right colours.\
+Produce a HACK log when a retired wizard connects.
+
+@rem um1_044
