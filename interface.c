@@ -8,7 +8,6 @@
 #include "copyright.h"
 
 #include "os.h"
-#include "descriptor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +57,7 @@ int gettimeofday (struct timeval *tv, void *)
 #endif	/* USE_WINSOCK2 */
 
 #include "db.h"
+#include "descriptor.h"
 #include "externs.h"
 #include "interface.h"
 #include "config.h"
@@ -3173,7 +3173,7 @@ descriptor_data::do_command (const char *command)
 	else if(strcmp (command, INFO_COMMAND) == 0)
 	{
 		if ((fp=fopen (HELP_FILE, "r"))==NULL)
-			log_bug("%s: %s",HELP_FILE,sys_errlist[errno]);
+			log_bug("%s: %s",HELP_FILE, strerror (errno));
 		else
 		{
 			while (fgets(scratch, BUFFER_LEN, fp)!=NULL)
