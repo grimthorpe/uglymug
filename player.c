@@ -3,9 +3,10 @@
 
 #include <string.h>
 #include <time.h>
-#if defined (linux) || (sun)
-  #include <crypt.h>
-#endif /* defined (linux) || (sun)*/
+#include "os.h"
+#if NEEDS_CRYPT_H
+#	include <crypt.h>
+#endif /* NEEDS_CRYPT_H */
 #include "db.h"
 #include "objects.h"
 #include "config.h"

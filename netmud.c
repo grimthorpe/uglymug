@@ -5,15 +5,7 @@
 
 #include "copyright.h"
 #include "version.h"
-
-// Linux and MinGW don't have resource stuff. PJC 6/4/2003.
-#if defined(linux)
-#	define	HAS_RESOURCES	0
-#elif defined(__MINGW32__)
-#	define	HAS_RESOURCES	0
-#else
-#	define	HAS_RESOURCES	1
-#endif
+#include "os.h"
 
 #include <stdio.h>
 #include <stdlib.h>
