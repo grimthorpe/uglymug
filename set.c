@@ -2741,6 +2741,7 @@ const	String& parent_name)
 
 	/* Looks like it's all OK */
 	db [thing].set_parent (parent);
+	db [parent].set_referenced();
 	Modified (thing);
 	Accessed (parent);
 	if (!in_command ())

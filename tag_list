@@ -14,6 +14,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed @parent so it sets the Referenced flag on the parent.
+	Fixed @destroy so it checks if the object is a parent.
+
 um1_059
 	Added @channel notify so that operators can notify the channel with any message (Grimthorpe)
 	Tidied up the code so that we use enums instead of #define, and fixed all

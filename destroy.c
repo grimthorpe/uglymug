@@ -160,6 +160,21 @@ const	String& dummy)
 		return;
 	}
 
+	/* Do generic object tests */
+	if(Referenced(object))
+	{
+		for(dbref o = 0; o < db.top(); o++)
+		{
+			if(Typeof(o) != TYPE_FREE)
+			{
+				if(db[o].get_parent() == object)
+				{
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't destroy an object that is a parent to other objects.");
+					return;
+				}
+			}
+		}
+	}
 	/* Depending on what it is, call the correct function */
 
 	switch (Typeof (object))
