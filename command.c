@@ -449,6 +449,11 @@ const	char	*text)
 	const char	*q=text;
 	int		charssofar=0;
 	
+	// Smash leading spaces, because we don't like them.
+	// Actually, its because some people like to additionally indent...
+	while (q && (*q) && (*q == ' '))
+		q++;
+
 	while (q && (*q) && (*q !=' ') && (charssofar++ < 255))
 		*p++=*q++;
 	*p='\0';
