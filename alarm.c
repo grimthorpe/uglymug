@@ -49,7 +49,10 @@ db_patch_alarms ()
 			c->do_at_connect(tmpnum, NULLSTRING);
 			delete mud_scheduler.push_express_job (c);
 		}
-
+		if((Typeof(i) == TYPE_COMMAND) && (db[i].get_location() != NOTHING))
+		{
+			db[db[i].get_location()].add_command(i);
+		}
 		/* Knock out all REFERENCED flags before we re-generate them. Cheap, and allows faster destroys */
 		if (Typeof (i) != TYPE_FREE)
 			db[i].clear_flag(FLAG_REFERENCED);

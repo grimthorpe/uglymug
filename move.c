@@ -185,10 +185,14 @@ dbref	where)
 			break;
 		case TYPE_COMMAND:
 			if (loc != NOTHING)
+			{
 				db[loc].set_commands(remove_first (db[loc].get_commands(), what));
+			}
 			db[what].set_location(where);
 			if (where != NOTHING)
+			{
 				PUSH(what, where, commands)
+			}
 			else
 				db[what].set_next(NOTHING);
 			break;

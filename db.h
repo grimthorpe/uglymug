@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <map>
+#include <list>
 
 #include "mudstring.h"
 #include "config.h"
@@ -572,7 +573,9 @@ extern		char		*alloc_string		(const char *);
 class	object
 {
     private:
-	String			name;			
+	dbref			id;
+	String			name;		/* The thing's name! */
+	std::list<String>	namelist;	/* A list of name-components (';' separated bits of name) */
 	dbref			location;	/* pointer to container */
 	dbref			next;		/* pointer to next in contents/exits/etc chain */
 	unsigned char		flags[FLAGS_WIDTH];	/* Flag list (bits) */
@@ -585,6 +588,8 @@ class	object
     public:
 				object				();
 	virtual			~object				();
+	dbref			get_id				() const	{ return id; }
+	void			set_id				(dbref i)	{ id = i; }
 
 	virtual		void	add_recall_line			(const String& string);
 	virtual		void	output_recall			(const int lines, const context * con);
@@ -606,8 +611,8 @@ class	object
 
 
 			void	set_referenced			()				{ set_flag(FLAG_REFERENCED); }
-			void	set_name			(const String& str);
-			void	set_location			(const dbref o)			{ location = o; }
+	virtual		void	set_name			(const String& str);
+	virtual		void	set_location			(const dbref o)			{ location = o; }
 			void	set_next			(const dbref o)			{ next = o; }
 			void	set_owner_no_check		(const dbref o)			{ owner = o; }
 			void	set_owner			(const dbref o);
@@ -636,6 +641,8 @@ class	object
 	virtual		void	set_exits			(const dbref o);
 	virtual		void	set_exits_string		(const String&);
 	virtual		void	set_commands			(const dbref o);
+	virtual		void	add_command			(const dbref o);
+	virtual		void	remove_command			(const dbref o);
 	virtual		void	set_info_items			(const dbref o);
 	virtual		void	set_fuses			(const dbref o);
 	/* Command */
@@ -685,6 +692,7 @@ class	object
 	virtual		void	set_lock_key_no_free		(boolexp *k);
 
 		const	String& get_name		()			const	{ return (name); }
+		const	std::list<String>&	get_namelist	()		const	{ return namelist; }
 		const	String&	get_inherited_name	()			const;
 		const	dbref	get_location			()			const	{ return location; }
 		const	dbref	get_next			()			const	{ return next; }
@@ -713,6 +721,8 @@ class	object
 	virtual	const	dbref	get_parent			()			const	{ return (NOTHING); }
 	/* Old_object */
 	virtual	const	dbref	get_commands			()			const	{ return NOTHING; }
+	virtual const std::map<String, dbref>* get_commandmap	()			const	{ return NULL; }
+
 	virtual	const	dbref	get_contents			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_destination			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_exits			()			const	{ return NOTHING; }
@@ -801,7 +811,7 @@ class	object_and_flags
 	object			*get_obj	()			const	{ return (type == TYPE_FREE ? (object*)NULL : obj); }
 	void			init_free	()				{ type = TYPE_FREE; }
 	void			set_free	()				{ if (type != TYPE_FREE) delete (obj); type = TYPE_FREE; }
-	void			set_obj		(object &new_obj)		{ type = TYPE_NO_TYPE; obj = &new_obj; }
+	void			set_obj		(object &new_obj, dbref i)		{ type = TYPE_NO_TYPE; obj = &new_obj; obj->set_id(i); }
 };
 
 

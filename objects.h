@@ -183,6 +183,7 @@ private:
 	Old_object& operator=(const Old_object&); // DUMMY
     private:
 	dbref			commands;	/* Commands attached to this object */
+	std::map<String, dbref>	commandmap;
 	dbref			contents;	/* pointer to first item */
 	String			contents_string;
 	dbref			exits;		/* pointer to first exit for rooms */
@@ -199,9 +200,12 @@ private:
 		void		set_contents		(const dbref o)			{ contents = o; }
 		void		set_exits		(const dbref o)			{ exits = o; }
 		void		set_commands		(const dbref o)			{ commands = o; }
+		void		add_command		(const dbref o);
+		void		remove_command		(const dbref o);
 		void		set_info_items		(const dbref o)			{ info_items = o; }
 		void		set_fuses		(const dbref o)			{ fuses = o; }
 	const	dbref		get_commands		()			const	{ return commands; }
+	const	std::map<String, dbref>*get_commandmap	()			const	{ return &commandmap; }
 	const	dbref		get_contents		()			const	{ return contents; }
 		void		set_contents_string	(const String& c);
 	const	String&		get_contents_string	()			const	{ return (contents_string); }
@@ -277,6 +281,8 @@ private:
 				Command			()	: parse_helper (0)	{}
 	virtual			~Command		();
 	const	bool		destroy			(const dbref);
+		void		set_name		(const String&);
+		void		set_location		(const dbref);
 	const	dbref		get_csucc		()			const	{ return (get_contents ()); }
 	const	dbref		get_cfail		()			const	{ return (get_exits ()); }
 		void		set_csucc		(const dbref o);

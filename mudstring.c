@@ -142,6 +142,12 @@ String::String(const char* str) : _buffer(0)
 	_buffer->ref();
 }
 
+String::String(const char* str, unsigned int len) : _buffer(0)
+{
+	_buffer = StringBuffer::NewBuffer(str, len);
+	_buffer->ref();
+}
+
 String::String(const String& str) : _buffer(0)
 {
 	_buffer=str._buffer;

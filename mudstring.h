@@ -12,6 +12,7 @@
  *
  **********************************************************************/
 
+#include <functional>
 class	String;
 
 // Default NULL string.
@@ -109,6 +110,7 @@ public:
 
 // PUBLIC CONSTRUCTORS
 	String(const char* str = 0);	// Create a new String based on the data pointer to.
+	String(const char* str, unsigned int len);
 	String(const String& str);	// COPY constructor
 
 // Assignment operators
@@ -132,6 +134,12 @@ public:
 	bool operator<(const String& other)	const;
 	bool operator>(const String& other)	const;
 	bool operator==(const String& other)	const;
+};
+
+class less<String>
+{
+public:
+	bool operator() (const String& s1, const String& s2) const { return s1 < s2; }
 };
 
 #endif /* _MUDSTRING_H */

@@ -180,7 +180,7 @@ object		&obj)
 		loc = free_start;
 	}
 	free_start=loc+1;
-	array [loc].set_obj (obj);
+	array [loc].set_obj (obj, loc);
 
 	return loc;
 }
@@ -228,7 +228,7 @@ const dbref	oldobj)
  */
 
 object::object ()
-	: name(NULLSTRING), location(NOTHING), next(NOTHING), owner(NOTHING)
+	: id(NOTHING), name(NULLSTRING), namelist(), location(NOTHING), next(NOTHING), owner(NOTHING)
 
 {
 	int	i;
@@ -245,7 +245,10 @@ object::object ()
 object::~object ()
 
 {
-	set_name		(NULLSTRING);
+// Don't need to do anything now, as all the strings are reference
+// counted, and everything else is automatically destroyed
+
+	set_location(NOTHING);	// This is useful for command maps
 }
 
 
@@ -476,7 +479,35 @@ void
 object::set_name (
 const String& str)
 {
+// This is the easy bit...
 	name = str;
+// Now we'll separate the name into its constituent parts.
+// Mainly useful for commands and exits, but other things might want
+// to use this too.
+	namelist.erase(namelist.begin(), namelist.end());
+	const char* p1 = name.c_str();
+	const char* p2 = p1;
+	String nameportion;
+	for(; *p2; p2++)
+	{
+		if(*p2 == ';')
+		{
+			if(p1 != p2)
+			{
+				String nameportion(p1, (p2 - p1));
+				namelist.push_back(nameportion);
+			}
+			p1 = p2+1;
+		}
+	}
+	if(p1 == name.c_str())
+	{
+		namelist.push_back(name);
+	}
+	else if(*p1)
+	{
+		namelist.push_back(p1);
+	}
 }
 
 
@@ -540,6 +571,12 @@ void object::add_pennies (const int)
 
 void object::set_commands (const dbref)
 { IMPLEMENTATION_ERROR ("commands") }
+
+void object::add_command (const dbref)
+{ IMPLEMENTATION_ERROR ("add_command") }
+
+void object::remove_command (const dbref)
+{ IMPLEMENTATION_ERROR ("remove_command") }
 
 void object::set_info_items (const dbref)
 { IMPLEMENTATION_ERROR ("info_item") }
@@ -1258,6 +1295,52 @@ Old_object::Old_object ()
 {
 }
 
+
+void
+Old_object::add_command(
+dbref	com)
+{
+std::list<String>::const_iterator nameiter;
+std::map<String, dbref>::iterator insert;
+
+	for(nameiter = db[com].get_namelist().begin(); nameiter != db[com].get_namelist().end(); nameiter++)
+	{
+		insert = commandmap.find(*nameiter);
+		if(insert == commandmap.end())
+		{
+			commandmap[*nameiter] = com;
+		}
+		else if(insert->second != com)
+		{
+			insert->second = AMBIGUOUS;
+		}
+	}
+}
+
+void
+Old_object::remove_command(
+const	dbref	com)
+{
+std::map<String, dbref>::iterator remove;
+
+// I'm not going to deal with AMBIGUOUS cases yet, as there shouldn't be too
+// many of them.
+	remove = commandmap.begin();
+	while(remove != commandmap.end())
+	{
+		if(com == remove->second)
+		{
+			commandmap.erase(remove);
+			// When you erase an entry from a map, you can't get an iterator back,
+			// so we'll start all over again.
+			remove = commandmap.begin();
+		}
+		else
+		{
+			remove++;
+		}
+	}
+}
 
 void
 Old_object::set_destination (
@@ -2278,6 +2361,10 @@ const	dbref	item)
 Command::~Command ()
 
 {
+	if((get_location() != NOTHING) && (Typeof(get_location()) != TYPE_FREE))
+	{
+		db[get_location()].remove_command(get_id());
+	}
 	/* Ditch the parse-helper array if it's ever been allocated */
 	if (parse_helper)
 		delete [] parse_helper;
@@ -2410,6 +2497,45 @@ const	dbref	item)
 	return db.delete_object (item);
 }
 
+void
+Command::set_name(const String& str)
+{
+	dbref loc = get_location();
+
+	if(loc != NOTHING)
+	{
+		if(Typeof(loc) != TYPE_FREE)
+		{
+			db[loc].remove_command(get_id());
+		}
+		else
+		{
+			loc = NOTHING;
+		}
+	}
+	object::set_name(str);
+	if(loc != NOTHING)
+	{
+		db[loc].add_command(get_id());
+	}
+}
+
+void
+Command::set_location(const dbref target)
+{
+	dbref loc = get_location();
+// Need to check for TYPE_FREE objects when we're loading the database
+// incase they haven't been loaded yet.
+	if((loc != NOTHING) && (Typeof(loc) != TYPE_FREE))
+	{
+			db[get_location()].remove_command(get_id());
+	}
+	object::set_location(target);
+	if((target != NOTHING) && (Typeof(target) != TYPE_FREE))
+	{
+		db[target].add_command(get_id());
+	}
+}
 
 /*
  * Allocate the parse_helper array.

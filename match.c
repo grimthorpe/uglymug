@@ -731,7 +731,29 @@ Matcher::match_command_internal ()
 	while (internal_inheritance_restart != NOTHING)
 	{
 		if (internal_restart == NOTHING)
+		{
+			std::map<String, dbref>::const_iterator iter;
+			iter = db[internal_inheritance_restart].get_commandmap()->find(match_name);
+			if(iter != db[internal_inheritance_restart].get_commandmap()->end())
+			{
+				if(iter->second != AMBIGUOUS)
+				{
+					internal_inheritance_restart = db [internal_inheritance_restart].get_parent ();
+					// We've found an exact match
+					exact_match = iter->second;
+					return true;
+				}
+			}
+			else
+			{
+				// We've not found an entry
+				internal_inheritance_restart = db [internal_inheritance_restart].get_parent ();
+				continue;
+			}
+			// If we get here then we've found an AMBIGUOUS entry.
+
 			internal_restart = db [internal_inheritance_restart].get_commands ();
+		}
 		DOLIST (internal_restart, internal_restart)
 		{
 			if (semicolon_string_match (db[internal_restart].get_name(), match_name))
