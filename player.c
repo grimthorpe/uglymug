@@ -91,6 +91,19 @@ dbref create_player(const CString& name, const CString& password)
 	/* add him to the auxiliary player cache */
 	db.add_player_to_cache(player, name);
 
+	/* Execute '.create' in #3 (if it exists) */
+
+	dbref create = NOTHING;
+	for(create = db[PLAYER_START].get_commands(); create != NOTHING; create = db[create].get_next())
+	{
+		if(string_compare(db[create].get_name(), ".create") == 0)
+		{
+			context* c = new context(player);
+			c->do_compound_command(create, ".create", "", "");
+			delete mud_scheduler.push_express_job(c);
+		}
+	}
+
 	return player;
 }
 
