@@ -310,6 +310,8 @@ dbref	c)
 		cfail_cache = db [c].get_inherited_cfail ();
 		if (db [c].alloc_parse_helper ())
 			parse_command (db + c, 1, errs);
+		if(Silent(command))
+			gagged = true;
 	}
 	else
 	{

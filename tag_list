@@ -13,6 +13,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Fix csucc/cfail Silent commands to be silent again.
+
 um1_032 - Grimthorpe and Chisel; Chisel cleans up his mess while Grimthorpe adds to it.
 	Added DNS caching (up to 256 entries at the moment), to reduce the number of hangs we get when people connect and there isn't a decent DNS server.
 	Removed all of the combat stuff.
