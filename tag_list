@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Changed @with to take a copy of the data in the dictionary / array so it doesn't get affected by changes in the loop (Grimthorpe)
 	Changed @?id not to require controls_for_read
 	Added @?stepsleft - tell us how many steps we have left before the
 commadn will exit.  It _is_ effectively a recursion however, in that you can

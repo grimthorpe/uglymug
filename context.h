@@ -208,8 +208,8 @@ class	With_loop
 	With_loop(const With_loop&); // DUMMY
 	With_loop& operator=(const With_loop&); // DUMMY
 
-			int		counter;
-			dbref		dict;
+	std::list<String_pair> elements;
+	std::list<String_pair>::const_iterator pos;
 			String_pair	*index;
 			String_pair	*element;
     protected:

@@ -1122,41 +1122,47 @@ const	Scope	&os,
 const	char	*index_name,
 const	char	*element_name)
 : Loop (os)
-, counter (1)
-, dict (d)
+, elements()
+, pos(elements.end())
 , index (addarg (index_name, NULLSTRING))
 , element (addarg (element_name, NULLSTRING))
 
 {
-	/* Make safe for immediate return if the collection is empty */
-	if (db [dict].get_number_of_elements () > 0)
+	int total = db[d].get_number_of_elements();
+	int i;
+	switch(Typeof(d))
 	{
-		switch (Typeof (dict))
+	case TYPE_DICTIONARY:
+		for(i = 1; i <= total; i++)
 		{
-			case TYPE_DICTIONARY:
-				index->set_value (db [dict].get_index (1));
-				break;
-			case TYPE_ARRAY:
-				index->set_value ("1");
-				break;
-			default:
-				/* Should never happen */
-				;
+			String_pair entry(db[d].get_index(1), db[d].get_element(i));
+			elements.push_back(entry);
 		}
-		element->set_value (db [dict].get_element (1));
+		break;
+	case TYPE_ARRAY:
+		for(i = 1; i <total; i++)
+		{
+			char number[20];
+			sprintf(number, "%d", i);
+			String_pair entry(number, db[d].get_element(i));
+			elements.push_back(entry);
+		}
+		break;
+	}
+
+	pos = elements.begin();
+
+	if(pos != elements.end())
+	{
+		index->set_value(pos->name());
+		element->set_value(pos->value());
 	}
 }
 
 bool
 With_loop::shouldrun () const
 {
-	if (Typeof(dict) == TYPE_FREE)
-		return false;
-
-	if (counter > (int)db[dict].get_number_of_elements ())
-		return false;
-
-	return true;
+	return (pos != elements.end());
 }
 
 /*
@@ -1170,29 +1176,15 @@ With_loop::loopagain ()
 
 {
 	// Increment the counter *BEFORE* we check if we should run again.
-	counter++;
+	pos++;
 
 	if(!shouldrun())
 		return false;
 
 
-	switch (Typeof(dict))
-	{
-		case TYPE_ARRAY:
-			{
-				char	workspace [11];
-				sprintf (workspace, "%d", counter);
-				index->set_value (workspace);
-			}
-			break;
-		case TYPE_DICTIONARY:
-			index->set_value (db[dict].get_index(counter));
-			break;
-		default:
-			/* Probably means that the collection has been destroyed */
-			return false;
-	}
-	element->set_value (db[dict].get_element(counter));
+	index->set_value(pos->name());
+	element->set_value(pos->value());
+
 	return true;
 }
 
