@@ -59,7 +59,8 @@ const
 				return !sub1->eval_internal (c, matcher);
 			case BOOLEXP_CONST:
 				if (Typeof (thing) != TYPE_COMMAND)
-					return (thing == c.get_effective_id () || ::contains(thing, c.get_player ()));
+					return (thing == c.get_effective_id () || ::contains_inherited(thing, c.get_player ()));
+					//return (thing == c.get_effective_id () || ::contains(thing, c.get_player ()));
 				if (!could_doit (c, thing))
 					return False; /* Automatically fails */
 				else

@@ -67,6 +67,34 @@ dbref	container)
 	return (False);
 }
 
+Boolean
+contains_inherited (
+dbref	thing,
+dbref	container)
+{
+	if (thing == HOME)
+	{
+		return contains(thing, container);
+	}
+	else if(thing == NOTHING)
+	{
+		return False;
+	}
+
+	dbref contents;
+	for (contents = db[container].get_contents(); contents != NOTHING; contents = db[contents].get_next())
+	{
+		for(dbref obj = contents; obj != NOTHING; obj = db[obj].get_parent())
+		{
+			if(obj == thing)
+			{
+				return True;
+			}
+		}
+	}
+	return (False);
+}
+
 
 Boolean
 member (

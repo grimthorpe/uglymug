@@ -177,6 +177,7 @@ extern	int		rudes;
 extern	int		excluded;
 /* From utils.c */
 extern	Boolean		contains		(dbref thing, dbref container);
+extern	Boolean		contains_inherited	(dbref thing, dbref container);
 extern  const   char    *getarticle		(int article_base, dbref thing);
 extern	const	char	*getname		(dbref thing);
 extern	const	char	*getname_inherited	(dbref thing);

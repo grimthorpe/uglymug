@@ -1351,6 +1351,8 @@ const	char	*)
 						/*Fallthrough*/
 					case TYPE_PUPPET:
 						/* Dinner time */
+							/* Try to keep building points in the game 'level' */
+							db[player].add_pennies(db[i].get_pennies());
 							trash_container (i);
 						break;
 					default:
