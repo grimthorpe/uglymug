@@ -3339,7 +3339,8 @@ descriptor_data::check_connect (const char *msg)
 				else
 				{
 					set_player_name(safe_strdup(command));
-					if(lookup_player(NOTHING, command) == NOTHING)
+					dbref player = lookup_player(NOTHING, command);
+					if(NOTHING == player)
 					{
 						/* New player? If so, check if they want to create */
 						if (ok_player_name(get_player_name()))
@@ -3362,13 +3363,21 @@ descriptor_data::check_connect (const char *msg)
 								queue_string (name_prompt);
 						}
 					}
-					else
+					else if(db[player].get_password())
 					{
 						set_echo(0);
 						queue_string (password_prompt);
 						set_connect_state(DESCRIPTOR_PASSWORD);
 					}
-
+					else // Player has no password, connect them immediately.
+					{
+						Trace( "CONNECTED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
+						db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+						set_connect_state(DESCRIPTOR_CONNECTED);
+						set_player( player );
+						mud_connect_player (player);
+						announce_player (ANNOUNCE_CONNECTED);
+					}
 				}
 				break;
 
