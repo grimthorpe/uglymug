@@ -1307,19 +1307,23 @@ const	CString& flag)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can't apply that flag to that type of object.");
 			return;
 		}
-#if 0
 
-	if ((!(type_to_flag_map [Linear_typeof (thing)] & f)) & (*flag != NOT_TOKEN))
-#endif
-
+	/* because of the way controls_for_write() works, we unconditionally unset
+	 * the ReadOnly flag, then we can check controls_for_write,
+	 * if this fails, the player didn't have permission to unset the ReadOnly flag,
+	 * so reset it - Chisel 2002/02/04
+	 * */
 	if ((f == FLAG_READONLY) && (*flag.c_str() == NOT_TOKEN))
 	{
+		db[thing].clear_flag(f);	/* unconditially remove ReadOnly */
+
+		/* check permissions */
 		if (!controls_for_write (thing))
 		{
 			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied);
+			db[thing].set_flag(f);	/* reset the flag */
 			return;
 		}
-		db[thing].clear_flag(f);
 	}
 
         /* Give a nicer message when we try to teleport a read-only object */
