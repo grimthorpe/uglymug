@@ -1042,7 +1042,9 @@ void beep (dbref player)
 
 	for (d = descriptor_list; d; d = d->next)
 	{
-		if (d->IS_CONNECTED() && d->terminal_pagebell)
+		if (d->IS_CONNECTED()
+			&& (d->get_player() == player)
+			&& d->terminal_pagebell)
 		{
 			d->queue_write("\007", 1);
 			d->process_output();
