@@ -157,12 +157,15 @@ const	CString& )
 
 	if(!person)
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "List the aliases of whom?");
-		return;
-	}
-	if ((string_compare(person, "me") == 0))
 		owner = player;
-	if (person)
+//		notify_colour(player, player, COLOUR_MESSAGES, "List the aliases of whom?");
+//		return;
+	}
+	else if ((string_compare(person, "me") == 0))
+	{
+		owner = player;
+	}
+	else if (person)
 	{
 		if ((owner = lookup_player(player, person)) == NOTHING)
 		{
@@ -171,7 +174,9 @@ const	CString& )
 		}
 	}
 	else
+	{
 		owner = player;
+	}
 
 	/*
 	 * Okay, so owner is the person we're examining, and we're
@@ -184,7 +189,6 @@ const	CString& )
 		buf = db [owner].get_alias (i).c_str();
 		notify_censor(player, player, "%sAlias %d:%s %s", ca[COLOUR_TITLES],(i + 1), COLOUR_REVERT, (buf ? buf : "<not set>"));
 	}
-
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -264,6 +268,8 @@ const	CString& string)
 		}
 	}
 
+	dump_email_addresses();
+
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -315,6 +321,8 @@ const	CString& string)
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such alias.");
 		return;
 	}
+
+	dump_email_addresses();
 
 	return_status = COMMAND_SUCC;
 	set_return_string (db[victim].get_who_string ().c_str());

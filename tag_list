@@ -12,6 +12,9 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    Made @email, @alias and @unalias write out the email address list
+    each time they are used.
+
 um1_025 - Grimthorpe; tagged by Chisel
     When a new player is created, it executes ALL the commands in PLAYER_START
     (usually #3) called .create

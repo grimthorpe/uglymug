@@ -421,10 +421,6 @@ const	CString& email_addr)
 {
 	dbref	victim;
 	int	i;
-	FILE	*fp;
-#if !defined (linux) && !defined(__FreeBSD__) 
-	extern	char	*sys_errlist[];
-#endif /* !defined (linux) && !defined(__FreeBSD__) */
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -461,26 +457,43 @@ const	CString& email_addr)
 		notify_colour(victim, victim, COLOUR_ERROR_MESSAGES, "Your email address has been changed to %s", db[victim].get_email_addr ().c_str());
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
-
-		/* Flup's email dumping routine */
-                if ((fp=fopen (EMAIL_FILE, "w"))==NULL)
-                        Trace( "BUG: couldn't open %s (%s)\n", EMAIL_FILE, sys_errlist[errno]);
-                else
-                {
-                        for (i = 0; i < db.get_top (); i++)
-                                if (Typeof (i) == TYPE_PLAYER)
-					fprintf (fp,
-						"%s|%d|%s\n",
-						db [i].get_name ().c_str(),
-						i,
-						(db [i].get_email_addr ())
-							? db [i].get_email_addr ().c_str()
-							: "NO_MAIL_ADDRESS");
-                        fclose(fp);
-                        notify_colour (player, player, COLOUR_MESSAGES, "Done.");
-		}
-
+		dump_email_addresses ();
 	}
+}
+
+void
+context::dump_email_addresses ()
+{
+#if !defined (linux) && !defined(__FreeBSD__) 
+	extern	char	*sys_errlist[];
+#endif /* !defined (linux) && !defined(__FreeBSD__) */
+	int	i;
+	FILE	*fp;
+
+	/* Flup's email dumping routine */
+	if ((fp=fopen (EMAIL_FILE, "w"))==NULL)
+		Trace( "BUG: couldn't open %s (%s)\n", EMAIL_FILE, sys_errlist[errno]);
+	else
+	{
+		for (i = 0; i < db.get_top (); i++)
+			if (Typeof (i) == TYPE_PLAYER)
+			{
+				fprintf (fp, "%s|", db [i].get_name ().c_str());
+				for (int j = 0; j < MAX_ALIASES; j++)
+				{
+					fprintf (fp, "%s|", db [i].get_alias (j).c_str());
+				}
+				fprintf (fp,
+					"%d|%s\n",
+					i,
+					(db [i].get_email_addr ())
+						? db [i].get_email_addr ().c_str()
+						: "NO_MAIL_ADDRESS");
+			}
+		fclose(fp);
+//		notify_colour (player, player, COLOUR_MESSAGES, "Done.");
+	}
+
 }
 
 void
