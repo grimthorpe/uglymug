@@ -302,6 +302,8 @@ class	context
 : public Command_and_arguments
 , public Variable_stack
 {
+public:
+	static context	DEFAULT_CONTEXT;
     friend Scheduler;
     friend Dependency;
     private:
@@ -320,7 +322,7 @@ class	context
 		String			return_string;
 		Command_status		return_status;
 		bool			called_from_command;
-		context &		creator;
+		const context&		creator;
 		bool			scheduled;
 		Dependency		*dependency;
     // friend Scheduler
@@ -332,7 +334,7 @@ class	context
     // friend Dependency
 		void			execute			(void (context::*f) ())	{ (this->*f) (); }
     public:
-					context			(dbref pl, context &your_creator = *(context *) NULL);
+					context			(dbref pl, const context& your_maker);
 	virtual				~context		();
 		void			execute_commands	();
 		void			command_executed	()	{ commands_executed++; }

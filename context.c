@@ -27,6 +27,7 @@
 /* The only one there is */
 Scheduler	mud_scheduler;
 
+context context::DEFAULT_CONTEXT;
 
 /************************************************************************/
 /*									*/
@@ -615,13 +616,11 @@ context	&c)
 /*									*/
 /************************************************************************/
 
-context::context (
-dbref	new_player,
-context &your_maker)
+context::context ()
 : Command_and_arguments (NULLSTRING, NULLSTRING, NULLSTRING, 0)
-, player (new_player)
+, player (NOTHING)
 , trace_command (NOTHING)
-, unchpid_id (new_player)
+, unchpid_id (NOTHING)
 , call_stack (MAX_COMMAND_DEPTH)
 , commands_executed (0)
 , sneaky_executed_depth (0)
@@ -631,7 +630,30 @@ context &your_maker)
 /* Initialisation changed to SUCC from INIT by PJC 14/1/96 */
 , return_status (COMMAND_SUCC)
 , called_from_command (false)
-, creator (your_maker)
+, creator(*(context*)0)
+, scheduled (false)
+, dependency (0)
+
+{
+}
+
+context::context (
+dbref	new_player,
+const context& your_maker)
+: Command_and_arguments (NULLSTRING, NULLSTRING, NULLSTRING, 0)
+, player (new_player)
+, trace_command (NOTHING)
+, unchpid_id (new_player)
+, call_stack (MAX_COMMAND_DEPTH)
+, commands_executed (0)
+, sneaky_executed_depth (0)
+, step_limit (your_maker.step_limit)
+, depth_limit (your_maker.depth_limit)
+, return_string (unset_return_string)
+/* Initialisation changed to SUCC from INIT by PJC 14/1/96 */
+, return_status (COMMAND_SUCC)
+, called_from_command (false)
+, creator(your_maker)
 , scheduled (false)
 , dependency (0)
 

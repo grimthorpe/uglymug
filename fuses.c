@@ -56,7 +56,7 @@ int	tom_fuse)
 						c.pend_fuse (fuse, true, "SUCC", command_arg1, command_arg2, matcher);
 					else
 					{
-						context	*fuse_context = new context (c.get_player ());
+						context	*fuse_context = new context (c.get_player (), c);
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
 						fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
 						delete mud_scheduler.push_express_job (fuse_context);
@@ -80,7 +80,7 @@ int	tom_fuse)
 						c.pend_fuse (fuse, false, "FAIL", command_arg1, command_arg2, matcher);
 					else
 					{
-						context	*fuse_context = new context (c.get_player ());
+						context	*fuse_context = new context (c.get_player (), c);
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
 						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
 						delete mud_scheduler.push_express_job (fuse_context);
@@ -130,7 +130,7 @@ dbref	object)
 				if ((db[fuse].get_csucc () != NOTHING)
 					&& (could_doit (c, db[fuse].get_csucc ())))
 				{
-					context	*fuse_context = new context (c.get_player ());
+					context	*fuse_context = new context (c.get_player (), c);
 					fuse_context->set_unchpid_id (db [fuse].get_owner ());
 					fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
 					mud_scheduler.push_express_job (fuse_context);
@@ -157,7 +157,7 @@ dbref	object)
 						c.pend_fuse (fuse, false, "FAIL", command_arg1, command_arg2, matcher);
 					else
 					{
-						context	*fuse_context = new context (c.get_player ());
+						context	*fuse_context = new context (c.get_player (), c);
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
 						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
 						delete mud_scheduler.push_express_job (fuse_context);
@@ -233,7 +233,7 @@ context	&c)
 				log_bug(" Pended fuse does not fire a command.");
 			else
 			{
-				context	*fuse_context = new context (c.get_player ());
+				context	*fuse_context = new context (c.get_player (), c);
 				fuse_context->do_compound_command (command_id, command.c_str(), arg1.c_str(), arg2.c_str(), db [get_object ()].get_owner (), matcher);
 				delete mud_scheduler.push_express_job (fuse_context);
 			}

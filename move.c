@@ -352,7 +352,7 @@ dbref	loc)
 				&& (db [the_command].get_location () != loc)		/* don't do the target room's .leave */
 				&& (in_area (db [the_command].get_location (), loc)))	/* and don't do one in a higher area */
 			{
-				context *leave_context = new context (player);
+				context *leave_context = new context (player, *this);
 				/* Make sure the command can't unchpid to the wrong level */
 				leave_context->set_unchpid_id(db[the_command].get_owner());
 				/* Prevent the system recursing */
@@ -386,7 +386,7 @@ dbref	loc)
 			}
 			while (!enter_stack.is_empty ())		/* excute the .enter commands */
 			{
-				context *enter_context = new context (player);
+				context *enter_context = new context (player, *this);
 
 				the_command = enter_stack.pop ();
 				/* Make sure the command can't unchpid to the wrong level */
@@ -420,7 +420,7 @@ dbref	loc)
 				&& (db [the_command].get_location () != overlap_room)
 				&& (overlap_room == NOTHING || in_area (db [the_command].get_location (), overlap_room)))
 			{
-				context *leave_context = new context (player);
+				context *leave_context = new context (player, *this);
 
 				/* Make sure the command can't unchpid to the wrong level */
 				leave_context->set_unchpid_id(db[the_command].get_owner());
@@ -451,7 +451,7 @@ dbref	loc)
 			}
 			while (!enter_stack.is_empty ())
 			{
-				context *enter_context = new context (player);
+				context *enter_context = new context (player, *this);
 
 				the_command = enter_stack.pop ();
 				/* Make sure the command can't unchpid to the wrong level */
@@ -501,7 +501,7 @@ dbref	thing)
 			send_contents(thing, HOME);
 			/* If the object won't fit in its home, send it to limbo */
 			{
-				context *thing_context = new context (player);
+				context *thing_context = new context (player, *this);
 
 				if (will_fit(thing, db[thing].get_destination()) == SUCCESS)
 					thing_context->enter_room (db[thing].get_destination());
@@ -1126,30 +1126,10 @@ const	String& command)
 	cached_loc = db [player].get_location();
 	moveto (player, loc);
 
-	/* CHPID is carried over an @remote */
-//	context *remote_context = new context (player);
-//	remote_context->commands_executed = commands_executed+1;
-//
-//	/* Crash trap: Make sure we know how many commands we've executed for limiting recursion. */
-//	remote_context->set_depth_limit(depth_limit);
-//	if (in_command ())
-//	{
-//		remote_context->calling_from_command ();
-//	}
-//	/* set_effective_id needs a call_stack to work. */
-//	remote_context->set_effective_id(get_effective_id());
-//	remote_context->set_unchpid_id(get_unchpid_id());
-//
-//	remote_context->process_basic_command (command.c_str());
-//	mud_scheduler.push_express_job (remote_context); 
-//	copy_returns_from (*remote_context);
-//	delete remote_context;
 	const int old_depth = call_stack.depth();
 	process_basic_command (command.c_str());
 	while(call_stack.depth() > old_depth)
 		step();
-//	mud_scheduler.push_express_job (this); 
-	//copy_returns_from (*remote_context);
 
 	/* Just make sure players don't pull silly stunts like zapping the thing they remoted out of */
 	if ((cached_loc < 0) || (cached_loc >= db.get_top ()) || ((Typeof (cached_loc) != TYPE_ROOM) && !Container (cached_loc)))

@@ -420,7 +420,7 @@ dbref	thing2)
 
 	if(checking_keys)
 	{
-		context	check_context	(real_who);
+		context	check_context	(real_who, context::DEFAULT_CONTEXT);
 
 		has1 = could_doit (check_context, thing1);
 		has2 = could_doit (check_context, thing2);

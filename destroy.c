@@ -237,7 +237,7 @@ context	&c,
 dbref	zap_room)
 
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref	i;
 	dbref	temp;
 	bool	ok = true;
@@ -366,7 +366,7 @@ context	&c,
 dbref	zap_thing)
 
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	bool	ok = true;
 	dbref	i;
 
@@ -605,7 +605,7 @@ context	&c,
 dbref	zap_player)
 
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref	i;
 	bool	ok = true;
 
@@ -700,7 +700,7 @@ context	&c,
 dbref	zap_exit)
 
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref i;
 
 	for (i = 0; i < db.get_top(); i++)
@@ -721,7 +721,7 @@ context	&c,
 dbref	zap_command)
 
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref	i;
 	bool	ok = true;
 
@@ -882,7 +882,7 @@ context	&c,
 dbref	zap_fuse)
 
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref i;
 
 	for (i = 0; i < db.get_top(); i++)
@@ -902,7 +902,7 @@ check_and_destroy_alarm (
 context	&c,
 dbref	zap_alarm)
 {
-	context god_context (GOD_ID);
+	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref i;
 
 	for (i = 0; i < db.get_top(); i++)

@@ -2513,7 +2513,7 @@ const	String& new_location_string)
 	{
 		if (will_fit (victim, new_location)==SUCCESS)
 		{
-			context	*victim_context = new context (victim);
+			context	*victim_context = new context (victim, *this);
 			victim_context->enter_room (new_location);
 			delete mud_scheduler.push_express_job (victim_context);
 		}

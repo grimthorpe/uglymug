@@ -67,7 +67,7 @@ const
 				else
 				{
 					/* The idea is that the player still gets to see what's going on, but the command can't unchpid to the player... */
-					context *sub_context = new context (c.get_player());
+					context *sub_context = new context (c.get_player(), c);
 					sub_context->set_unchpid_id (db[thing].get_owner());
 					sub_context->set_step_limit (COMPOUND_COMMAND_BASE_LIMIT - commands_executed);
 					sub_context->do_compound_command (thing, ".lockcheck", "", "", db[thing].get_owner(), matcher);

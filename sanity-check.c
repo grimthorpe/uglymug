@@ -51,7 +51,7 @@ int	fixed = 0;
 
 extern char	scratch_buffer[];
 
-static	context	unparse_context (GOD_ID);
+static	context	unparse_context (GOD_ID, context::DEFAULT_CONTEXT);
 
 FILE	*sanity_file;
 

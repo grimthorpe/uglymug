@@ -700,7 +700,7 @@ execute_startups(void)
 		if (!string_compare(db[item].get_name(),".startup"))
 			if (Wizard(db[item].get_owner()))
 			{
-				context *c = new context (db[item].get_owner());
+				context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
 				c->do_compound_command (item, ".startup", "", "");
 				delete mud_scheduler.push_express_job (c);
 			}
@@ -726,7 +726,7 @@ execute_shutdown(void)
 		if (!string_compare(db[item].get_name(),".shutdown"))
 			if (Wizard(db[item].get_owner()))
 			{
-				context *c = new context (db[item].get_owner());
+				context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
 				c->do_compound_command(item, ".shutdown", "", "");
 				delete mud_scheduler.push_express_job (c);
 			}
@@ -804,7 +804,7 @@ const	char	*outfile)
 	alarm(dump_interval);
 	
 	/* read smd file */
-	context	*read_context = new context (GOD_ID);
+	context	*read_context = new context (GOD_ID, context::DEFAULT_CONTEXT);
 	read_context->do_at_smd("read", (char *)NULL); /* Read the SMD list */
 	delete mud_scheduler.push_express_job (read_context);
 
@@ -1288,12 +1288,12 @@ const	char	*command)
 	}
 	if ((db[player].get_location() < 0) && (db[player].get_location() >= db.get_top ()))
 	{
-		log_bug("Player #%s at location #%d", unparse_object (context (GOD_ID), player), db[player].get_location());
+		log_bug("Player #%s at location #%d", unparse_object (context (GOD_ID, context::DEFAULT_CONTEXT), player), db[player].get_location());
 		return;
 	}
 
 	/* Do the command */
-	context	*root_context = new context (player);
+	context	*root_context = new context (player, context::DEFAULT_CONTEXT);
 	root_context->process_basic_command (command);
 	/* If the root context was never scheduled, it won't have had a chance to fire any sticky fuses, so... */
 	if (!root_context->get_scheduled ())
@@ -1324,7 +1324,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 	player_matcher.match_player_command ();
 	if ((the_command = player_matcher.match_result ()) != NOTHING)
 	{
-		context *login_context = new context (player);
+		context *login_context = new context (player, context::DEFAULT_CONTEXT);
 		if (!Dark (the_command) && could_doit (*login_context, the_command))
 		{
 			login_context->do_compound_command (the_command, command, getname (player), "");
@@ -1336,7 +1336,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 	area_matcher.match_command_from_location (db[player].get_location());
 	if (((the_command = area_matcher.match_result ()) != NOTHING) && (db[the_command].get_location() != COMMAND_LAST_RESORT))
 	{
-		context *login_context = new context (player);
+		context *login_context = new context (player, context::DEFAULT_CONTEXT);
 		if (!Dark (the_command) && could_doit (*login_context, the_command))
 		{
 			login_context->do_compound_command (the_command, command, getname (player), "");
@@ -1349,7 +1349,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 		if (!string_compare(db[the_command].get_name(),command))
 			if (Wizard(db[the_command].get_owner()))
 			{
-				context *login_context = new context (player);
+				context *login_context = new context (player, context::DEFAULT_CONTEXT);
 				login_context->do_compound_command (the_command, command, getname(player), "");
 				delete mud_scheduler.push_express_job (login_context);
 			}
@@ -1463,7 +1463,7 @@ void mud_time_sync ()
 					if ((Typeof (a_location) == TYPE_PLAYER) || (Typeof (a_location) == TYPE_PUPPET))
 						a_location = db[a_location].get_location();
 					moveto (the_player, a_location);
-					context *alarm_context = new context (the_player);
+					context *alarm_context = new context (the_player, context::DEFAULT_CONTEXT);
 					alarm_context->do_compound_command (a_command, "ALARM", "", "");
 					delete mud_scheduler.push_express_job (alarm_context);
 					moveto (the_player, cached_location);
@@ -1472,14 +1472,14 @@ void mud_time_sync ()
 					notify_colour(the_player, the_player,
 						      COLOUR_ERROR_MESSAGES,
 						"Alarm %s failed to execute, due to lack of money.",
-						unparse_object (context (the_player), an_alarm));
+						unparse_object (context (the_player, context::DEFAULT_CONTEXT), an_alarm));
 			}
 			if (db[an_alarm].get_description())
 				db.pend (an_alarm);
 		}
 		else
 		{
-			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context (GOD_ID), an_alarm));
+			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context (GOD_ID, context::DEFAULT_CONTEXT), an_alarm));
 			alarm_block--;
 			return;
 		}

@@ -590,7 +590,7 @@ const	String& part2)
 		{
 
 			const colour_at& ca=db[target].get_colour_at();
-			context	unparse_context (target);
+			context	unparse_context (target, *this);
 			strcpy (scratch_buffer, unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE));
 			strcat (scratch_buffer, ", ");
 			strcat (scratch_buffer, ca[rank_colour(player)]);
@@ -772,7 +772,8 @@ const	String& what)
 
 	if (!names || !what)
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @notify <playerlist> = message");
+		if(!gagged_command())
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @notify <playerlist> = message");
 		return;
 	}
 	return_status=COMMAND_SUCC;

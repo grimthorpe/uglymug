@@ -420,6 +420,7 @@ destroy.o: destroy.c \
 	db.h \
 	mudstring.h \
 	config.h \
+	context.h \
 	interface.h \
 	externs.h \
 	lists.h \
@@ -590,6 +591,7 @@ paths.o: paths.c \
 
 player.o: player.c \
 	config.h \
+	context.h \
 	db.h \
 	mudstring.h \
 	externs.h \
@@ -617,6 +619,7 @@ rob.o: rob.c \
 
 sanity-check.o: sanity-check.c \
 	externs.h \
+	context.h \
 	db.h \
 	mudstring.h \
 	config.h

@@ -89,7 +89,7 @@ const	String& command)
 
 	/* force victim to do command */
 	{
-		context	*victim_context = new context (victim);
+		context	*victim_context = new context (victim, *this);
 		if (in_command ())
 			victim_context->calling_from_command ();
 

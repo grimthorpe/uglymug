@@ -311,7 +311,7 @@ Player_list::trigger_command(const char *command, context &c)
 				continue;
 			}
 
-			context	*new_context =new context(current->player);
+			context	*new_context =new context(current->player, c);
 
 			new_context->set_depth_limit (c.get_depth_limit () - 1);
 			// Maybe need to set commands_executed here...

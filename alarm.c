@@ -42,7 +42,7 @@ db_patch_alarms ()
 
 		if ((Typeof (i) == TYPE_PUPPET) && (Connected(i)))
 		{
-			context *c = new context (GOD_ID);
+			context *c = new context (GOD_ID, context::DEFAULT_CONTEXT);
 			char tmpnum[20];
 			sprintf(tmpnum, "#%d", (int)i);
 			db[i].clear_flag(FLAG_CONNECTED);

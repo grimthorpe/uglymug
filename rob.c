@@ -155,7 +155,7 @@ const	String& object_or_amount)
 		}
 	}
 	/* now check to see if the 'victim' is able to get the object */
-	context	who_context (who);
+	context	who_context (who, *this);
 
 	if (!can_doit(who_context, object, "You can't give that player that object."))
 	{

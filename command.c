@@ -818,8 +818,8 @@ const String&)
 
 	/* Should never get here */
 	log_bug("@end processed by %s in a command with no scope (%s)",
-			unparse_object ((context)GOD_ID, player),
-			unparse_object ((context)GOD_ID, get_current_command ())
+			unparse_object (context(GOD_ID, context::DEFAULT_CONTEXT), player),
+			unparse_object (context(GOD_ID, context::DEFAULT_CONTEXT), get_current_command ())
 	);
 }
 
