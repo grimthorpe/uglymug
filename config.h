@@ -167,6 +167,7 @@ const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 
 #define MAX_WHO_STRING		80
 
+#define DEFAULT_RECALL_LINES	50
 #define MAX_RECALL_LINES	400
 
 #define CURRENCY_NAME		"Drogna"

@@ -205,7 +205,7 @@ const	CString& dummy)
                 return;
         }
 
-        int num_lines = MAX_RECALL_LINES;
+        int num_lines = DEFAULT_RECALL_LINES;
 
 
         if(lines)
@@ -214,13 +214,13 @@ const	CString& dummy)
 
                 if((num_lines <= 0) || (num_lines > MAX_RECALL_LINES))
                 {
-                        num_lines = MAX_RECALL_LINES;
+                        num_lines = DEFAULT_RECALL_LINES;
                 }
         }
 
-        notify_norecall (player, "%s", "---------------Recall-----------------------------------------\n");
+        notify_norecall (player, "%s %d %s", "---------------Recalling",num_lines,"lines-----------------------------\n");
         db[player].output_recall(num_lines, this);
-        notify_norecall (player, "%s", "---------------End Recall-------------------------------------\n");
+        notify_norecall (player, "%s %d %s", "---------------End Recall of", num_lines, "lines-------------------------\n");
 }
 
 void

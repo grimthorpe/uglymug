@@ -207,6 +207,7 @@ enum connect_states
 	DESCRIPTOR_NEW_CHARACTER_PROMPT,	/* New Character? */
 	DESCRIPTOR_CONFIRM_PASSWORD,		/* Re-enter password */
 	DESCRIPTOR_CONNECTED,			/* Player is connected */
+	DESCRIPTOR_LIMBO_RECONNECTED,		/* Player is has been reconnected on another descriptor */
 	DESCRIPTOR_LIMBO,			/* Awaiting disconnection */
 	DESCRIPTOR_FAKED			/* Faked connection; NPC */
 };
@@ -307,7 +308,10 @@ public:
 	}
 	void	NUKE_DESCRIPTOR()
 	{
-		_connect_state = DESCRIPTOR_LIMBO;
+		if(_connect_state != DESCRIPTOR_LIMBO_RECONNECTED)
+		{
+			_connect_state = DESCRIPTOR_LIMBO;
+		}
 		check_descriptors = 1;
 	}
 	void	output_prefix();
@@ -319,6 +323,7 @@ public:
 		get_connect_state()	{ return _connect_state; }
 	void	set_connect_state(enum connect_states cs)
 					{ _connect_state = cs; }
+	void	connect_a_player	(dbref player, announce_states connect_state);
 	int	get_descriptor()	{ return _descriptor; }
 	int	get_player()		{ return _player; }
 	const String& 	get_player_name()	{ return _player_name;}
@@ -1197,6 +1202,8 @@ void mud_main_loop(int argc, char** argv)
 				dnext = d->next;
 				if (d->get_connect_state() == DESCRIPTOR_LIMBO)
 					d->shutdownsock ();
+				if (d->get_connect_state() == DESCRIPTOR_LIMBO_RECONNECTED)
+					d->shutdownsock ();
 			}
 		}
 
@@ -2029,7 +2036,7 @@ descriptor_data::shutdownsock()
 	time_t stamp;
 	struct tm *now;
 /* For NPC connections, ignore most of this */
-	if(!IS_FAKED())
+	if(!IS_FAKED() && (get_connect_state() != DESCRIPTOR_LIMBO_RECONNECTED))
 	{
 		if (get_player() != 0)
 		{
@@ -3194,20 +3201,107 @@ descriptor_data::do_command (const char *command)
 	return 1;
 }
 
+void
+descriptor_data::connect_a_player (
+	dbref player,
+	announce_states announce_type)
+{
+	descriptor_data * d;
+	descriptor_data * last_one;
+	descriptor_data * this_one = this;
+	descriptor_data * temp_next;
+	descriptor_data ** temp_prev;
+	time_t now;
+	struct tm *the_time;
+
+	int already_here = 0;
+
+	(void) time (&now);
+	the_time = localtime (&now);
+
+	for (d = descriptor_list; d; d = d->next)
+		if (d->IS_CONNECTED() && (player == d->get_player()))
+		{
+			//Put this descriptor in at this point
+			//Shutdown current descriptor
+			d->set_connect_state(DESCRIPTOR_LIMBO_RECONNECTED);
+			d->NUKE_DESCRIPTOR();
+			already_here=1;
+			last_one = d;
+		}
+
+
+	if(!already_here)
+	{
+		Trace( "%s |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
+			(announce_type == ANNOUNCE_CREATED) ? "CREATED":"CONNECTED",
+			db[player].get_name().c_str(),
+			player,
+			CHANNEL(),
+			the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+	}
+	else
+	{
+		Trace( "RECONNECT |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
+			db[player].get_name().c_str(),
+			player,
+			CHANNEL(),
+			the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+
+		//Swap current position and the last descriptor
+		//Swapping - last_one and this
+		//And transfer connect times
+
+			start_time = last_one->start_time;
+
+			if(next)
+			{
+				next->prev = &(last_one->next);
+			}
+
+			if(last_one->next)
+			{
+				last_one->next->prev = &(this_one->next);
+			}
+
+			temp_next = this_one->next;
+			this_one->next = last_one->next;
+			last_one->next = temp_next;
+
+			*prev = last_one;
+			*last_one->prev = this_one;
+
+			temp_prev = prev;
+			prev = last_one->prev;
+			last_one->prev = temp_prev;
+
+
+
+	}
+	set_connect_state(DESCRIPTOR_CONNECTED);
+	set_player( player );
+	if(!already_here)
+	{
+		mud_connect_player (get_player());
+		announce_player (announce_type);
+	}
+	else
+	{
+		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please you @recall <number of lines to view>");
+	}
+
+}
+
 int
 descriptor_data::check_connect (const char *msg)
 {
 	char   command[MAX_COMMAND_LEN];
 	char   luser[MAX_COMMAND_LEN];
 	char   lpassword[MAX_COMMAND_LEN];
-	time_t now;
-	struct tm *the_time;
 	dbref  player;
 
 	parse_connect (msg, command, luser, lpassword);
 
-	(void) time (&now);
-	the_time = localtime (&now);
 	if ((strlen(command) >=2) && (string_prefix("connect", command)))
 	{
 		player = connect_player (luser, lpassword);
@@ -3225,45 +3319,33 @@ descriptor_data::check_connect (const char *msg)
 			}
 			else
 			{
-				Trace( "CONNECTED |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
-				 db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-				set_connect_state(DESCRIPTOR_CONNECTED);
-				set_player( player );
-				mud_connect_player (get_player());
-				announce_player (ANNOUNCE_CONNECTED);
+				connect_a_player(player, ANNOUNCE_CONNECTED);
 			}
 		}
 	}
-	#ifndef NEXUS
-	else if ((strlen(command) >=2) && (string_prefix("create", command)))
-	{
-		if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
-		{
-			queue_string(create_banned);
-			Trace( "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
-		}
-		else
+        else if ((strlen(command) >=2) && (string_prefix("create", command)))
+        {
+                if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
+                {
+                        queue_string(create_banned);
+                        Trace( "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
+                }
+                else
 
-		{
-			player = create_player (luser, lpassword);
-			if (player == NOTHING)
-			{
-				queue_string (create_fail);
-				Trace( "FAILED CREATE |%s| on descriptor |%d\n",
-				luser, CHANNEL());
-			}
-			else
-			{
-				Trace( "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-				db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-				set_connect_state(DESCRIPTOR_CONNECTED);
-				set_player( player );
-				mud_connect_player (player);
-				announce_player (ANNOUNCE_CREATED);
-			}
-		}
-	}
-	#endif /* NEXUS */
+                {
+                        player = create_player (luser, lpassword);
+                        if (player == NOTHING)
+                        {
+                                queue_string (create_fail);
+                                Trace( "FAILED CREATE |%s| on descriptor |%d\n",
+                                luser, CHANNEL());
+                        }
+                        else
+                        {
+				connect_a_player(player, ANNOUNCE_CREATED);
+                        }
+                }
+        }
 	else if (*command!='\0')
 	{
 		switch(get_connect_state())
@@ -3310,12 +3392,7 @@ descriptor_data::check_connect (const char *msg)
 					}
 					else // Player has no password, connect them immediately.
 					{
-						Trace( "CONNECTED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-						db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-						set_connect_state(DESCRIPTOR_CONNECTED);
-						set_player( player );
-						mud_connect_player (player);
-						announce_player (ANNOUNCE_CONNECTED);
+						connect_a_player(player, ANNOUNCE_CONNECTED);
 					}
 				}
 				break;
@@ -3396,12 +3473,7 @@ descriptor_data::check_connect (const char *msg)
 					}
 					else
 					{
-						Trace( "CONNECTED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-						db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-						set_connect_state(DESCRIPTOR_CONNECTED);
-						set_player( player );
-						mud_connect_player (player);
-						announce_player (ANNOUNCE_CONNECTED);
+						connect_a_player(player, ANNOUNCE_CONNECTED);
 					}
 				}
 					
@@ -3424,12 +3496,7 @@ descriptor_data::check_connect (const char *msg)
 					}
 					else
 					{
-						Trace( "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-						db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
-						set_connect_state(DESCRIPTOR_CONNECTED);
-						set_player ( player );
-						mud_connect_player (player);
-						announce_player (ANNOUNCE_CREATED);
+						connect_a_player(player, ANNOUNCE_CREATED);
 					}
 				}
 				else
