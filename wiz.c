@@ -305,7 +305,11 @@ const	String& reason)
 	}
 	
 	if((recipient = lookup_player(player, victim)) == NOTHING)
+	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player does not exist.");
+		return;
+	}
+
 	if (recipient == player)
 	{
 /* Back in the days of allowing multiple connections to one player

@@ -13,6 +13,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Fixed @boot so that if the target doesn't exist we don't crash the game.
 	Changed get code (do_get) so you can't get things from other players (aka theft).
 	Changed drop code (do_drop) so you can only drop things that you are carrying.
 	  This prevents "drop here:object" and "drop <player>:object" which are just silly.
