@@ -220,7 +220,8 @@ enum announce_states
 	ANNOUNCE_DISCONNECTED,			/* player just QUITed */
 	ANNOUNCE_SMD,				/* player fallen foul of an SMD read */
 	ANNOUNCE_TIMEOUT,			/* mortal been idle too long */
-	ANNOUNCE_PURGE				/* player booting his idle connections */
+	ANNOUNCE_PURGE,				/* player booting his idle connections */
+	ANNOUNCE_RECONNECT			/* player reconnects */
 };
 
 void add_to_queue(struct text_queue *q, const char *b, int n);
@@ -332,11 +333,10 @@ public:
 	void	set_player_name(const CString& p) { _player_name = p; }
 	void	set_password(const CString& p) { _password = p; }
 
-	int	queue_string2(const char *, int show_literally, int store_in_recall_buffer = 1);
-	int	queue_string(const char *, int show_literally = 0);
-	int	queue_string(const CString& s, int show_literally = 0)
+	int	queue_string(const char *, int show_literally = 0, int store_in_recall_buffer = 1);
+	int	queue_string(const CString& s, int show_literally = 0, int store_in_recall_buffer = 1)
 	{
-		return queue_string(s.c_str(), show_literally);
+		return queue_string(s.c_str(), show_literally, store_in_recall_buffer);
 	}
 	int	queue_write(const char *, int len);
 
@@ -710,25 +710,7 @@ void notify_wizard(const char *fmt, ...)
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())) && (!(Haven(d->get_player()))))
-		{
-			d->queue_string (vsnprintf_result);
-			d->queue_string (COLOUR_REVERT);
-			d->queue_string ("\n");
-		}
-}
-
-void notify_wizard_unconditional(const char *fmt, ...)
-{
-	struct descriptor_data *d;
-	va_list vl;
-
-	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
-	va_end (vl);
-
-	for (d = descriptor_list; d; d = d->next)
-		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice (d->get_player())))
+		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())))
 		{
 			d->queue_string (vsnprintf_result);
 			d->queue_string (COLOUR_REVERT);
@@ -987,7 +969,7 @@ void notify_norecall(dbref player, const char *fmt, ...)
         for (d = descriptor_list; d; d = d->next)
                 if (d->IS_CONNECTED() && d->get_player() == player)
                 {
-                        d->queue_string2 (vsnprintf_result, 0, 0);
+                        d->queue_string (vsnprintf_result, 0, 0);
                 }
 }
 
@@ -2311,14 +2293,12 @@ descriptor_data::queue_write(const char *b, int n)
    so that the @recall command can happily pump information
    straight out from the recall buffer without it being
    put back into the recall buffer on the way through. */
-int
-descriptor_data::queue_string(const char *s, int show_literally)
-{
-        return queue_string2(s, show_literally, 1);
-}
+/* Note. Grimthorpe is to the rescue.
+   queue_string2 is no more, because Reaps doesn't know you can have more
+   than one default value... */
 
 int
-descriptor_data::queue_string2(const char *s, int show_literally, int store_in_recall_buffer)
+descriptor_data::queue_string(const char *s, int show_literally, int store_in_recall_buffer)
 {
 static char b1[2*BUFFER_LEN];
 static char b2[2*BUFFER_LEN];
@@ -2749,6 +2729,11 @@ descriptor_data::announce_player (announce_states state)
 			mortal_string = " has purged an idle connection]\n";
 			app_string = mortal_string;
 			snprintf (wizard_string, sizeof(wizard_string), " has purged an idle connection from %s]\n", hostname);
+			break;
+		case ANNOUNCE_RECONNECT:
+			mortal_string = " has reconnected]\n";
+			app_string = mortal_string;
+			snprintf (wizard_string, sizeof(wizard_string), " has reconnected from %s]\n", hostname);
 			break;
 		default :
 			Trace( "BUG: Unknown state (%d) encounted in announce_player()\n", state);
@@ -3274,9 +3259,6 @@ descriptor_data::connect_a_player (
 			temp_prev = prev;
 			prev = last_one->prev;
 			last_one->prev = temp_prev;
-
-
-
 	}
 	set_connect_state(DESCRIPTOR_CONNECTED);
 	set_player( player );
@@ -3288,6 +3270,7 @@ descriptor_data::connect_a_player (
 	else
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please use '@recall <number of lines to view>'");
+		announce_player(ANNOUNCE_RECONNECT);
 	}
 
 }
