@@ -13,6 +13,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Modified the character connection/creation process in interface.c so that it strips leading and trailing white space from the input.
+
 
 um1_034 - Some people did some changes.
 	Even more updates to the String code; We're going live with 'String' and 'StringBuffer', a nice combination of powerful manipulation and data sharing.

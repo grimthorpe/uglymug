@@ -3416,12 +3416,21 @@ descriptor_data::connect_a_player (
 }
 
 int
-descriptor_data::check_connect (const char *msg)
+descriptor_data::check_connect (const char *input)
 {
 	char   command[MAX_COMMAND_LEN];
 	char   luser[MAX_COMMAND_LEN];
 	char   lpassword[MAX_COMMAND_LEN];
+	char	msg[MAX_COMMAND_LEN];
 	dbref  player;
+
+	// Strip out any trailing spaces.
+	while(*input && isspace(*input)) input++;
+
+	strcpy(msg, input);
+	int i = strlen(msg);
+	while((i > 0) && isspace(msg[i-1])) i--;
+	msg[i] = 0;
 
 	parse_connect (msg, command, luser, lpassword);
 
@@ -3482,7 +3491,7 @@ descriptor_data::check_connect (const char *msg)
 				else
 				{
 					set_player_name(msg);
-					dbref player = lookup_player(NOTHING, command);
+					dbref player = lookup_player(NOTHING, msg);
 					if(NOTHING == player)
 					{
 						/* New player? If so, check if they want to create */
