@@ -28,7 +28,7 @@ VERSION=$1
 DOTVERSION=`echo $VERSION | sed 's,_,\.,'`
 
 # create a working directory
-rm -rf ${WD}
+rm -rf ${WD}/UglyCODE
 mkdir -p ${WD}
 cd ${WD}
 
@@ -36,7 +36,10 @@ cd ${WD}
 export CVS_RSH=ssh
 echo -e "${YEL}Press <ENTER> at the password prompt${RES}"
 cvs -d:pserver:anonymous@cvs.uglycode.sourceforge.net:/cvsroot/uglycode login
-cvs -z3 -d:pserver:anonymous@cvs.uglycode.sourceforge.net:/cvsroot/uglycode export -r um$VERSION UglyCODE
+# export the files to package; pipe the output into a file
+echo -en "Exporting um$VERSION. Output from this is in ${WD}/package.${VERSION} ... "
+cvs -z3 -d:pserver:anonymous@cvs.uglycode.sourceforge.net:/cvsroot/uglycode export -r um$VERSION UglyCODE 1>${WD}/package.${VERSION} 2>${WD}/package.${VERSION}
+echo "done"
 
 # only continue if /tmp/umpkg/UglyCODE exists
 if [ -d ${WD}/UglyCODE ]; then
@@ -45,7 +48,7 @@ if [ -d ${WD}/UglyCODE ]; then
 	#rm -rf UglyCODE/CVS
 
 	# tar up the UglyCODE directory
-	tar vczf uglycode-${VERSION}.tar.gz UglyCODE
+	tar czf uglycode-${VERSION}.tar.gz UglyCODE
 
 	# remove the UglyCODE directory
 	rm -rf ${WD}/UglyCODE/
