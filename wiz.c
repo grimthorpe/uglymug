@@ -507,9 +507,6 @@ const	String& email_addr)
 void
 context::dump_email_addresses ()
 {
-#if !defined (linux) && !defined(__FreeBSD__) 
-	extern	char	*sys_errlist[];
-#endif /* !defined (linux) && !defined(__FreeBSD__) */
 	int	i;
 	FILE	*fp;
 
