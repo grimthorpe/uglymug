@@ -8,6 +8,10 @@ Leave the Name: tag at the top of the file to get
 the correct release tag embedded in the game when you
 build it.
 
+um1_018 - Grimthorpe
+    More egg on face. string_match had a NULL string check the wrong
+    way around.
+
 um1_017 = Grimthorpe
     Egg on face time. @<softcodecommand> didn't work due to the fix.
 
