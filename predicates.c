@@ -164,7 +164,7 @@ const
 			|| (Wizard(player) && (player == get_effective_id()) && (!Wizard (what) || (Typeof(what) != TYPE_PLAYER)))	/* WIZARDs control everything except other WIZARD players */
 			|| (Wizard(get_effective_id()) && !Wizard (db[what].get_owner()))	/* Effective WIZARDs control mortals */
 			|| (get_effective_id() == db[what].get_owner())				/* Everyone controls themselves */
-			|| (db[player].get_build_id() == db[what].get_owner())			/* Controls for their group */
+			|| (db[get_effective_id()].get_build_id() == db[what].get_owner())			/* Controls for their group */
 			|| (get_effective_id() == db [db [what].get_owner()].get_controller ())));	/* Players own their puppets and puppets' stuff */
 }
 
