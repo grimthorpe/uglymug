@@ -484,6 +484,18 @@ int			sig)
 	signal(SIGALRM, alarm_handler);
 }
 
+static void
+hup_handler (
+int			sig)
+
+{
+/* Unconditional dump. Do it now, we don't care what state the game is in. */
+	alarm_triggered = 1;
+	fork_and_dump ();
+
+	signal(SIGHUP, alarm_handler);
+}
+
 
 static void
 dump_database_internal ()
@@ -736,7 +748,7 @@ const	char	*outfile)
 		free(dumpfile);
 	dumpfile = alloc_string(outfile);
 	signal(SIGALRM, alarm_handler);
-	signal(SIGHUP, alarm_handler);
+	signal(SIGHUP, hup_handler);
 	signal(SIGCHLD, reaper);
 	alarm_triggered = 0;
 	alarm(dump_interval);
