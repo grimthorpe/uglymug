@@ -8,6 +8,8 @@ MAKEFLAGS=-k -B
 # This Makefile requires lots of OS-specific detection and flag setting.
 # Moved out of this Makefile by PJC 12/4/03 to see the wood for the trees.
 include Makefile.os
+CONFIG_DIR:=configs/$(BUILD_ENVIRONMENT)
+include $(CONFIG_DIR)/Makefile.os
 
 # All files that are built go in BUILD_DIR - one per OS.
 BUILDS_DIR:=builds
@@ -124,8 +126,6 @@ RAW_LIB_OBJECTS:= \
 	variable.o \
 	wiz.o 
 
-LIB_OBJECTS:=$(RAW_LIB_OBJECTS:%=$(BUILD_DIR)/%)
-
 RAW_OUTFILES:= \
 	dump \
 	extract \
@@ -135,6 +135,11 @@ RAW_OUTFILES:= \
 	sadness \
 	stats \
 	concentrator
+
+# Include anything that needs doing for a specific build environment. PJC 20/4/2003.
+include $(CONFIG_DIR)/Makefile
+
+LIB_OBJECTS:=$(RAW_LIB_OBJECTS:%=$(BUILD_DIR)/%) $(OS_RAW_LIB_OBJECTS:%=$(BUILD_DIR)/%)
 
 OUTFILES:=$(RAW_OUTFILES:%=$(BUILD_DIR)/%$(EXESUFFIX))
 
