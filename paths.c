@@ -1,7 +1,4 @@
 /* static char SCCSid[] = "@(#)paths.c	1.2\t7/19/94"; */
-#ifdef DEBUG
-#include "mnemosyne.h"
-#endif
 #include "copyright.h"
 
 #include <stdio.h>

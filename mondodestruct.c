@@ -39,7 +39,6 @@
 #include "memory.h"
 #include "regexp_interface.h"
 #include "stack.h"
-#include "struct.h"
 
 #define APPNAME				"Mondo Destruction"
 

@@ -1,7 +1,4 @@
 /* static char SCCSid[] = "@(#)extract.c	1.3\t7/19/94"; */
-#ifdef DEBUG
-#include "mnemosyne.h"
-#endif
 #include "copyright.h"
 
 #include <stdio.h>
@@ -216,7 +213,7 @@ void check_location(dbref x)
 					newloc = DEFAULT_LOCATION;
 
 				db[loc].contents = remove_first(db[loc].contents, x);
-				PUSH(x, db[newloc].contents);
+				PUSH(x, newloc, contents);
 				db[x].location = newloc;
 				db[x].destination = newloc;
 				break;

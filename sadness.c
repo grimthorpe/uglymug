@@ -38,7 +38,6 @@
 #include "memory.h"
 #include "regexp_interface.h"
 #include "stack.h"
-#include "struct.h"
 
 /*
  * The define 'DIV' is used to determine in what size steps the player
