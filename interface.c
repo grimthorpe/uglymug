@@ -47,7 +47,9 @@
 #	define	SETSOCKOPT_OPTCAST (char*)
 typedef	int	socklen_t;
 
-// Shockingly naive implementation. TODO: Improve. PJC 20/4/2003.
+/**
+ * Shockingly naive implementation. TODO: Improve. PJC 20/4/2003.
+ */
 int gettimeofday (struct timeval *tv, void *)
 {
 	time (&tv->tv_sec);
@@ -141,7 +143,6 @@ dbref		shutdown_player = NOTHING;
 static	char	vsnprintf_result[BUFFER_LEN];
 static	char	scratch[BUFFER_LEN];
 bool descriptor_data::check_descriptors = false;
-//static	int	check_descriptors;
 int			peak_users;
 
 String str_on = "on";
@@ -154,7 +155,7 @@ static const char *create_fail =
 static const char *flushed_message =
 	"<Output Flushed>\n";
 static const char *emergency_shutdown_message =
-	"Emergency shutdown. We're numb, we're so numb it hurts.\n\n";
+	"Emergency shutdown.\n\n";
 static const char *first_shutdown_message =
 	"All hands brace for real life.\n";
 static const char *second_shutdown_message =
@@ -1412,10 +1413,10 @@ struct descriptor_data *new_connection(SOCKET sock)
 			offset+= i;
 			len -=i;
 		} while(len > 0);
-		shutdown(newsock, 2);
+		shutdown (newsock, 2);
 		closesocket (newsock);
 		errno = ECONNREFUSED;
-		return (0);
+		return 0;
 	}
 
 	int one = 1;
@@ -1535,7 +1536,7 @@ int count = 0;
 		case WONT:
 // Client wont do LINEMODE! We're out of luck, so provide standard support
 // but nothing fancy. If the client end can't cope with this, then tough,
-// as we don't want the hastle of providing full line editing functions.
+// as we don't want the hassle of providing full line editing functions.
 			switch(t_iac_option)
 			{
 			case TELOPT_LINEMODE:
@@ -2616,7 +2617,8 @@ void make_nonblocking(int s)
 
 #if	USE_WINSOCK2
 	u_long one = 1;
-	ioctlsocket (s, FIONBIO, &one);
+	if (ioctlsocket (s, FIONBIO, &one))
+		fprintf (stderr, "ioctlsocket error: %d.\n", WSAGetLastError ());	// TODO: Bug log.
 #endif	/* USE_WINSOCK2 */
 }
 
