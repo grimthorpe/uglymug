@@ -273,9 +273,10 @@ const	CString& string)
 
 	if (!string || (string.length() < MIN_ALIAS_LENGTH) || (string.length() > MAX_ALIAS_LENGTH))
 		return 0;
-
+	if(!ok_name(string))
+		return 0;
 	for (scan = string.c_str(); *scan; scan++)
-		if ((!isprint (*scan)) || (*scan == '=') || (*scan == '\n') || (isspace(*scan)))
+		if (!valid_char(*scan))
 			return 0;
 
 	/* lookup name to avoid conflicts */
