@@ -3931,11 +3931,11 @@ int			flags)
 				else if (length < 60 * 60)
 					sprintf (flag_buf, "%2dm %02ds", length / 60, length % 60);
 				else if (length < 24 * 60 * 60)
-					sprintf (flag_buf, "%2dh %02dm", length / (60 * 60), length % (60 * 60));
+					sprintf (flag_buf, "%2dh %02dm", length / (60 * 60), (length / 60)  % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					sprintf (flag_buf, "%2dd %02dh", length / (24 * 60 * 60), length % (24 * 60 * 60));
+					sprintf (flag_buf, "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
 				else
-					sprintf (flag_buf, "%2dw %02dd", length / (7 * 24 * 60 * 60), length % (7 * 24 * 60 * 60));
+					sprintf (flag_buf, "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 			}
 			else
 				sprintf (flag_buf, "TooLong");
