@@ -473,34 +473,7 @@ Matcher::match_player ()
 	else
 		match_variable_list (real_who);
 
-#if 0 // This should be dealt with in the constructor now.
- 	if (((begin = strchr(match_name, '[')) != NULL)
- 		&& ((end = strchr(begin, ']')) != NULL))
-	{
-		*begin++ = '\0';
-		*end = '\0';
-		index_attempt = true;
-		index = begin;
-
-		/* We may have an absolute ID as the match_name now */
-		if ((*match_name == NUMBER_TOKEN) && ((temp = parse_dbref (match_name)) != NOTHING) && (temp < db.get_top()) && (Typeof(temp) != TYPE_FREE))
-		{
-			if ((absolute_loc != NOTHING) && (gagged == false))
-				notify (real_who, "Inefficient: Absolute ID used inside a nested match.");
-			if (!Dark (temp) || controls_for_read (effective_who, temp, effective_who));
-				exact_match = temp;
-		}
-		else
-		{
-			if ((absolute_loc != NOTHING) && (absolute_loc != AMBIGUOUS))
-				match_variable_list (absolute_loc);
-			else
-				match_variable_list (real_who);
-		}
-	}
-#endif // 0
-
- }
+}
 
 
 
@@ -621,7 +594,10 @@ dbref	first)
 		if (!Dark(first) || controls_for_read (effective_who, first, effective_who));
 		{
 			if (semicolon_string_match (db [first].get_name (), match_name))
+			{
 				exact_match = first;
+				return;
+			}
 		}
         }
 }
