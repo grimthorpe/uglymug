@@ -30,7 +30,6 @@
 #ifdef	__sun
 extern	int	nice	(int);
 extern	int	wait3	(union wait *, int, struct rusage *);
-extern	void	srand48	(long);
 #endif
 */
 
@@ -837,11 +836,6 @@ const	char	*outfile)
 
 	/* everything ok */
 	fclose(f);
-
-	/* initialize random number generator */
-#if	HAS_SRAND48
-	srand48 (getpid ());
-#endif	/* HAS_SRAND48 */
 
 	/* set up dumper */
 	if (dumpfile)
