@@ -930,9 +930,6 @@ const	Scope	&os,
 	stop_line = temp & 0xff;
 	endif_line = temp >> 8;
 
-	/* Set up backwards-compatibility if required */
-	//no_endif = Backwards (command);
-
 	/* Flip to the elseif / endif if required */
 	if (!if_ok)
 	{

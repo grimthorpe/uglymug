@@ -202,7 +202,9 @@ const	char	*dummy)
 			break;
 		case TYPE_COMMAND:
 			if(victim_matcher.match_index_result())
+			{
 				ok = check_and_destroy_array_element (*this, object, victim_matcher.match_index_result());
+			}
 			else if(!(Wizard(object)))
 				ok = check_and_destroy_command (*this, object);
 			else
@@ -961,6 +963,10 @@ const	char	*elem)
 	}
 
 	db[zap_array].destroy_element(temp);
+	if(Typeof(zap_array) == TYPE_COMMAND)
+	{
+		db[zap_array].flush_parse_helper();
+	}
 	return (True);
 }
 

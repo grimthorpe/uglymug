@@ -26,6 +26,7 @@
 #include "context.h"
 #include "colour.h"
 
+
 #define	ASSIGN_STRING(d,s)	{ if ((d)) free((d)); if ((s && *s!=0)) (d)=strdup((s)); else (d)=NULL;}
 #define SKIP_SPACES(x)		while (*(x) && isspace(*(x))) (x)++;
 #define SKIP_DIGITS(x)		while (*(x) && isdigit(*(x))) (x)++;
@@ -382,30 +383,20 @@ const	int	start_line,
 
 {
 	int		previous_block = start_line;
-	char command_block[MAX_COMMAND_LEN];
-	int lines_in_block;
+	char		command_block[MAX_COMMAND_LEN];
+	int		lines_in_block;
 	int		line = start_line + 1;
 	int		end_line = cmd->get_inherited_number_of_elements ();
-	int		force_end_line = 0;
-	Boolean		force_endif = False;
-	//Boolean		backwards = cmd->get_flag(FLAG_BACKWARDS);
-	//Boolean		one_line_done = False;
-	Command_next	temp_result;
 
+	cmd->set_parse_helper(start_line, 0); // Clear out the start_line stuff.
 	while (line > 0 && line <= end_line)
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-		Trace("If_scope parse: %s\n", command_block);
+		Trace("If_scope parse line %d: %s\n", line, command_block);
 #endif	/* DEBUG */
 
-		temp_result=what_is_next(command_block);
-
-		/* This will force an exit */
-		if (force_end_line == line)
-			force_endif = True;
-
-		switch (force_endif ? ENDIF_NEXT : temp_result)
+		switch (what_is_next(command_block))
 		{
 			case NORMAL_NEXT:
 				break;
@@ -415,13 +406,10 @@ const	int	start_line,
 				previous_block = line;
 				break;
 			case ENDIF_NEXT:
-				/* If force_endif is set, there's a fake endif inserted just here (and our return from here fixes it) */
-				// If we're here with force_endif set, it's because we've hit the end of the command
-
-				cmd->set_parse_helper (previous_block, line + ((force_endif)?1:0));
+				cmd->set_parse_helper (previous_block, line);
 				/* Our start line needs to know where our end line is */
-				cmd->set_parse_helper (start_line, ( ( line + ((force_endif)?1:0)) << 8) + cmd->get_parse_helper (start_line));
-				return line - ((force_endif) ? 1: 0);
+				cmd->set_parse_helper (start_line, ( (line) << 8) + cmd->get_parse_helper (start_line));
+				return line;
 			case END_NEXT:
 				sprintf (errs, "Missing @for or @with at line %d in command", line);
 				line = -1;
