@@ -307,8 +307,8 @@ class	context
 {
 public:
 	static context	DEFAULT_CONTEXT;
-    friend Scheduler;
-    friend Dependency;
+    friend struct Scheduler;
+    friend struct Dependency;
     private:
 	context(const context&);		// Dummy constructor.
 	context();				// Another dummy
