@@ -593,7 +593,7 @@ dbref	i)
 			}
 			break;
 		case TYPE_THING:
-			if ((dest_type != TYPE_ROOM) && (dest_type != TYPE_THING) && (dest_type != TYPE_PLAYER))
+			if ((dest_type != TYPE_ROOM) && (dest_type != TYPE_THING) && (dest_type != TYPE_PLAYER) && (dest_type != TYPE_PUPPET))
 			{
 				if(fix_things)
 				{
@@ -602,7 +602,7 @@ dbref	i)
 				}
 				else
 				{
-					violate (i, "TYPE RULES: DESTINATION (HOME) IS NOT A PLAYER, ROOM OR CONTAINER", DESTINATION);
+					violate (i, "TYPE RULES: DESTINATION (HOME) IS NOT A PLAYER, PUPPET, ROOM OR CONTAINER", DESTINATION);
 					fatal++;
 				}
 			}
