@@ -1385,6 +1385,10 @@ void mud_connect_player (dbref player)
 
 	db [player].set_flag(FLAG_CONNECTED);
 
+	if(Retired(player) && Wizard(player))
+	{
+		log_hack(GOD_ID, "<<<RETIRED WIZARD>>> %s(#%d) Connected", getname(player), player);
+	}
 	mud_run_dotcommand(player, ".login");
 }
 
