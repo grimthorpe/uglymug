@@ -2733,7 +2733,7 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 		RETURN_FAIL;
 	}
 
-	if(!Wizard(get_effective_id()) && !Apprentice(get_effective_id()) && amount>db[get_effective_id()].get_money())
+	if((get_effective_id() != GOD_ID) && (amount>db[get_effective_id()].get_money()))
 	{
 		notify(player, "You don't have that much to give away.");
 		RETURN_FAIL;
