@@ -775,7 +775,7 @@ const	char	*outfile)
 	
 	/* read smd file */
 	context	*read_context = new context (GOD_ID);
-	read_context->do_smdread ((char *)NULL, (char *)NULL); /* Read the SMD list */
+	read_context->do_smd("read", (char *)NULL); /* Read the SMD list */
 	delete mud_scheduler.push_express_job (read_context);
 
 	/* Do startup comands */
