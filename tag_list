@@ -21,6 +21,12 @@ information doesn't get lost.
     Added @terminal effects option; Does the effects but not the colour. (Set yourself !colour)
     Added @terminal halfquit option; Automatically does HALFQUIT if you do a client-side disconnect without a 'QUIT'.
     Added @?terminal (but no real implementation yet).
+    Cleaned up notify_wizard_foo so that it is unconditional again.
+    Added a remembered 'gagged_command' status to the call stack.
+    Cleaned up @truncate slightly
+    Added support for '@?terminal type'.
+    Deprecated '@terminal termtype' for '@terminal type' (but 'termtype' still works)
+    Cleaned up the SMD code so that we don't care about the (never implemented) JANET network lookup.
 
 um1_030 - Chisel; fixed showstopper with HALFQUIT
     Fixed the Trace() call for HALFQUIT so that it doesn't try to use
