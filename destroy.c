@@ -1204,6 +1204,7 @@ const	String& )
 					case TYPE_PUPPET:
 						/* Dinner time */
 							/* Try to keep building points in the game 'level' */
+							db[i].set_owner(player); // Important to stop the game from crashing.
 							db[player].add_pennies(db[i].get_pennies());
 							trash_container (i);
 						break;

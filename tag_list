@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed @gc so that when you destroy the puppets it doesn't crash the game.
 	Fixed create_player so that it will deal with blank passwords properly.
 
 um1_037 - Back to stability perhaps?
