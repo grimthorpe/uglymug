@@ -4023,21 +4023,31 @@ int			flags)
 	{
 		if (!(flags & DUMP_QUIET))
 		{
-			if(users > peak_users)
-				peak_users = users;
-
-			uptime = time(NULL) - game_start_time;
-
-			snprintf (scratch, sizeof(scratch), " Up: %s", small_time_string(uptime));
-			if (get_player())
-				queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
-			if (flags & DUMP_WIZARD)
-				snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) %s\n", users, peak_users, local, inet, logthrough, scratch);
+			if(who.want_npcs)
+			{
+				snprintf (buf, sizeof(buf), "NPCs: %d\n", users);
+				queue_string (buf);
+				if (get_player())
+					queue_string (COLOUR_REVERT);
+			}
 			else
-				snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  %s\n", users, peak_users, scratch);
-			queue_string (buf);
-			if (get_player())
-				queue_string (COLOUR_REVERT);
+			{
+				if(users > peak_users)
+					peak_users = users;
+
+				uptime = time(NULL) - game_start_time;
+
+				snprintf (scratch, sizeof(scratch), " Up: %s", small_time_string(uptime));
+				if (get_player())
+					queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
+				if (flags & DUMP_WIZARD)
+					snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) %s\n", users, peak_users, local, inet, logthrough, scratch);
+				else
+					snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  %s\n", users, peak_users, scratch);
+				queue_string (buf);
+				if (get_player())
+					queue_string (COLOUR_REVERT);
+			}
 		}
 	}
 	else

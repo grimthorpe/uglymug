@@ -20,6 +20,7 @@ wizards, admin, etc
 	Added MAX_NAME_LENGTH, and used in two obvious places
 	Modified @?connectedplayers, who, swho so they all use class WhoToShow to determine who should be shown.
 	Modified @?connectedplayers to use String append.
+	Fixed the peak users store in 'who' so that it only does it for users, not npcs.
 
 
 um1_039 - ARGH!
