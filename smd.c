@@ -11,6 +11,8 @@
 #include <sys/types.h>
 #include <string.h>
 
+#include "os.h"
+
 #if	USE_BSD_SOCKETS
 #	include <netdb.h>
 #	include <sys/socket.h>
