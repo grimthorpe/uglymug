@@ -1,4 +1,4 @@
-um1_009
+$Name:  $
 
 Tag file. Lists the tags and the broad changes made.
 Please update everytime a new release goes live on
@@ -6,6 +6,11 @@ the main game. This way we can always pull out the
 correct version. In reverse order.
 Place the latest tag number at the top to ensure
 the version information in the game is correct.
+
+um1_010 - Grimthorpe
+    Not really a major change, but now we have the release tag in the code
+    done properly, as long as everyone remebers to edit the top line of this
+    file. I suppose I could automate it with a Name CVS tag...
 
 um1_009 - Grimthorpe
     Private channels: Wizards can override private channel settings, in case

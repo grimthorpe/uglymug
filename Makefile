@@ -268,7 +268,7 @@ newversion:
 	fi
 
 version.h: newversion
-	@echo \#define VERSION \"[Release `head -1 tag_list`, build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" > version.h
+	@echo \#define VERSION \"[UglyCODE Release `head -1 tag_list | sed 's,.Name:,,; s,[#-%],,` build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" > version.h
 
 alarm.o : alarm.c \
 	alarm.h \
