@@ -868,7 +868,7 @@ context::do_query_idletime (const char *const name, const char *const)
 	{
 		return;
 	}
-	sprintf (scratch_return_string, "%ld", interval);
+	sprintf (scratch_return_string, "%ld", (long int)interval);
 	set_return_string (scratch_return_string);
 	return_status = COMMAND_SUCC;
 }
@@ -923,7 +923,7 @@ context::do_query_last_entry (const char *const name, const char *const)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can only find the last entry time of a room.");
 		else
 		{
-			sprintf (scratch_buffer, "%ld", db[thing].get_last_entry_time());
+			sprintf (scratch_buffer, "%ld", (long int)db[thing].get_last_entry_time());
 			set_return_string (scratch_buffer);
 			return_status = COMMAND_SUCC;
 		}
@@ -1401,7 +1401,7 @@ context::do_query_rand (const char *const value, const char *const)
 void
 context::do_query_realtime (const char *const name, const char *const)
 {
-	long	now;
+	time_t	now;
 
 	if (name == NULL || *name == '\0')
 		time (&now);
@@ -1505,11 +1505,11 @@ context::do_query_time (
 const	char	*const,
 const	char	*const)
 {
-	long	time_now;
+	time_t	time_now;
 
 	time (&time_now);
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "%ld", time_now);
+	sprintf (scratch_return_string, "%ld", (long int)time_now);
 	set_return_string (scratch_return_string);
 }
 

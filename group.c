@@ -60,7 +60,7 @@ const	char	*player_string)
 	char	time_string[15];
 
 	time(&now);
-	sprintf(time_string, "%ld", now);
+	sprintf(time_string, "%ld", (long int)now);
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);

@@ -311,7 +311,7 @@ object::get_inherited_description ()
 const
 
 {
-	if (get_description () != NULL)
+	if (get_description () != (const String &)NULL)
 		return get_description ();
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -325,7 +325,7 @@ object::get_inherited_fail_message ()
 const
 
 {
-	if (get_fail_message () != NULL)
+	if (get_fail_message () != (const   String&)NULL)
 		return get_fail_message ();
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -339,7 +339,7 @@ object::get_inherited_succ_message ()
 const
 
 {
-	if (get_succ_message () != NULL)
+	if (get_succ_message () != (const   String&)NULL)
 		return get_succ_message ();
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -381,7 +381,7 @@ object::get_inherited_drop_message ()
 const
 
 {
-	if (get_drop_message () != NULL)
+	if (get_drop_message () != (const   String&)NULL)
 		return (get_drop_message ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -395,7 +395,7 @@ object::get_inherited_ofail ()
 const
 
 {
-	if (get_ofail () != NULL)
+	if (get_ofail () != (const   String&)NULL)
 		return (get_ofail ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -409,7 +409,7 @@ object::get_inherited_osuccess ()
 const
 
 {
-	if (get_osuccess () != NULL)
+	if (get_osuccess () != (const   String&)NULL)
 		return (get_osuccess ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -423,7 +423,7 @@ object::get_inherited_odrop ()
 const
 
 {
-	if (get_odrop () != NULL)
+	if (get_odrop () != (const   String&)NULL)
 		return (get_odrop ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;

@@ -1264,7 +1264,7 @@ void mud_connect_player (dbref player)
 		db[player].set_colour_play(make_colour_play(player, db[player].get_colour()));
 		db[player].set_colour_play_size(find_number_of_players(db[player].get_colour()));
 		time(&now);
-		sprintf(scratch_buffer, "%ld", now);
+		sprintf(scratch_buffer, "%ld", (long int)now);
 		db [player].set_fail_message (scratch_buffer);
 	}
 
@@ -1362,18 +1362,18 @@ void mud_disconnect_player (dbref player)
 
 		db [player].clear_flag(FLAG_CONNECTED);
 
-		if (db [player].get_ofail() != NULL)
+		if (db [player].get_ofail() != (const   String&)NULL)
 			total = atol (db [player].get_ofail().c_str());
 		else
 			total = 0;
-		if (db [player].get_fail_message() != NULL)
+		if (db [player].get_fail_message() != (const   String&)NULL)
 			last = atol (db [player].get_fail_message().c_str());
 		else
 			last = 0;
 
 		time (&now);
 		total += (now - last);
-		sprintf (scratch_buffer, "%ld", total);
+		sprintf (scratch_buffer, "%ld", (long int)total);
 		db [player].set_ofail (scratch_buffer);
 		
 
@@ -1392,7 +1392,7 @@ void mud_time_sync ()
 	dbref		a_location;
 	dbref		cached_location;
 	int		recursion_counter = 0;
-        long		now;
+        time_t		now;
 
 #ifdef SYSV
 	wait(NULL);        /* Cludge to clean up SYS V */

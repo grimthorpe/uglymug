@@ -1083,9 +1083,9 @@ context::do_channel_who
 			if (interval < 5)
 				sprintf (buf, "   Active");
 			else if (interval < 60)
-				sprintf (buf, "      %02lds", interval);
+				sprintf (buf, "      %02lds", (long int)interval);
 			else if (interval < 60 * 60)
-				sprintf (buf, "  %2ldm %02lds", interval / 60, interval % 60);
+				sprintf (buf, "  %2ldm %02lds", (long int)interval / 60, (long int)interval % 60);
 			else if (interval < 90 * 60)
 				sprintf (buf, "    Aeons");
 			else if (interval < 120 * 60)

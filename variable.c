@@ -527,7 +527,7 @@ const	int	depth,
 		{
 			case TYPE_VARIABLE:
 			case TYPE_PROPERTY:
-				if (db[variable].get_description() != NULL)
+				if (db[variable].get_description() != (const String &)NULL)
 					value = db[variable].get_description().c_str();
 				break;
 			case TYPE_ARRAY:

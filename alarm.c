@@ -127,8 +127,9 @@ const	char	*)
 				rtime->tm_hour,
 				rtime->tm_min,
 				rtime->tm_sec,
-				current->get_time_to_execute () - now,
-				unparse_object (*this, current->get_object ()));
+				(long int)current->get_time_to_execute () - now,
+				unparse_object (*this, current->get_object ())
+                                );
 			strcat (scratch_buffer, " firing ");
 			strcat (scratch_buffer, unparse_object (*this, db[current->get_object ()].get_destination ()));
 			notify (player, "%s", scratch_buffer);
@@ -200,7 +201,7 @@ const	char	*string)
 	int		minute;
 	int		hour;
 	int		day;
-	long		now;
+	time_t		now;
 	long		then;
 
 	ptr = string;

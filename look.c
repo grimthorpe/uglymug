@@ -151,7 +151,7 @@ int		level)
 			if (!had_contents)
 			{
 				/* Otherwise, output the 'contents' field (if any)... */
-				if (db[object].get_contents_string () != NULL)
+				if (db[object].get_contents_string () != (const String &)NULL)
 					strcpy (scratch_buffer + level, db [object].get_contents_string ().c_str());
 				else
 					strcpy (scratch_buffer + level, contents_name);
@@ -215,7 +215,7 @@ int		level)
 	notify(c.get_player (), "%s", scratch_buffer);
 
 	/* Otherwise, output the 'contents' field (if any). Re-use the spaces from last time. */
-	if (db [object].get_contents_string () != NULL)
+	if (db [object].get_contents_string () != (const String &)NULL)
 	{
 		sprintf(scratch_buffer + level_count, "%sContents string:%s ",
 				ca[COLOUR_CONTENTS],
@@ -1976,7 +1976,7 @@ const	char	*string)
 		for(i = 0; i < db.get_top (); i++)
 			if((Typeof (i) != TYPE_FREE)
 				&& Typeof(i) != TYPE_EXIT
-				&& db[i].get_name() != NULL
+				&& db[i].get_name() != (const   String&)NULL
 				&& controls_for_read(i)
 				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
@@ -1986,7 +1986,7 @@ const	char	*string)
 		for(i = 0; i < db.get_top (); i++)
 			if((Typeof (i) != TYPE_FREE)
 				&& Typeof(i) != TYPE_EXIT
-				&& db[i].get_description() != NULL
+				&& db[i].get_description() != (const String &)NULL
 				&& controls_for_read (i)
 				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
@@ -2157,7 +2157,7 @@ char *time_string (time_t interval)
 	}
 	if (seconds > 0)
 	{
-		sprintf (scratch_buffer, "%s%ld second%s", (*buffer) ? " and ":"", interval, PLURAL (interval));
+		sprintf (scratch_buffer, "%s%ld second%s", (*buffer) ? " and ":"", (long int)interval, PLURAL (interval));
 		strcat (buffer, scratch_buffer);
 	}
 	if (*buffer=='\0')
@@ -2194,7 +2194,7 @@ char *small_time_string (time_t interval)
 	}
 	if (hours == 0 && days == 0)
 	{
-		sprintf (scratch_buffer, "%ld second%s", interval, PLURAL (interval));
+		sprintf (scratch_buffer, "%ld second%s", (long int)interval, PLURAL (interval));
 		strcat (buffer, scratch_buffer);
 	}
 

@@ -47,8 +47,8 @@
 #if defined (sun) || (linux)
 	#include <curses.h>
 #else
-	/* #include <ncurses.h> */
-	#include "local_curses.h"
+	#include <ncurses.h> 
+	/* #include "local_curses.h" */
 #endif
 	#include <term.h>
 #endif	/* USE_TERMINFO */
@@ -243,9 +243,9 @@ public:
 	struct	text_queue	input;
 	unsigned char		*raw_input;
 	unsigned char		*raw_input_at;
-	long			start_time;
-	long			last_time;
-        long                    time_since_idle;
+	time_t			start_time;
+	time_t			last_time;
+        time_t                  time_since_idle;
 	int			warning_level;
 	int			quota;
 	int			backslash_pending;
@@ -1172,7 +1172,7 @@ struct timeval update_quotas(struct timeval last, struct timeval current)
 void mud_main_loop(int port)
 {
 	fd_set			input_set, output_set;
-	long			now;
+	time_t			now;
 	long			diff;
 	struct	timeval		last_slice, current_time;
 	struct	timeval		next_slice;
@@ -2168,7 +2168,7 @@ struct	sockaddr_in	*a,
 int			channel)
 
 {
-	long now;
+	time_t now;
 
 	(void) time (&now);
 
@@ -3106,7 +3106,7 @@ dbref	player,
 dbref	booter)
 
 {
-	long			now;
+	time_t			now;
 	(void)			time (&now);
 	struct descriptor_data	*d;
 
@@ -3266,12 +3266,12 @@ descriptor_data::do_command (const char *command)
 int
 descriptor_data::check_connect (const char *msg)
 {
-	char command[MAX_COMMAND_LEN];
-	char luser[MAX_COMMAND_LEN];
-	char lpassword[MAX_COMMAND_LEN];
-	long now;
+	char   command[MAX_COMMAND_LEN];
+	char   luser[MAX_COMMAND_LEN];
+	char   lpassword[MAX_COMMAND_LEN];
+	time_t now;
 	struct tm *the_time;
-	dbref player;
+	dbref  player;
 
 	parse_connect (msg, command, luser, lpassword);
 
@@ -3596,7 +3596,7 @@ int	sig)
 	char message[1024];
 #ifdef linux
 // Yuck - I feel ill JPK
-	extern const char * const sys_siglist[];
+//	extern const char * const sys_siglist[];
 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 #else
 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
@@ -3707,7 +3707,7 @@ int			flags)
 
 {
 	struct	descriptor_data	*d;
-	long			now;
+	time_t			now;
 	char			buf[1024];
 	char			flag_buf [256];
 	int			length;
