@@ -19,6 +19,10 @@
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
+
 
 #define	CHOPSIG		SIGUSR1		/* Signal caught by command */
 #define	usage()		fprintf(stderr,"Usage: %s <output file> <cut file>\n",argv[0])
@@ -28,14 +32,15 @@ char *outputfile;
 char *cutfile;
 void handler();
 FILE *out=NULL;
-//extern char *sys_errlist[];
+#ifdef sun
+extern char *sys_errlist[];
+#endif
 
-int main(argc,argv)
-int argc;
-char *argv[];
+int main(int argc, char *argv[])
 {
 char l[1024];
 FILE *pidfile=NULL;
+int tmp;
 
 	/* First things first;: set up the signal handler */
 	if((int)signal(CHOPSIG, handler) < 0)
@@ -50,7 +55,8 @@ FILE *pidfile=NULL;
 		fprintf(stderr,"scat: can't create process file '%s' (%s)",PIDFILE,sys_errlist[errno]);
 		exit(errno);
 	}
-	fprintf(pidfile, "%d\n", getpid() );
+	tmp=getpid();
+	fprintf(pidfile, "%d\n", tmp );
 	fclose(pidfile);
 
 	/* Now interpret the arguments */
