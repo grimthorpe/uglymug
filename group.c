@@ -492,7 +492,7 @@ int add_up_votes(dbref	members,
 				if((tmp = db[support_list].exist_element(idstring)))
 				{
 				/*Add to total*/
-					sscanf(db[support_list].get_element(tmp), "%d", &woo);
+					woo = atoi(value_or_empty(db[support_list].get_element(tmp)));
 					support += woo;
 				/*Otherwise that member has not supported this new person*/
 					notify(GOD_ID, "Support is: %d (%s)", support, db[support_list].get_element(tmp));

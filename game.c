@@ -244,6 +244,7 @@ command_details			command_table [] =
 	{"@pcreate",		&context::do_pcreate,		NO_COMMAND_FLAGS},
 	{"@peak",		&context::do_peak,		NO_COMMAND_FLAGS},
 	{"@pemote",		&context::do_pemote,		NO_COMMAND_FLAGS},
+	{"@pose",		&context::do_pose,		NO_COMMAND_FLAGS},
 	{"@property",		&context::do_property,		NO_COMMAND_FLAGS},
 	{"@puppet",		&context::do_puppet,		NO_COMMAND_FLAGS},
 	{"@queue",		&context::do_at_queue,		NO_COMMAND_FLAGS},

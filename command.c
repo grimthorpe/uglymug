@@ -51,8 +51,8 @@ const	char	*arg2)
 	dbref	command;
 
 #ifdef HACK_HUNTING
-	// If we're inside a chpid...
-	if(get_effective_id() != player)
+	// If we're inside a chpid, and not in a special command (fuse, .enter, .leave, alarm, etc.)
+	if(get_effective_id() != get_player())
 	{
 		/* If we try to call a command that doesn't start
 		 * with '#' (ie an absolute number, or relative to

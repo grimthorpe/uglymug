@@ -678,14 +678,14 @@ Trace( "Player list updated\n");
 				i++;
 				continue;
 			}
-			sanity_count=atoi(db[mylist].get_element(i));
+			sanity_count=atoi(value_or_empty(db[mylist].get_element(i)));
 			int j=1;
 			deadlists=0;
 	/* Now go thru his custom list dictionary, removing me from it */
 			while (j<=db[hislist].get_number_of_elements())
 			{
 				newlist[0]='\0';
-				strcpy(scratch_buffer, db[hislist].get_element(j));
+				strcpy(scratch_buffer, value_or_empty(db[hislist].get_element(j)));
 				for (char *number=strtok(scratch_buffer,";"); number; number=strtok(NULL,";"))
 				{
 					if(atoi(number)==zap_player)

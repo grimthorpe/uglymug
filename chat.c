@@ -145,7 +145,7 @@ static int singing_la_la_la_cant_hear_you(dbref player, dbref target)
 	if(!(element=db[dict].exist_element(ignore_list)))
 		return 0;
 	
-	strcpy(scratch_buffer, db[dict].get_element(element));
+	strcpy(scratch_buffer, value_or_empty(db[dict].get_element(element)));
 
 	for(char *number=strtok(scratch_buffer, ";"); number; number=strtok(NULL, ";"))
 		if(atoi(number)==player)
@@ -253,7 +253,7 @@ void context::do_tadd(const char *arg1, const char *arg2)
 
 	if((element=db[lists].exist_element(arg1)))
 	{
-		char *list=strdup(db[lists].get_element(element));
+		char *list=strdup(value_or_empty(db[lists].get_element(element)));
 		char *number;
 
 		strcpy(scratch_buffer, list);
@@ -339,7 +339,7 @@ void context::do_tlist(const char *arg1, const char *)
 			char *ptr;
 
 			sprintf(scratch_buffer, "   %s:  ", db[lists].get_index(i));
-			ptr=strdup(db[lists].get_element(i));
+			ptr=strdup(value_or_empty(db[lists].get_element(i)));
 			for(char *c=strtok(ptr, ";"); c; c=strtok(NULL, ";"))
 			{
 				if(Connected(atoi(c)))
@@ -409,7 +409,7 @@ void context::do_tlist(const char *arg1, const char *)
 			}
 
 			notify(player, "Your \"%s\" list contains:", arg1);
-			strcpy(scratch_buffer, db[lists].get_element(element));
+			strcpy(scratch_buffer, value_or_empty(db[lists].get_element(element)));
 			for(char *c=strtok(scratch_buffer, ";"); c; c=strtok(NULL, ";"))
 				notify(player, "   %s", db[atoi(c)].get_name());
 		}
@@ -473,7 +473,7 @@ void context::do_tdelete(const char *arg1, const char *arg2)
 			return;
 		}
 
-		char *names=strdup(db[lists].get_element(element));
+		char *names=strdup(value_or_empty(db[lists].get_element(element)));
 		*scratch_buffer='\0';
 		int i;
 
@@ -780,7 +780,7 @@ void context::do_tell(const char *arg1, const char *arg2)
 			if((element=db[lists].exist_element(woo)))
 			{
 				/* Copy an entire list in. */
-				char *list=strdup(db[lists].get_element(element));
+				char *list=strdup(value_or_empty(db[lists].get_element(element)));
 				for(char *ptr=strtok(list, ";"); ptr; ptr=strtok(NULL, ";"))
 				{
 					if (!find_player_in_player_list(targets, atoi(ptr)))

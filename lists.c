@@ -120,7 +120,7 @@ add_clist_reference(dbref bloke_being_ladded, dbref bloke_doing_ladd)
 	dbref lists=find_list_dictionary(bloke_being_ladded, reverseclist_dictionary);
 	sprintf(smallbuf,"%d", bloke_doing_ladd);
 	dbref element=db[lists].exist_element(smallbuf);
-	value= element ? atoi(db[lists].get_element(element)) : 0;
+	value= element ? atoi(value_or_empty(db[lists].get_element(element))) : 0;
 	sprintf(smallbuf2, "%d", value + 1);
 	db[lists].set_element(element, smallbuf, smallbuf2);
 }
@@ -140,7 +140,7 @@ remove_clist_reference(dbref bloke_being_lremoved, dbref bloke_doing_lremove)
 		Trace( "BUG: Trying to remove a reverse custom list reference when none exists.\n");
 		return;
 	}
-	value= atoi(db[lists].get_element(element)) - 1;
+	value= atoi(value_or_empty(db[lists].get_element(element))) - 1;
 	if (value)
 	{
 		sprintf(smallbuf2, "%d", value);
@@ -225,9 +225,9 @@ context::do_lset(const char *victims, const char *flag)
 		}
 		int newflags;
 		if (*flag == NOT_TOKEN)
-			newflags=atoi(db[lists].get_element(element)) & ~f;
+			newflags=atoi(value_or_empty(db[lists].get_element(element))) & ~f;
 		else
-			newflags=atoi(db[lists].get_element(element)) | f;
+			newflags=atoi(value_or_empty(db[lists].get_element(element))) | f;
 
 		sprintf(smallbuf,"%d", newflags);
 		db[lists].set_element(element, NULL, smallbuf);
@@ -437,7 +437,7 @@ Player_list::set_included(PLE *player, Boolean state, const char *message = NULL
 
 			case HACKY_INSERT_HAVENMESSAGE:
 				if ((automatic!=NOTHING) && (index=db[automatic].exist_element("Haven")))
-					notify_censor_colour (originator, player->player, COLOUR_MESSAGES, "Haven message from %s:  %s", getname_inherited (player->player), db[automatic].get_element(index));
+					notify_censor_colour (originator, player->player, COLOUR_MESSAGES, "Haven message from %s:  %s", getname_inherited (player->player), value_or_empty(db[automatic].get_element(index)));
 				else
 					notify_colour (originator, player->player, COLOUR_MESSAGES, "%s does not wish to be disturbed.", getname_inherited (player->player));
 				break;
@@ -446,7 +446,7 @@ Player_list::set_included(PLE *player, Boolean state, const char *message = NULL
 				if (player->from_a_list == True)
 					break;
 				if ((automatic!=NOTHING) && (index=db[automatic].exist_element("Sleep")))
-					notify_censor_colour (originator, player->player, COLOUR_MESSAGES, "Sleeping message from %s:  %s", getname_inherited (player->player), db[automatic].get_element(index));
+					notify_censor_colour (originator, player->player, COLOUR_MESSAGES, "Sleeping message from %s:  %s", getname_inherited (player->player), value_or_empty(db[automatic].get_element(index)));
 				else
 					notify_colour (originator, player->player, COLOUR_MESSAGES, "%s is not connected.", getname_inherited (player->player));
 				break;
@@ -578,7 +578,7 @@ Player_list::include_from_list(dbref player, int f)
 		return filtered_size;
 
 	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
-		if ((atoi (db[lists].get_element(i)) & f) && (!find_player (atoi (db[lists].get_index(i)))))
+		if ((atoi (value_or_empty(db[lists].get_element(i))) & f) && (!find_player (atoi (db[lists].get_index(i)))))
 		{
 			if(add_player(atoi(db[lists].get_index(i)), True) == False)
 			{
@@ -597,7 +597,7 @@ Player_list::include_from_reverse_list(dbref player, int f)
 		return filtered_size;
 
 	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
-		if ((atoi (db[lists].get_element(i)) & f) && (!find_player (atoi (db[lists].get_index(i)))))
+		if ((atoi (value_or_empty(db[lists].get_element(i))) & f) && (!find_player (atoi (db[lists].get_index(i)))))
 		{
 			if(add_player(atoi(db[lists].get_index(i)), True) == False)
 			{
@@ -616,7 +616,7 @@ Player_list::exclude_from_list(dbref player, int f, const char *message=NULL)
 		return filtered_size;
 
 	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
-		if ((atoi (db[lists].get_element(i)) & f) && (temp=find_player (atoi (db[lists].get_index(i)))))
+		if ((atoi (value_or_empty(db[lists].get_element(i))) & f) && (temp=find_player (atoi (db[lists].get_index(i)))))
 			set_included(temp, False, message);
 
 	return filtered_size;
@@ -631,7 +631,7 @@ Player_list::exclude_from_reverse_list(dbref player, int f, const char *message=
 		return filtered_size;
 
 	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
-		if ((atoi (db[lists].get_element(i)) & f) && (temp=find_player (atoi (db[lists].get_index(i)))))
+		if ((atoi (value_or_empty(db[lists].get_element(i))) & f) && (temp=find_player (atoi (db[lists].get_index(i)))))
 			set_included(temp, False, message);
 	return filtered_size;
 }
@@ -822,7 +822,7 @@ Player_list::notify(
 			if (((automatic=matcher.match_result())!=NOTHING) &&
 			    (db[automatic].get_owner() == current->player) &&
 			    (index=db[automatic].exist_element("Haven")))
-				notify_censor_colour(originator, current->player, COLOUR_MESSAGES, "Haven message from %s:  %s", getname_inherited(current->player), db[automatic].get_element(index));
+				notify_censor_colour(originator, current->player, COLOUR_MESSAGES, "Haven message from %s:  %s", getname_inherited(current->player), value_or_empty(db[automatic].get_element(index)));
 			else
 				notify_censor_colour(originator, current->player, COLOUR_MESSAGES, "%s does not wish to be disturbed.", getname_inherited(current->player));
 			continue;
@@ -876,7 +876,7 @@ const char *arg1)
 		if((*woo != '*') && (element=db[lists].exist_element(woo)))
 		{
 			/* Copy an entire list in. */
-			char *listinfo=strdup(db[lists].get_element(element));
+			char *listinfo=strdup(value_or_empty(db[lists].get_element(element)));
 			ptr=listinfo;
 			do
 			{
@@ -970,7 +970,7 @@ const char *arg1)
  * 	if(!(element=db[dict].exist_element(player)))
  * 		return 0;
  * 	
- * 	if ( (atoi(db[dict].get_element(element))) & PLIST_IGNORE)
+ * 	if ( (atoi(value_or_empty(db[dict].get_element(element)))) & PLIST_IGNORE)
  * 		return 1;
  * 
  * 	return 0;
@@ -1075,7 +1075,7 @@ void context::do_ladd(const char *arg1, const char *arg2)
 		mylist[0]='\0';
 		char *number;
 		
-		strcpy(mylist,db[lists].get_element(element));
+		strcpy(mylist,value_or_empty(db[lists].get_element(element)));
 		
 		for(int i=0; i<victim_count; i++)
 		{
@@ -1155,7 +1155,7 @@ void context::do_llist(const char *arg1, const char *)
 				if (Typeof(target) != TYPE_PLAYER)
 					Trace("BUG: Non-player on player list.\n");
 				else	
-					notify_colour(player, player, COLOUR_MESSAGES, "     %s%s%-20s%%w%%h: %s", colour_at[rank_colour(target)], Connected(target)?"*":" ",  db[target].get_name(), playerlist_flags(atoi(db[lists].get_element(i))));
+					notify_colour(player, player, COLOUR_MESSAGES, "     %s%s%-20s%%w%%h: %s", colour_at[rank_colour(target)], Connected(target)?"*":" ",  db[target].get_name(), playerlist_flags(atoi(value_or_empty(db[lists].get_element(i)))));
 
 			}
 		}
@@ -1192,7 +1192,7 @@ void context::do_llist(const char *arg1, const char *)
 
 	notify_censor(player, player, "Your list \"%s\" contains:", arg1);
 	terminal_underline(player, squiggles);
-	strcpy(scratch_buffer, db[lists].get_element(element));
+	strcpy(scratch_buffer, value_or_empty(db[lists].get_element(element)));
 	for(char *c=strtok(scratch_buffer, ";"); c; c=strtok(NULL, ";"))
 	{
 		if (Connected(atoi(c)))
@@ -1291,7 +1291,7 @@ void context::do_lremove(const char *arg1, const char *arg2)
 		return;
 	}
 
-	char *names=strdup(db[lists].get_element(element));
+	char *names=strdup(value_or_empty(db[lists].get_element(element)));
 	*scratch_buffer='\0';
 
 	for(char *c=strtok(names, ";"); c; c=strtok(NULL, ";"))
@@ -1377,12 +1377,12 @@ context::do_fwho(const char *, const char *)
 		rt=' ';
 
 		if ((element= db[list].exist_element(smallbuf)))
-			myflags=atoi(db[list].get_element(element));
+			myflags=atoi(value_or_empty(db[list].get_element(element)));
 		else
 			myflags=0;
 
 		if ((element=db[rev_list].exist_element(smallbuf)))
-			hisflags=atoi(db[rev_list].get_element(element));
+			hisflags=atoi(value_or_empty(db[rev_list].get_element(element)));
 		else
 			hisflags=0;
 
