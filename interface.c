@@ -2758,6 +2758,12 @@ descriptor_data::announce_player (announce_states state)
 	Boolean deruded=False;
 	const char *censored=NULL;
 
+	if(db[get_player()].get_flag(FLAG_DONTANNOUNCE))
+	{
+		// If the wizards don't want anyone to hear this...
+		return;
+	}
+
 	switch (state)
 	{
 		case ANNOUNCE_CONNECTED :
@@ -2907,14 +2913,14 @@ descriptor_data::process_input (int len)
 					backslash_pending = 1;
 				break;
 			case '\n':
-gotline = 1;
+				gotline = 1;
 				if(cr_pending)
 				{
 					cr_pending = 0;
 					break;
 				}
 			case '\r':
-gotline = 1;
+				gotline = 1;
 				if((t_lflow == 2) && (charcount > 0))
 				{
 					t_lflow = 1;
@@ -2950,7 +2956,7 @@ gotline = 1;
 					break;
 				*p-- = '\0';
 // Make sure the character is erased from the screen
-do_write(termcap.backspace, strlen(termcap.backspace));
+				do_write(termcap.backspace, strlen(termcap.backspace));
 				x = raw_input;
 				while(*x && (x < p))
 				{

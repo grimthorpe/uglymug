@@ -68,6 +68,7 @@ struct	flag_stuff	flag_list [] =
 
 	{"Backwards",	FLAG_BACKWARDS,		'B'},
 
+	{"DontAnnounce",FLAG_DONTANNOUNCE,	'-'},
 	{NULL,		0,		'\0'}
 };
 

@@ -128,6 +128,8 @@ const	Boolean	True = 1;
 
 #define FLAG_DEBUG			50
 
+#define FLAG_DONTANNOUNCE		51
+
 /* Old defines for db load */
 
 #define OLD_BASE_TYPE_MASK 	0x00000007	/* room for expansion */

@@ -32,7 +32,7 @@ const	char	*arg2)
 
 {
 #ifdef LOG_RECURSION
-	Trace( "RECURSION: %s(%d) [%s] Limit: %d Command: %s(%d) %s = %s\n",
+	Trace( "RECURSION|%s(%d)|[%s]|Limit: %d Command: %s(%d) %s = %s\n",
 		getname_inherited (player), player,
 		log_time(),
 		step_limit,

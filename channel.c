@@ -132,7 +132,8 @@ static void remove_from_list(struct channel_player **list, dbref player)
 static struct channel *
 join_channel (
 const	char	*name,
-const	dbref	player)
+const	dbref	player,
+const	CString&	arg2)
 {
 	struct	channel	*channel = find_channel(name);
 	const colour_at& ca = db[player].get_colour_at();
@@ -159,8 +160,23 @@ const	dbref	player)
 
 	if(channel->mode==CHANNEL_PRIVATE && !on_channel(channel->invites, player))
 	{
-		notify(player, "%s, Sorry, channel \"%s\" is private, and you don't have an invitation.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-		return NULL;
+		if(string_compare("force", arg2.c_str()))
+		{
+			if(Wizard(player))
+			{
+				notify(player, "%sWARNING: PRIVATE CHANNEL INVITATION OVERRULED.%s", ca[COLOUR_ERROR_MESSAGES], ca[COLOUR_ERROR_MESSAGES]);
+			}
+			else
+			{
+				notify(player, "%sSorry, channel \"%s\" is private, and you don't have an invitation.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
+				return NULL;
+			}
+		}
+		else
+		{
+			notify(player, "%sSorry, channel \"%s\" is private, and you don't have an invitation.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
+			return NULL;
+		}
 	}
 
 	if(on_channel(channel->bans, player))
@@ -258,7 +274,7 @@ void context::do_chat(const char *arg1, const char *arg2)
 				RETURN_SUCC;
 			}
 		}
-		else if((channel=join_channel(arg1, player)))
+		else if((channel=join_channel(arg1, player, arg2)))
 		{
 			db[player].set_channel(channel);
 			sprintf(scratch_buffer, "%s has joined the channel", db[player].get_name().c_str());

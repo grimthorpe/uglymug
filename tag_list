@@ -3,6 +3,14 @@ Please update everytime a new release goes live on
 the main game. This way we can always pull out the
 correct version. In reverse order.
 
+um1_009 - Grimthorpe
+    Private channels: Wizards can override private channel settings, in case
+    of error. Please do not abuse it.
+    DONTANNOUNCE: A new flag (DontAnnounce) to stop the [xxx has connected]
+    announcements
+    Julian's updates: Julian has tidied up the code (again) to make it more
+    cross-platform.
+
 um1_008 - Grimthorpe
     Bug fix 1 for String code: Array_storage::insert_element was totally
     bogus. This is now fixed(tm)

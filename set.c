@@ -1332,7 +1332,14 @@ const	char	*flag)
 		 return;
 		}
 	}
-
+	if ((f==FLAG_DONTANNOUNCE) && (*flag != NOT_TOKEN))
+	{
+		if(!Wizard(get_effective_id()))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set DontAnnounce flag on players.");
+			return;
+		}
+	}
 	if ((f==FLAG_NOHUHLOGS) && (*flag != NOT_TOKEN))
 	{
 		if (!Wizard(get_effective_id()))
