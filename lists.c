@@ -406,8 +406,9 @@ Player_list::warn_me_if_idle()
 	}
 }
 
+// message=NULL is set in the definition
 void
-Player_list::set_included(PLE *player, bool state, const char *message = NULL)
+Player_list::set_included(PLE *player, bool state, const char *message)
 {
 	int index;
 	dbref automatic = NOTHING;
@@ -538,8 +539,9 @@ Player_list::include_if_set(const int f)
 	return filtered_size;
 }
 
+// message=NULL set in definition
 int
-Player_list::filter_out_if_unset(const int f, const char *message=NULL)
+Player_list::filter_out_if_unset(const int f, const char *message)
 {
 	PLE *current=list;
 	while (current)
@@ -551,8 +553,9 @@ Player_list::filter_out_if_unset(const int f, const char *message=NULL)
 	return filtered_size;
 }
 
+// message defaults to NULL in the definition
 int
-Player_list::filter_out_if_set(const int f, const char *message=NULL)
+Player_list::filter_out_if_set(const int f, const char *message)
 {
 	PLE *current=list;
 	while (current)
@@ -564,8 +567,9 @@ Player_list::filter_out_if_set(const int f, const char *message=NULL)
 	return filtered_size;
 }
 
+// message set to NULL in definition
 int
-Player_list::exclude(dbref player, const char *message=NULL)
+Player_list::exclude(dbref player, const char *message)
 {
 	PLE *temp;
 	if ((temp=find_player(player)))
@@ -611,8 +615,10 @@ Player_list::include_from_reverse_list(dbref player, int f)
 		}
 	return filtered_size;
 }
+
+// message set to NULL in definition
 int
-Player_list::exclude_from_list(dbref player, int f, const char *message=NULL)
+Player_list::exclude_from_list(dbref player, int f, const char *message)
 {
 	PLE *temp;
 	dbref lists=find_list_dictionary(player, playerlist_dictionary);
@@ -626,8 +632,9 @@ Player_list::exclude_from_list(dbref player, int f, const char *message=NULL)
 	return filtered_size;
 }
 
+// message set to NULL in definition
 int
-Player_list::exclude_from_reverse_list(dbref player, int f, const char *message=NULL)
+Player_list::exclude_from_reverse_list(dbref player, int f, const char *message)
 {
 	PLE *temp;
 	dbref lists=find_list_dictionary(player, reverseplist_dictionary);
@@ -658,8 +665,9 @@ Player_list::include(int player)
 
 /* adds a player to a player_list, returns true if we succeeded */
 
+// fromlist set to false in definition
 bool
-Player_list::add_player(dbref player, bool fromlist=false)
+Player_list::add_player(dbref player, bool fromlist)
 {
 	if (Typeof(player) != TYPE_PLAYER)
 	{
@@ -686,8 +694,9 @@ Player_list::add_player(dbref player, bool fromlist=false)
 	return true;
 }
 
+// inform_me set to false in definition
 const char *
-Player_list::generate_courtesy_string(dbref source, dbref destination, bool inform_me=false)
+Player_list::generate_courtesy_string(dbref source, dbref destination, bool inform_me)
 {
 	int		done=0,
 			remaining=0;

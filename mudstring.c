@@ -16,8 +16,9 @@
 #include <string.h>
 
 // NewBuffer - static method that returns a StringBuffer.
+// len is defaulted to 0 in the definition..
 StringBuffer*
-StringBuffer::NewBuffer(const char* ptr, unsigned int len = 0)
+StringBuffer::NewBuffer(const char* ptr, unsigned int len)
 {
 // Have a static data member; When NULLSTRING is destroyed, the 
 // reference count on it should go to 0, and it will go too.
@@ -40,7 +41,8 @@ String NULLSTRING;
 
 #define STRINGBUFFER_GROWSIZE	64
 
-void StringBuffer::resize(unsigned int newsize, bool copy=true)
+// copy is defaulted to true in the definition
+void StringBuffer::resize(unsigned int newsize, bool copy)
 {
 	if(newsize <= _capacity)
 		return;
@@ -67,8 +69,8 @@ StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the
 	if(_buf)
 		delete[] _buf;
 }
-
-StringBuffer::StringBuffer(unsigned int capacity = 0) : _buf(0), _len(0), _capacity(0), _ref(0)
+// capacity is defaulted to 0 in the definition 
+StringBuffer::StringBuffer(unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
 	resize(capacity);
 }
@@ -132,7 +134,8 @@ String::~String()
 	_buffer->unref();
 }
 
-String::String(const char* str = 0) : _buffer(0)
+// str is defaulted to 0 in the definition
+String::String(const char* str) : _buffer(0)
 {
 	_buffer = StringBuffer::NewBuffer(str);
 	_buffer->ref();
