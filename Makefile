@@ -12,13 +12,14 @@ OPTIM=
 WHOAMI=whoami
 
 # Solaris 2.8
-# Shouldn't need this, but may help if desperate!
-#LIBS= -L/usr/ucblib -lucb -lm -ltermcap -lsocket -lnsl
 
-#LIBS= -L/usr/ucblib -lucb -lm -ltermcap -lsocket -lnsl
+#WHOAMI=who am i
+
+# Shouldn't need this, but may help if desperate!
+#LIBS= -lcurses -lm -ltermcap -lsocket -lnsl
+
 #CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
-#WHOAMI=who am i
 
 # Linux
 # LIBS= -lm -ltermcap -ldl
