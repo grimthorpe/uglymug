@@ -1,11 +1,11 @@
 /* static char SCCSid[] = "@(#)trawl.c	1.3\t7/19/94"; */
 /* 
- * Name		: OneShot
+ * Name		: SpoonTrawl
  *
- * Purpose	: Utility for UglyMug. Resets all the player logon times to
- *		  zero. Reads a db from stdin, and writes one to stdout.
+ * Purpose	: Utility for UglyMug. Does a trawl and a function
+ *		   Reads a db from stdin, and writes one to stdout.
  *
- * Author	: Ian 'Efficient' Whalley.
+ * Author	: ReaperMoo
  *
  * Requires	: Usual Ugly util modules.
  *
@@ -33,7 +33,7 @@
 #include "match.h"
 #include "regexp_interface.h"
 
-#define APPNAME				"OneShot"
+#define APPNAME				"SpoonTrawl"
 
 // Make game.c happy
 const char* version = "trawl; unknown version.";
@@ -58,7 +58,6 @@ void print_helpful_message(const char *msg)
 int main ()
 {
 	int		i;
-	int		total = 0;
 
 	Trace("%s diagnostic: Starting db.read() from stdin.\n",
 				APPNAME);
@@ -68,28 +67,19 @@ int main ()
 				APPNAME);
 		exit(1);
 	}
-	print_helpful_message("db.read() completed. Beginning sensor sweep.");
-	time_t now;
-	now = time(0);
-#define YEARSECS (60*60*24*365)
-#define MONTHSECS (60*60*24*31)
+	print_helpful_message("db.read() completed. Begin zeroing.");
+	int drogna=0;
 
 	for (i = 0 ; i < db.get_top(); i++)
 	{
-		if (Typeof(i) == TYPE_PLAYER)
+		if ((Typeof(i) == TYPE_PLAYER) || (Typeof(i) == TYPE_PUPPET))
 		{
-			if(!Builder(i) && !Apprentice(i) && !Welcomer(i) && !Wizard(i))
-			if(true)
-			{
-				if((atoi(db[i].get_ofail().c_str()) < 3600) // Less than 1 hour connection
-				&& (now - atoi(db[i].get_fail_message().c_str()) > YEARSECS))
-				{
-					printf("#%d\n", i);
-					total++;
-				}
-			}
+			drogna = drogna + db[i].get_money();
+			db[i].set_money(0);
 		}
 	}
-	printf("Total: %d\n", total);
+	Trace("%s: Total Drogna removed:%d\n",APPNAME, drogna);
+	db.write(stdout);
 	return 0;
+
 }
