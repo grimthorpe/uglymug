@@ -1843,12 +1843,6 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 {
 	char *terminal;
 
-	char *tmpstring;
-	tmpstring=(char *)malloc(sizeof("lines  ")); /* 'lines' is the longest
-                                                      * string needed, the 
-						      * spaces are paranoia
-						      */
-
 	terminal = safe_strdup(termtype);
 
 	for(int i = 0; terminal[i]; i++)
@@ -1875,18 +1869,14 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 
 	if (terminal_width == 0)
 	{
-		strcpy(tmpstring,"cols");
-		terminal_width = tigetnum(tmpstring);
-		//terminal_width = tigetnum("cols");
+		terminal_width = tigetnum(const_cast<char *>("cols"));
 #ifdef DEBUG_TELNET
 		Trace( "Terminal width (from terminfo):  %d\n", terminal_width);
 #endif
 	}
 	if (terminal_height == 0)
 	{
-		strcpy(tmpstring,"lines");
-		terminal_height = tigetnum(tmpstring);
-		//terminal_height = tigetnum("lines");
+		terminal_height = tigetnum(const_cast<char *>("lines"));
 #ifdef DEBUG_TELNET
 		Trace( "Terminal height (from terminfo):  %d\n", terminal_height);
 #endif
@@ -1909,9 +1899,7 @@ int descriptor_data::set_terminal_type (const char *const termtype)
  *	}
  */
 
-	strcpy(tmpstring,"bold");
-	const char *const bold = tigetstr(tmpstring);
-	//const char *const bold = tigetstr("bold");
+	const char *const bold = tigetstr(const_cast<char *>("bold"));
 	if (bold != (char *)-1)
 	{
 		if (termcap.bold_on)
@@ -1919,9 +1907,7 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 		termcap.bold_on = safe_strdup(bold);
 	}
 
-	strcpy(tmpstring,"sgr0");
-	const char *const bold_off = tigetstr(tmpstring);
-	//const char *const bold_off = tigetstr("sgr0");
+	const char *const bold_off = tigetstr(const_cast<char *>("sgr0"));
 	if (bold_off != (char *)-1)
 	{
 		if (termcap.bold_off)
@@ -1929,9 +1915,7 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 		termcap.bold_off = safe_strdup(bold_off);
 	}
 
-	strcpy(tmpstring,"smul");
-	const char *const underline = tigetstr(tmpstring);
-	//const char *const underline = tigetstr("smul");
+	const char *const underline = tigetstr(const_cast<char *>("smul"));
 	if (underline != (char *)-1)
 	{
 		if (termcap.underscore_on)
@@ -1939,9 +1923,7 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 		termcap.underscore_on = safe_strdup(underline);
 	}
 
-	strcpy(tmpstring,"rmul");
-	const char *const underscore_off = tigetstr(tmpstring);
-	//const char *const underscore_off = tigetstr("rmul");
+	const char *const underscore_off = tigetstr(const_cast<char *>("rmul"));
 	if (underscore_off != (char *)-1)
 	{
 		if (termcap.underscore_off)
