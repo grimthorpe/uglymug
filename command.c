@@ -955,9 +955,10 @@ const String&args)
 		step = (end >= start) ? 1 : -1;
 	}
 
-	if (step == 0 || step * (end - start) < 0)
+	if (step == 0)// || step * (end - start) < 0)
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@for: Step must move the start towards the end.");
+		//notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@for: Step must move the start towards the end.");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@for: Step must be non-zero");
 		return;
 	}
 
