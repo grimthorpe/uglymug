@@ -4247,7 +4247,7 @@ descriptor_data::dump_swho()
 	static	char		linebuf [80];
 	struct	descriptor_data	*d;
 	int			num = 0;
-	int			numperline = terminal_width / 22;
+	int			numperline = terminal_width / 25;
 
 	if(numperline == 0) numperline = 3;
 
@@ -4255,8 +4255,25 @@ descriptor_data::dump_swho()
 	{
 		if(d->IS_CONNECTED() && (Typeof(d->get_player()) != TYPE_PUPPET))
 		{
-			sprintf(linebuf, " %c%-20s", (Wizard(d->get_player())?'*':(Apprentice(d->get_player())?'~':' ')),
-							value_or_empty (db[d->get_player()].get_name()));
+			int thing= d->get_player();
+			int colour=COLOUR_MORTALS;
+			if (Builder(thing))
+				colour= COLOUR_BUILDERS;
+			if (Welcomer(thing))
+				colour= COLOUR_WELCOMERS;
+			if (XBuilder(thing))
+				colour= COLOUR_XBUILDERS;
+			if (Apprentice(thing))
+				colour= COLOUR_APPRENTICES;
+			if (Wizard(thing))
+				colour= COLOUR_WIZARDS;
+			if (thing==GOD_ID)
+				colour= COLOUR_GOD;
+			sprintf(linebuf, " %c%s%-23s%s", 
+				(Wizard(d->get_player())?'*':(Apprentice(d->get_player())?'~':' ')),
+				player_colour (get_player(), get_player(), colour),
+				value_or_empty (db[d->get_player()].get_name()),
+				COLOUR_REVERT);
 			queue_string(linebuf);
 			if((++num % numperline) == 0)
 				queue_string("\n");
@@ -4264,7 +4281,9 @@ descriptor_data::dump_swho()
 	}
 	if(num % numperline)	/* Bit of a hack to get correct num of \n's */
 		queue_string("\n");
-	sprintf(linebuf, "Users: %d\n", num);
+	sprintf(linebuf, "%sUsers: %d%s\n",
+		player_colour (get_player(), get_player(), COLOUR_MESSAGES),
+		num, COLOUR_REVERT);
 	queue_string(linebuf);
 }
 
@@ -4277,7 +4296,7 @@ const	char	*)
 {
 	struct descriptor_data *d;
 
-	notify_colour(player, player, COLOUR_TITLES, "Current players:");
+	notify_colour(player, player, COLOUR_MESSAGES, "Current players:");
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (d->get_player() == player))
 			d->dump_swho ();
@@ -4420,8 +4439,17 @@ descriptor_data::terminal_set_wrap(const char *width, int commands_executed)
 		}
 		if (i)
 			i = MIN(MAX(i,20),256);
-		terminal_width = i;
-		terminal_wrap = (terminal_width > 0);
+// If wrap is not zero, set terminal width to the value and set wrap on.
+// If wrap is zero, leave terminal width, but set wrap off.
+		if(i > 0)
+		{
+			terminal_width = i;
+			terminal_wrap = 1;
+		}
+		else
+		{
+			terminal_wrap = 0;
+		}
 	}
 	if(!commands_executed)
 	{
