@@ -17,6 +17,8 @@ information doesn't get lost.
 	Made Compound_command_and_arguments intialise the 'player' dbref.
 	Removed the debugging message from the context constructor.
 
+	Added regexp argument to @recall to allow conditional recalling of stuff syntax: @recall [<number>][=[<regexp>]].
+
 um1_036 - Bug stopping time.
 	Stopped the recursion logging from crashing the game.
 	Removed the final bits of weapon code from the player object.
