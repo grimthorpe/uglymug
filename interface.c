@@ -4187,7 +4187,7 @@ struct  descriptor_data *d;
 
 	if(!command || !*command)
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Queue what?");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to @queue?");
 		return;
 	}
 
