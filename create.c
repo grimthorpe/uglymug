@@ -1045,7 +1045,7 @@ const	String& command_name)
 		}
 		db[thing].set_csucc (destination);
 		Modified (thing);
-		if (destination != HOME)
+		if (destination != HOME && destination != NOTHING)
 			Accessed (destination);
 		if (!in_command())
 		{
@@ -1115,7 +1115,7 @@ const	String& command_name)
 		}
 		db[thing].set_cfail (destination);
 		Modified (thing);
-		if (destination != HOME)
+		if (destination != HOME && destination != NOTHING)
 			Accessed (destination);
 		if (!in_command())
 		{

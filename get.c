@@ -438,7 +438,6 @@ context::do_query_descendantfrom (const String& first, const String& parent_str)
 	if ((parent = parent_matcher.noisy_match_result ()) == NOTHING)
 		return;
 
-	Accessed (parent);
 	return_status = COMMAND_SUCC;
 	do {
 		if ((temp = db[thing].get_parent ()) != NOTHING)
