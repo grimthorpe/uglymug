@@ -40,6 +40,9 @@
 #include "externs.h"
 #include "interface.h"
 
+#include "config.h"
+#include "log.h"
+
 
 static	void	output_player_colours(const dbref player, const dbref victim);
 static	void	output_attribute_colours(const dbref player, const dbref victim);
@@ -240,10 +243,18 @@ static char *find_cia(const char *colour_string, char* cia)
 static void
 output_array(cplay * array, int size)
 {
+#ifndef NEW_LOGGING
 	Trace( "Size of array: %d\n", size);
+#else
+	log_debug("size of array: %d", size);
+#endif /* NEW_LOGGING */
 	for(int x=0;x<size;x++)
 	{
+#ifndef NEW_LOGGING
 		Trace( "Element [%d] : %s\n", x, array[x].output_string);
+#else
+		log_debug("element [%d]: %s", x, array[x]/output_string);
+#endif /* NEW_LOGGING */
 	}
 }
 #endif
@@ -564,7 +575,11 @@ const	CString& colour_codes)
 	/* Set the storage string on the player */
 	db[player].set_colour(new_colour);
 #ifdef DEBUG_COLOUR
+#ifndef NEW_LOGGING
 	Trace( "Colour string is:'%s'\n", new_colour);
+#else
+	log_debug("colour string is: %s", new_colour);
+#endif /* NEW_LOGGING */
 #endif
 
 	/* Update the memory, colour array */

@@ -16,6 +16,9 @@
 #include "command.h"
 #include "context.h"
 
+#include "config.h"
+#include "log.h"
+
 
 /*
  * db_patch_alarms: Patch alarms in the database into the pending queue of alarms.
@@ -71,9 +74,17 @@ db_patch_alarms ()
 				db [db [i].get_cfail ()].set_referenced ();
 			if ((Typeof (i) == TYPE_PLAYER) && (db [i].get_controller () != i))
 			{
-				if (Typeof (db [i].get_controller ()) != TYPE_PLAYER)
-				{
+				if (Typeof (db [i].get_controller ()) != TYPE_PLAYER) {
+#ifndef NEW_LOGGING
 					Trace( "BUG: Player %d has non-player %d as controller --- patching to GOD.\n", i, db[i].get_controller());
+#else
+					log_bug("player %s(#%d) has non-player %s(#%d) as controller --- patching to GOD",
+							getname(i),
+							i,
+							getname(db[i].get_controller()),
+							db[i].get_controller()
+					);
+#endif /* NEW_LOGGING */
 					db [i].set_controller (GOD_ID);
 				}
 				db [db [i].get_controller ()].set_referenced ();
@@ -324,7 +335,11 @@ dbref	candidate)
 
 {
 	if (this == NULL)
+#ifndef NEW_LOGGING
 		Trace( "BUG: Attempt to remove element from list that didn't contain it.\n");
+#else
+		log_bug("attempt to remove element from list that didn't contain it: candidate is #%d", candidate);
+#endif /* NEW_LOGGING */
 	else if (object == candidate)
 	{
 		remove_from (list);

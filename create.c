@@ -15,6 +15,7 @@
 #include "match.h"
 #include "context.h"
 #include "colour.h"
+#include "log.h"
 
 /* Macro to choose between using the effective id and using the build_id */
 #define ID (player!=get_effective_id())?(get_effective_id()):(db[player].get_build_id())
@@ -435,7 +436,11 @@ const	CString& room_name)
 				break;
 			default:
 				notify(player, "Internal error: weird object type.");
+#ifndef NEW_LOGGING
 				Trace( "BUG: Weird object in @link: Typeof(%d) = 0x%x\n", thing, Typeof(thing));
+#else
+				log_bug("wierd object in @linkl: Typeof(#%d) = 0x%x", thing, Typeof(thing));
+#endif /* NEW_LOGGING */
 				return;
 		}
 		return_status = COMMAND_SUCC;
@@ -848,7 +853,20 @@ const	CString& variable_name,
 const	CString& value)
 {
 notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a deprecated command. Please use @property instead.");
+#ifndef NEW_LOGGING
 Trace( "BUG: Player %d used @variable in command %d\n", player, get_current_command());
+#else
+	/* if we are in a command, dump command information */
+	if (in_command()) {
+		log_bug("player %s(#%d) used @variable in command %s(#%d)",
+				getname(player), player,
+				getname(get_current_command()), get_current_command());
+	}
+	else {
+		log_bug("player %s(#%d) used @variable on the command line",
+				getname(player), player);
+	}
+#endif /* NEW_LOGGING */
 	dbref	thing;
 
 	return_status = COMMAND_FAIL;

@@ -43,6 +43,8 @@ A spanking new set of features/code fixes (especially Keith's) copyright
 	Dale "Guest" Thompson, Lee "Currency (haha)" Chapman, 
 	Duncan "Prettylook" Millard, Colin "Decompiled" Wright.
 
+Funky new logging functions copyright (c) 2002 by:
+	Chisel "I'm Working On The Logs" Wright
 
 The misfeatures are probably ours, too, but we don't want to admit to
 that.

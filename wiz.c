@@ -15,6 +15,7 @@
 #include "command.h"
 #include "context.h"
 #include "colour.h"
+#include "log.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -473,7 +474,11 @@ context::dump_email_addresses ()
 
 	/* Flup's email dumping routine */
 	if ((fp=fopen (EMAIL_FILE, "w"))==NULL)
+#ifndef NEW_LOGGING
 		Trace( "BUG: couldn't open %s (%s)\n", EMAIL_FILE, sys_errlist[errno]);
+#else
+		log_bug("couldn't open %s (%s)", EMAIL_FILE, sys_errlist[errno]);
+#endif /* NEW_LOGGING */
 	else
 	{
 		for (i = 0; i < db.get_top (); i++)
@@ -485,11 +490,13 @@ context::dump_email_addresses ()
 					fprintf (fp, "%s|", db [i].get_alias (j).c_str());
 				}
 				fprintf (fp,
-					"%d|%s\n",
+					"%d|%s|%s\n",
 					i,
 					(db [i].get_email_addr ())
 						? db [i].get_email_addr ().c_str()
-						: "NO_MAIL_ADDRESS");
+						: "NO_MAIL_ADDRESS",
+					(NoHuhLogs(i) ? "NOHUH" : "HUH")	/* HUH logs? */
+				);
 			}
 		fclose(fp);
 //		notify_colour (player, player, COLOUR_MESSAGES, "Done.");

@@ -90,8 +90,6 @@ void handler()
 {
 	char command[1024];
 
-	fprintf(stderr, "Inside handler\n");
-
 	/* Close the last file (if any), open the next one */
 	if(out!=NULL)
 	{

@@ -7,6 +7,9 @@
 #include "command.h"
 #include "interface.h"
 
+#include "config.h"
+#include "log.h"
+
 /* I suppose all these should really be somewhere else, but then again... */
 #define PROBABILITY_TWEAK	18 /* Messing around with this can be fun :) */
 #define DEFAULT_WEAPON_VALUE	1
@@ -282,7 +285,11 @@ const	CString& )
 			break;
 		default:
 			notify(player, "I don't know how to deal with that type of combat item. Tell a wizard.");
+#ifndef NEW_LOGGING
 			Trace( "BUG: Don't know type of combat item in do_attributes.\n");
+#else
+			log_bug("do_attributes: don't know type of combat item %s(#%d)", item_name.c_str(), item);
+#endif /* NEW_LOGGING */
 			return;
 	}
 	set_return_string (ok_return_string);

@@ -29,6 +29,9 @@
 #include "lists.h"
 #include "objects.h"
 
+#include "config.h"
+#include "log.h"
+
 static char squiggles[]="%w%h+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=%z";
 #define	MAX_MORTAL_LISTS	MAX_MORTAL_DICTIONARY_ELEMENTS
 
@@ -105,7 +108,11 @@ delete_reverse_map(dbref bloke_being_deleted, dbref bloke_doing_delete)
 	sprintf(smallbuf,"%d", bloke_doing_delete);
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
+#ifndef NEW_LOGGING
 		Trace( "BUG: Attempting to remove a reverse player mapping where none exists.\n");
+#else
+		log_bug("Attempting to remove a reverse player mapping where none exists.");
+#endif /* NEW_LOGGING */
 	else
 		db[lists].destroy_element(element);
 }
@@ -137,7 +144,11 @@ remove_clist_reference(dbref bloke_being_lremoved, dbref bloke_doing_lremove)
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
 	{
+#ifndef NEW_LOGGING
 		Trace( "BUG: Trying to remove a reverse custom list reference when none exists.\n");
+#else
+		log_bug("Trying to remove a reverse custom list reference when none exists.");
+#endif /* NEW_LOGGING */
 		return;
 	}
 	value= atoi(db[lists].get_element(element).c_str()) - 1;
@@ -411,7 +422,11 @@ Player_list::set_included(PLE *player, bool state, const char *message = NULL)
 
 	if (!player)
 	{
+#ifndef NEW_LOGGING
 		Trace("BUG: Trying to set the included state of NULL.\n");
+#else
+		log_bug("Trying to set the included state of NULL.");
+#endif /* NEW_LOGGING */
 		return;
 	}
 	filtered_size+=(state==player->included)?0:(state==true)?1:-1;
@@ -660,7 +675,11 @@ Player_list::add_player(int player, bool fromlist=false)
 {
 	if (Typeof(player) != TYPE_PLAYER)
 	{
+#ifndef NEW_LOGGING
 		Trace( "BUG: Non-player %d on a player list.\n",player);
+#else
+		log_bug("Non-player %s(#%d) on a player list", getname(player), player);
+#endif /* NEW_LOGGING */
 		return false;
 	}
 
@@ -1145,7 +1164,11 @@ void context::do_llist(const CString& arg1, const CString& )
 			{
 				target=atoi(db[lists].get_index(i).c_str());
 				if (Typeof(target) != TYPE_PLAYER)
+#ifndef NEW_LOGGING
 					Trace("BUG: Non-player on player list.\n");
+#else
+					log_bug("Non-player %s(#%d) on player list #%d", getname(target), target, lists);
+#endif /* NEW_LOGGING */
 				else	
 					notify_colour(player, player, COLOUR_MESSAGES, "     %s%s%-20s%%w%%h: %s", ca[rank_colour(target)], Connected(target)?"*":" ",  db[target].get_name().c_str(), playerlist_flags(atoi(db[lists].get_element(i).c_str())));
 

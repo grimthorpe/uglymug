@@ -12,6 +12,7 @@
 #include "command.h"
 #include "context.h"
 #include "colour.h"
+#include "log.h"
 
 static	int	commands_executed;
 
@@ -93,13 +94,21 @@ const
 					return db[c.get_player ()].get_flag (thing);
 				else
 				{
+#ifndef NEW_LOGGING
 					Trace("BUG: eval_internal - Bad flag number %d\n", thing);
+#else
+					log_bug("eval_internal: bad flag number: %d", thing);
+#endif /* NEW_LOGGING */
 					return false;
 				}
 
 				break; /* Unreachable, but just for neatness */
 			default:
+#ifndef NEW_LOGGING
 				Trace("BUG: eval_internal - Bad node type %d.\n", type);
+#else
+				log_bug("eval_internal: bad node type: %d", type);
+#endif /* NEW_LOGGING */
 				return false;
 		}
 
@@ -347,7 +356,11 @@ const
 	}
 
 	/* Should always be one of the above types */
+#ifndef NEW_LOGGING
 	Trace( "BUG: boolexp::contains: Invalid node type %d.\n", type);
+#else
+	log_bug("boolexp::contains: invalid node type: %d", type);
+#endif /* NEW_LOGGING */
 	return (false);
 }
 
@@ -413,7 +426,11 @@ const
 				}
 				else
 				{
+#ifndef NEW_LOGGING
 					Trace("BUG: unparse_internal : bad type %c\n", type);
+#else
+					log_bug("unparse_internal: bad type: %c", type);
+#endif /* NEW_LOGGING */
 				}
 		}
 	}
@@ -477,7 +494,11 @@ const
 				}
 				else
 				{
+#ifndef NEW_LOGGING
 					Trace("BUG: unparse_for_return_internal - unknown type %c\n", type);
+#else
+					log_bug("unparse_for_return_internal: unknown_type: %c", type);
+#endif /* NEW_LOGGING */
 					abort();
 				}
 		}
@@ -562,7 +583,11 @@ boolexp::sanitise ()
 			break;
 		default:
 			/* bad type */
+#ifndef NEW_LOGGING
 			Trace("BUG: recursive_sane_lock: bad type %d. Removing node and all sub-nodes.\n", type);
+#else
+			log_bug("recursive_sane_lock: bad type: %d. Removing node and all sub-nodes", type);
+#endif /* NEW_LOGGING */
 			return (TRUE_BOOLEXP);
 	}
 

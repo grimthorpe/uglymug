@@ -14,6 +14,9 @@
 #include "objects.h"
 #include "db.h"
 
+#include "config.h"
+#include "log.h"
+
 #define	MAX_MORTAL_LISTS	MAX_MORTAL_DICTIONARY_ELEMENTS
 #define	MAX_LIST_SIZE		64
 #define	MAX_CHANNELS		64
@@ -710,7 +713,11 @@ void context::do_tell(const char *arg1, const char *arg2)
 
 	if((channel=my_atoi(arg1))!=0 && !strchr(arg1, ',') && !strchr(arg1, ';'))
 	{
+#ifndef NEW_LOGGING
 		   Trace( "It's channel %d\n", channel);
+#else
+		   log_debug("it's channel %d", channel);
+#endif /* NEW_LOGGING */
 		  
 
 		if(channel>MAX_CHANNELS)
@@ -724,7 +731,11 @@ void context::do_tell(const char *arg1, const char *arg2)
 
 
 		for(current=channels[channel].list; current; current=current->next)
+#ifndef NEW_LOGGING
 			Trace( "  Member of %d:  %s\n", channel, db[current->player].get_name());
+#else
+			log_debug("member of %d: %s", channel, db[current->player].get_name());
+#endif /* NEW_LOGGING */
 
 		/* Is the channel in use? */
 

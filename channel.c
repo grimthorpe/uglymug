@@ -19,6 +19,9 @@
 #include "colour.h"
 #include "context.h"
 
+#include "config.h"
+#include "log.h"
+
 class ChannelPlayer
 {
 	dbref			Player;
@@ -192,7 +195,11 @@ Channel::~Channel()
 	}
 	if(Players)
 	{
+#ifndef NEW_LOGGING
 		Trace("BUG: Channel destroyed whilst players connected to it");
+#else
+		log_bug("channel %s destroyed whilst players connected to it", Name.c_str());
+#endif /* NEW_LOGGING */
 		while(Players)
 		{
 			delete Players;
@@ -595,7 +602,11 @@ context::do_query_channel (const CString& arg1, const CString& arg2)
 	else
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Something went wrong in @?channel.");
+#ifndef NEW_LOGGING
 		Trace("BUG: Something went wrong in @?channel");
+#else
+		log_bug("something went wrong in @?channel");
+#endif /* NEW_LOGGING */
 	}
 }
 
@@ -781,7 +792,11 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	if(!channel_player)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Bug in code - player missing from default channel.");
+#ifndef NEW_LOGGING
 		Trace( "BUG: player missing from default channel\n");
+#else
+		log_bug("player missing from default channel");
+#endif /* NEW_LOGGING */
 		RETURN_FAIL;
 	}
 
@@ -1171,7 +1186,11 @@ context::do_channel (const CString& arg1, const CString& arg2)
 	}
 
 	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Something went wrong with @channel.");
+#ifndef NEW_LOGGING
 	Trace("BUG: Something went wrong with @channel");
+#else
+	log_bug("something went wrong with @channel");
+#endif /* NEW_LOGGING */
 }
 
 

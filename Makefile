@@ -10,22 +10,22 @@ OPTIM=
 ####################################
 #           Solaris 2.8
 ####################################
-WHOAMI=who am i
-LIBS= -lcurses -lm -ltermcap -lsocket -lnsl
-# Normal
-CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
-# Extra debug info
-#CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+#WHOAMI=who am i
+#LIBS= -lcurses -lm -ltermcap -lsocket -lnsl
+## Normal
+#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+## Extra debug info
+##CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
 ####################################
 #              Linux
 ####################################
-#WHOAMI=whoami
-#LIBS= -lm -ldl -lcurses -lcrypt
+WHOAMI=whoami
+LIBS= -lm -ldl -lcurses -lcrypt
 # Normal
-#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 # Extra debug info
-#CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
 ###############
 # Old comment
@@ -57,6 +57,7 @@ HEADERS = \
 	game.h \
 	game_predicates.h \
 	interface.h \
+	log.h \
 	match.h \
 	memory.h \
 	mudstring.h \
@@ -281,7 +282,8 @@ alarm.o : alarm.c \
 	mudstring.h \
 	externs.h \
 	match.h \
-	interface.h
+	interface.h \
+	log.h
 
 boolexp.o: boolexp.c \
 	context.h \
@@ -291,7 +293,8 @@ boolexp.o: boolexp.c \
 	match.h \
 	externs.h \
 	config.h \
-	interface.h
+	interface.h \
+	log.h
 
 channel.o: channel.c \
 	colour.h \
@@ -301,7 +304,8 @@ channel.o: channel.c \
 	objects.h \
 	db.h \
 	mudstring.h \
-	command.h
+	command.h \
+	log.h
 
 colour.o: colour.c \
 	db.h \
@@ -310,12 +314,14 @@ colour.o: colour.c \
 	context.h \
 	command.h \
 	externs.h \
-	interface.h
+	interface.h \
+	log.h
 
 combat.o: combat.c \
 	db.h \
 	mudstring.h \
-	match.h
+	match.h \
+	log.h
 
 command.o: command.c \
 	db.h \
@@ -323,7 +329,8 @@ command.o: command.c \
 	interface.h \
 	command.h \
 	context.h \
-	match.h
+	match.h \
+	log.h
 
 container.o: container.c \
 	db.h \
@@ -340,7 +347,8 @@ context.o: context.c \
 	db.h \
 	mudstring.h \
 	externs.h \
-	interface.h
+	interface.h \
+	log.h
 
 create.o: create.c \
 	db.h \
@@ -350,7 +358,8 @@ create.o: create.c \
 	externs.h \
 	command.h \
 	match.h \
-	objects.h
+	objects.h \
+	log.h
 
 db.o: db.c \
 	db.h \
@@ -358,7 +367,8 @@ db.o: db.c \
 	externs.h \
 	config.h \
 	interface.h \
-	objects.h
+	objects.h \
+	log.h
 
 decompile.o: decompile.c \
 	db.h \
@@ -377,7 +387,8 @@ destroy.o: destroy.c \
 	externs.h \
 	lists.h \
 	match.h \
-	command.h
+	command.h \
+	log.h
 
 dump.o: dump.c \
 	db.h \
@@ -406,7 +417,8 @@ game.o: game.c \
 	game.h \
 	interface.h \
 	match.h \
-	externs.h
+	externs.h \
+	log.h
 
 game_predicates.o: game_predicates.c \
 	game_predicates.h \
@@ -415,7 +427,8 @@ game_predicates.o: game_predicates.c \
 	db.h \
 	mudstring.h \
 	interface.h \
-	externs.h
+	externs.h \
+	log.h
 
 get.o: get.c \
 	command.h \
@@ -426,7 +439,8 @@ get.o: get.c \
 	externs.h \
 	game_predicates.h \
 	interface.h \
-	match.h
+	match.h \
+	log.h
 
 group.o: group.c \
 	command.h \
@@ -446,7 +460,8 @@ interface.o: interface.c \
 	lists.h \
 	telnet.h \
 	descriptor.h \
-	game_predicates.h
+	game_predicates.h \
+	log.h
 
 lists.o: lists.c \
 	colour.h \
@@ -456,12 +471,15 @@ lists.o: lists.c \
 	mudstring.h \
 	externs.h \
 	interface.h \
-	objects.h
+	objects.h \
+	log.h
 
 log.o: log.c \
 	command.h \
 	context.h \
-	externs.h
+	externs.h \
+	log.h \
+	config.h
 
 look.o: look.c \
 	colour.h \
@@ -482,7 +500,8 @@ match.o: match.c \
 	config.h \
 	context.h \
 	externs.h \
-	match.h
+	match.h \
+	log.h
 
 move.o: move.c \
 	command.h \
@@ -493,7 +512,8 @@ move.o: move.c \
 	externs.h \
 	interface.h \
 	match.h \
-	stack.h
+	stack.h \
+	log.h
 
 netmud.o: netmud.c \
 	command.h \
@@ -504,7 +524,8 @@ netmud.o: netmud.c \
 	externs.h \
 	game.h \
 	interface.h \
-	version.h
+	version.h \
+	log.h
 
 npc.o:	npc.c \
 	command.h \
@@ -521,7 +542,8 @@ objects.o: objects.c \
 	mudstring.h \
 	externs.h \
 	interface.h \
-	objects.h
+	objects.h \
+	log.h
 
 paths.o: paths.c \
 	config.h \
@@ -572,7 +594,8 @@ set.o: set.c \
 	mudstring.h \
 	externs.h \
 	interface.h \
-	match.h
+	match.h \
+	log.h
 
 smd.o: smd.c \
 	command.h \
@@ -593,7 +616,8 @@ speech.o: speech.c \
 	externs.h \
 	interface.h \
 	lists.h \
-	match.h
+	match.h \
+	log.h
 
 stringutil.o: stringutil.c \
 	externs.h \
@@ -613,7 +637,8 @@ utils.o: utils.c \
 	db.h \
 	mudstring.h \
 	interface.h \
-	externs.h
+	externs.h \
+	log.h
 
 variable.o: variable.c\
 	db.h\
@@ -622,7 +647,8 @@ variable.o: variable.c\
 	config.h\
 	command.h\
 	context.h \
-	match.h
+	match.h \
+	log.h
 
 wiz.o: wiz.c \
 	command.h \
@@ -631,7 +657,8 @@ wiz.o: wiz.c \
 	mudstring.h \
 	externs.h \
 	interface.h \
-	match.h
+	match.h \
+	log.h
 
 concentrator.o: concentrator.c \
 	concentrator.h \
@@ -664,3 +691,5 @@ interface.h: db.h \
 match.h: db.h \
 	mudstring.h \
 	copyright.h
+
+log.h: config.h

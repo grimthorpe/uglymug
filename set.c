@@ -16,6 +16,7 @@
 #include "command.h"
 #include "context.h"
 #include "colour.h"
+#include "log.h"
 
 
 static dbref
@@ -385,7 +386,11 @@ const	CString& newname)
 
 				db[thing].set_last_name_change(now);
 #ifdef LOG_NAME_CHANGES
+#ifndef NEW_LOGGING
 				Trace( "NAME CHANGE: %s to %s\n", db[thing].get_name(), newname);
+#else
+				log_message("NAME CHANGE: #%d: %s to %s", thing, db[thing].get_name(), newname);
+#endif /* NEW_LOGGING */
 #endif
 				db.remove_player_from_cache(db[thing].get_name());
 			}
@@ -665,7 +670,21 @@ const	CString& message)
 				return;
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @fail used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @fail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@fail used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@fail used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 
 			default:
 				break;
@@ -711,7 +730,21 @@ const	CString& message)
 				
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @success used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @success used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@success used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@success used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 				break;
 			
@@ -765,7 +798,21 @@ const	CString& message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @drop used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @drop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if (in_command()) {
+					log_bug("@drop used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@drop used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 				break;
 		}
@@ -808,7 +855,21 @@ const	CString& message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @osuccess used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @osuccess used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@osuccess used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@osuccess used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 				break;
 		}
@@ -849,7 +910,21 @@ const	CString& message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @ofail used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @ofail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@ofail used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@ofail used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 				break;
 		}
@@ -890,7 +965,21 @@ const	CString& message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @odrop used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @odrop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@odrop used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@odrop used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 				break;
 		}
@@ -955,7 +1044,21 @@ const	CString& keyname)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @lock used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @lock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@lock used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@lock used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 
 				if (!keyname || (key = parse_boolexp (player, keyname)) == TRUE_BOOLEXP)
@@ -1004,7 +1107,21 @@ const	CString& )
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @unlock used with a variable. This is a deprecated command.");
+#ifndef NEW_LOGGING
 				Trace("BUG: @unlock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+#else
+				if(in_command()) {
+					log_bug("@unlock used with variable %s(#%d) by player %s(#%d) in command %s(#%d)",
+							getname(thing), thing,
+							getname(player), player,
+							getname(get_current_command()), get_current_command());
+				}
+				else {
+					log_bug("@unlock used with variable %s(#%d) by player %s(#%d) on the command line",
+							getname(thing), thing,
+							getname(player), player);
+				}
+#endif /* NEW_LOGGING */
 			default:
 				db[thing].set_key(TRUE_BOOLEXP);
 				if (!in_command())
@@ -1612,7 +1729,14 @@ const	CString& flag)
 		}
 		if ( (get_current_command() != NOTHING) && (!Wizard(get_current_command())))
 		{
+#ifndef NEW_LOGGING
 			Trace("HACK - Attempt to set ABORT flag on %d by %d in command %d\n", thing, player, get_current_command());
+#else
+			log_hack("Attempt to set ABORT flag on %s(#%d) by %s(%d) in command %s(%d)",
+					getname(thing), thing,
+					getname(player), player,
+					getname(get_current_command()), get_current_command());
+#endif /* NEW_LOGGING */
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Abort fuses may only be created in commands if the command is set Wizard.");
 			return;
 		}
@@ -1622,10 +1746,17 @@ const	CString& flag)
 	/* Log every WIZARD flag set */
 	if ((f == FLAG_WIZARD) && (*flag.c_str() != NOT_TOKEN))
 	{
+#ifndef NEW_LOGGING
 		if (Typeof(thing) == TYPE_COMMAND)
 			Trace("HACK - <<<WIZARD>>> flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
 		else
 			Trace("PROTECT - WIZARD flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
+#else
+		if (Typeof(thing) == TYPE_COMMAND)
+			log_hack("<<<WIZARD>>> flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
+		else
+			log_hack("PROTECT: WIZARD flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
+#endif /* NEW_LOGGING */
 	}
 	if (f == FLAG_READONLY)
 	{
@@ -2711,7 +2842,11 @@ void context::do_credit(const CString& arg1, const CString& arg2)
 		notify(player, "You give %d %s to %s.", amount, currency_name, db[victim].get_name().c_str());
 		notify(victim, "%s gives you %d %s.", db[player].get_name().c_str(), amount, currency_name);
 	}
+#ifndef NEW_LOGGING
 	Trace( "CREDIT: %s(%d) gives %d to %s(%d)\n", db[player].get_name().c_str(), player, amount, db[victim].get_name().c_str(), victim);
+#else
+	log_message("CREDIT: %s(#%d) gives %d %s to %s(#%d)", db[player].get_name().c_str(), player, amount, currency_name, db[victim].get_name().c_str(), victim);
+#endif /* NEW_LOGGING */
 
 	RETURN_SUCC;
 }
@@ -2805,7 +2940,11 @@ void context::do_debit(const CString& arg1, const CString& arg2)
 		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name().c_str());
 		notify(victim, "%s takes %d %s from you.", db[player].get_name().c_str(), amount, currency_name);
 	}
+#ifndef NEW_LOGGING
 	Trace( "CREDIT: %s(%d) gives -%d to %s(%d)\n", db[player].get_name().c_str(), player, amount, db[victim].get_name().c_str(), victim);
+#else
+	log_message("CREDIT: %s(#%d) gives -%d %s to %s(#%d)", db[player].get_name().c_str(), player, amount, currency_name, db[victim].get_name().c_str(), victim);
+#endif /* NEW_LOGGING */
 
 	RETURN_SUCC;
 }

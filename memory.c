@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "log.h"
+
 #define MEMORY_LOG_FILE "memory.log"
 
 static	FILE	*mem_file = NULL;
@@ -14,8 +16,12 @@ extern	void	*realloc	(void *, int);
 void init_mud_memory ()
 {
 	if ((mem_file = fopen (MEMORY_LOG_FILE, "w")) == NULL)
+#ifndef NEW_LOGGING
 		Trace( "Cannot open \"%s\" for writing.\n",
 			MEMORY_LOG_FILE);
+#else
+		log_bug("Cannot open \"%s\" for writing", MEMORY_LOG_FILE);
+#endif /* NEW_LOGGING */
 }
 
 

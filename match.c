@@ -13,6 +13,7 @@
 #include "command.h"
 #include "context.h"
 #include "colour.h"
+#include "log.h"
 
 #define	ASSIGN_STRING(d,s)	{ if ((d)) free ((d));  if ((s && *s!=0)) (d)=strdup((s)); else (d)=NULL; }
 
@@ -266,7 +267,11 @@ dbref			effective_player)
 	}
 
 #ifdef MATCH_DEBUG
+#ifndef NEW_LOGGING
 	Trace( "abs: %d, p: %s, string: %s, beg: %s\n", absolute_loc, p, match_name, beginning);
+#else
+	log_message("abs: %d, p: %s, string: %s, beg: %s", absolute_loc, p, match_name, beginning);
+#endif /* NEW_LOGGING */
 #endif
 }
 
@@ -1033,7 +1038,11 @@ Matcher::match_continue ()
 			default:
 				/* Oops... */
 				notify_wizard ("Error in command search - state out of range.");
+#ifndef NEW_LOGGING
 				Trace( "BUG: Error in command search - state %d out of range.\n", current_state);
+#else
+				log_bug("Error in command search - state %d out of range", current_state);
+#endif /* NEW_LOGGING */
 		}
 		current_state = matcher_fsm_array [path] [current_state];
 	}

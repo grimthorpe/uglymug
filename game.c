@@ -20,6 +20,7 @@
 #include "command.h"
 #include "context.h"
 #include "interface.h"
+#include "log.h"
 
 /* Bits'n'pieces that SunOS appears not to define in any of its header files. PJC 15/4/96. 
 #ifdef	__sun
@@ -472,11 +473,19 @@ const	CString& arg2)
 	shutdown_reason = alloc_string(reconstruct_message(arg1, arg2));
 	if (!blank(shutdown_reason))
 	{
+#ifndef NEW_LOGGING
 		Trace( "SHUTDOWN: by %s(%d). Reason: %s\n", getname(player), player, shutdown_reason);
+#else
+		log_shutdown(player, getname(player), shutdown_reason);
+#endif /* NEW_LOGGING */
 	}
 	else
 	{
+#ifndef NEW_LOGGING
 		Trace( "SHUTDOWN: by %s(%d) for no apparent reason.\n", getname(player), player);
+#else
+		log_shutdown(player, getname(player), "no apparent reason");
+#endif /* NEW_LOGGING */
 	}
 	fflush (stderr);
 	shutdown_flag = 2;
@@ -531,12 +540,20 @@ dump_database_internal ()
 		if(ferror(db_writefile))
 		{
 			notify_wizard("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n",ferror(db_writefile));
+#ifndef NEW_LOGGING
 			Trace("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n", ferror(db_writefile));
+#else
+			log_bug("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d", ferror(db_writefile));
+#endif /* NEW_LOGGING */
 		}
 		if(fclose (db_writefile))
 		{
 			notify_wizard("Database dump didn't close properly\n");
+#ifndef NEW_LOGGING
 			Trace("ERROR: Database dump #%d didn't close properly\n", epoch);
+#else
+			log_bug("ERROR: Database dump #%d didn't close properly", epoch);
+#endif /* NEW_LOGGING */
 		}
 		if (rename (tmpfile, dumpfile) < 0)
 			perror(dumpfile);
@@ -551,7 +568,11 @@ double_panic (
 int	sig)
 
 {
+#ifndef NEW_LOGGING
 	Trace( "DOUBLE PANIC: Got signal %d during panic dump!\n", sig);
+#else
+	log_panic("DOUBLE PANIC: Got signal %d during panic dump!", sig);
+#endif /* NEW_LOGGING */
 
 	/* gi's a core */
 	kill (getpid (), SIGQUIT);
@@ -569,7 +590,11 @@ const	char	*message)
 	int	i;
 	int	exitcode;
 
+#ifndef NEW_LOGGING
 	Trace( "PANIC: %s\n", message);
+#else
+	log_panic(message);
+#endif /* NEW_LOGGING */
 
 	/* turn off signals */
 	signal(0, SIG_IGN);
@@ -590,10 +615,18 @@ const	char	*message)
 	}
 	else
 	{
+#ifndef NEW_LOGGING
 		Trace( "DUMPING: %s\n", panicfile);
+#else
+		log_dumping(false, panicfile);
+#endif
 		db.write (f);
 		fclose (f);
+#ifndef NEW_LOGGING
 		Trace( "DUMPING: %s (done)\n", panicfile);
+#else
+		log_dumping(true, panicfile);
+#endif
 		exitcode = 136;
 	}
 
@@ -612,10 +645,17 @@ dump_database ()
 
 {
 	epoch++;
-
+#ifndef NEW_LOGGING
 	Trace( "DUMPING: %s.#%d#\n", dumpfile, epoch);
+#else
+	log_dumping(false, "%s.#%d#", dumpfile, epoch);
+#endif
 	dump_database_internal ();
+#ifndef NEW_LOGGING
 	Trace( "DUMPING: %s.#%d# (done)\n", dumpfile, epoch);
+#else
+	log_dumping(true, "%s.#%d#", dumpfile, epoch);
+#endif
 }
 
 
@@ -626,8 +666,11 @@ fork_and_dump ()
 	int	child;
 
 	epoch++;
-
+#ifndef NEW_LOGGING
 	Trace( "CHECKPOINTING: %s.#%d#\n", dumpfile, epoch);
+#else
+	log_checkpointing(dumpfile, epoch);
+#endif /* NEW_LOGGING */
 	child = fork ();
 	if(child == 0)
 	{	/* in the child */
@@ -685,7 +728,17 @@ execute_startups(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
-				Trace( "HACK: Non-wizard character %s(#%d) owns .startup command #%d\n", getname(db[item].get_owner()), db[item].get_owner(), item);
+#ifndef NEW_LOGGING
+				Trace( "HACK: Non-wizard character %s(#%d) owns .startup
+						command #%d\n", getname(db[item].get_owner()),
+						db[item].get_owner(), item);
+#else
+				log_hack("non-wizard character %s(#%d) owns .startup command #%d in #%d",
+							getname(db[item].get_owner()),
+							db[item].get_owner(),
+							item,
+							COMMAND_LAST_RESORT);
+#endif /* NEW_LOGGING */
 	}
 #endif
 }
@@ -707,7 +760,17 @@ execute_shutdown(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
+#ifndef NEW_LOGGING
 				Trace( "HACK: %s owns .shutdown command\n", getname(item));
+#else
+				log_hack(	"%s(#%d) owns .shutdown command #%d in #%d",
+							getname(db[item].get_owner()),
+							db[item].get_owner(),
+							item,
+							COMMAND_LAST_RESORT
+				);
+#endif /* NEW_LOGGING */
+							
         }
 #endif
 }
@@ -726,27 +789,49 @@ const	char	*outfile)
 		return -1;
 	
 	/* ok, read it in */
+#ifndef NEW_LOGGING
 	Trace( "LOADING: %s\n", infile);
+#else
+	log_loading(infile, false);
+#endif NEW_LOGGING
 	if (db.read (f) < 0)
 		return (-1);
 
 	/* Run the sanity-checker if required */
 	if (sanity_check_db || sanity_only || fix_things)
 	{
+#ifndef NEW_LOGGING
 		Trace( "Running Sanity Check\n");
+#else
+		log_message("Running Sanity Check");
+#endif /* NEW_LOGGING */
 		db.sanity_check();
 		if(range || fatal)
 		{
 			total_failures = fatal + range;
+#ifndef NEW_LOGGING
 			Trace( "SANITY-CHECK failed on %d count%s", total_failures, total_failures == 1 ? "\n" : "s\n");
 			Trace( "SANITY-CHECK %d fatal%s, %d range%s ", fatal, fatal == 1 ? "":"s", range, range == 1 ? "":"d");
+#else
+			log_message("SANITY-CHECK failed on %d count%s", total_failures, total_failures == 1 ? "" : "s");
+			log_message("SANITY-CHECK %d fatal%s, %d range%s ", fatal, fatal == 1 ? "":"s", range, range == 1 ? "":"d");
+#endif /* NEW_LOGGING */
 			if(hack_check)
+#ifndef NEW_LOGGING
 				Trace( "%d hacks%s ", hack, hack == 1 ? "":"s");
 			Trace( "%d other%s\n", broken, broken == 1 ? "\n":"s\n");
+#else
+				log_message("%d hacks%s ", hack, hack == 1 ? "":"s");
+			log_message("%d other%s", broken, broken == 1 ? "":"s");
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 		if(fixed)
+#ifndef NEW_LOGGING
 			Trace( "SANITY-CHECK has repaired %d faults\n", fixed);
+#else
+			log_message("SANITY-CHECK has repaired %d faults", fixed);
+#endif /* NEW_LOGGING */
 	}
 
 	/* If we were only running the checker, give up now */
@@ -755,7 +840,11 @@ const	char	*outfile)
 
 	/* Keep going */
 	db_patch_alarms ();
+#ifndef NEW_LOGGING
 	Trace( "LOADING: %s (done)\n", infile);
+#else
+	log_loading(infile, true);
+#endif
 
 	/* everything ok */
 	fclose(f);
@@ -854,9 +943,12 @@ const	char	*original_command)
 		return;
 
 	/* robustify player */
-	if(player < 0 || player >= db.get_top () || ((Typeof(player) != TYPE_PLAYER) && (Typeof(player) != TYPE_PUPPET)))
-	{
+	if(player < 0 || player >= db.get_top () || ((Typeof(player) != TYPE_PLAYER) && (Typeof(player) != TYPE_PUPPET))) {
+#ifndef NEW_LOGGING
 		Trace( "BUG: process_basic_command: bad player %d\n", player);
+#else
+		log_bug("process_basic_command: bad player #%d", player);
+#endif
 		return;
 	}
 
@@ -865,12 +957,23 @@ const	char	*original_command)
 	if (!in_command())
 	{
 #endif /* LOG_COMMAND_LINES */
+#ifndef NEW_LOGGING
 		Trace( "COMMAND from %s(%d)(%d) in %s(%d): %s\n",
 			getname(player), get_effective_id (), player,
 			getname(db[player].get_location()),
 			db[player].get_location(),
 			original_command);
 		fflush (stderr);
+#else
+		log_command(	player,
+						getname(player),
+						get_effective_id(),
+						getname(get_effective_id()),
+						db[player].get_location(),
+						getname(db[player].get_location()),
+						original_command
+		);
+#endif /* NEW_LOGGING */
 #ifdef	LOG_COMMAND_LINES
 	}
 #endif /* LOG_COMMAND_LINES */
@@ -1169,13 +1272,38 @@ const	char	*original_command)
 		else
 			notify_colour(player, player, COLOUR_MESSAGES, "Huh?    (Type \"help\" for help.)");
 #ifdef LOG_FAILED_COMMANDS
-		if((!controls_for_write (db[player].get_location())) && (!NoHuhLogs(db[db[player].get_location()].get_owner())))
+		if((!controls_for_write (db[player].get_location())) && (!NoHuhLogs(db[db[player].get_location()].get_owner()))) {
+#ifndef NEW_LOGGING
 			Trace( "HUH|%s|%d|%s|%d|%s|%s %s\n",
 				getname (player), player,
 				getname (db[player].get_location()), db[player].get_location(),
 				getname (db[db[player].get_location()].get_owner()),
 				command,
 				reconstruct_message (get_arg1 (), get_arg2 ()));
+#else
+			/* We want to know if the room is owned by an NPC, if so 'redirect'
+			 * the HUH to the owner of the NPC
+			 */
+			dbref npc_owner;
+
+			if (Typeof(db[db[player].get_location()].get_owner()) == TYPE_PUPPET) {
+				npc_owner = db[db[db[player].get_location()].get_owner()].get_owner();
+			}
+			else {
+				npc_owner = -1; // this will always be a room
+			}
+			
+			log_huh(	player,											/* player-id */
+						getname(player),								/* player-name */
+						db[player].get_location(),						/* location-id */
+						getname (db[player].get_location()),			/* loccation-name */
+						db[db[player].get_location()].get_owner(),		/* location-owner-id */
+						npc_owner,										/* NPC owner; if room is owned by an NPC */
+						command,										/* command */
+						reconstruct_message (get_arg1 (), get_arg2 ())	/* command arguments */
+			);
+#endif /* NEW_LOGGING */
+		}
 #endif /* LOG_FAILED_COMMANDS */
 		return_status = COMMAND_FAIL;
 		set_return_string (error_return_string);
@@ -1188,6 +1316,7 @@ const	char	*original_command)
 			&& (Wizard (get_effective_id ()))
 			&& (!legal_command)
 			&& (!Wizard(get_current_command ())))
+#ifndef NEW_LOGGING
 			Trace(
 				"HACK: %s(%d) hacked %s(%d) (originally %s) giving %s %s=%s\n",
 				value_or_empty(getname (player)), player,
@@ -1196,6 +1325,16 @@ const	char	*original_command)
 				value_or_empty(command),
 				value_or_empty(get_arg1 ()),
 				value_or_empty(get_arg2 ()));
+#else
+		log_hack("%s(%d) hacked %s(%d) (originally %s) giving %s %s=%s",
+					getname(player),						player,
+					getname (get_current_command ()),		get_current_command(),
+					original_command,
+					command,
+					get_arg1(),
+					get_arg2()
+		);
+#endif /* NEW_LOGGING */
 	}
 #endif	/* HACK_HUNTING */
 
@@ -1216,7 +1355,11 @@ const	char	*original_command)
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Basic command returned NULL string (wizards have been notified).");
 		notify_wizard ("BUG: Basic command returned NULL. Command was:");
 		notify_wizard ("%s", original_command);
+#ifndef NEW_LOGGING
 		Trace("BUG: Command returned NULL return_string: %s (%s).\n", command, original_command);
+#else
+		log_bug("Command returned NULL return_string: %s (%s)", command, original_command);
+#endif // NEW_LOGGING
 		//set_return_string (error_return_string);
 	}
 */
@@ -1236,17 +1379,25 @@ const	char	*command)
 	/* Sanity checks */
 	if ((Typeof (player) != TYPE_PLAYER) && (Typeof (player) != TYPE_PUPPET))
 	{
+#ifndef NEW_LOGGING
 		sprintf(scratch_buffer, "BUG: Non-player %d trying to execute the command \"%s\".\n", player, command);
 		fputs (scratch_buffer, stderr);
+#else
+		log_bug("Non-player %s(#%d) trying to execute the command \"%s\"", getname(player), player, command);
+#endif /* NEW_LOGGING */
 		return;
 	}
 	if ((db[player].get_location() < 0) && (db[player].get_location() >= db.get_top ()))
 	{
+#ifndef NEW_LOGGING
 		sprintf (scratch_buffer,
 			"BUG: Player %s at location %d.\n",
 			unparse_object (context (GOD_ID), player),
 			db[player].get_location());
 		fputs (scratch_buffer, stderr);
+#else
+		log_bug("Player #%s at location #%d", unparse_object (context (GOD_ID), player), db[player].get_location());
+#endif
 		return;
 	}
 
@@ -1326,7 +1477,11 @@ void mud_connect_player (dbref player)
 				delete mud_scheduler.push_express_job (login_context);
 			}
 			else
+#ifndef NEW_LOGGING
 				Trace( "HACK: Global .login command not owned by a Wizard\n");
+#else
+				log_hack("Global .login command (#%d) not owned by a Wizard", the_command);
+#endif /* NEW_LOGGING */
 	}
 
 }
@@ -1373,7 +1528,11 @@ void mud_disconnect_player (dbref player)
 				delete mud_scheduler.push_express_job (logout_context);
 			}
 			else
+#ifndef NEW_LOGGING
 				Trace( "HACK: Global .logout command not owned by a Wizard\n");
+#else
+				log_hack("Global .logout command (#%d) not owned by a Wizard", the_command);
+#endif /* NEW_LOGGING */
 	}
 
 	if (connection_count (player) == 0)

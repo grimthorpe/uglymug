@@ -17,14 +17,17 @@
 #include "config.h"
 #include "externs.h"
 
+#include "config.h"
+#include "log.h"
+
 #define DB_MSGLEN	1024
 
 #define FIELD_SEPARATOR '\027'
 #define	OBJECT_SEPARATOR '\002'
 #define LOAD_BUFFER_SIZE (8*BUFFER_LEN)
 
-
 #ifdef DEBUG
+#ifdef NEW_LOGGING
 #define FREE(x) { if((x)==NULL) \
 			Trace( "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
 		  else \
@@ -33,7 +36,17 @@
 		  	(x)=NULL; \
 		  } \
 	  	}
-#else
+#else /* not NEW_LOGGING */
+#define FREE(x) { if ((x)==NULL) \
+	log_debug("WARNING:  attempt to free NULL pointer (%s, line %d)", __FILE__, __LINE__); \
+		  else \
+		  { \
+		  	free((x)); \
+		  	(x)=NULL; \
+		  } \
+	  	}
+#endif /* NEW_LOGGING */
+#else /* not DEBUG */
 #define FREE(x) free((x))
 #endif /* DEBUG */
 
@@ -73,7 +86,11 @@ object	*it)
 // In order to make the db load sane, junk additional elements.
 	if(use_elements < num_elements)
 	{
+#ifndef NEW_LOGGING
 		Trace( "BUG: Array too large on database load, truncated from %d to %d elements\n", num_elements, use_elements);
+#else
+		log_bug("Array too large on database load, truncated from %d to %d elements", num_elements, use_elements);
+#endif /* NEW_LOGGING */
 		for(; i <= num_elements; i++)
 			getstring(f);
 	}
@@ -282,8 +299,12 @@ object::read (
 			owner = getref(f);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in object::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in object::read\nField Type:%d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -355,8 +376,12 @@ Dictionary::read (
 			}
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Dictionary::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Dictionary::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -430,8 +455,12 @@ Array::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Array::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Array::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -491,8 +520,12 @@ Describable_object::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Describable_object::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Describable_object::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -608,8 +641,12 @@ Lockable_object::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Lockable_object::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Lockable_object::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -698,8 +735,12 @@ Inheritable_object::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Inheritable_object::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Inheritable_object::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -831,8 +872,12 @@ Old_object::read (
 			get_array_elements (f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Old_object::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Old_object::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -943,8 +988,12 @@ Room::read (
 			set_contents_string(getstring(f));
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Room::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Room::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -1103,8 +1152,12 @@ Massy_object::read (
 			get_array_elements (f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Massy_object::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Massy_object::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -1231,8 +1284,12 @@ puppet::read(
 			build_id = getref (f);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Puppet::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Puppet::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -1456,8 +1513,12 @@ Player::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Player::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Player::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
 		}
 	}
@@ -1590,8 +1651,12 @@ Thing::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Thing::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Thing::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
                 }
 	}
@@ -1722,8 +1787,12 @@ Weapon::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Weapon::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Weapon::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
                 }
 	}
@@ -1822,8 +1891,12 @@ Armour::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Armour::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Armour::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
                 }
 	}
@@ -1914,8 +1987,12 @@ Ammunition::read (
 			get_array_elements(f, this);
 			break;
 		default:
+#ifndef NEW_LOGGING
 			Trace( "Something has gone seriously wrong in Ammunition::read\n");
 			Trace( "Field Type: %d\n", fieldtype);
+#else
+			log_bug("Something has gone seriously wrong in Ammunition::read\nField Type: %d", fieldtype);
+#endif /* NEW_LOGGING */
 			exit(1);
                 }
 	}
@@ -2101,7 +2178,11 @@ char    **buffer_ptr)
 		}
 
 	error:
+#ifndef NEW_LOGGING
 		Trace("getboolexp1:  INVALID EXPRESSION\n");
+#else
+		log_bug("getboolexp1: INVALID EXPRESSION");
+#endif /* NEW_LOGGING */
 		abort();			/* bomb out */
 	return (TRUE_BOOLEXP);
 }
@@ -2139,31 +2220,51 @@ FILE	*f)
 
 	if(fscanf (f, "***UglyMug %s DUMP Format %d***", format, &version) != 2)
 	{
+#ifndef NEW_LOGGING
 		Trace( "File is not a recognised UglyMug dump format\n");
+#else
+		log_bug("File is not a recognised UglyMug dump format");
+#endif /* NEW_LOGGING */
 		return(NOTHING);
 	}
 
 	if (string_compare(format, "Beta(tagged)") == 0)
 	{
+#ifndef NEW_LOGGING
 		Trace( "Beta(tagged) Database DUMP format recognised.\n");
+#else
+		log_message("Beta(tagged) Database DUMP format recognised.");
+#endif /* NEW_LOGGING */
 	}
 	else if (string_compare(format, "Alpha") == 0)
 	{
 
 		if (version < 9)
 		{
+#ifndef NEW_LOGGING
 			Trace( "Alpha Database DUMP format version %d is no longer supported.\n", version);
+#else
+			log_message("Alpha Database DUMP format version %d is no longer supported.", version);
+#endif /* NEW_LOGGING */
 			return (NOTHING);
 		}
 		else
 		{
+#ifndef NEW_LOGGING
 			Trace( "Alpha Database DUMP format version %d is no longer supported. Please use UglyCODE release um1_027 or earlier to convert to Beta(tagged) format.\n", version);
+#else
+			log_message("Alpha Database DUMP format version %d is no longer supported. Please use UglyCODE release um1_027 or earlier to convert to Beta(tagged) format.", version);
+#endif /* NEW_LOGGING */
 			return (NOTHING);
 		}
 	}
 	else
 	{
+#ifndef NEW_LOGGING
 		Trace( "Unrecognised UglyMug DUMP format. Bailing out.\n");
+#else
+		log_message("Unrecognised UglyMug DUMP format. Bailing out.");
+#endif /* NEW_LOGGING */
 		return(NOTHING);
 	}
 
@@ -2185,7 +2286,11 @@ FILE	*f)
 				/* This is guaranteed to be a separator IF version > 13 */
 				if((ch = get_next_char(f)) != '#')
 				{
+#ifndef NEW_LOGGING
 					Trace( "ERROR: Object not correctly saved - Looking for <\\002>#, got <\\002> 0x%x (%c).\n", ch, ch);
+#else
+					log_bug("ERROR: Object not correctly saved - Looking for <\\002>#, got <\\002> 0x%x (%c).", ch, ch);
+#endif /* NEW_LOGGING */
 					return (-1);
 				}
 				/* another entry, yawn */
@@ -2193,13 +2298,21 @@ FILE	*f)
 
 				if (error)
 				{
+#ifndef NEW_LOGGING
 					Trace( "... skipped to #%d.\n", i);
+#else
+					log_message( "... skipped to #%d", i);
+#endif /* NEW_LOGGING */
 					error = false;
 				}
 
 				if (i <= last_entry)
 				{
+#ifndef NEW_LOGGING
 					Trace( "Major Problem Dudes - Item #%d is out of order guv.\n", i);
+#else
+					log_bug("Major Problem Dudes - Item #%d is out of order guv", i);
+#endif /* NEW_LOGGING */
 					while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 					error = true;
 					continue;
@@ -2278,7 +2391,11 @@ FILE	*f)
 			case '*':
 				if(strcmp(getstring (f), "**END OF DUMP***"))
 				{
+#ifndef NEW_LOGGING
 					Trace( "Got a * without **END OF DUMP***.\n");
+#else
+					log_bug("Got a * without **END OF DUMP***");
+#endif /* NEW_LOGGING */
 					return (-1);
 				}
 				else
@@ -2290,10 +2407,17 @@ FILE	*f)
 				/* NOTREACHED */
 				break;
 			default:
+#ifndef NEW_LOGGING
 				Trace( "Expected <\\002>, got 0x%x (%c). Last object read was #%d. Skipping to next #...\n",
 					ch,
 					ch,
 					last_entry);
+#else
+				log_bug("Expected <\\002>, got 0x%x (%c). Last object read was #%d. Skipping to next #...",
+					ch,
+					ch,
+					last_entry);
+#endif /* NEW_LOGGING */
 				while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 				error = true;
 				continue;
@@ -2316,7 +2440,11 @@ FILE *f)
 {
 	if ((buffer = (char *) malloc(LOAD_BUFFER_SIZE + 1)) == NULL)
 	{
+#ifndef NEW_LOGGING
 		Trace("initialise_load_buffer:  MALLOC FAILED\n");
+#else
+		log_bug("initialise_load_buffer: MALLOC FAILED");
+#endif /* NEW_LOGGING */
 		abort();
 	}
 	fread (buffer, sizeof(char), LOAD_BUFFER_SIZE, f);
@@ -2377,7 +2505,11 @@ FILE *f)
 
 #ifdef DEBUG
 	if (field_end - load_pointer >= BUFFER_LEN)
+#ifndef NEW_LOGGING
 		Trace("BUG: Can't handle field size. Aborting db load.");
+#else
+		log_bug("Can't handle field size. Aborting db load.");
+#endif /* NEW_LOGGING */
 #endif
 
 	*field_end = '\0';

@@ -1,3 +1,4 @@
+// vi:ts=4:sw=4:ai:
 #include "copyright.h"
 #include "command.h"
 #ifndef _Config_h_
@@ -10,25 +11,26 @@
  * least the makefile is smaller.
  */
 
-#define	STARTUP			/* Look for .startup and .shutdown in #4 */
-#define	LOG_FAILED_COMMANDS	/* Log all instances of failed commands */
-#define	RESTRICTED_BUILDING	/* Only BUILDERs may... well, build */
-#define	HACK_HUNTING		/* Log use of wizard @chpids not set W */
-#define	LOG_RECURSION		/* Log recursion overruns */
-#define	QUIET_WHISPER		/* Other people's whispers are not shown */
-#define	ALIASES			/* Are aliases operational? */
-#define	ABORT_FUSES		/* Abort fuses are allowed */
-#undef	DARK_PLAYERS		/* Dark players are allowed */
+#define	STARTUP					/* Look for .startup and .shutdown in #4 */
+#define	LOG_FAILED_COMMANDS		/* Log all instances of failed commands */
+#define	RESTRICTED_BUILDING		/* Only BUILDERs may... well, build */
+#define	HACK_HUNTING			/* Log use of wizard @chpids not set W */
+#define	LOG_RECURSION			/* Log recursion overruns */
+#define	QUIET_WHISPER			/* Other people's whispers are not shown */
+#define	ALIASES					/* Are aliases operational? */
+#define	ABORT_FUSES				/* Abort fuses are allowed */
+#undef	DARK_PLAYERS			/* Dark players are allowed */
 
-#undef	LOG_COMMANDS		/* Log _all_ commands. _BIG_ output */
-#undef	LOG_COMMAND_LINES	/* Log only top-level commands - Not quite so big */
-#undef	CONCENTRATOR		/* If the concentrator is to be used */
-#undef	LOG_NAME_CHANGES	/* Log all player name changes */
-#define	LOG_WALLS		/* Log all usage of @wall */
+#undef	LOG_COMMANDS			/* Log _all_ commands. _BIG_ output */
+#undef	LOG_COMMAND_LINES		/* Log only top-level commands - Not quite so big */
+#undef	CONCENTRATOR			/* If the concentrator is to be used */
+#undef	LOG_NAME_CHANGES		/* Log all player name changes */
+#define	LOG_WALLS				/* Log all usage of @wall */
 #undef	LOCAL_CONNECTIONS_ONLY	/* For use with the concentrator */
 
-#undef  DEBUG			/* For debugging */
-#undef	MATCH_DEBUG		/* Match debug lines */
+#undef	DEBUG					/* For debugging */
+#undef	MATCH_DEBUG				/* Match debug lines */
+#define NEW_LOGGING         	/* new style logging */
 
 #define BUFFER_LEN      ((MAX_COMMAND_LEN)*4)
 
