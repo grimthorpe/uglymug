@@ -2003,7 +2003,7 @@ const	char	*string)
 	else if (string_prefix("vdescription", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
-			if(Typeof(i) == TYPE_COMMAND
+			if(Typeof(i) == TYPE_VARIABLE
 				&& db[i].get_description() != NULL
 				&& controls_for_read (i)
 				&& (!*string || ::step(db[i].get_description(), expbuf)))
@@ -2051,6 +2051,36 @@ const	char	*string)
 				if(Typeof(i) == TYPE_EXIT
 					&& controls_for_read (i)
 					&& (db[i].get_destination() == room))
+					notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+	}
+	else if (string_prefix("cdestination", descriptor))
+	{
+	/* ok, so the second string should either be 'here' or an absolute number */
+		dbref command = NOTHING;
+		Matcher matcher (player, string, NOTHING, get_effective_id ());
+		matcher.match_command ();
+		matcher.match_absolute ();
+		if ((command = matcher.noisy_match_result ()) == NOTHING)
+		{
+			set_return_string (error_return_string);
+			return_status = COMMAND_FAIL;
+			return;
+		}
+		else if (Typeof(command) != TYPE_COMMAND)
+		{
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That isn't a command.");
+			set_return_string (error_return_string);
+			return_status = COMMAND_FAIL;
+			return;
+		}
+		if (controls_for_read  (command))
+			for(i = 0; i < db.get_top (); i++)
+				if((Typeof(i) == TYPE_COMMAND
+						|| Typeof(i) == TYPE_FUSE
+						|| Typeof(i) == TYPE_ALARM)
+					&& controls_for_read (i)
+					&& ((db[i].get_csucc() == command)
+						|| (db[i].get_cfail() == command)))
 					notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("alarm", descriptor))
