@@ -12,6 +12,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_027
+    Altered so second connection replaces first.
+    Altered @recall to default to 50 if num_lines not recognised.
     Sort-of fixed the censorship code so that it doesn't hang the game under
     certain circumstances. I've no idea why it could have got into the state
     it was, but it wont happen again.
