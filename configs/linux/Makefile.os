@@ -5,4 +5,4 @@
 # PJC, 20/4/2003.
 WHOAMI:=whoami | sed 's, .*,,'
 LIBS:= -lm -ldl -lcurses -lcrypt
-CFLAGS:= -g
+CFLAGS:= -g -D_GNU_SOURCE
