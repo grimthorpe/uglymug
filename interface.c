@@ -785,7 +785,7 @@ void notify_wizard_natter(const char *fmt, ...)
 	va_end(vl);
 
 	for (d = descriptor_list; d; d=d->next)
-		if (d->IS_CONNECTED() && (Wizard (d->get_player())) || (Apprentice (d->get_player())))
+		if (d->IS_CONNECTED() && ((Wizard (d->get_player())) || (Apprentice (d->get_player())) || (Natter(d->get_player()))))
 		{
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTER_TITLES]);
 			d->queue_string("[WIZARD]");

@@ -125,6 +125,10 @@ class	Channel;
 
 #define FLAG_DONTANNOUNCE		51
 
+/* JPK */
+/* Flags to allow specific privs */
+#define FLAG_NATTER			52
+
 /* Used inside the code and not stored in the db */
 /* Lee, says so and I belive him !*/
 #define ARTICLE_LOWER_INDEFINITE  0x0
@@ -146,6 +150,7 @@ class	Channel;
 #define Abort(x)	(db[(x)].get_flag(FLAG_ABORT) != 0)
 #endif
 #define Apprentice(x)	(db[(x)].get_flag(FLAG_APPRENTICE) != 0)
+#define Natter(x)	(db[(x)].get_flag(FLAG_NATTER) != 0)
 
 #define Articleof(x)	((db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_CONS))?FLAG_ARTICLE_SINGULAR_CONS:(db[(x)].get_flag(FLAG_ARTICLE_PLURAL))?FLAG_ARTICLE_PLURAL:(db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_VOWEL))?FLAG_ARTICLE_SINGULAR_VOWEL:FLAG_ARTICLE_NOUN)
 #define Backwards(x)	(db[(x)].get_flag(FLAG_BACKWARDS))

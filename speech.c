@@ -635,9 +635,9 @@ const	CString& arg2)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!(Wizard (get_effective_id ()) || Apprentice (player)))
+	if (!(Wizard (get_effective_id ()) || Apprentice (player) || Natter (player)))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Only Wizards and Apprentices may use the @natter channel.");
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Only Wizards, Apprentices and those set Natter may use the @natter channel.");
 	}
 	else if(!arg1 && !arg2)
 	{

@@ -1380,11 +1380,13 @@ const	CString& flag)
 	}
 
 	if (*flag.c_str() != NOT_TOKEN)
+	{
 		if (!is_flag_allowed(Typeof(thing), f))
 		{
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can't apply that flag to that type of object.");
 			return;
 		}
+	}
 
 	/* because of the way controls_for_write() works, we unconditionally unset
 	 * the ReadOnly flag, then we can check controls_for_write,
@@ -1416,6 +1418,14 @@ const	CString& flag)
 		if (!Wizard(get_effective_id()))
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set this on a player!");
+			return;
+		}
+	}
+	if ((f==FLAG_NATTER) && (Typeof(thing)==TYPE_PLAYER))
+	{
+		if(!Wizard(get_effective_id()))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set the Natter flag on players.");
 			return;
 		}
 	}

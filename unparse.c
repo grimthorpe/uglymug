@@ -55,6 +55,7 @@ struct	flag_stuff	flag_list [] =
 	{"Visible",	FLAG_VISIBLE,		'v'},
 	{"Welcomer",	FLAG_WELCOMER,		'w'},
 	{"Wizard",	FLAG_WIZARD,		'W'},
+	{"Natter",	FLAG_NATTER,		'\0'},
 	{"XBuilder",	FLAG_XBUILDER,		'X'},
 
 	{"Male",	FLAG_MALE,		'\0'},
