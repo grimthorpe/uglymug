@@ -253,6 +253,7 @@ static char *find_cia(const char *colour_string, char* cia)
 	return ptr;
 }
 
+#ifdef DEBUG_COLOUR
 static void
 output_array(cplay * array, int size)
 {
@@ -262,6 +263,7 @@ output_array(cplay * array, int size)
 		Trace( "Element [%d] : %s\n", x, array[x].output_string);
 	}
 }
+#endif
 
 void
 context::do_at_listcolours(
