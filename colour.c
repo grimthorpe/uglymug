@@ -213,6 +213,8 @@ static struct
 	{"ChannelMessages",	'|',	"%z%w"},
 	{"Tells",		'}',	"%z%c"},
 
+	{"WelcomerTitles",	'0',	"%g%h"},
+
 	{NULL,		0}
 };
 
@@ -571,7 +573,7 @@ const	CString& colour_codes)
 	if(colour_player ==NOTHING)
 		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia, (colour_codes)? " to default":"");
 	else
-		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), (colour_codes)? " to default":"");
+		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), (colour_codes)?"":" to default");
 
 	set_return_string (ok_return_string);
 	return_status=COMMAND_SUCC;

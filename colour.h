@@ -95,6 +95,8 @@
 #define COLOUR_CHANNEL_MESSAGES	59
 
 #define COLOUR_TELLS		60
+#define	COLOUR_WELCOMER_TITLES	61
+
 
 struct colour_table_type
 {
