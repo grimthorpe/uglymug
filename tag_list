@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+um1_042 - I thought Grimthorpe had retired...
 	Coloured Retired players bright-blue.
 	Re-implemented the player-list, so name lookups should be faster now.
 	Got rid of the free object list, as it is easier to just search for the first free object.
