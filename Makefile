@@ -1,147 +1,54 @@
 MAKEFLAGS=-k -B
+# This makefile uses the following features that are limited to gmake:
+# - Include lists that cause regeneration of the files (include *.d)
+# - Variable substitution $(FRED:%=builds/$(VAR)/%)
+#
+# If you want to use another make, ensure that it supports these features.
 
-by_default_just_make: netmud
+# This Makefile requires lots of OS-specific detection and flag setting.
+# Moved out of this Makefile by PJC 12/4/03 to see the wood for the trees.
+include Makefile.os
 
+# All files that are built go in BUILD_DIR - one per OS.
+BUILDS_DIR:=builds
+BUILD_DIR:=$(BUILDS_DIR)/$(BUILD_ENVIRONMENT)
+
+by_default_just_make: $(BUILDS_DIR) $(BUILD_DIR) $(BUILD_DIR)/netmud
+
+INCLUDE:=configs/$(BUILD_ENVIRONMENT)/include
 # Whatever you put in for $(CC) must be able to grok ANSI C.
-CC=gcc
-CPLUSPLUS=g++ #-Weffc++
-OPTIM=
-
-####################################
-#          Which OS?
-####################################
-#FreeBSD is covered by the Solaris syntax
-#FreeBSD_UNAME!=uname -sm | sed 's/ /-/g'
-
-SOLMAKE_UNAME:sh=uname -sm|sed 's/ /-/g'
-GMAKE_UNAME=$(shell uname -sm|sed 's/ /-/g')
-SUFFIX=.$(FreeBSD_UNAME)$(GMAKE_UNAME)$(SOLMAKE_UNAME)
- 
-####################################
-#           Solaris 2.8
-####################################
-WHOAMI.sparc=who am i
-LIBS.sparc= -lcurses -lm -ltermcap -lsocket -lnsl
-# Normal
-CFLAGS.sparc= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion -DJPK_SPARC
-# Extra debug info
-#CFLAGS.sparc= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
-
-WHOAMI.SunOS-sun4c=$(WHOAMI.sparc)
-WHOAMI.SunOS-sun4m=$(WHOAMI.sparc)
-WHOAMI.SunOS-sun4u=$(WHOAMI.sparc)
-LIBS.SunOS-sun4c=$(LIBS.sparc)
-LIBS.SunOS-sun4m=$(LIBS.sparc)
-LIBS.SunOS-sun4u=$(LIBS.sparc)
-CFLAGS.SunOS-sun4c=$(CFLAGS.sparc)
-CFLAGS.SunOS-sun4m=$(CFLAGS.sparc)
-CFLAGS.SunOS-sun4u=$(CFLAGS.sparc)
-
-####################################
-#              Linux
-####################################
-WHOAMI.i386-linux=whoami
-LIBS.i386-linux= -lm -ldl -lcurses -lcrypt
-# Normal
-CFLAGS.i386-linux= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion -DJPK_Linux
-# Extra debug info
-#CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
-
-WHOAMI.Linux-i386=$(WHOAMI.i386-linux)
-WHOAMI.Linux-i486=$(WHOAMI.i386-linux)
-WHOAMI.Linux-i586=$(WHOAMI.i386-linux)
-WHOAMI.Linux-i686=$(WHOAMI.i386-linux)
-LIBS.Linux-i386=$(LIBS.i386-linux)
-LIBS.Linux-i486=$(LIBS.i386-linux)
-LIBS.Linux-i586=$(LIBS.i386-linux)
-LIBS.Linux-i686=$(LIBS.i386-linux)
-CFLAGS.Linux-i386=$(CFLAGS.i386-linux)
-CFLAGS.Linux-i486=$(CFLAGS.i386-linux)
-CFLAGS.Linux-i586=$(CFLAGS.i386-linux)
-CFLAGS.Linux-i686=$(CFLAGS.i386-linux)
-
-####################################
-#            FreeBSD
-####################################
-WHOAMI.freebsd=whoami
-LIBS.freebsd= -lm -lncurses -lcrypt 
-# Normal
-CFLAGS.freebsd= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion -DJPK_FREEBSD
-# Extra debug info
-#CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
-
-WHOAMI.FreeBSD-i386=$(WHOAMI.freebsd)
-LIBS.FreeBSD-i386=$(LIBS.freebsd)
-CFLAGS.FreeBSD-i386=$(CFLAGS.freebsd)
-
-
-#############################################
-
-#WHOAMI=$(WHOAMI.$(HOSTTYPE))
-#CFLAGS=$(CFLAGS.$(HOSTTYPE))
-#LIBS=$(LIBS.$(HOSTTYPE))
-
-WHOAMI=$(WHOAMI$(SUFFIX))
-LIBS=$(LIBS$(SUFFIX))
-CFLAGS=$(CFLAGS$(SUFFIX)) #-Woverloaded-virtual -Weffc++
+CC:=gcc $(INCLUDE:%=-I%)
+CPLUSPLUS:=g++ $(INCLUDE:%=-I%) -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+# TODO: Separate CPPFLAGS and CFLAGS in Makefile.os. PJC 12/4/03.
+CPPFLAGS:= $(CFLAGS)
 
 VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 
-HEADERS = \
-	alarm.h \
-	colour.h \
-	command.h \
-	concentrator.h \
-	config.h \
-	context.h \
-	copyright.h \
-	db.h \
-	externs.h \
-	game.h \
-	game_predicates.h \
-	interface.h \
-	log.h \
-	match.h \
-	memory.h \
-	mudstring.h \
-	objects.h \
-	regexp_interface.h \
-	debug.h
-
-# C_OBJECTS are compiled with gcc, not g++
-C_OBJECTS = \
-	regexp.o \
-	scat.o \
-	concentrator.o 
-
-# OPTIM_OBJECTS are the object files compiled with $(OPTIM)
-OPTIM_OBJECTS = \
-	db.o \
-	game.o \
-	match.o \
-	predicates.o \
-	sanity-check.o \
-	stringutil.o \
-	variable.o
-
-SOURCES	= \
+SOURCES:=\
 	alarm.c \
+	ashcheck.c \
 	boolexp.c \
 	channel.c \
+	chat.c \
+	colour.c \
 	colouring.c \
 	command.c \
-	colour.c \
 	concentrator.c \
 	container.c \
 	context.c \
 	create.c \
 	db.c \
+	debug.c \
 	decompile.c \
 	destroy.c \
+	dump.c \
+	editor.c \
 	eval.c \
+	extract.c \
 	fuses.c \
 	game.c \
 	game_predicates.c \
+	get.c \
 	group.c \
 	interface.c \
 	lists.c \
@@ -149,27 +56,40 @@ SOURCES	= \
 	look.c \
 	match.c \
 	memory.c \
+	mondodestruct.c \
 	move.c \
+	mudstring.c \
+	mudwho.c \
 	netmud.c \
+	npc.c \
 	objects.c \
+	paths.c \
 	player.c \
 	predicates.c \
 	regexp.c \
 	rob.c \
+	sadness.c \
 	sanity-check.c \
-	scat.c\
+	scat.c \
 	set.c \
 	smd.c \
 	speech.c \
+	stack.c \
+	stats.c \
 	stringutil.c \
+	trawl.c \
 	unparse.c \
 	utils.c \
 	variable.c \
-	wiz.c \
-	debug.c \
-	mudstring.c
+	wiz.c
 
-UTIL_OBJECTS = \
+# C_OBJECTS are compiled with gcc, not g++
+C_OBJECTS = \
+	regexp.o \
+	scat.o \
+	concentrator.o 
+
+RAW_UTIL_OBJECTS:= \
 	db.o \
 	objects.o \
 	predicates.o \
@@ -178,8 +98,10 @@ UTIL_OBJECTS = \
 	debug.o \
 	mudstring.o
 
-OBJECTS	= \
-	$(UTIL_OBJECTS) \
+UTIL_OBJECTS:=$(RAW_UTIL_OBJECTS:%=$(BUILD_DIR)/%)
+
+RAW_OBJECTS:= \
+	$(RAW_UTIL_OBJECTS) \
 	alarm.o \
 	boolexp.o \
 	channel.o \
@@ -212,8 +134,9 @@ OBJECTS	= \
 	variable.o \
 	wiz.o 
 
+OBJECTS:=$(RAW_OBJECTS:%=$(BUILD_DIR)/%)
 
-OUTFILES = \
+RAW_OUTFILES:= \
 	dump \
 	extract \
 	mondodestruct \
@@ -224,86 +147,85 @@ OUTFILES = \
 	stats \
 	concentrator
 
-all: dump extract paths sanity-check netmud sadness stats colouring concentratormondodestruct
+OUTFILES:=$(RAW_OUTFILES:%=$(BUILD_DIR)/%)
 
-purify: netmud.purify
+all: $(BUILDS_DIR) $(BUILD_DIR) $(OUTFILES)
 
-netmud: $(OBJECTS) netmud.o
-	$(CPLUSPLUS) $(CFLAGS) -o netmud netmud.o $(OBJECTS) $(LIBS)
+$(BUILDS_DIR):
+	mkdir -p $(BUILDS_DIR)
 
-netmud.purify: netmud.o $(OBJECTS)
-	purify -g++=yes -collector=/usr/local/lib/gcc-lib/sparc-sun-sunos4.1.4/2.7.2/ld $(CPLUSPLUS) $(CFLAGS) -o netmud.purify netmud.o $(OBJECTS) $(LIBS)
+$(BUILD_DIR): $(BUILDS_DIR)
+	mkdir -p $(BUILD_DIR)
 
-dump: dump.o $(UTIL_OBJECTS)
-	-rm -f dump
-	$(CPLUSPLUS) $(CFLAGS) -o dump dump.o $(UTIL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/netmud: $(OBJECTS) $(BUILD_DIR)/netmud.o
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/netmud.o $(OBJECTS) $(LIBS)
 
-sadness: sadness.o $(UTIL_OBJECTS)
-	-rm -f sadness
-	$(CPLUSPLUS) $(CFLAGS) -o sadness sadness.o $(OBJECTS) $(LIBS)
+$(BUILD_DIR)/dump: $(BUILD_DIR)/dump.o $(UTIL_OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/dump.o $(UTIL_OBJECTS) $(LIBS)
 
-mondodestruct: mondodestruct.o $(UTIL_OBJECTS)
-	-rm -f mondodestruct
-	$(CPLUSPLUS) $(CFLAGS) -o mondodestruct mondodestruct.o $(OBJECTS) $(LIBS)
+$(BUILD_DIR)/sadness: $(BUILD_DIR)/sadness.o $(OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/sadness.o $(OBJECTS) $(LIBS)
 
-trawl: trawl.o $(UTIL_OBJECTS)
-	-rm -f trawl
-	$(CPLUSPLUS) $(CFLAGS) -o trawl trawl.o $(OBJECTS) $(LIBS)
+$(BUILD_DIR)/mondodestruct: $(BUILD_DIR)/mondodestruct.o $(OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/mondodestruct.o $(OBJECTS) $(LIBS)
 
-ashcheck: ashcheck.o $(UTIL_OBJECTS) $(OBJECTS)
-	-rm -f ashcheck
-	$(CPLUSPLUS) $(CFLAGS) -o ashcheck ashcheck.o $(OBJECTS) $(LIBS)
+$(BUILD_DIR)/trawl: $(BUILD_DIR)/trawl.o $(OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/trawl.o $(OBJECTS) $(LIBS)
 
-stats: stats.o $(UTIL_OBJECTS)
-	-rm -f stats
-	$(CPLUSPLUS) $(CFLAGS) -o stats stats.o $(UTIL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/ashcheck: $(BUILD_DIR)/ashcheck.o $(OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/ashcheck.o $(OBJECTS) $(LIBS)
 
-sanity-check: sanity-check.o $(UTIL_OBJECTS)
-	-rm -f sanity-check
-	$(CPLUSPLUS) $(CFLAGS) -o sanity-check sanity-check.o $(UTIL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/stats: $(BUILD_DIR)/stats.o $(UTIL_OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/stats.o $(UTIL_OBJECTS) $(LIBS)
 
-extract: extract.o $(UTIL_OBJECTS)
-	-rm -f extract
-	$(CPLUSPLUS) $(CFLAGS) -o extract extract.o $(UTIL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/sanity-check: $(BUILD_DIR)/sanity-check.o $(UTIL_OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/sanity-check.o $(UTIL_OBJECTS) $(LIBS)
 
-colouring: colouring.o $(UTIL_OBJECTS)
-	-rm -f colouring
-	$(CPLUSPLUS) $(CFLAGS) -o colouring colouring.o $(OBJECTS) $(LIBS)
+$(BUILD_DIR)/extract: $(BUILD_DIR)/extract.o $(UTIL_OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/extract.o $(UTIL_OBJECTS) $(LIBS)
 
-paths: paths.o $(UTIL_OBJECTS)
-	-rm -f paths
-	$(CPLUSPLUS) $(CFLAGS) -o paths paths.o $(UTIL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/colouring: $(BUILD_DIR)/colouring.o $(OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/colouring.o $(OBJECTS) $(LIBS)
 
-scat: scat.o
-	-rm -f scat
-	$(CC) -o scat scat.o $(LIBS)
+$(BUILD_DIR)/paths: $(BUILD_DIR)/paths.o $(UTIL_OBJECTS)
+	-rm -f $@
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/paths.o $(UTIL_OBJECTS) $(LIBS)
 
-concentrator: concentrator.o 
-	-rm -f concentrator
-	$(CC) $(CFLAGS) -o concentrator concentrator.o 
+$(BUILD_DIR)/scat: $(BUILD_DIR)/scat.o
+	-rm -f $@
+	$(CC) -o $@ $< $(LIBS)
 
-tar: $(SOURCES) $(HEADERS) Makefile start.db
-	tar -cf mudcode.tar *.c *.h Makefile start.db
-#	tar -cf mudcode.tar $(SOURCES) $(HEADERS) Makefile start.db
-	gzip mudcode.tar
+$(BUILD_DIR)/concentrator: $(BUILD_DIR)/concentrator.o 
+	-rm -f $@
+	$(CC) $(CFLAGS) -o $@ $<
 
 clean:
-	-rm -f *.o a.out core gmon.out $(OUTFILES)
+	-rm -f $(BUILD_DIR)/*
 
 
 $(C_OBJECTS):
-	-rm -f $*.o
-	$(CC) -c $(CFLAGS) $(OPTIM) $<
+	-rm -f $@
+	$(CC) -c -o $@ $(CFLAGS) $<
 
-$(OPTIM_OBJECTS):
-	-rm -f $*.o
-	$(CPLUSPLUS) -c $(CFLAGS) $(OPTIM) $<
+$(OBJECTS):
+	-rm -f $@
+	$(CPLUSPLUS) -c -o $@ $(CPPFLAGS) $<
 
 .SUFFIXES: .c .o
 
 .c.o:
-	-rm -f $*.o
-	$(CPLUSPLUS) -c $(CFLAGS) $<
+	-rm -f $@
+	$(CPLUSPLUS) -c -o $@ $(CPPFLAGS) $<
 
 newversion:
 	@if [ ! -f .version ]; then \
@@ -316,423 +238,14 @@ version.h: newversion
 	@echo \#define RELEASE \"$(VERSION)\" > version.h
 	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date`]\" >> version.h
 
-alarm.o : alarm.c \
-	alarm.h \
-	config.h \
-	context.h \
-	copyright.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	match.h \
-	interface.h \
-	log.h
+# Generate our prerequisites.  Plagiarised from the gmake manual by PJC 12/4/03.
+# C and C++ files...
+$(BUILD_DIR)/%.d: %.c
+	@echo Generating dependency file $@...
+	@set -e; rm -f $@; \
+	$(CPLUSPLUS) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed "s,\\($*\\)\\.o[ :]*,$(BUILD_DIR)/\\1.o $@ : ,g" < $@.$$$$ > $@; \
+	rm -f $@.$$$$
 
-boolexp.o: boolexp.c \
-	context.h \
-	copyright.h \
-	db.h \
-	mudstring.h \
-	match.h \
-	externs.h \
-	config.h \
-	interface.h \
-	log.h
-
-channel.o: channel.c \
-	colour.h \
-	externs.h \
-	context.h \
-	interface.h \
-	objects.h \
-	db.h \
-	mudstring.h \
-	command.h \
-	log.h
-
-colour.o: colour.c \
-	db.h \
-	mudstring.h \
-	colour.h \
-	context.h \
-	command.h \
-	externs.h \
-	interface.h \
-	log.h
-
-command.o: command.c \
-	db.h \
-	mudstring.h \
-	interface.h \
-	command.h \
-	context.h \
-	match.h \
-	log.h
-
-container.o: container.c \
-	db.h \
-	mudstring.h \
-	config.h \
-	interface.h \
-	externs.h \
-	command.h
-
-context.o: context.c \
-	alarm.h \
-	command.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	log.h
-
-create.o: create.c \
-	db.h \
-	mudstring.h \
-	config.h \
-	interface.h \
-	externs.h \
-	command.h \
-	match.h \
-	objects.h \
-	log.h
-
-db.o: db.c \
-	db.h \
-	mudstring.h \
-	externs.h \
-	config.h \
-	interface.h \
-	objects.h \
-	log.h
-
-decompile.o: decompile.c \
-	db.h \
-	mudstring.h \
-	config.h \
-	interface.h \
-	externs.h \
-	match.h \
-	command.h
-
-destroy.o: destroy.c \
-	db.h \
-	mudstring.h \
-	config.h \
-	context.h \
-	interface.h \
-	externs.h \
-	lists.h \
-	match.h \
-	command.h \
-	log.h
-
-dump.o: dump.c \
-	db.h \
-	mudstring.h \
-	copyright.h
-
-extract.o: extract.c \
-	mudstring.h \
-	db.h
-
-fuses.o: fuses.c \
-	alarm.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	interface.h \
-	externs.h \
-	command.h \
-	match.h
-
-game.o: game.c \
-	db.h \
-	mudstring.h \
-	config.h \
-	context.h \
-	game.h \
-	interface.h \
-	match.h \
-	externs.h \
-	log.h
-
-game_predicates.o: game_predicates.c \
-	game_predicates.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	interface.h \
-	externs.h \
-	log.h
-
-get.o: get.c \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	game_predicates.h \
-	interface.h \
-	match.h \
-	log.h
-
-group.o: group.c \
-	command.h \
-	objects.h \
-	context.h
-
-interface.o: interface.c \
-	colour.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	config.h \
-	command.h \
-	concentrator.h \
-	context.h \
-	lists.h \
-	telnet.h \
-	descriptor.h \
-	game_predicates.h \
-	log.h
-
-lists.o: lists.c \
-	colour.h \
-	context.h \
-	command.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	objects.h \
-	log.h
-
-log.o: log.c \
-	command.h \
-	context.h \
-	externs.h \
-	log.h \
-	config.h
-
-look.o: look.c \
-	colour.h \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	match.h \
-	regexp_interface.h
-
-match.o: match.c \
-	db.h \
-	mudstring.h \
-	command.h \
-	config.h \
-	context.h \
-	externs.h \
-	match.h \
-	log.h
-
-move.o: move.c \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	match.h \
-	stack.h \
-	log.h
-
-netmud.o: netmud.c \
-	command.h \
-	config.h \
-	copyright.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	game.h \
-	interface.h \
-	version.h \
-	log.h
-
-npc.o:	npc.c \
-	command.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	objects.h
-
-objects.o: objects.c \
-	config.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	objects.h \
-	log.h
-
-paths.o: paths.c \
-	config.h \
-	db.h \
-	mudstring.h \
-	interface.h
-
-player.o: player.c \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	objects.h
-
-predicates.o: predicates.c \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h
-
-regexp.o: regexp.c
-
-rob.o: rob.c \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	match.h
-
-sanity-check.o: sanity-check.c \
-	externs.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	config.h
-
-scat.o: scat.c
-
-set.o: set.c \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	match.h \
-	log.h
-
-smd.o: smd.c \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h
-
-speech.o: speech.c \
-	colour.h \
-	command.h \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	lists.h \
-	match.h \
-	log.h
-
-stringutil.o: stringutil.c \
-	externs.h \
-	db.h \
-	mudstring.h
-
-unparse.o: unparse.c \
-	config.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	colour.h
-
-utils.o: utils.c \
-	db.h \
-	mudstring.h \
-	interface.h \
-	externs.h \
-	log.h
-
-variable.o: variable.c\
-	db.h\
-	mudstring.h \
-	externs.h\
-	config.h\
-	command.h\
-	context.h \
-	match.h \
-	log.h
-
-wiz.o: wiz.c \
-	command.h \
-	context.h \
-	db.h \
-	mudstring.h \
-	externs.h \
-	interface.h \
-	match.h \
-	log.h
-
-mudstring.o: mudstring.c \
-	mudstring.h
-
-concentrator.o: concentrator.c \
-	concentrator.h \
-	config.h 
-
-alarm.h: match.h
-
-command.h: db.h \
-	mudstring.h
-
-config.h: copyright.h
-
-context.h: command.h \
-	match.h \
-	stack.h
-
-db.h: copyright.h \
-	colour.h \
-	mudstring.h
-
-externs.h: db.h \
-	mudstring.h \
-	context.h \
-	copyright.h
-
-interface.h: db.h \
-	mudstring.h \
-	copyright.h
-
-match.h: db.h \
-	mudstring.h \
-	copyright.h
-
-log.h: config.h
+# Obtain dependencies for all our files
+include $(SOURCES:%.c=$(BUILD_DIR)/%.d)
