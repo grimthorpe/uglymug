@@ -482,7 +482,7 @@ main (void)
 */
 		if (time(NULL) - last_browser_verify >= BROWSER_VERIFY_TIMEOUT)
 		{
-			do_write_raw_str ("<!-- JPK -->");
+			do_write_raw_str ("<!-- -->");
 		}
 
 			/* read from telnet and write to output */
