@@ -560,11 +560,6 @@ look_room (
 context	&c,
 dbref	loc)
 {
-	if(Typeof(loc) != TYPE_ROOM)
-	{
-		notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "That room has been destroyed!");
-		return;
-	}
 	const colour_at& ca = db[c.get_player()].get_colour_at();
 	dbref looper;
 	int   prettylook= Prettylook(c.get_player()) ;
