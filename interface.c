@@ -2229,6 +2229,7 @@ int			channel)
 
         next			= descriptor_list;
 	prev			= &descriptor_list;
+	terminal_xpos		= 0;
 	terminal_width		= 0;
 	terminal_height		= 0;
 	terminal_type		= NULL;
@@ -2425,7 +2426,6 @@ int i;
 
 	if(terminal_width)
 	{
-		terminal_xpos= 0;
 		int percent_primed= 0; /* Take acct of %colour *not* affecting wrap */
 		a = b;
 		while (*a)
@@ -2460,7 +2460,7 @@ int i;
 			}
 		
 			
-			if(terminal_xpos >= terminal_width)
+			if(terminal_xpos+1 >= terminal_width)
 			{
 				i = 1; // Fix a 'bug' in tinyfugue that wraps on last char
 				while ((a>b) && (terminal_xpos>0) && (*a != ' '))
@@ -2492,6 +2492,8 @@ int i;
 			}
 		}
 	}
+	if(terminal_xpos < 0)
+		terminal_xpos = 0;
 	if(terminal_lftocr)
 	{
 		/* I apologise for the messyness of the next bit, but it is to implement */
