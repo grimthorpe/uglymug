@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+um1_040 - New characters are important to us!
 	Modified log_recursion() and the two callsa to it. This makes the information easier to process.
 	Modifed String so that you can append to it; just use +=
 	Modified @?connectedplayers so that it takes parameter as who does. npc
