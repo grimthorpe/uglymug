@@ -46,10 +46,23 @@
 #	define	SETSOCKOPT_OPTCAST (char*)
 typedef	int	socklen_t;
 
+static int write(SOCKET s, const char * buf, int len)
+{
+	int result = send(s, buf, len, 0);
+
+	return result;
+}
+
+static int read(SOCKET s, unsigned char * buf, int len)
+{
+	int result = recv(s, (char *)buf, len, 0);
+
+	return result;
+}
 /**
  * Shockingly naive implementation. TODO: Improve. PJC 20/4/2003.
  */
-int gettimeofday (struct timeval *tv, void *)
+void gettimeofday (struct timeval *tv, void *)
 {
 	time (&tv->tv_sec);
 	tv->tv_usec = 0;
