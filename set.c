@@ -1314,13 +1314,12 @@ const	CString& flag)
 
 	if ((f == FLAG_READONLY) && (*flag.c_str() == NOT_TOKEN))
 	{
-		db[thing].clear_flag(f);
 		if (!controls_for_write (thing))
 		{
 			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied);
-			db[thing].set_flag(f);
 			return;
 		}
+		db[thing].clear_flag(f);
 	}
 
         /* Give a nicer message when we try to teleport a read-only object */
@@ -1329,13 +1328,13 @@ const	CString& flag)
                 notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't modify a read-only object.");
                 return;
 	}
-			
+
 	if ((f==FLAG_SILENT) && (Typeof(thing)==TYPE_PLAYER))
 	{
 		if (!Wizard(get_effective_id()))
 		{
-		 notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set this on a player!");
-		 return;
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set this on a player!");
+			return;
 		}
 	}
 	if ((f==FLAG_DONTANNOUNCE) && (*flag.c_str() != NOT_TOKEN))
@@ -1381,8 +1380,8 @@ const	CString& flag)
 			db[thing].clear_flag(FLAG_FEMALE);
 			db[thing].clear_flag(FLAG_NEUTER);
 		}
-			
-		
+
+
 	/* check for restricted flag */
 	if(!Wizard(get_effective_id ())
 		&& (f == FLAG_WIZARD))
