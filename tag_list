@@ -3,9 +3,17 @@ Please update everytime a new release goes live on
 the main game. This way we can always pull out the
 correct version. In reverse order.
 
+um1_004 - Grimthorpe
+    Yet more null pointer fixes. One day we'll fix them all, or replace
+    either vsprintf or the use of char* for strings.
+
 um1_003 - Grimthorpe
     Not sure of the changes. If you could fill
     some in Grim...
+    Well, lets start with NULL pointer protection, followed by a liberal
+    sprinkling of value_or_empty, add a little NULL pointer protection
+    and heat for a few hours before topping off with a stupid strdup/free
+    (real bug) fix.
 
 release_002 - Reaps
     Set the UNCONNECTED idle limit to 5 mins
