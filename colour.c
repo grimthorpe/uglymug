@@ -683,7 +683,6 @@ const String&	cs)
 	// No players, but they have a string. Most odd, but we don't want to crash.
 	if(no_of_players == 0)
 	{
-fprintf(stderr, "Caught nno_of_players as 0\n");
 		free(colour_string);
 		return (NULL);
 	}
