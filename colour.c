@@ -674,22 +674,31 @@ const String&	cs)
 	if((!cs) || (cs.c_str()[0] == '\0'))
 		return(NULL);
 
-	char*	colour_string = strdup (cs.c_str());
-	char	*point = colour_string;
-	char	*begin;
-	int	count=0;
 	int	no_of_players;
-	cplay	 *return_array;
-
+	char*	colour_string = strdup (cs.c_str());
 	/* Find out how many players there are so we can calloc enough space */
 	no_of_players = find_number_of_players(colour_string);
 	db[player].set_colour_play_size(no_of_players);
+
+	// No players, but they have a string. Most odd, but we don't want to crash.
+	if(no_of_players == 0)
+	{
+fprintf(stderr, "Caught nno_of_players as 0\n");
+		free(colour_string);
+		return (NULL);
+	}
+
+	char	*point = colour_string;
+	char	*begin;
+	int	count=0;
+	cplay	 *return_array;
+
 
 	/* Create the array that the player will use */
 	return_array = new cplay[no_of_players];
 
 	/* Now we add a list of players and their colours */
-	while(point)
+	while(point && (count < no_of_players))
 	{
 		point++;
 		if((*point < 58) && (*point > 47))
