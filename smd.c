@@ -8,12 +8,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/file.h>
-#include <netdb.h>
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <string.h>
-#include <arpa/inet.h>
+
+#if	USE_BSD_SOCKETS
+#	include <netdb.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
+#endif	/* USE_BSD_SOCKETS */
+
+#if	USE_WINSOCK2
+#	include <winsock2.h>
+#endif	/* USE_WINSOCK2 */
 
 #include "interface.h"
 #include "externs.h"
