@@ -7,6 +7,11 @@ correct version. In reverse order.
 Place the latest tag number at the top to ensure
 the version information in the game is correct.
 
+um1_014 - Grimthorpe
+    The perils of extreme programming. If you find a bug in one piece of code,
+    check to see if there are any others nearby. @channel leave was the problem.
+    Also someone found a 'new' bug! NULL pointers being used again...
+
 um1_013 - Grimthorpe
     Nasty bug in the chat code; instead of iterating over the list with x-next()
     I used x++ instead...
