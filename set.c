@@ -2754,6 +2754,12 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 		return;
 	}
 
+	if ((Typeof(victim)!=TYPE_PLAYER) && (Typeof(victim)!=TYPE_PUPPET))
+	{
+		notify(player, "You can only give money to players and puppets.");
+		RETURN_FAIL;
+	}
+
 	if(amount<0 && (db[victim].get_money()+amount)<0)
 	{
 		notify(player, "You can't make someone go into the red.");
@@ -2847,6 +2853,12 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't change exchange credits with a read-only player.");
 		return;
+	}
+
+	if ((Typeof(victim)!=TYPE_PLAYER) && (Typeof(victim)!=TYPE_PUPPET))
+	{
+		notify(player, "You can only take money from players and puppets.");
+		RETURN_FAIL;
 	}
 
 	if(!controls_for_write(victim))
