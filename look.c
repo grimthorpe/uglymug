@@ -1996,17 +1996,22 @@ const	String& string)
 char *time_string (time_t interval)
 {
 	static char buffer[80];
-	int days, hours, minutes, seconds;
+	int years, days, hours, minutes, seconds;
 
+	/* Obviously the year value is an approximation, but good enough for
+	   our purposes. */
+	interval -= (years = interval / 31557600L) * 31557600L;
 	interval -= (days = interval / 86400) * 86400;
 	interval -= (hours = interval / 3600) * 3600;
 	interval -= (minutes = interval / 60) * 60;
 	seconds= interval;
 	*buffer = '\0';
 
+	if (years > 0)
+		sprintf (buffer, "%d year%s", years, PLURAL (years));
 	if (days > 0)
 	{
-		sprintf (scratch_buffer, "%d day%s", days, PLURAL (days));
+		sprintf (scratch_buffer, "%s%d day%s", (!*buffer) ? "" : (hours > 0 || minutes > 0 || seconds > 0)? ", ":" and ", days, PLURAL (days));
 		strcat (buffer, scratch_buffer);
 	}
 	if (hours > 0)
