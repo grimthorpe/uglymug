@@ -32,7 +32,6 @@
 #	define	HAS_CURSES		0
 #	define	HAS_FORK		0
 #	define	HAS_SIGNALS		0
-#	define	HAS_SRAND48		0
 #	define	NEEDS_CRYPT_H		1
 #	define	NEEDS_GETDTABLESIZE	1
 #	define	NEEDS_GETOPT		1
@@ -51,9 +50,6 @@
 #endif
 #ifndef	HAS_SIGNALS
 #	define	HAS_SIGNALS	1
-#endif
-#ifndef	HAS_SRAND48
-#	define	HAS_SRAND48	1
 #endif
 #ifndef	NEEDS_GETDTABLESIZE
 #	ifdef	SYSV
