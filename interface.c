@@ -3859,6 +3859,7 @@ int			flags)
 	int			want_me = 0;
 	int			want_wizards = 0;
 	int			want_apprentices = 0;
+	int			want_natter = 0;
 	int			want_guests = 0;
 	int			want_officers = 0;
 	int			want_builders = 0;
@@ -3883,6 +3884,8 @@ int			flags)
 			want_apprentices = 1;
 		if (!(string_compare(victim, "admin")))
 			want_wizards = want_apprentices = 1;
+		if (!(string_compare(victim, "natter")))
+			want_natter = want_wizards = want_apprentices = 1;
 		if (!(string_compare(victim, "guests")))
 			want_guests = 1;
 		if (!(string_compare(victim, "officers")))
@@ -3921,6 +3924,7 @@ int			flags)
 				(db[d->get_player()].has_alias(victim)))) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
+		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
 		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
@@ -3934,6 +3938,7 @@ int			flags)
 			(strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0)) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
+		    (want_natter && Connected(d->get_player()) && Natter(d->get_player())) ||
 		    (want_me && (string_compare(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
