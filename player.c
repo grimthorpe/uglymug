@@ -143,7 +143,7 @@ const	CString& newpw)
 
 #ifdef ALIASES
 void
-context::do_listaliases (
+context::do_at_listaliases (
 const	CString& person,
 const	CString& )
 

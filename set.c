@@ -317,7 +317,7 @@ const	CString& newrace)
 }
 
 void
-context::do_name (
+context::do_at_name (
 const	CString& name,
 const	CString& newname)
 
@@ -638,7 +638,7 @@ const	CString& description)
 
 
 void
-context::do_fail (
+context::do_at_fail (
 const	CString& name,
 const	CString& message)
 
@@ -1964,7 +1964,7 @@ const	CString& volume_limit)
 }
 
 void
-context::do_mass (
+context::do_at_mass (
 const	CString& object,
 const	CString& mass)
 {
@@ -2044,7 +2044,7 @@ const	CString& mass)
 }
 
 void
-context::do_mass_limit (
+context::do_at_mass_limit (
 const	CString& object,
 const	CString& mass_limit)
 {
@@ -2135,7 +2135,7 @@ const	CString& mass_limit)
 }
 
 void
-context::do_gravity_factor (const CString& object, const CString& gravity_factor)
+context::do_at_gravity_factor (const CString& object, const CString& gravity_factor)
 {
 	dbref	victim;
 	double	new_gravity_factor;
@@ -2211,7 +2211,7 @@ context::do_gravity_factor (const CString& object, const CString& gravity_factor
 }
 
 void
-context::do_location (
+context::do_at_location (
 const	CString& victim_string,
 const	CString& new_location_string)
 

@@ -740,7 +740,7 @@ const	char	right_match)
 
 
 void
-context::do_full_evaluate (
+context::do_at_evaluate (
 const	CString& arg1,
 const	CString& arg2)
 

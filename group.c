@@ -29,7 +29,7 @@ int	add_up_votes	       (dbref members,
 				dbref group,
 				char* idtring);
 void
-context::do_group(
+context::do_at_group(
 const	CString& group_string,
 const	CString& player_string)
 

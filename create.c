@@ -272,12 +272,12 @@ const	CString& linkto)
 
 
 /*
- * do_link: Link a player or thing to a home; link a room to its dropto; link
+ * do_at_link: Link a player or thing to a home; link a room to its dropto; link
  *	an exit to its destination.
  */
 
 void
-context::do_link (
+context::do_at_link (
 const	CString& name,
 const	CString& room_name)
 
@@ -1088,7 +1088,7 @@ const	CString& command_name)
 
 
 void
-context::do_fuse (const CString& fuse_name, const CString& command_name)
+context::do_at_fuse (const CString& fuse_name, const CString& command_name)
 {
 	dbref	thing;
 	dbref destination;
@@ -1207,7 +1207,7 @@ context::do_at_alarm (const CString& alarm_name, const CString& time_of_executio
 
 
 void
-context::do_puppet (
+context::do_at_puppet (
 const	CString& puppet_name,
 const	CString& )
 

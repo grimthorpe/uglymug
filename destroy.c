@@ -917,7 +917,7 @@ dbref	zap_alarm)
 }
 
 void
-context::do_garbage_collect (
+context::do_at_garbage_collect (
 const	CString& type,
 const	CString& )
 

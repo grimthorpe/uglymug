@@ -56,7 +56,7 @@ const   CString& arg2)
 
 
 void
-context::do_force (
+context::do_at_force (
 const	CString& what,
 const	CString& command)
 
@@ -243,7 +243,7 @@ const	CString& )
 
 
 void
-context::do_newpassword (
+context::do_at_newpassword (
 const	CString& name,
 const	CString& password)
 
@@ -342,7 +342,7 @@ const	CString& reason)
 
 
 void
-context::do_from (
+context::do_at_from (
 const	CString& name,
 const	CString& )
 

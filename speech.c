@@ -626,7 +626,7 @@ const	CString& part2)
 
 
 void
-context::do_natter (
+context::do_at_natter (
 const	CString& arg1,
 const	CString& arg2)
 {

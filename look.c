@@ -1791,7 +1791,7 @@ const	CString& string)
 
 
 void
-context::do_find (
+context::do_at_find (
 const	CString& descriptor,
 const	CString& string)
 
