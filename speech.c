@@ -1053,7 +1053,11 @@ really_do_tell(char *arg1, char *arg2, bool force_emote, context &c)
 
 		const colour_at& ca=db[target].get_colour_at();
 		if ((*arg2==':') || (force_emote==true))
-			notify_censor (target, player, "%s[To %s] %s %s%s", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==true)?arg2:arg2+1);
+		{
+			char *s=(force_emote==true)?arg2:arg2+1;
+
+			notify_censor (target, player, "%s[To %s] %s%s%s%s", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), (*s=='\'' || *s=='`')? "":" ", ca[COLOUR_TELLMESSAGES], s);
+		}
 		else
 			notify_censor (target, player, "%s[To %s] %s tells you \"%s%s%s\"", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
 		target= targets.get_next();
@@ -1063,7 +1067,11 @@ really_do_tell(char *arg1, char *arg2, bool force_emote, context &c)
 
 	const colour_at& ca=db[player].get_colour_at();
 	if ((*arg2==':') || (force_emote==true))
-		notify(player,"%s[To %s] %s %s%s",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, true), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==true)?arg2:arg2+1);
+	{
+		char *s=(force_emote==true)?arg2:arg2+1;
+
+		notify(player,"%s[To %s] %s%s%s%s",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, true), db[player].get_name().c_str(), (*s=='\'' || *s=='`')? "":" ", ca[COLOUR_TELLMESSAGES], s);
+	}
 	else
 		notify(player,"%sYou tell %s \"%s%s%s\"",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, true), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
 
