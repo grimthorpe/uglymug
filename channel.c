@@ -160,7 +160,7 @@ const	CString&	arg2)
 
 	if(channel->mode==CHANNEL_PRIVATE && !on_channel(channel->invites, player))
 	{
-		if(string_compare("force", arg2.c_str()))
+		if(string_compare("force", arg2.c_str()) == 0)
 		{
 			if(Wizard(player))
 			{
