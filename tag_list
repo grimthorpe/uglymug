@@ -3,6 +3,12 @@ Please update everytime a new release goes live on
 the main game. This way we can always pull out the
 correct version. In reverse order.
 
+um1_005 - Grimthorpe
+    A few more null pointer fixes.
+    Note: These should all go away when the major code update goes in.
+    But we're waiting on Keith's HALFQUIT (and related) stuff before that
+    can go in.
+
 um1_004 - Grimthorpe
     Yet more null pointer fixes. One day we'll fix them all, or replace
     either vsprintf or the use of char* for strings.
