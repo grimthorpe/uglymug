@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/time.h>
+#include <time.h>
 #include <signal.h>
 #include <sys/ioctl.h>
 #include <sys/wait.h>
@@ -3572,13 +3573,18 @@ int	sig)
 
 {
 	char message[1024];
-#if defined (sun) // Sun's different
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
-#elif defined (SYSV)
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
-#else
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+#ifdef linux
+// Yuck - I feel ill JPK
+        extern char *strsignal (int __sig) __THROW;
 #endif
+	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+//#if defined (sun) // Sun's different
+//	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+//#elif defined (SYSV)
+//	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+//#else
+//	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+//#endif
 
 // #if !defined (SYSV) // Fixing signal naming...
 // 	extern char *sys_siglist[];
