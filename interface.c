@@ -9,6 +9,8 @@
 
 /* KEITH: Buy a surperior spellchecker too. - Luggs */
 
+#define __lint
+
 #include "copyright.h"
 
 #include <stdio.h>
@@ -1841,6 +1843,12 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 {
 	char *terminal;
 
+	char *tmpstring;
+	tmpstring=(char *)malloc(sizeof("lines  ")); /* 'lines' is the longest
+                                                      * string needed, the 
+						      * spaces are paranoia
+						      */
+
 	terminal = safe_strdup(termtype);
 
 	for(int i = 0; terminal[i]; i++)
@@ -1867,14 +1875,18 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 
 	if (terminal_width == 0)
 	{
-		terminal_width = tigetnum("cols");
+		strcpy(tmpstring,"cols");
+		terminal_width = tigetnum(tmpstring);
+		//terminal_width = tigetnum("cols");
 #ifdef DEBUG_TELNET
 		Trace( "Terminal width (from terminfo):  %d\n", terminal_width);
 #endif
 	}
 	if (terminal_height == 0)
 	{
-		terminal_height = tigetnum("lines");
+		strcpy(tmpstring,"lines");
+		terminal_height = tigetnum(tmpstring);
+		//terminal_height = tigetnum("lines");
 #ifdef DEBUG_TELNET
 		Trace( "Terminal height (from terminfo):  %d\n", terminal_height);
 #endif
@@ -1897,7 +1909,9 @@ int descriptor_data::set_terminal_type (const char *const termtype)
  *	}
  */
 
-	const char *const bold = tigetstr("bold");
+	strcpy(tmpstring,"bold");
+	const char *const bold = tigetstr(tmpstring);
+	//const char *const bold = tigetstr("bold");
 	if (bold != (char *)-1)
 	{
 		if (termcap.bold_on)
@@ -1905,7 +1919,9 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 		termcap.bold_on = safe_strdup(bold);
 	}
 
-	const char *const bold_off = tigetstr("sgr0");
+	strcpy(tmpstring,"sgr0");
+	const char *const bold_off = tigetstr(tmpstring);
+	//const char *const bold_off = tigetstr("sgr0");
 	if (bold_off != (char *)-1)
 	{
 		if (termcap.bold_off)
@@ -1913,7 +1929,9 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 		termcap.bold_off = safe_strdup(bold_off);
 	}
 
-	const char *const underline = tigetstr("smul");
+	strcpy(tmpstring,"smul");
+	const char *const underline = tigetstr(tmpstring);
+	//const char *const underline = tigetstr("smul");
 	if (underline != (char *)-1)
 	{
 		if (termcap.underscore_on)
@@ -1921,7 +1939,9 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 		termcap.underscore_on = safe_strdup(underline);
 	}
 
-	const char *const underscore_off = tigetstr("rmul");
+	strcpy(tmpstring,"rmul");
+	const char *const underscore_off = tigetstr(tmpstring);
+	//const char *const underscore_off = tigetstr("rmul");
 	if (underscore_off != (char *)-1)
 	{
 		if (termcap.underscore_off)
