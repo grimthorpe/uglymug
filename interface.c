@@ -36,6 +36,7 @@
 	// here are their non-MS definitions.  PJC 19/4/2003.
 	typedef	int	SOCKET;
 #	define	SETSOCKOPT_OPTCAST	(int *)
+#	define	closesocket	close
 #endif	/* USE_BSD_SOCKETS */
 
 #if	USE_WINSOCK2
@@ -45,7 +46,13 @@
 #	define	EWOULDBLOCK	WSAEWOULDBLOCK
 #	define	SETSOCKOPT_OPTCAST (char*)
 typedef	int	socklen_t;
-int gettimeofday (struct timeval*, void *);
+
+// Shockingly naive implementation. TODO: Improve. PJC 20/4/2003.
+int gettimeofday (struct timeval *tv, void *)
+{
+	time (&tv->tv_sec);
+	tv->tv_usec = 0;
+}
 #endif	/* USE_WINSOCK2 */
 
 #include "db.h"
@@ -1053,6 +1060,14 @@ void mud_main_loop(int argc, char** argv)
 	int			conc_data_sent;
 #endif
 
+#if	USE_WINSOCK2
+	// For Winsock, ensure the socket system is initialised.
+	WSADATA wsaData;
+	WORD versionRequested = MAKEWORD (2, 0);
+	int err;
+	err = WSAStartup (versionRequested, &wsaData);
+#endif	/* USE_WINSOCK2 */
+
 #ifdef CONCENTRATOR
 	conc_listensock = make_socket (CONC_PORT, INADDR_ANY);
 #endif
@@ -1398,7 +1413,7 @@ struct descriptor_data *new_connection(SOCKET sock)
 			len -=i;
 		} while(len > 0);
 		shutdown(newsock, 2);
-		close (newsock);
+		closesocket (newsock);
 		errno = ECONNREFUSED;
 		return (0);
 	}
@@ -2048,7 +2063,7 @@ descriptor_data::shutdownsock()
 	if(get_descriptor())	/* If it's not a concentrator connection */
 	{
 		shutdown (get_descriptor(), 2);
-		close (get_descriptor());
+		closesocket (get_descriptor());
 		_descriptor = 0; // Clear out the descriptor
 	}
 #ifdef CONCENTRATOR
@@ -2197,7 +2212,6 @@ SOCKET make_socket(int port, unsigned long inaddr)
 {
 	SOCKET s;
 	struct sockaddr_in server;
-	int opt;
 
 	s = socket (AF_INET, SOCK_STREAM, 0);
 	if (s < 0)
@@ -2206,21 +2220,13 @@ SOCKET make_socket(int port, unsigned long inaddr)
 		exit (3);
 	}
 
-	opt = 1;
-
-	if (setsockopt (s, SOL_SOCKET, SO_REUSEADDR, (char *) &opt, sizeof (opt)) < 0)
-	{
-		perror ("setsockopt");
-		exit (1);
-	}
-
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = inaddr;
 	server.sin_port = htons (port);
 	if (bind (s, (struct sockaddr *) & server, sizeof (server)))
 	{
 		perror ("binding stream socket");
-		close (s);
+		closesocket (s);
 		exit (4);
 	}
 	listen (s, 5);
@@ -2609,7 +2615,8 @@ void make_nonblocking(int s)
 #endif	/* USE_BSD_SOCKETS */
 
 #if	USE_WINSOCK2
-	// TODO: Write me.
+	u_long one = 1;
+	ioctlsocket (s, FIONBIO, &one);
 #endif	/* USE_WINSOCK2 */
 }
 
@@ -3577,7 +3584,7 @@ void close_sockets()
 		{
 			if (shutdown (d->get_descriptor(), 2) < 0)
 				perror ("shutdown");
-			close (d->get_descriptor());
+			closesocket (d->get_descriptor());
 		}
 	}
 #ifdef CONCENTRATOR
@@ -3587,8 +3594,12 @@ void close_sockets()
 
 	for(int i = 0; i < NumberListenPorts; i++)
 	{
-		close (ListenPorts[i]);
+		closesocket (ListenPorts[i]);
 	}
+
+#if	USE_WINSOCK2
+	WSACleanup ();
+#endif	/* USE_WINSOCK2 */
 }
 
 
