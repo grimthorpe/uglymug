@@ -717,6 +717,15 @@ dbref	loc)
 {
 	dbref		exit;
 
+	int type = Typeof(loc);
+
+	if((type != TYPE_ROOM)
+		&& (type != TYPE_THING)
+		&& (type != TYPE_PLAYER)
+		&& (type != TYPE_PUPPET))
+	{
+		return; // Bug out now before we crash the game
+	}
 	while (loc != NOTHING)
 	{
 		DOLIST (exit, db[loc].get_exits())

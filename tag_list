@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Match code: match_exit_remote now checks if the target type supports exits before trying to use the exit list.
 	Removed call to value_or_empty on a CString on log_recursion()
 	Added .reconnect handling (runs when you RECONNECT)
 	Cleaned up .login/.logout handling (share common code)
