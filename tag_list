@@ -27,6 +27,7 @@ information doesn't get lost.
     Added support for '@?terminal type'.
     Deprecated '@terminal termtype' for '@terminal type' (but 'termtype' still works)
     Cleaned up the SMD code so that we don't care about the (never implemented) JANET network lookup.
+    Added a new implementation of 'String', which should give us lots of flexibility in the future, when we want to do fun things with strings and string buffers.
 
 um1_030 - Chisel; fixed showstopper with HALFQUIT
     Fixed the Trace() call for HALFQUIT so that it doesn't try to use

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define STRINGBUFFER_GROWSIZE	256
 class	String;
 class	CString;
 
@@ -84,138 +85,180 @@ public:
 	}
 };
 
-class String
+class	String
 {
-private:
-	char* buf;
-	unsigned int len;
-
-	void init()
+public:
+	class Buffer
 	{
-		buf = 0;
-		len = 0;
-	}
+		friend	class	::String;	// Doesn't have to be a friend, but it stops
+						// gcc from complaining.
+
+		int		_ref;
+		char*		_buf;
+		unsigned int	_len;
+		unsigned int	_capacity;
+
+		void init()
+		{
+			_capacity = 0;
+			_len = 0;
+			_buf = 0;
+			_ref = 0;
+		}
+		void resize(unsigned int newsize, bool copy=true)
+		{
+			if(newsize < _capacity)
+				return;
+			newsize++; // The newsize doesn't include space for the terminator.
+			while(newsize >= _capacity)
+				_capacity += STRINGBUFFER_GROWSIZE;
+			char* tmp = new char[_capacity];
+			if(_buf && copy)
+			{
+				// We use memcpy because the regions will not overlap.
+				memcpy(tmp, _buf, _len); // Copy the \0 terminator
+				delete[] _buf;
+				tmp[_len+1] = 0;
+			}
+			_buf = tmp;
+		}
+		~Buffer() // Private so that nobody can delete this. Use the reference counting!
+		{
+			delete[] _buf;
+		}
+		Buffer& operator=(const Buffer&);
+	public:
+		void assign(const char* str, int len)
+		{
+			resize(len, false);
+			if(str)
+			{
+				memcpy(_buf, str, len);
+				_len = len;
+			}
+			else
+			{
+				_len = 0;
+			}
+			_buf[len] = 0; // NULL terminate.
+		}
+		Buffer(unsigned int capacity = 0)
+		{
+			init();
+			resize(capacity);
+		}
+		Buffer(const char* str)
+		{
+			init();
+			if(str && *str)
+			{
+				assign(str, strlen(str));
+			}
+		}
+		Buffer(const char* str, unsigned int len)
+		{
+			init();
+			if(str && *str)
+			{
+				assign(str, len);
+			}
+		}
+		Buffer(const Buffer& b)
+		{
+			init();
+			assign(b._buf, b._len);
+		}
+		void ref()
+		{
+			if(this)
+				_ref++;
+		}
+		void unref()
+		{
+			if((this) && ((--_ref) == 0))
+			{
+				delete const_cast<Buffer*>(this);
+			}
+		}
+		int		refcount()	const	{ return _ref; }
+		const char*	c_str()		const	{ return _buf?_buf:""; }
+		unsigned int	length()	const	{ return _len; }
+	};
+
+	Buffer*	_buffer;
+
 	operator int() const;
 	bool operator==(const String& str);
 	bool operator==(int);
-protected:
-	void copy(const char* str)
-	{
-		if(str != buf)
-		{
-			empty();
-			if(str && *str)
-			{
-				buf = strdup(str);
-				len = strlen(buf);
-			}
-		}
-	}
-	void copy(const char* str, unsigned int slen)
-	{
-		if(str != buf)
-		{
-			empty();
-			if(str && *str)
-			{
-				buf = strdup(str);
-				len = slen;
-			}
-		}
-	}
 public:
+	~String()
+	{
+		if(_buffer)
+			_buffer->unref();
+	}
 	String()
 	{
-		init();
+		_buffer = new Buffer();
+		_buffer->ref();
 	}
 	String(const char* str)
 	{
-		init();
-		if(str)
-			copy(str);
+		_buffer = new Buffer(str);
+		_buffer->ref();
 	}
 	String(const String& str)
 	{
-		init();
-		if(str)
-			copy(str.buf, str.len);
+		_buffer=str._buffer;
+		_buffer->ref();
 	}
 	String(const CString& str)
 	{
-		init();
-		if(str)
-			copy(str.c_str(), str.length());
+		_buffer = new Buffer(str.c_str(), str.length());
+		_buffer->ref();
 	}
-	~String()
+	String& operator=(const String& cstr)
 	{
-		empty();
-	}
-	void empty()
-	{
-		if(buf)
+		if(cstr._buffer != _buffer)
 		{
-			free(buf);
+			_buffer->unref();
+			_buffer = cstr._buffer;
+			_buffer->ref();
 		}
-		init();
+		return *this;
 	}
-
-	const char*	c_str()		const { return (buf)?buf:""; }
-		operator bool()		const { return len != 0; }
-	unsigned int	length()	const { return len; }
-
-	String& operator=(const char* str)
+	String& operator=(const CString& cstr)
 	{
-		if(str && *str)
+		if(_buffer->refcount () != 1)
 		{
-			copy(str);
+			_buffer->unref();
+			_buffer = new Buffer(cstr.c_str(), cstr.length());
+			_buffer->ref();
+		}
+		else
+			_buffer->assign(cstr.c_str(), cstr.length());
+		return *this;
+	}
+	String& operator=(const char* cstr)
+	{
+		if(_buffer->refcount () != 1)
+		{
+			_buffer->unref();
+			_buffer = new Buffer(cstr);
+			_buffer->ref();
+		}
+		else if(cstr)
+		{
+			_buffer->assign(cstr, strlen(cstr));
 		}
 		else
 		{
-			empty();
+			_buffer->assign(0, 0);
 		}
 		return *this;
 	}
-	String& operator=(const String& str)
-	{
-		if(str)
-		{
-			copy(str.c_str(), str.length());
-		}
-		else
-		{
-			empty();
-		}
-		return *this;
-	}
-	String& operator=(const CString& str)
-	{
-		if(str)
-		{
-			copy(str.c_str(), str.length());
-		}
-		else
-		{
-			empty();
-		}
-		return *this;
-	}
-
-	String& operator+=(const CString& str)
-	{
-		unsigned int newlen = len + str.length();
-		char* newbuf = (char*)malloc(newlen+1);
-		if(!newbuf)
-		{
-			return *this;
-		}
-		strcpy(newbuf, buf);
-		strcat(newbuf, str.c_str());
-		free(buf);
-		buf = newbuf;
-		len = newlen;
-
-		return *this;
-	}
+	const char*	c_str()		const	{ return _buffer->c_str(); }
+	unsigned int	length()	const	{ return _buffer->length(); }
+	operator bool()			const	{ return _buffer->length() > 0; }
 };
 
 inline CString::CString(const String& str)
