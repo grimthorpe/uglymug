@@ -1387,10 +1387,6 @@ const	CString& )
 
      Players         %-5d      %-5d
      Puppets         %-5d      %-5d
-
-     Weapon          %-5d      %-5d
-     Armour          %-5d      %-5d
-     Ammunition      %-5d      %-5d
      ------------------------------------------
      Total           %-5d      %-5d",
 		     arooms,rooms, 

@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	@gc doesn't try to report Weapon, Armour and Ammunition as destroyed, even though they don't exist any more.
 	match_variable_list now returns the *FIRST* matching variable instead of the last.
 	Made semicolon_string_match return FALSE if what you're searching for is an empty string.
 	Added missing # to hack message
