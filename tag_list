@@ -1,7 +1,14 @@
 Tag file. Lists the tags and the broad changes made.
 Please update everytime a new release goes live on
 the main game. This way we can always pull out the
-correct version.
+correct version. In reverse order.
+
+um1_003 - Grimthorpe
+    Not sure of the changes. If you could fill
+    some in Grim...
+
+release_002 - Reaps
+    Set the UNCONNECTED idle limit to 5 mins
 
 release_001 - Reaps
     Removed all the words from the idle and connect
@@ -10,5 +17,3 @@ release_001 - Reaps
     Made all times cope with weeks of connect/idle
 	including the idle message from pages.
 
-release_002 - Reaps
-    Set the UNCONNECTED idle limit to 5 mins
