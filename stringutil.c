@@ -611,12 +611,14 @@ char *string)
                         {
                             for(i=0; i < counter; i++)
                             {
+				if(*string == '%')
+					string++, i++;	// Skip over colour controls
                                 if (!ispunct(*string))
                                      *string='*';
                                 string++;
                             }
                         }
-                        return counter+1;
+                        return counter; // counter is exactly the number of characters to '*'
                     }
                     else /* value > 0 */
                         bottom = mid + 1;

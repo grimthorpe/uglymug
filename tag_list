@@ -1,17 +1,19 @@
 $Name:  $
 
-Tag file. Lists the tags and the broad changes made.
-Please update everytime a new release goes live on
-the main game. This way we can always pull out the
-correct version. In reverse order.
-Leave the Name: tag at the top of the file to get
-the correct release tag embedded in the game when you
-build it.
-Addendum: As you commit code, please put information
-about the changes in above the latest release tag.
-That way if someone else does a release, the change
+Tag file.
+
+Lists the tags and the broad changes made.
+Please update everytime a new release goes live on the main game. This way we
+can always pull out the correct version. In reverse order.
+Leave the Name: tag at the top of the file to get the correct release tag
+embedded in the game when you build it.
+
+Addendum: As you commit code, please put information about the changes in above
+the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Fixed the censorship code so that '<rudeword1><rudeword2>' is now output
+    as '**********************' instead of '***********<rudeword2>'
     Made swho work out how many entries to display properly.
     Added @?version which returns the Release string (eg um1_026)
     Made WelcomerTitles modifiable; Don't know exactly how, don't know why
