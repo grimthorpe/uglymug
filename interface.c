@@ -454,6 +454,32 @@ struct terminal_set_command
 #define FREE(x) free((x))
 #endif /* DEBUG */
 
+#define MAX_LAST_COMMANDS 16
+class LogCommand
+{
+private:
+	char*	command;
+	int	player;
+public:
+	LogCommand(int _player, const char*_command)
+	{
+		player = _player;
+		if(_command)
+			command = strdup(_command);
+		else
+			command = strdup("<null>");
+	}
+	~LogCommand()
+	{
+		FREE(command);
+	}
+	int get_player() { return player; }
+	const char* get_command() { return command; }
+};
+
+LogCommand* LastCommands[MAX_LAST_COMMANDS];
+int LastCommandsPtr = 0;
+
 void set_signals()
 {
 	/* we don't care about SIGPIPE, we notice it in select() and write() */
@@ -2368,7 +2394,6 @@ static char b2[2*BUFFER_LEN];
 static char OUTPUT_COMMAND[] = ".output ";
 static char MYOUTPUT_COMMAND[] = ".myoutput ";
 char *a,*a1,*b;
-int i;
 
 	if(get_connect_state()==DESCRIPTOR_LIMBO)
 	{
@@ -2421,6 +2446,9 @@ int i;
 		{
 			switch (*a)
 			{
+			case 0:
+				break;
+
 			case '\n':
 				terminal_xpos = 0; // We increment the position
 				last_space = 0;
@@ -2447,6 +2475,7 @@ int i;
 				if(!percent_primed)
 					last_space = a;
 				// FALLTHROUGH
+
 			default:
 				if (percent_primed)
 				{
@@ -2457,6 +2486,10 @@ int i;
 				break;
 			}
 
+			if(!*a)
+			{
+				break;
+			}
 			if(terminal_xpos+1 >= terminal_width)
 			{
 				if(last_space != 0)
@@ -3216,6 +3249,14 @@ descriptor_data::do_command (const char *command)
 		if (IS_CONNECTED())
 		{
 			output_prefix();
+// Make a log of the last MAX_LAST_COMMANDS commands run.
+// This might help us track down bugs.
+			if(LastCommands[LastCommandsPtr] != 0)
+			{
+				delete LastCommands[LastCommandsPtr];
+			}
+			LastCommands[LastCommandsPtr] = new LogCommand(get_player(), command);
+			LastCommandsPtr = (LastCommandsPtr + 1) % MAX_LAST_COMMANDS;
 			mud_command (get_player(), command);
 			output_suffix();
 		}
@@ -3581,6 +3622,16 @@ int	sig)
 // 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 // #endif
 
+// Dump the last MAX_LAST_COMMANDS out.
+	for(int i = 0; i < MAX_LAST_COMMANDS; i++)
+	{
+		int j = (i + LastCommandsPtr) % MAX_LAST_COMMANDS;
+		LogCommand* l = LastCommands[j];
+		if(l)
+		{
+			fprintf(stderr, "LASTCOMMAND:%d Player|%d|:%s\n", MAX_LAST_COMMANDS - i, l->get_player(), l->get_command());
+		}
+	}
 	panic(message);
 	_exit (7);
 }
