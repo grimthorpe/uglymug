@@ -17,6 +17,7 @@ information doesn't get lost.
 	Modifed String so that you can append to it; just use +=
 	Modified @?connectedplayers so that it takes parameter as who does. npc
 wizards, admin, etc
+	Added MAX_NAME_LENGTH, and used in two obvious places
 
 
 um1_039 - ARGH!
