@@ -269,14 +269,14 @@ void log_disconnect (
 	}
 	else {
 		/* 'player' connected to the game, but never made it past the login */
-		Trace(	"DISCONNECT%c%d%c%c%c%d%c%cnever connected\n",
-														FIELD_SEPARATOR,
+		Trace(	"%cDISCONNECT%c%d%c%c%c%d%c%cnever connected%c\n",
+				RECORD_START,							FIELD_SEPARATOR,
 				time(NULL),								FIELD_SEPARATOR,
 				/* playerid, */							FIELD_SEPARATOR,
 				/* playername, */						FIELD_SEPARATOR,
 				descriptor,								FIELD_SEPARATOR,
-				/* channel, */							FIELD_SEPARATOR
-				/* message - fixed */
+				/* channel, */							FIELD_SEPARATOR,
+				/* message - fixed */					RECORD_END
 		);
 	}
 }
