@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Removed PRIVATE flags from Players & Puppets. (Grimthorpe)
+	Changed examine so that you always get the item name (and #id if appropriate) (Grimthorpe)
 	Started to fix @recall
 	Added 'Private' flag: Descriptions of objects set private should only be visible by their owner/effective owner (Grimthorpe)
 	Replaced most of GOD_ID's functionality with 7 flags. (Grimthorpe)

@@ -574,6 +574,7 @@ const	String& )
 			if(Private(thing) && !controls_for_private(thing))
 			{
 				notify (player, "There's an S.E.P. field around that!");
+				RETURN_SUCC;
 				return;
 			}
 			switch(Typeof(thing))
@@ -761,6 +762,12 @@ const	String& )
 			return;
 	}
 
+	if(db[thing].get_name())
+		notify_censor(player, player, "%s", unparse_object(*this, thing));
+	else
+		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing));
+	strcpy (stored_owner, unparse_object(*this, db[thing].get_owner()));
+
 	if((Private(thing) && !controls_for_private(thing)) ||
 	  ((!can_link (*this, thing)) && (!controls_for_read (thing))))
 	{
@@ -770,12 +777,6 @@ const	String& )
 
 	return_status = COMMAND_SUCC;
 	set_return_string (unparse_for_return (*this, thing));
-
-	if(db[thing].get_name())
-		notify_censor(player, player, "%s", unparse_object(*this, thing));
-	else
-		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing));
-	strcpy (stored_owner, unparse_object(*this, db[thing].get_owner()));
 
 	switch(Typeof(thing))
 	{
