@@ -488,6 +488,10 @@ const	char	*text)
 	const char	*q=text;
 	int		charssofar=0;
 	
+	// Catch no string or empty string.
+	if (!text || !*text)
+		return NORMAL_NEXT;
+
 	// Smash leading spaces, because we don't like them.
 	// Actually, its because some people like to additionally indent...
 	while (q && (*q) && (*q == ' '))
@@ -502,7 +506,7 @@ const	char	*text)
 	*p='\0';
 
 	/* Swift hunt for the common case */
-	if (!text || *text != '@')
+	if (*temp_buffer != '@')
 		return NORMAL_NEXT;
 
 	/* Damn, we've got to do some work */
