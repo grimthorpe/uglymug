@@ -12,6 +12,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    @recursionlimit can be used by Apprentices to increate the recursion limit
     @remote *player works like @teleport *player, so that you go to the room
     that the player is in.
     Massive database code cleanup; we no longer support 'ALPHA' format dumps.

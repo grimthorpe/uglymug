@@ -396,7 +396,7 @@ const	CString& )
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES,"Thats not a valid recursion limit.");
 		return;
 	}
-	if (!(Wizard(get_effective_id ()) || XBuilder(get_effective_id())) && (limit > COMPOUND_COMMAND_BASE_LIMIT))
+	if (!(Wizard(get_effective_id ()) || Apprentice(get_effective_id()) || XBuilder(get_effective_id())) && (limit > COMPOUND_COMMAND_BASE_LIMIT))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You must be a Wizard to set a recursionlimit greater than %d.", COMPOUND_COMMAND_BASE_LIMIT);
 		return;
