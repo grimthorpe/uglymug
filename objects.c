@@ -1508,9 +1508,7 @@ Player::Player ()
 	channel = NULL;
 
 	//Recall Buffer things
-	//for (i = 0; i < MAX_RECALL_LINES; i++)
-	//	recall_buffer[i] = NULL;
-	// No need to clean out the buffer, as it is now done with 'String's
+	recall_buffer = 0;
 	recall_buffer_next=0;
 	recall_buffer_build[0]='\0';
 	recall_buffer_wrapped=0;
@@ -1520,6 +1518,7 @@ Player::Player ()
 Player::~Player ()
 
 {
+	delete[] recall_buffer;
 }
 
 
@@ -1538,6 +1537,10 @@ void
 Player::add_recall_line (
 const CString& strung)
 {
+	if(!recall_buffer)
+	{
+		recall_buffer = new String[MAX_RECALL_LINES];
+	}
         //Quick thing of what this does and why.
         //As things are notified we place things into the output_lines_build
         //string and whenever we get a newline we put the whole thing into
@@ -1581,6 +1584,10 @@ const context *	con)
 {
 
 	int thelines = lines;
+	if(!recall_buffer)
+	{
+		recall_buffer = new String[MAX_RECALL_LINES];
+	}
 
         //Return if there is nothing in the buffer yet
         if(recall_buffer_next == 0 && recall_buffer_wrapped == 0)
@@ -1633,10 +1640,8 @@ void
 Player::ditch_recall()
 {
 /* Get rid of the recall buffer, because it wastes memory. */
-	for(int i = 0; i < MAX_RECALL_LINES; i++)
-	{
-		recall_buffer[i] = 0;
-	}
+	delete[] recall_buffer;
+	recall_buffer = 0;
 	recall_buffer_build[0] = 0;
 	recall_buffer_wrapped = 0;
 	recall_buffer_next = 0;

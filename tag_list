@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Made the Player recall buffer only be created when its used.
 	Fix csucc/cfail Silent commands to be silent again.
 
 um1_032 - Grimthorpe and Chisel; Chisel cleans up his mess while Grimthorpe adds to it.
