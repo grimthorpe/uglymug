@@ -17,8 +17,6 @@
 
 #define	CONTENTS_TAB	2
 
-
-
 /*
  * look_container: We know the thing's a container, and have already printed out
  *	its top-level name.
@@ -1349,7 +1347,7 @@ const	char	*)
 					notify_censor(player, player, "  %s[%s]%s", colour_at[COLOUR_MESSAGES], db[thing].get_index(temp), COLOUR_REVERT);
 	  		else
 				for(temp = 1;temp <= number;temp++)
-					notify_censor(player, player, "  %s[%s]%s : %s", colour_at[COLOUR_MESSAGES], db[thing].get_index(temp), COLOUR_REVERT, db[thing].get_element(temp));
+					notify_censor(player, player, "  %s[%s]%s : %s", colour_at[COLOUR_MESSAGES], value_or_empty(db[thing].get_index(temp)), COLOUR_REVERT, value_or_empty(db[thing].get_element(temp)));
 		}
 		break;
 
@@ -1361,7 +1359,7 @@ const	char	*)
 				if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
 					if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 					{
-						notify(player, "[%d] : %s", value, db[thing].get_element(value));
+						notify(player, "[%d] : %s", value, value_or_empty(db[thing].get_element(value)));
 						break;
 					}
 					else
@@ -1383,7 +1381,7 @@ const	char	*)
 	  	if(number > 0)
 	  	{
 			for(temp = 1;temp <= number;temp++)
-				notify_censor(player, player, "  %s[%d]%s %s: %s", colour_at[COLOUR_TITLES],  temp, COLOUR_REVERT, (temp<10)?"  ":(temp<100)?" ":"", db[thing].get_element(temp));
+				notify_censor(player, player, "  %s[%d]%s %s: %s", colour_at[COLOUR_TITLES],  temp, COLOUR_REVERT, (temp<10)?"  ":(temp<100)?" ":"", value_or_empty(db[thing].get_element(temp)));
 		}
 		break;
 	  default:
