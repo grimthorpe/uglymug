@@ -10,11 +10,11 @@
  * Implemented Feb-2002 by Grimthorpe.
  ********************************************************************/
 
+#include <iostream>
+#include <string.h>
 #include "mudstring.h"
 #include "copyright.h"
 #include "externs.h"
-#include <time.h>
-#include <string.h>
 
 // NewBuffer - static method that returns a StringBuffer.
 // len is defaulted to 0 in the definition..
@@ -230,4 +230,14 @@ bool
 String::operator==(const String& other) const
 {
 	return string_compare(*this, other) == 0;
+}
+
+
+std::ostream &
+operator<< (
+std::ostream &os,
+const String &s)
+
+{
+	return os << s.c_str ();
 }

@@ -8,6 +8,13 @@
 #ifndef _Config_h_
 #define _Config_h_
 
+
+/*
+ * General bits and pieces for game debugging
+ */
+
+#define	CAST	dynamic_cast
+
 /*
  * Things that used to be in the makefile, but aren't any more, because
  * they're in here now, so as to take them out of the makefile, because

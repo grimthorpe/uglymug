@@ -233,7 +233,7 @@ const
 	putc (FIELD_SEPARATOR, f);
 
 	putfieldtype	(f, OBJECT_NAME);
-	putstring	(f, name);
+	putstring	(f, m_name);
 	if(location != NOTHING)
 	{
 		putfieldtype	(f, OBJECT_LOCATION);
@@ -245,7 +245,7 @@ const
 		putref		(f, next);
 	}
 	putfieldtype	(f, OBJECT_OWNER);
-	putref		(f, owner);
+	putref		(f, m_owner);
 	return (true);
 }
 
@@ -282,7 +282,7 @@ object::read (
 			set_next (getref (f));
 			break;
 		case OBJECT_OWNER:
-			owner = getref(f);
+			m_owner = getref(f);
 			break;
 		default:
 			log_bug("Something has gone seriously wrong in object::read\nField Type:%d", fieldtype);
@@ -1293,7 +1293,7 @@ const
 		putstring	(f, alias[i]);
 #endif /* ALIASES */
 	putfieldtype(f, PLAYER_CONTROLLER);
-	putref		(f, controller);
+	putref		(f, m_controller);
 	putfieldtype(f, PLAYER_BUILDID);
 	putref		(f, get_build_id());
 	/* Combat Stats */
@@ -1430,7 +1430,7 @@ Player::read (
 			set_password (getstring (f));
 			break;
 		case PLAYER_CONTROLLER:
-			controller = getref (f);
+			m_controller = getref (f);
 			break;
 		case PLAYER_BUILDID:
 			reset_build_id (getref (f));
@@ -1606,10 +1606,10 @@ const
 	fprintf (f, "***UglyMug Beta(tagged) DUMP Format 0***\n");
 
 	/* Write the number of objects in the database */
-	fprintf (f, "Objects: %d\n", (int)top);
+	fprintf (f, "Objects: %d\n", (int) m_top);
 
 	/* Write each object */
-	for (i = 0; i < top; i++)
+	for (i = 0; i <  m_top; i++)
 		if (db + i != NULL)
 		{
 			sprintf (buf, "%c#%d", OBJECT_SEPARATOR, (int)i);
@@ -1918,11 +1918,6 @@ FILE	*f)
 					case TYPE_VARIABLE:
 						obj = new (Variable);
 						break;
-					case TYPE_WEAPON:
-					case TYPE_ARMOUR:
-					case TYPE_AMMUNITION:
-						log_bug("Weapon, Armour and Ammunition types not supported since um1_031.\n");
-						break;
 					default:
 						log_bug ("Illegal object type in database load.\n");
 				}
@@ -1947,7 +1942,7 @@ FILE	*f)
 				else
 				{
 					build_player_cache (player_count);
-					return (top);
+					return m_top;
 				}
 				/* NOTREACHED */
 				break;
@@ -2094,12 +2089,12 @@ void Database::build_player_cache(int player_count)
 	player_cache = new player_cache_struct[player_count];
 	//player_cache = (struct player_cache_struct *) calloc(sizeof(struct player_cache_struct), player_count);
 
-	for(int i=0; i<top; i++)
+	for(int i=0; i<m_top; i++)
 	{
 		if(Typeof(i)==TYPE_PLAYER)
 		{
 			player_cache[cache_entry].state = CACHE_VALID;
-			player_cache[cache_entry].name = db[i].get_name();
+			player_cache[cache_entry].name = db[i].name();
 			player_cache[cache_entry++].player = i;
 #ifdef ALIASES
 			for(int alias=0; alias<MAX_ALIASES; alias++)
@@ -2121,11 +2116,11 @@ void Database::build_player_cache(int player_count)
 #else
 	// Clear out any existing entries
 	player_cache.erase(player_cache.begin(), player_cache.end());
-	for(dbref i = 0; i < top; i++)
+	for(dbref i = 0; i < m_top; i++)
 	{
 		if(Typeof(i)==TYPE_PLAYER)
 		{
-			add_player_to_cache(i, db[i].get_name());
+			add_player_to_cache(i, db[i].name());
 #ifdef ALIASES
 			for(int alias=0; alias<MAX_ALIASES; alias++)
 			{
@@ -2171,11 +2166,11 @@ const
 	}
 #ifdef GRIMTHORPE_CANT_CODE
 // Quick hack, cos I screwed this up.
-	for(dbref i = 0; i < db.get_top(); i++)
+	for(dbref i = 0; i < db.top(); i++)
 	{
 		if(Typeof(i)==TYPE_PLAYER)
 		{
-			if(string_compare(name, db[i].get_name()) == 0)
+			if(string_compare(name, db[i].name()) == 0)
 				return i;
 #ifdef ALIASES
 			for(dbref j = 0; j < 5; j++)
@@ -2311,7 +2306,7 @@ player_cache_struct::compare(const player_cache_struct* other) const
 void
 dbref::assign(int i)
 {
-	int dbsize = db.get_top();
+	int dbsize = db.top();
 	if((i < -3) || ((i > (dbsize + 1024)) && (dbsize > 0)))
 	{
 		fprintf(stderr, "DBREF out of bounds! was %d, now %d\n", _ref, i);

@@ -1,13 +1,50 @@
-/* static char SCCSid[] = "@(#)dump.c	1.6\t6/14/95"; */
+/**\file
+ * Print to stdout the objects owned by an owner whose ID is passed as the first parameter to the program.
+ */
+
 #include "copyright.h"
-
-#include <stdio.h>
-
+#include <iostream>
 #include "db.h"
 #include "externs.h"
 
-#define FLAG(x, y) if (db[i].get_flags() & x) printf(y)
+using std::cout;
 
+#define FLAG(x, y) if (db[i].get_flag(x)) cout << y
+#define FLAG_PREDICATE(x, y) if (x(i)) cout << y
+
+
+/**
+ * Return a string representing the name of a given object type.
+ */
+
+const char *
+type_name (const int i)
+
+{
+	switch(Typeof(i))
+	{
+		case TYPE_ROOM:
+			return ("Room");
+		case TYPE_EXIT:
+			return ("Exit");
+		case TYPE_THING:
+			return ("Thing");
+		case TYPE_PLAYER:
+			return ("Player");
+		case TYPE_VARIABLE:
+			return ("Variable");
+		case TYPE_FUSE:
+			return ("Fuse");
+		case TYPE_COMMAND:
+			return ("Command");
+		case TYPE_ALARM:
+			return ("Alarm");
+		case TYPE_FREE:
+			return ("Free");
+		default:
+			return ("***UNKNOWN TYPE***");
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -32,6 +69,8 @@ int main(int argc, char **argv)
 		exit(5);
 	}
 
+	context ctx (owner, context::DEFAULT_CONTEXT);
+
 	for(i = 0; i < db.get_top(); i++)
 	{
 		/* don't show exits separately */
@@ -45,94 +84,61 @@ int main(int argc, char **argv)
 		if(lister != NOTHING && db[i].get_owner() != owner)
 			continue;
 
-		printf("#%d: %s [%s] ", i, db[i].get_name().c_str ()
-		       , db[db[i].get_owner()].get_name().c_str ());
-		printf("at %s ", unparse_object(owner, db[i].get_location()));
+		cout << '#' << i
+			<< ": " << db[i].get_name()
+			<< " [" << db[db[i].get_owner()].get_name() << ']'
+			<< std::endl;
+		cout << "at " << unparse_object(ctx, db[i].get_location())
+			<< std::endl;
 
-		printf(" Building Points: %d Type: ", db[i].get_pennies());
+		cout << " Building Points: " << db[i].get_pennies()
+			<< " Type: " << type_name (i) << std::endl;
 
-		switch(Typeof(i))
-		{
-			case TYPE_ROOM:
-				printf("Room");
-				break;
-			case TYPE_EXIT:
-				printf("Exit");
-				break;
-			case TYPE_THING:
-				printf("Thing");
-				break;
-			case TYPE_PLAYER:
-				printf("Player");
-				break;
-			case TYPE_VARIABLE:
-				printf("Variable");
-				break;
-			case TYPE_FUSE:
-				printf("Fuse");
-				break;
-			case TYPE_COMMAND:
-				printf("Command");
-				break;
-			case TYPE_ALARM:
-				printf("Alarm");
-				break;
-			case TYPE_FREE:
-				printf("Free");
-				break;
-			default:
-				printf("***UNKNOWN TYPE***");
-				break;
-		}
 
 		/* handle flags */
-		putchar('\n');
-		if(db[i].get_flags() & ~TYPE_MASK)
-		{
-			printf("Flags: ");
-			FLAG(FLAG_DARK, "DARK ");
-			FLAG(FLAG_STICKY, "STICKY ");
-			FLAG(FLAG_LISTEN, "LISTEN ");
-			FLAG(FLAG_WIZARD, "WIZARD ");
-			if(db[i].get_flags() & (FLAG_GENDER_MALE >> GENDER_SHIFT)) printf("MALE ");
-			if(db[i].get_flags() & (FLAG_GENDER_FEMALE>> GENDER_SHIFT)) printf("FEMALE ");
-			if(db[i].get_flags() & (FLAG_GENDER_NEUTER>> GENDER_SHIFT)) printf("NEUTER ");
+		cout << std::endl << "Flags: ";
+		FLAG_PREDICATE(Dark, "DARK ");
+		FLAG_PREDICATE(Sticky, "STICKY ");
+		FLAG_PREDICATE(Listen, "LISTEN ");
+		FLAG_PREDICATE(Wizard, "WIZARD ");
+		FLAG_PREDICATE(Male, "MALE ");
+		FLAG_PREDICATE(Female, "FEMALE ");
+		FLAG_PREDICATE(Neuter, "NEUTER ");
 
-			if(db[i].get_flags() & (FLAG_ARTICLE_SINGULAR_CONS_FLAG)) printf("SINGULARCONSONANT ") ;
-			if(db[i].get_flags() & (FLAG_ARTICLE_SINGULAR_VOWEL_FLAG)) printf("SINGULARVOWEL ") ;
-			if(db[i].get_flags() & (FLAG_ARTICLE_PLURAL_FLAG)) printf("PLURAL ");
-		#ifdef RESTRICTED_BUILDING
-			FLAG(FLAG_BUILDER, "BUILDER ");
-		#endif /* RESTRICTED_BUILDING */
-			FLAG(VISIBLE ,"VISIBLE ");
-			FLAG(OPENABLE, "OPENABLE ");
-			FLAG(OPEN, "OPEN ");
-			FLAG(OPAQUE, "OPAQUE ");
-			FLAG(LOCKED, "LOCKED ");
-			FLAG(HAVEN, "HAVEN ");
-			FLAG(CHOWN_OK, "CHOWN_OK ");
-			FLAG(APPRENTICE, "APPRENTICE ");
-			FLAG(FIGHTING, "FIGHTING ");
-			FLAG(NUMBER, "NUMBER ");
-		}
-		putchar('\n');
+		FLAG (FLAG_ARTICLE_SINGULAR_CONS, "SINGULARCONSONANT ") ;
+		FLAG (FLAG_ARTICLE_SINGULAR_VOWEL, "SINGULARVOWEL ") ;
+		FLAG (FLAG_ARTICLE_PLURAL, "PLURAL ");
+#ifdef RESTRICTED_BUILDING
+		FLAG_PREDICATE(Builder, "BUILDER ");
+#endif /* RESTRICTED_BUILDING */
+		FLAG_PREDICATE(Visible,"VISIBLE ");
+		FLAG_PREDICATE(Openable, "OPENABLE ");
+		FLAG_PREDICATE(Open, "OPEN ");
+		FLAG_PREDICATE(Opaque, "OPAQUE ");
+		FLAG_PREDICATE(Locked, "LOCKED ");
+		FLAG_PREDICATE(Haven, "HAVEN ");
+		FLAG_PREDICATE(Chown_ok, "CHOWN_OK ");
+		FLAG_PREDICATE(Apprentice, "APPRENTICE ");
+		FLAG_PREDICATE(Fighting, "FIGHTING ");
+		FLAG_PREDICATE(Number, "NUMBER ");
+		cout << std::endl;
 
 		if(db[i].get_destination() != NOTHING)
 		{
 			switch(Typeof(i))
 			{
 			  case TYPE_ROOM:
-				 printf("Dropto: ");
+				 cout << "Dropto: ";
 				 break;
 			  case TYPE_EXIT:
-				 printf("Destination: ");
+				 cout << "Destination: ";
 				 break;
 			  case TYPE_THING:
 			  case TYPE_PLAYER:
-				 printf("Home: ");
+				 cout << "Home: ";
 				 break;
 			  case TYPE_ALARM:
-				 printf("Triggered Command: ");
+				 cout << "Triggered Command: ";
 				 break;
 			  case TYPE_VARIABLE:
 			  case TYPE_FUSE:
@@ -140,115 +146,93 @@ int main(int argc, char **argv)
 			  case TYPE_FREE:
 				 break;
 			}
-			printf("%s\n", unparse_object(owner, db[i].get_destination()));
+			cout << unparse_object(ctx, db[i].get_destination()) << std::endl;
 		}
-		if(db[i].get_key() != TRUE_BOOLEXP) printf("Key: %s\n",
-						  unparse_boolexp(owner, db[i].get_key()));
-		if(db[i].get_description()) {
-			 puts("Description: ");
-			 puts(db[i].get_description());
-		}
-
-		if(db[i].get_succ_message()) {
-			 printf("Success Message: %s\n", db[i].get_succ_message());
-		}
-		if(db[i].get_fail_message()) {
-			 printf("Fail Message: %s\n", db[i].get_fail_message());
-		}
-		if(db[i].get_drop_message()) {
-			 printf("Drop Message: %s\n", db[i].get_drop_message());
-		}
-		if(db[i].get_osuccess()) {
-			 printf("Other Success Message: %s\n", db[i].get_osuccess());
-		}
-		if(db[i].get_ofail()) {
-			 printf("Other Fail Message: %s\n", db[i].get_ofail());
-		}
-		if(db[i].get_odrop()) {
-			 printf("Other Drop Message: %s\n", db[i].get_odrop());
-		}
+		if(db[i].get_key() != TRUE_BOOLEXP)
+			cout << "Key: " << db[i].get_key()->unparse (ctx) << std::endl;
+		if(db[i].get_description())
+			 cout << "Description: " << std::endl << db[i].get_description() << std::endl;
+		if(db[i].get_succ_message())
+			 cout << "Success Message: " << db[i].get_succ_message() << std::endl;
+		if(db[i].get_fail_message())
+			 cout << "Fail Message: " << db[i].get_fail_message() << std::endl;
+		if(db[i].get_drop_message())
+			 cout << "Drop Message: " << db[i].get_drop_message() << std::endl;
+		if(db[i].get_osuccess())
+			 cout << "Other Success Message: " << db[i].get_osuccess() << std::endl;
+		if(db[i].get_ofail())
+			 cout << "Other Fail Message: " << db[i].get_ofail() << std::endl;
+		if(db[i].get_odrop())
+			 cout << "Other Drop Message: " << db[i].get_odrop() << std::endl;
 		if(Typeof(i) == TYPE_PLAYER)
 		{
-			printf(" PLAYER ABILITIES\n");
-			printf("  Race: %s\n", db[i].get_race());
-			printf("  Score: %d\n", db[i].get_score());
-			printf("  Str: %d\n", db[i].get_strength());
-			printf("  Con: %d\n", db[i].get_constitution());
-			printf("  Dex: %d\n", db[i].get_dexterity());
-			printf("  Per: %d\n", db[i].get_perception());
-			printf("  Int: %d\n", db[i].get_intelligence());
-			printf("  Hit: %d\n", db[i].get_hitpoints());
-			printf("  Arm: %d\n", db[i].get_armourclass());
-			printf("  Lev: %d\n", db[i].get_level());
-			printf("  Exp: %d\n", db[i].get_experience());
+			cout << " PLAYER ABILITIES" << std::endl;
+			cout << "  Race: " << db[i].get_race() << std::endl;
+			cout << "  Score: " << db[i].get_score() << std::endl;
 		}
 		if(db[i].get_contents() != NOTHING)
 		{
 			if (Typeof(i) == TYPE_THING)
 			{
-				printf ("Lock Key: %s\n", unparse_boolexp (owner,
-						db[i].get_lock_key()));
+				cout << "Lock Key: "
+					<< db[i].get_lock_key()->unparse (ctx)
+					<< std::endl;
 				if (db[i].get_contents_string())
-				{
-					printf("Contents string: %s\n",
-						db[i].get_contents_string());
-				}
+					cout << "Contents string: " << db[i].get_contents_string() << std::endl;
 			}
 			else
-				printf("Contents:\n");
+				cout << "Contents:" << std::endl;
 			DOLIST(thing, db[i].get_contents())
-				printf ("  %s\n", unparse_object(owner, thing));
+				cout << "  " << unparse_object(ctx, thing) << std::endl;
 		}
 
 		if (db[i].get_commands() != NOTHING)
 		{
-			printf("Commands:\n");
+			cout << "Commands:" << std::endl;
 			DOLIST(thing, db[i].get_commands())
-				printf ("  %s\n", unparse_object(owner, thing));
+				cout << "  " << unparse_object(ctx, thing) << std::endl;
 		}
 
 		if (db[i].get_variables() != NOTHING)
 		{
-			printf("Variables:\n");
+			cout << "Variables:" << std::endl;
 			DOLIST(thing, db[i].get_variables())
-				printf ("  %s\n", unparse_object(owner, thing));
+				cout << "  " << unparse_object(ctx, thing) << std::endl;
 		}
 
 		if (db[i].get_fuses() != NOTHING)
 		{
-			printf("Fuses :\n");
+			cout << "Fuses:" << std::endl;
 			DOLIST(thing, db[i].get_fuses())
-				printf ("  %s\n", unparse_object(owner, thing));
+				cout << "  " << unparse_object(ctx, thing) << std::endl;
 		}
 
 		if(db[i].get_exits() != NOTHING)
 		{
 			if(Typeof(i) == TYPE_ROOM)
 			{
-				puts("Exits:");
+				cout << "Exits:" << std::endl;
 				DOLIST(thing, db[i].get_exits())
 				{
-					printf("  %s%s", getarticle (thing, ARTICLE_UPPER_INDEFINITE), getname (thing));
+					cout << "  "
+						<< getarticle (thing, ARTICLE_UPPER_INDEFINITE)
+						<< getname (thing)
+						<< std::endl;
 					if(db[thing].get_key() != TRUE_BOOLEXP)
-					{
-						printf(" KEY: %s",
-						       unparse_boolexp(owner, db[thing].get_key()));
-					}
+						cout << " KEY: " << db[thing].get_key()->unparse (ctx) << std::endl;
+
 					if(db[thing].get_destination() != NOTHING)
-					{
-						printf(" => %s%s(%d)\n",
-							getarticle (db[thing].get_destination(), ARTICLE_LOWER_INDEFINITE),
-							getname (db[thing].get_destination ()),
-							db[thing].get_destination());
-					}
+						cout << " => "
+							<< getarticle (db[thing].get_destination(), ARTICLE_LOWER_INDEFINITE)
+							<< getname (db[thing].get_destination ())
+							<< '(' << db[thing].get_destination() << ')'
+							<< std::endl;
 					else
-					{
-						puts(" ***OPEN***");
-					}
+						cout << " ***OPEN***" << std::endl;
 				}
 			}
 		}
-		putchar('\n');
+		cout << std::endl;
 	}
 	exit(0);
 }

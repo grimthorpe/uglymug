@@ -61,7 +61,6 @@ SOURCES:=\
 	log.c \
 	look.c \
 	match.c \
-	memory.c \
 	mondodestruct.c \
 	move.c \
 	mudstring.c \
@@ -136,6 +135,7 @@ RAW_OUTFILES:= \
 	netmud \
 	paths \
 	sadness \
+	scat \
 	stats \
 	concentrator
 
@@ -204,11 +204,11 @@ $(BUILD_DIR)/paths$(EXESUFFIX): $(BUILD_DIR)/paths.o $(LIBUGLY)
 
 $(BUILD_DIR)/scat$(EXESUFFIX): $(BUILD_DIR)/scat.o
 	-rm -f $@
-	$(CC) -o $@ $< $(LIBS)
+	$(CPLUSPLUS) -o $@ $< $(LIBS)
 
 $(BUILD_DIR)/concentrator$(EXESUFFIX): $(BUILD_DIR)/concentrator.o 
 	-rm -f $@
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CPLUSPLUS) $(CFLAGS) -o $@ $<
 
 clean:
 	-rm -f $(BUILD_DIR)/*

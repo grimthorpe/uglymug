@@ -1,16 +1,15 @@
 /* static char SCCSid[] = "@(#)stats.c	1.4\t7/19/94"; */
 #include "copyright.h"
 
-#include <stdio.h>
-#include <strings.h>
-#include <malloc.h>
+#include <iostream>
 
+#include "debug.h"
 #include "db.h"
 #include "config.h"
 #include "interface.h"
 
 
-struct	aux
+struct	Aux
 {
 	int	alarms;
 	int	commands;
@@ -33,73 +32,71 @@ char	**argv)
 
 {
 	dbref		i;
-	struct	aux	*aux;
+	struct	Aux	*aux;
 
-	if(db_read(stdin) < 0)
+	if(db.read(stdin) < 0)
 	{
 		Trace( "%s: bad input\n", argv[0]);
-		exit(5);
+		return 5;
 	}
 
-	if ((aux = (struct aux *) calloc (db_top, sizeof (struct aux))) == (struct aux * )NULL)
-		exit (1);
+	if (!(aux = new Aux [db.top ()]))
+		return 1;
 
-	for (i = 0; i < db_top; i++)
+	for (i = 0; i < db.top (); i++)
 		if (db + i != NULL)
 			switch (Typeof (i))
 			{
 				case TYPE_ALARM:
-					aux [db [i].owner].alarms++;
+					aux [db [i].owner ()].alarms++;
 					break;
 				case TYPE_COMMAND:
-					aux [db [i].owner].commands++;
+					aux [db [i].owner ()].commands++;
 					break;
 				case TYPE_EXIT:
-					aux [db [i].owner].exits++;
+					aux [db [i].owner ()].exits++;
 					break;
 				case TYPE_FUSE:
-					aux [db [i].owner].fuses++;
+					aux [db [i].owner ()].fuses++;
 					break;
 				case TYPE_PLAYER:
-					aux [Controller (i)].players++;
+					aux [db[i].controller ()].players++;
 					break;
 				case TYPE_ROOM:
-					aux [db [i].owner].rooms++;
+					aux [db [i].owner ()].rooms++;
 					break;
 				case TYPE_THING:
-					aux [db [i].owner].things++;
+					aux [db [i].owner ()].things++;
 					break;
 				case TYPE_VARIABLE:
-					aux [db [i].owner].variables++;
+					aux [db [i].owner ()].variables++;
 					break;
 				case TYPE_ARRAY:
-					aux [db [i].owner].arrays++;
+					aux [db [i].owner ()].arrays++;
 					break;
 				case TYPE_DICTIONARY:
-					aux [db [i].owner].dictionaries++;
+					aux [db [i].owner ()].dictionaries++;
 					break;
-				case TYPE_PROPERTIES:
-					aux [db [i].owner].properties++;
+				case TYPE_PROPERTY:
+					aux [db [i].owner ()].properties++;
 					break;
 			}
-	for (i = 0; i < db_top; i++)
+	for (i = 0; i < db.top (); i++)
 		if (Typeof (i) == TYPE_PLAYER)
-			printf ("%s|%c|%d|%d|%d|%d|%d|%d|%d|%d\n",
-				getname (i),
-				Builder (i) ? 'B' : 'N',
-				aux [i].alarms,
-				aux [i].commands,
-				aux [i].exits,
-				aux [i].fuses,
-				aux [i].players,
-				aux [i].rooms,
-				aux [i].things,
-				aux [i].variables,
-				aux [i].properties,
-				aux [i].arrays,
-				aux [i].dictionaries);
+			std::cout << db [i].name () << "|"
+				<< (Builder (i) ? 'B' : 'N') << "|"
+				<< aux [i].alarms << "|"
+				<< aux [i].commands << "|"
+				<< aux [i].exits << "|"
+				<< aux [i].fuses << "|"
+				<< aux [i].players << "|"
+				<< aux [i].rooms << "|"
+				<< aux [i].things << "|"
+				<< aux [i].variables << "|"
+				<< aux [i].properties << "|"
+				<< aux [i].arrays << "|"
+				<< aux [i].dictionaries << std::endl;
 
-	free (aux);
-
-	exit(0);
+	delete [] aux;
+	return 0;
 }

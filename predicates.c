@@ -112,12 +112,6 @@ unsigned char flag_map[][64] =
 /*TYPE_TASK*/
 	{0},
 /*TYPE_SEMAPHORE*/
-	{0},
-/*TYPE_WEAPON*/
-	{0},
-/*TYPE_ARMOUR*/
-	{0},
-/*TYPE_AMMUNITION*/
 	{0}
 };
 

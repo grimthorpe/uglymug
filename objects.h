@@ -380,7 +380,8 @@ private:
 
 	const	colour_at&	get_colour_at		()			const	{ return default_colour_at; }
 	const	int		get_pennies		()			const	{ return (pennies); }
-	const	dbref		get_controller		()			const	{ return (get_owner()); }
+	const	dbref		get_controller		()			const	{ return owner(); }
+	const	dbref		controller		()			const	{ return owner(); }
 	const	String&		get_email_addr		()			const	{ return (email_addr); }
 	const	String&		get_race		()			const	{ return (race); }
 	const	long		get_score		()			const	{ return (score); }
@@ -417,7 +418,7 @@ private:
 	String			alias[MAX_ALIASES];
 #endif
 	String			password;
-	dbref			controller;
+	dbref			m_controller;
 #ifdef ALIASES
 		void		set_alias		(const int which, const String& what);
 	const	int		look_at_aliases		(const String& string)	const;
@@ -464,7 +465,8 @@ private:
 	const	int		has_partial_alias	(const String& string)	const;
 #endif /* ALIASES */
 
-	const	dbref		get_controller		()			const	{ return (controller); }
+	const	dbref		get_controller		()			const	{ return m_controller; }
+	const	dbref		controller		()			const	{ return m_controller; }
 	const	String&		get_password		()			const	{ return (password); }
 	const	double		get_inherited_mass	()			const;
 	const	double		get_inherited_volume	()			const;

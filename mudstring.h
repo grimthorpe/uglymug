@@ -13,15 +13,15 @@
  **********************************************************************/
 
 #include <functional>
+#include <iostream>
+
 class	String;
 
 // Default NULL string.
 extern String NULLSTRING;
 
-/*
- * StringBuffer
- *
- * This is the real storage space for the String class.
+/**
+ * The real storage space for the String class.
  * The idea is that it is shared between several identical strings, and
  * reference counted so we know when to get rid of it.
  *
@@ -30,6 +30,7 @@ extern String NULLSTRING;
  * Note that this isn't enforced as it is possible that you may wish to
  * have a shared StringBuffer that updates all instances at the same time.
  */
+
 class StringBuffer
 {
 friend class String;
@@ -142,5 +143,8 @@ namespace std {
 		bool operator() (const String& s1, const String& s2) const { return s1 < s2; }
 	};
 };	
+
+/** Output a string to a stream */
+extern std::ostream &operator<< (std::ostream &os, const String &s);
 
 #endif /* _MUDSTRING_H */

@@ -1178,9 +1178,6 @@ const	String& )
 					case TYPE_FUSE:
 					case TYPE_PROPERTY:
 					case TYPE_VARIABLE:
-					case TYPE_WEAPON:
-					case TYPE_ARMOUR:
-					case TYPE_AMMUNITION:
 						db [i].destroy (i);
 						break;
 					default:

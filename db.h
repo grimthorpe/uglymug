@@ -82,10 +82,6 @@ class	Channel;
 #define TYPE_TASK			15
 #define TYPE_SEMAPHORE			16
 
-#define TYPE_WEAPON			17
-#define TYPE_ARMOUR			18
-#define TYPE_AMMUNITION			19
-
 
 /* Flag definitions */
 #define FLAG_WIZARD			1
@@ -200,6 +196,7 @@ class	Channel;
 #define Censorall(x)	(db[(x)].get_flag(FLAG_CENSORALL) !=0)
 #define Censored(x)	(db[(x)].get_flag(FLAG_CENSORED) !=0)
 #define Censorpublic(x)	(db[(x)].get_flag(FLAG_CENSORPUBLIC) !=0)
+#define Chown_ok(x)	(db[(x)].get_flag(FLAG_CHOWN_OK) !=0)
 #define Colour(x)	(db[(x)].get_flag(FLAG_COLOUR) !=0)
 #define Connected(x)	(db[(x)].get_flag(FLAG_CONNECTED) !=0)
 #define Container(x)	((db[(x)].get_flag(FLAG_OPENABLE) || db[(x)].get_flag(FLAG_OPEN)) && (Typeof (x) == TYPE_THING))
@@ -240,12 +237,6 @@ class	Channel;
 #define Welcomer(x)	(db[(x)].get_flag(FLAG_WELCOMER))
 #define Wizard(x)	(db[(x)].get_flag(FLAG_WIZARD))
 #define XBuilder(x)	(db[(x)].get_flag(FLAG_XBUILDER))
-
-
-#define CombatItem(x)	((Typeof((x)) == TYPE_WEAPON) || (Typeof((x)) == TYPE_ARMOUR) || (Typeof((x)) == TYPE_AMMUNITION))
-
-
-
 
 
 #define PLAYER_PID_STACK_SIZE 16
@@ -576,13 +567,13 @@ class	object
 {
     private:
 	dbref			id;
-	String			name;		/* The thing's name! */
+	String			m_name;		///< The thing's name. May be a list of names separated by ';'
 	std::list<String>	namelist;	/* A list of name-components (';' separated bits of name) */
 	dbref			location;	/* pointer to container */
 	dbref			next;		/* pointer to next in contents/exits/etc chain */
 	unsigned char		flags[FLAGS_WIDTH];	/* Flag list (bits) */
 //	typeof_type		type;		/*Type of object*/
-	dbref			owner;		/* who controls this object */
+	dbref			m_owner;	///< who controls this object
 #ifdef ALIASES
 			void	set_alias			(const int which, const String& what);
 			int	look_at_aliases			(const String&)	const	{ return 0; }
@@ -617,7 +608,7 @@ class	object
 	virtual		void	set_location			(const dbref o)			{ location = o; }
 	virtual		void	set_remote_location		(const dbref o);
 			void	set_next			(const dbref o)			{ next = o; }
-			void	set_owner_no_check		(const dbref o)			{ owner = o; }
+			void	set_owner_no_check		(const dbref o)			{ m_owner = o; }
 			void	set_owner			(const dbref o);
 	virtual		void	empty_object			()				{ return;}
 	/* Describable_object */
@@ -695,14 +686,16 @@ class	object
 	virtual		void	set_lock_key			(boolexp *k);
 	virtual		void	set_lock_key_no_free		(boolexp *k);
 
-		const	String& get_name		()			const	{ return (name); }
+		const	String& get_name		()			const	{ return (m_name); }
+		const	String& name			()			const	{ return (m_name); }
 		const	std::list<String>&	get_namelist	()		const	{ return namelist; }
 		const	String&	get_inherited_name	()			const;
 	virtual	const	dbref	get_location			()			const	{ return location; }
 		const	dbref	get_real_location		()			const	{ return location; }
 		const	dbref	get_next			()			const	{ return next; }
 		const	dbref	get_real_next			()			const	{ return next; }
-		const	dbref	get_owner			()			const	{ return owner; }
+		const	dbref	get_owner			()			const	{ return m_owner; }
+		const	dbref	owner				()			const	{ return m_owner; }
 	/* Describable_object */
 	virtual	const	String& get_description		()			const	{ return NULLSTRING; }
 		const	String& get_inherited_description	()			const;
@@ -768,6 +761,7 @@ class	object
 #endif /* ALIASES */
 	virtual	const	int	get_pennies			()			const	{ return (0); }
 	virtual	const	dbref	get_controller			()			const	{ return (NOTHING); }
+	virtual	const	dbref	controller			()			const	{ return (NOTHING); }
 	virtual	const	dbref	get_build_id			()			const	{ return (NOTHING); }
 	virtual	const	String&	get_email_addr		()			const	{ return (NULLSTRING); }
 	virtual	const	String&	get_password			()			const	{ return (NULLSTRING); }
@@ -826,11 +820,11 @@ class	object_and_flags
 
 struct player_cache_struct
 {
-	player_cache_struct() : name(), player(NOTHING), state(CACHE_INVALID) {}
 	String		name;
 	dbref		player;
 	int		state;
 
+	player_cache_struct() : name(), player(NOTHING), state(CACHE_INVALID) {}
 	int compare(const player_cache_struct* other) const;
 };
 #endif
@@ -841,7 +835,7 @@ class	Database
 	Database(const Database&); // DUMMY
 	Database& operator=(const Database&); // DUMMY
 	object_and_flags	*array;
-	dbref			top;
+	dbref			m_top;
 	dbref			free_start;
 	Pending_alarm		*alarms;
 	int			player_count;
@@ -864,7 +858,8 @@ class	Database
 				~Database	();
 		object		&operator[]	(dbref i)		const	{ return (*(array [i].get_obj ())); }
 		object		*operator+	(dbref i)		const	{ return (array [i].get_obj ()); }
-	const	dbref		get_top		()			const	{ return top; }
+	const	dbref		get_top		()			const	{ return m_top; }
+	const	dbref		top		()			const	{ return m_top; }
 	const	dbref		new_object	(object &obj);
 	const	bool		delete_object	(const dbref oldobj);
 	const	bool		write		(FILE *f)		const;

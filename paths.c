@@ -10,7 +10,7 @@
 
 /* Compute shortest path to each room */
 /* Locks cost extra */
-#define INFINITY 2148575		/* MAXINT or thereabouts */
+#define SOME_LARGE_NUMBER 2148575		/* MAXINT or thereabouts */
 #define LOCK_COST 10000				/* extra cost for a lock */
 
 /* This code blasts a lot of fields in the database, so */
@@ -114,7 +114,7 @@ void compute_paths(dbref start)
 	for(room = 0; room < db_top; room++) {
 		if(Typeof(room) == TYPE_ROOM) {
 			db[room].location = db[room].next = db[room].contents = NOTHING;
-			db[room].pennies = INFINITY;
+			db[room].pennies = SOME_LARGE_NUMBER;
 			db[room].key = TRUE_BOOLEXP;
 		}
 	}
@@ -150,7 +150,7 @@ void print_paths()
 		if(Typeof(room) == TYPE_ROOM) {
 			printf("%s(%d)[%s]: ",
 				   db[room].name, room, db[db[room].owner].name);
-			if(db[room].pennies == INFINITY) {
+			if(db[room].pennies == SOME_LARGE_NUMBER) {
 				puts("UNREACHABLE");
 			} else {
 				printf("%d + %d locks\n",

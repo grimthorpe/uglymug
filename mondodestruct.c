@@ -36,7 +36,6 @@
 #include "interface.h"
 #include "destroy.h"
 #include "match.h"
-#include "memory.h"
 #include "regexp_interface.h"
 #include "stack.h"
 

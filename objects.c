@@ -75,12 +75,16 @@ const	char	*string)
 
 
 Database::Database ()
-	: array(NULL), top(NOTHING), free_start(0), 
-		alarms(NULL), player_count(0),
+: array(NULL)
+, m_top(NOTHING)
+, free_start(0)
+, alarms(NULL)
+, player_count(0)
 #ifdef GRIMTHORPE_CANT_CODE
-		player_cache(NULL), changed_player_list(NULL)
+, player_cache(NULL)
+, changed_player_list(NULL)
 #else
-		player_cache()
+, player_cache()
 #endif
 {
 }
@@ -96,7 +100,7 @@ Database::~Database ()
 
 	if (array != NULL)
 	{
-		for (i = 0; i < top; i++)
+		for (i = 0; i < top (); i++)
 			array [i].set_free ();
 		free (array);
 	}
@@ -117,7 +121,7 @@ const	dbref	newtop)
 	int	index;
 	dbref	real_newtop = (array == NULL) ? (int)newtop : (newtop + (DB_GROWSIZE - 1)) & (~(DB_GROWSIZE - 1));
 
-	if(newtop > top)
+	if(newtop > m_top)
 	{
 		/* If the database exists, extend it; else make one */
 		if(array != NULL)
@@ -132,7 +136,7 @@ const	dbref	newtop)
 		else
 		{
 			/* make the initial one */
-			top = 0;
+			m_top = 0;
 			if((array = (object_and_flags *) malloc(real_newtop * sizeof(object_and_flags))) == NULL)
 			{
 				log_bug("Fatal: grow: malloc failed");
@@ -140,10 +144,10 @@ const	dbref	newtop)
 			}
 		}
 		/* Set up the entries. */
-		for (index = real_newtop - 1; index >= top; index--)
+		for (index = real_newtop - 1; index >= m_top; index--)
 			array [index].init_free();
-		free_start = top;
-		top = real_newtop;
+		free_start = m_top;
+		m_top = real_newtop;
 	}
 }
 
@@ -164,7 +168,7 @@ object		&obj)
 	dbref	loc = NOTHING;
 
 	/* free_start is a hint to where a free object is. */
-	for(dbref i = free_start; i < top; i++)
+	for(dbref i = free_start; i < m_top; i++)
 	{
 		if(array[i].is_free())
 		{
@@ -174,7 +178,7 @@ object		&obj)
 	}
 	if(NOTHING == loc)
 	{
-		grow (top + 1);
+		grow (m_top + 1);
 
 		/* Should guarantee a free slot this time. */
 		loc = free_start;
@@ -203,7 +207,7 @@ Database::delete_object (
 const dbref	oldobj)
 
 {
-	if (oldobj >= 0 && oldobj < top)
+	if (oldobj >= 0 && oldobj < m_top)
 	{
 		if(oldobj < free_start)
 			free_start = oldobj;
@@ -223,31 +227,35 @@ const dbref	oldobj)
 /************************************************************************/
 
 
-/*
- * object: Initialise all the fields in a new object.
+/**
+ * Initialise all the fields in a new object.
  */
 
 object::object ()
-	: id(NOTHING), name(NULLSTRING), namelist(), location(NOTHING), next(NOTHING), owner(NOTHING)
+: id(NOTHING)
+, m_name(NULLSTRING)
+, namelist()
+, location(NOTHING)
+, next(NOTHING)
+, m_owner(NOTHING)
 
 {
 	int	i;
-	for(i=0;i<FLAGS_WIDTH;i++)
-		flags[i]='\0';
+	for (i = 0; i < FLAGS_WIDTH; i++)
+		flags[i] = '\0';
 }
 
 
-/*
- * ~object: Zap the fields in an object. This is a virtual destructor;
+/**
+ * Zap the fields in an object. This is a virtual destructor;
  *	subclasses *will* override this destructor.
  */
 
 object::~object ()
 
 {
-// Don't need to do anything now, as all the strings are reference
-// counted, and everything else is automatically destroyed
-
+	// Don't need to do anything now, as all the strings are reference
+	// counted, and everything else is automatically destroyed
 	set_location(NOTHING);	// This is useful for command maps
 }
 
@@ -257,8 +265,8 @@ object::get_inherited_name ()
 const
 
 {
-	if (name)
-		return name;
+	if (m_name)
+		return m_name;
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
 	else
@@ -479,13 +487,14 @@ void
 object::set_name (
 const String& str)
 {
-// This is the easy bit...
-	name = str;
-// Now we'll separate the name into its constituent parts.
-// Mainly useful for commands and exits, but other things might want
-// to use this too.
+	// This is the easy bit...
+	m_name = str;
+
+	// Now we'll separate the name into its constituent parts.
+	// Mainly useful for commands and exits, but other things might want
+	// to use this too.
 	namelist.erase(namelist.begin(), namelist.end());
-	const char* p1 = name.c_str();
+	const char* p1 = m_name.c_str();
 	const char* p2 = p1;
 	String nameportion;
 	for(; *p2; p2++)
@@ -500,9 +509,9 @@ const String& str)
 			p1 = p2+1;
 		}
 	}
-	if(p1 == name.c_str())
+	if(p1 == m_name.c_str())
 	{
-		namelist.push_back(name);
+		namelist.push_back(m_name);
 	}
 	else if(*p1)
 	{
@@ -516,7 +525,7 @@ object::set_owner (
 const	dbref	o)
 
 {
-	owner = o;
+	m_owner = o;
 	if (o != NOTHING)
 		db [o].set_referenced ();
 }
@@ -1519,9 +1528,14 @@ const	String& s)
 /************************************************************************/
 
 Player::Player ()
-	: recall(NULL), password(), controller(NOTHING), colour(NULL),
-		col_at(NULL), colour_play(NULL), colour_play_size(0),
-		channel(NULL)
+: recall(NULL)
+, password()
+, m_controller(NOTHING)
+, colour(NULL)
+, col_at(NULL)
+, colour_play(NULL)
+, colour_play_size(0)
+, channel(NULL)
 {
 #ifdef ALIASES
 	int	i;
@@ -1727,7 +1741,7 @@ Player::set_controller (
 const	dbref	o)
 
 {
-	controller = o;
+	m_controller = o;
 	if (o != NOTHING)
 		db [o].set_referenced ();
 }
