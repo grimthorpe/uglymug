@@ -87,6 +87,7 @@ command_details			command_table [] =
 	{"@?arrays",		&context::do_query_arrays,		LEGAL_COMMAND},
 	{"@?article",		&context::do_query_article,		LEGAL_COMMAND},
 	{"@?bps",		&context::do_query_bps,			LEGAL_COMMAND},
+	{"@?can",		&context::do_query_can,			LEGAL_COMMAND},
 	{"@?cfail",		&context::do_query_cfail,		LEGAL_COMMAND},
 	{"@?channel",		&context::do_query_channel,		LEGAL_COMMAND},
 	{"@?colour",		&context::do_query_colour,		LEGAL_COMMAND},

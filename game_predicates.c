@@ -612,3 +612,68 @@ dbref player)
 }
 
 
+/*
+ * do_query_can: Can the current player do a 'read' or 'write'
+ * on the named object?
+ */
+
+void
+context::do_query_can(const CString& object, const CString& type)
+{
+	Matcher matcher(player, object, TYPE_NO_TYPE, get_effective_id());
+	matcher.match_everything();
+	dbref target = matcher.match_result();
+
+	if(NOTHING == target)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "I don't see '%s' here.", object.c_str());
+		RETURN_FAIL;
+	}
+	else if(AMBIGUOUS == target)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Ambiguous");
+		RETURN_FAIL;
+	}
+
+	if(string_compare(type, "read") == 0)
+	{
+		if(controls_for_read(target))
+		{
+			RETURN_SUCC;
+		}
+	}
+	else if(string_compare(type, "write") == 0)
+	{
+		if(controls_for_write(target))
+		{
+			RETURN_SUCC;
+		}
+	}
+	else if(string_compare(type, "link") == 0)
+	{
+		if(can_link_to(*this, target) ||
+			((Typeof(target) == TYPE_ROOM)
+			 && (Link(target) || Abode(target))))
+		{
+			RETURN_SUCC;
+		}
+	}
+	else if(string_compare(type, "jump") == 0)
+	{
+		if(((Typeof(target) == TYPE_ROOM)
+				&& (controls_for_read(target) 
+					|| Abode(target)
+					|| Jump(target)))
+		 || ((Typeof(target) == TYPE_THING)
+				&& controls_for_write(target)))
+		{
+			RETURN_SUCC;
+		}
+	}
+	else
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unknown @?can type: '%s'. Should be read, write, link or jump", type.c_str());
+	}
+	RETURN_FAIL;
+}
+

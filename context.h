@@ -490,6 +490,7 @@ class	context
 	void				do_query_article	(const CString&, const CString&);
 	void				do_query_arrays		(const CString&, const CString&);
 	void				do_query_bps		(const CString&, const CString&);
+	void				do_query_can		(const CString&, const CString&);
 	void				do_query_cfail		(const CString&, const CString&);
 	void				do_query_channel	(const CString&, const CString&);
 	void				do_query_colour		(const CString&, const CString&);
