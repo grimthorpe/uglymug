@@ -55,7 +55,7 @@ char	**argv)
 	/* vadvise(VA_ANOM); */
 #endif
 
-	printf("%s\n", VERSION);
+	printf("%s\n", version);
 
 	while ((c = getopt(argc, argv, "dfcshBCHPRWA:i:")) != -1)
 	{
