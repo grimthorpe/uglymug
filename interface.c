@@ -3576,7 +3576,7 @@ int	sig)
 #ifdef linux
 // Yuck - I feel ill JPK
 	extern const char * const sys_siglist[];
-	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 #else
 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 #endif
