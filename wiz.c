@@ -514,9 +514,9 @@ context::dump_email_addresses ()
 						? db [i].get_email_addr ().c_str()
 						: "NO_MAIL_ADDRESS",
 					(NoHuhLogs(i) ? "NOHUH" : "HUH"),	/* HUH logs? */
-					(NoForwardEmail(db [i]))		/* Forward email? */
-						? "NO_FORWARD_EMAIL"
-						: "FORWARD_EMAIL"
+					(NoForwardEmail(i))		/* Forward email? */
+						? "NO__EMAIL_FORWARD"
+						: "EMAIL_FORWARD"
 				);
 			}
 		fclose(fp);

@@ -234,7 +234,7 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define Welcomer(x)	(db[(x)].get_flag(FLAG_WELCOMER))
 #define Wizard(x)	(db[(x)].get_flag(FLAG_WIZARD))
 #define XBuilder(x)	(db[(x)].get_flag(FLAG_XBUILDER))
-#define NoForwardEmail(x)	(db[(x)].get_flag(FLAG_NO_FORWARD_EMAIL))
+#define NoForwardEmail(x)	(db[(x)].get_flag(FLAG_NO_EMAIL_FORWARD))
 
 
 #define PLAYER_PID_STACK_SIZE 16
