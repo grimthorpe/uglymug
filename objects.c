@@ -1484,15 +1484,6 @@ Player::Player ()
 		alias[i]	= NULLSTRING;
 
 #endif
-	/* Init Combat Stats */
-	armour = NOTHING;
-	weapon = NOTHING;
-	strength = 0;
-	dexterity = 0;
-	constitution = 0;
-	hit_points = 0;
-	experience = 0;
-	last_attack_time = 0;
 	channel = NULL;
 
 	//Recall Buffer things

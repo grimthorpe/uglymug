@@ -358,17 +358,6 @@ class	Player
 	const	int		look_at_aliases		(const String& string)	const;
 #endif /* ALIASES */
 
-	/* Combat stats */
-	dbref			weapon;
-	dbref			armour;
-	int			strength;
-	int			dexterity;
-	int			constitution;
-	int			hit_points;
-	int			max_hit_points;
-	int			experience;
-	int			last_attack_time;
-
 	 /* Colour struct */
     	char *			colour;
 	colour_at*		col_at;
