@@ -7,6 +7,13 @@ correct version. In reverse order.
 Leave the Name: tag at the top of the file to get
 the correct release tag embedded in the game when you
 build it.
+Addendum: As you commit code, please put information
+about the changes in above the latest release tag.
+That way if someone else does a release, the change
+information doesn't get lost.
+
+    Censorship now ignores colours.
+    Added WelcomerTitles as a colour attribute.
 
 um1_022 - Grimthorpe
     Oh dear, @name & @alias forgot about the player cache. It is now bypassed

@@ -395,26 +395,30 @@ const	CString& cstr)
 	else *result = '\0';
 } 
 
-
-
-int
-swear_compare(int *skipped, char *s1, char *s2)
+static int
+swear_compare(int &skipped, char *s1, char *s2)
 {
         /* This could be a rude word.. Is it? */
         /* We must disregard all non-alphanumerics, etc in s1*/
         
         while (*s1 && *s2)
         {
-            if (ispunct(*s1))
-                s1++, (*skipped)++;
-            else if (DOWNCOMP(*s1, *s2) == 0)
-                return (DOWNCASE(*s1) - DOWNCASE(*s2));
-            else
-                s1++, s2++, (*skipped)++;
+		if('%' == *s1)
+		{
+			s1++, skipped++;
+			if(*s1)
+				s1++, skipped++;
+		}
+		if (ispunct(*s1))
+			s1++, skipped++;
+		else if (DOWNCOMP(*s1, *s2) == 0)
+			return (DOWNCASE(*s1) - DOWNCASE(*s2));
+		else
+			s1++, s2++, skipped++;
         }
         // Have we reached the end of the main string but not got a rude word?
         if ((*s2 != 0) && (*s1 == 0))
-                *skipped=0;
+                skipped=0;
         return 0;
 }
 
@@ -595,7 +599,7 @@ char *string)
         {
                 mid = (top + bottom) / 2;
                 counter=0;
-                value = swear_compare (&counter, string, rude_words [mid]);
+                value = swear_compare (counter, string, rude_words [mid]);
 
                 if (value < 0)
                         top = mid - 1;
