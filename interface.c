@@ -107,6 +107,9 @@ static	char	scratch[BUFFER_LEN];
 static	int	check_descriptors;
 int			peak_users;
 
+String str_on = "on";
+String str_off = "off";
+
 static const char *connect_fail =
 	"Either that player does not exist, or has a different password.\n";
 static const char *create_fail =
@@ -306,7 +309,7 @@ public:
 	unsigned char		t_iac_command;
 	unsigned char		t_iac_option;
 
-	int			_got_an_iac; // Set to non-zero if we've ever received an iac
+	bool			_got_an_iac; // Set to non-zero if we've ever received an iac
 // Functions:
 public:
 	bool	IS_HALFQUIT()
@@ -342,8 +345,8 @@ public:
 	}
 	void	output_prefix();
 	void	output_suffix();
-	void	set_output_prefix(const CString& s) { _output_prefix = s; }
-	void	set_output_suffix(const CString& s) { _output_suffix = s; }
+	void	set_output_prefix(const String& s) { _output_prefix = s; }
+	void	set_output_suffix(const String& s) { _output_suffix = s; }
 
 	enum connect_states
 		get_connect_state()	{ return _connect_state; }
@@ -355,11 +358,11 @@ public:
 	const String& 	get_player_name()	{ return _player_name;}
 	const String&	get_password()		{ return _password;}
 	void	set_player(int p)	{ _player = p; }
-	void	set_player_name(const CString& p) { _player_name = p; }
-	void	set_password(const CString& p) { _password = p; }
+	void	set_player_name(const String& p) { _player_name = p; }
+	void	set_password(const String& p) { _password = p; }
 
 	int	queue_string(const char *, int show_literally = 0, int store_in_recall_buffer = 1);
-	int	queue_string(const CString& s, int show_literally = 0, int store_in_recall_buffer = 1)
+	int	queue_string(const String& s, int show_literally = 0, int store_in_recall_buffer = 1)
 	{
 		return queue_string(s.c_str(), show_literally, store_in_recall_buffer);
 	}
@@ -372,18 +375,29 @@ public:
 	void	get_value_from_subnegotiation(unsigned char *, unsigned char, int);
 
 	void	set_echo(bool echo);
-	int	set_terminal_type(const CString& terminal);
-	Command_status	terminal_set_termtype(const CString& , bool);
+	int	set_terminal_type(const String& terminal);
+	Command_status	terminal_set_termtype(const String& , bool);
 	String	terminal_get_termtype();
-	Command_status	terminal_set_lftocr(const CString& , bool);
-	Command_status	terminal_set_pagebell(const CString& , bool);
-	Command_status	terminal_set_width(const CString& , bool);
-	Command_status	terminal_set_wrap(const CString& , bool);
-	Command_status	terminal_set_echo(const CString& , bool);
-	Command_status	terminal_set_recall(const CString& , bool);
-	Command_status	terminal_set_effects(const CString& , bool);
-	Command_status	terminal_set_halfquit(const CString& , bool);
-	Command_status	terminal_set_noflush(const CString& , bool);
+	Command_status	terminal_set_lftocr(const String& , bool);
+	String	terminal_get_lftocr();
+	Command_status	terminal_set_pagebell(const String& , bool);
+	String	terminal_get_pagebell();
+	Command_status	terminal_set_width(const String& , bool);
+	String	terminal_get_width();
+	Command_status	terminal_set_height(const String& , bool);
+	String	terminal_get_height();
+	Command_status	terminal_set_wrap(const String& , bool);
+	String	terminal_get_wrap();
+	Command_status	terminal_set_echo(const String& , bool);
+	String	terminal_get_echo();
+	Command_status	terminal_set_recall(const String& , bool);
+	String	terminal_get_recall();
+	Command_status	terminal_set_effects(const String& , bool);
+	String	terminal_get_effects();
+	Command_status	terminal_set_halfquit(const String& , bool);
+	String	terminal_get_halfquit();
+	Command_status	terminal_set_noflush(const String& , bool);
+	String	terminal_get_noflush();
 	void	do_write(const char * c, int i)
 	{
 /*
@@ -468,22 +482,23 @@ void				concentrator_disconnect	(void);
 struct terminal_set_command
 {
 	const char	*name;
-	Command_status	(descriptor_data::*set_function) (const CString&, bool);
+	Command_status	(descriptor_data::*set_function) (const String&, bool);
 	String		(descriptor_data::*query_function) ();
 	bool		deprecated;
 } terminal_set_command_table[] =
 {
 	{ "termtype",	&descriptor_data::terminal_set_termtype, &descriptor_data::terminal_get_termtype },
 	{ "type",	&descriptor_data::terminal_set_termtype, &descriptor_data::terminal_get_termtype, true },
-	{ "width",	&descriptor_data::terminal_set_width },
-	{ "wrap",	&descriptor_data::terminal_set_wrap },
-	{ "lftocr",	&descriptor_data::terminal_set_lftocr },
-	{ "pagebell",	&descriptor_data::terminal_set_pagebell },
-	{ "echo",	&descriptor_data::terminal_set_echo },
-	{ "recall",	&descriptor_data::terminal_set_recall },
-	{ "effects",	&descriptor_data::terminal_set_effects },
-	{ "halfquit",	&descriptor_data::terminal_set_halfquit },
-	{ "noflush",	&descriptor_data::terminal_set_noflush },
+	{ "width",	&descriptor_data::terminal_set_width, &descriptor_data::terminal_get_width },
+	{ "height",	&descriptor_data::terminal_set_height, &descriptor_data::terminal_get_height },
+	{ "wrap",	&descriptor_data::terminal_set_wrap, &descriptor_data::terminal_get_wrap },
+	{ "lftocr",	&descriptor_data::terminal_set_lftocr, &descriptor_data::terminal_get_lftocr },
+	{ "pagebell",	&descriptor_data::terminal_set_pagebell, &descriptor_data::terminal_get_pagebell },
+	{ "echo",	&descriptor_data::terminal_set_echo, &descriptor_data::terminal_get_echo },
+	{ "recall",	&descriptor_data::terminal_set_recall, &descriptor_data::terminal_get_recall },
+	{ "effects",	&descriptor_data::terminal_set_effects, &descriptor_data::terminal_get_effects },
+	{ "halfquit",	&descriptor_data::terminal_set_halfquit, &descriptor_data::terminal_get_halfquit },
+	{ "noflush",	&descriptor_data::terminal_set_noflush, &descriptor_data::terminal_get_noflush },
 
 	{ NULL, NULL }
 };
@@ -1601,7 +1616,7 @@ int count = 0;
 	switch(t_iac)
 	{
 	case IAC_GOT_FIRST_IAC:
-		_got_an_iac = 1;	// We got an iac, we can now sort out echo handling properly.
+		_got_an_iac = true;	// We got an iac, we can now sort out echo handling properly.
 		t_iac_command = *(buf++);
 		t_iac = IAC_GOT_COMMAND;
 		if(buf >= end)
@@ -1900,7 +1915,7 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
  * lots of ifdefs so it was more obviously how things tied up but it made the
  * totally unreadable.  -Abstract
  */
-int descriptor_data::set_terminal_type (const CString& termtype)
+int descriptor_data::set_terminal_type (const String& termtype)
 {
 	char *term;
 
@@ -1985,7 +2000,7 @@ int descriptor_data::set_terminal_type (const CString& termtype)
  * If you update this you should also check the version above!
  */
 int
-descriptor_data::set_terminal_type(const CString& termtype)
+descriptor_data::set_terminal_type(const String& termtype)
 {
 	static char ltermcap[1024];
 	char *terminal, *area;
@@ -2095,7 +2110,7 @@ int i;
 }
 
 void
-set_cached_addr(u_long addr, const CString& name)
+set_cached_addr(u_long addr, const String& name)
 {
 int i;
 time_t mintime = 0x7fffffff;
@@ -2181,11 +2196,11 @@ descriptor_data::shutdownsock()
 			mud_disconnect_player (get_player());
 			time (&stamp);
 			now = localtime (&stamp);
-			log_disconnect(get_player(), getname(get_player()), CHANNEL(), channel, NULLCSTRING, true);
+			log_disconnect(get_player(), getname(get_player()), CHANNEL(), channel, NULLSTRING, true);
 		}
 		else
 		{
-			log_disconnect(0, NULLCSTRING, CHANNEL(), 0, NULLCSTRING, false);
+			log_disconnect(0, NULLSTRING, CHANNEL(), 0, NULLSTRING, false);
 		}
 	}
 	process_output ();
@@ -2325,7 +2340,7 @@ int			channel)
 
 	t_iac			= IAC_OUTSIDE_IAC;
 
-	_got_an_iac		= 0;
+	_got_an_iac		= false;
 
 	set_echo(true);
 }
@@ -3236,8 +3251,8 @@ dbref	booter)
 
 void
 context::do_quit (
-const	CString& ,
-const	CString& )
+const	String& ,
+const	String& )
 
 {
 	return_status = COMMAND_FAIL;
@@ -4199,8 +4214,8 @@ int			flags)
 
 void
 context::do_at_connect(
-const	CString& what,
-const	CString& )
+const	String& what,
+const	String& )
 {
 struct  descriptor_data *d;
         dbref   victim;
@@ -4223,7 +4238,7 @@ struct  descriptor_data *d;
         if ((!controls_for_write (victim))
                 || (Wizard (victim) && !Wizard (player)))
         {
-                notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+                notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
                 return;
         }
         if (Connected(victim))
@@ -4241,8 +4256,8 @@ struct  descriptor_data *d;
 
 void
 context::do_at_disconnect(
-const   CString&what,
-const   CString&)
+const   String&what,
+const   String&)
 
 {
 struct  descriptor_data *d;
@@ -4264,7 +4279,7 @@ struct  descriptor_data *d;
         if ((!controls_for_write (victim))
                 || (Wizard (victim) && !Wizard (player)))
         {
-                notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+                notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
                 return;
         }
         if (!Connected(victim))
@@ -4291,8 +4306,8 @@ struct  descriptor_data *d;
 }
 void
 context::do_at_queue (
-const   CString& what,
-const   CString& command)
+const   String& what,
+const   String& command)
 
 {
 struct  descriptor_data *d;
@@ -4318,7 +4333,7 @@ struct  descriptor_data *d;
         if ((!controls_for_write (victim))
                 || (Wizard (victim) && !Wizard (player)))
         {
-                notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+                notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
                 return;
         }
 
@@ -4347,8 +4362,8 @@ struct  descriptor_data *d;
 
 void
 context::do_who (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	int matched_location;
@@ -4437,8 +4452,8 @@ descriptor_data::dump_swho()
 
 void
 context::do_swho (
-const	CString& ,
-const	CString& )
+const	String& ,
+const	String& )
 
 {
 	struct descriptor_data *d;
@@ -4469,8 +4484,17 @@ time_t get_idle_time (dbref player)
 	return (now - d->last_time);
 }
 
+String
+descriptor_data::terminal_get_noflush()
+{
+	if(terminal.noflush)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_noflush(const CString& toggle, bool gagged)
+descriptor_data::terminal_set_noflush(const String& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4495,8 +4519,17 @@ descriptor_data::terminal_set_noflush(const CString& toggle, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_halfquit()
+{
+	if(terminal.halfquit)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_halfquit(const CString& toggle, bool gagged)
+descriptor_data::terminal_set_halfquit(const String& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4521,8 +4554,17 @@ descriptor_data::terminal_set_halfquit(const CString& toggle, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_effects()
+{
+	if(terminal.effects)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_effects(const CString& toggle, bool gagged)
+descriptor_data::terminal_set_effects(const String& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4547,8 +4589,17 @@ descriptor_data::terminal_set_effects(const CString& toggle, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_recall()
+{
+	if(terminal.recall)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_recall(const CString& toggle, bool gagged)
+descriptor_data::terminal_set_recall(const String& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4573,8 +4624,17 @@ descriptor_data::terminal_set_recall(const CString& toggle, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_echo()
+{
+	if(t_echo)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_echo(const CString& toggle, bool gagged)
+descriptor_data::terminal_set_echo(const String& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4597,8 +4657,17 @@ descriptor_data::terminal_set_echo(const CString& toggle, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_pagebell()
+{
+	if(terminal.pagebell)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_pagebell(const CString& toggle, bool gagged)
+descriptor_data::terminal_set_pagebell(const String& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4630,7 +4699,7 @@ descriptor_data::terminal_get_termtype()
 }
 
 Command_status
-descriptor_data::terminal_set_termtype (const CString& termtype, bool gagged)
+descriptor_data::terminal_set_termtype (const String& termtype, bool gagged)
 {
 	if(termtype)
 	{
@@ -4661,9 +4730,54 @@ descriptor_data::terminal_set_termtype (const CString& termtype, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_height()
+{
+char ret[40];
+	sprintf(ret, "%d", terminal.height);
+
+	return ret;
+}
+
 
 Command_status
-descriptor_data::terminal_set_width(const CString& width, bool gagged)
+descriptor_data::terminal_set_height(const String& height, bool gagged)
+{
+	int			i;
+
+	if(height)
+	{
+		i = atoi (height.c_str());
+		if (i<0)
+		{
+			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word terminal height");
+			return COMMAND_FAIL;
+		}
+		terminal.height = i;
+	}
+	if(!gagged)
+	{
+		if(terminal.height == 0)
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is unset");
+		else
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal height is %d", terminal.height);
+	}
+
+	return COMMAND_SUCC;
+}
+
+String
+descriptor_data::terminal_get_width()
+{
+char ret[40];
+	sprintf(ret, "%d", terminal.width);
+
+	return ret;
+}
+
+
+Command_status
+descriptor_data::terminal_set_width(const String& width, bool gagged)
 {
 	int			i;
 
@@ -4688,8 +4802,17 @@ descriptor_data::terminal_set_width(const CString& width, bool gagged)
 	return COMMAND_SUCC;
 }
 
+String
+descriptor_data::terminal_get_wrap()
+{
+	if(terminal.wrap)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
+descriptor_data::terminal_set_wrap(const String& width, bool gagged)
 {
 	int			i;
 
@@ -4726,8 +4849,17 @@ descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
 }
 
 
+String
+descriptor_data::terminal_get_lftocr()
+{
+	if(terminal.lftocr)
+		return str_on;
+	else
+		return str_off;
+}
+
 Command_status
-descriptor_data::terminal_set_lftocr(const CString& z, bool gagged)
+descriptor_data::terminal_set_lftocr(const String& z, bool gagged)
 {
 	if(z)
 	{
@@ -4755,8 +4887,8 @@ descriptor_data::terminal_set_lftocr(const CString& z, bool gagged)
 
 void
 context::do_at_motd (
-const	CString& ,
-const	CString& )
+const	String& ,
+const	String& )
 
 {
 	struct descriptor_data *d;
@@ -4771,8 +4903,8 @@ const	CString& )
 
 void
 context::do_at_beep (
-const	CString& ,
-const	CString& )
+const	String& ,
+const	String& )
 
 {
 	return_status = COMMAND_SUCC;
@@ -4783,8 +4915,8 @@ const	CString& )
 
 void
 context::do_at_truncate(
-const CString& plist,
-const CString& string)
+const String& plist,
+const String& string)
 {
 	int error_count=0,
 	    ok_count=0;
@@ -4829,7 +4961,7 @@ const CString& string)
 			notify_colour(player, player, COLOUR_MESSAGES, "(Warning): %d player%s that you do not control so did not get underlined to.", error_count, (error_count==1) ? " is in a room" : "s are in rooms");
 	}
 }
-void context::do_at_terminal(const CString& command, const CString& arg)
+void context::do_at_terminal(const String& command, const String& arg)
 {
 	struct descriptor_data *d;
 
@@ -4858,7 +4990,7 @@ void context::do_at_terminal(const CString& command, const CString& arg)
 		}
 		// If @terminal is run with no parameter then ignore the in_command bit
 		else if(!terminal_set_command_table[i].deprecated)
-			(d->*(terminal_set_command_table[i].set_function))(NULLCSTRING, false);
+			(d->*(terminal_set_command_table[i].set_function))(NULLSTRING, false);
 	}
 
 	if(command && !terminal_set_command_table[i].name)
@@ -4876,7 +5008,7 @@ void context::do_at_terminal(const CString& command, const CString& arg)
 }
 
 void
-context::do_query_terminal(const CString& command, const CString& arg)
+context::do_query_terminal(const String& command, const String& arg)
 {
 	struct descriptor_data *d;
 
