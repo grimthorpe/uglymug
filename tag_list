@@ -14,6 +14,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_048
+	Ozzard's changes to allow #id's to be used anywhere.
+
 um1_047
 	Added a small fix to the @remote code.
 
