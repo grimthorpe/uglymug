@@ -1,0 +1,5 @@
+***UglyMug Beta(tagged) DUMP Format 0***
+Objects: 1024
+#05Ä0200202800000000ÅLimboÇ2É3Ñ1ÖA dense mist swirls around your lower body. It's cold and eerie here - eerily quiet.î0óINFòINFô0#13Äa200002800000000ÅWizardÇ3É-1Ñ1ÖFaceless dude.á829861246à#0ä53178966ê0ì7ï70ñ80ó15ò400ô131õHumanû¢ü1†1#25Ä0200002000000000ÅTop AreaÑ1ÖWOW you can see for miles!è0î0óINFòINFô0#35Ä0600202000000000ÅPlayer StartÇ2É4Ñ1ÖWelcome to chaos!è1î0óINFòINFô776519182#45Ä0200002000000000ÅCommand Last ResortÇ2É-1Ñ1ÖCommands dropped here will be visible everywhere.é8î0óINFòINFô0#58Ä0000010000000000Å.loginÇ4É-1Ñ1Ö|look
+:has connected#68Ä0000010000000000Å.logoutÇ4É5Ñ1Ö:has disconnected#712Ä0000000000000000ÅfredÇ1É-1Ñ1Ö2bertickcharlietick#88Ä0200010000000000Å.outputÇ4É6Ñ1Ö@chpid
+@notify {@?controller me}={@?name me}: $3***END OF DUMP***
