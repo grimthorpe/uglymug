@@ -552,6 +552,7 @@ class	context
 	void				do_query_who		(const char *const name, const char *const dummy);
 	void				do_quit			(const char *dummy1, const char *dummy2);
 	void				do_race			(const char *name, const char *newrace);
+	void				do_at_rem		(const char *loc_string, const char *command);
 	void				do_remote		(const char *loc_string, const char *command);
 	void				do_return		(const char *arg1, const char *arg2);
 	void				do_returnchain		(const char *arg1, const char *arg2);

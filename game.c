@@ -250,6 +250,7 @@ command_details			command_table [] =
 	{"@queue",		&context::do_at_queue,		FULL_COMPARE},
 	{"@race",		&context::do_race,		NO_COMMAND_FLAGS},
 	{"@recursionlimit",	&context::do_at_recursionlimit, NO_COMMAND_FLAGS},
+	{"@rem",		&context::do_at_rem,		FULL_COMPARE},
 	{"@remote",		&context::do_remote,		NO_COMMAND_FLAGS},
 	{"@return",		&context::do_return,		NO_COMMAND_FLAGS},
 	{"@returnchain",	&context::do_returnchain,	NO_COMMAND_FLAGS},
@@ -1458,3 +1459,17 @@ void mud_time_sync ()
         }
         alarm_block--;
 }
+
+/*
+ * @rem
+ *
+ * Do nothing. Cheaply, rather than as a soft-code command.
+ */
+void
+context::do_at_rem(
+const char*,
+const char*)
+{
+	return;		// Do nothing.
+}
+

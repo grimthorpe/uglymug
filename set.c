@@ -177,6 +177,7 @@ const	char	*element)
 	db[thing].insert_element(index, element);
 	if (!gagged_command() && !in_command())
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Inserted.");
+
 	if(typething == TYPE_COMMAND)
 		db [thing].flush_parse_helper();
 
