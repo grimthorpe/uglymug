@@ -350,6 +350,22 @@ void log_hack (
 	);
 }
 
+void log_halfquit (
+			dbref			playerid,
+	const	CString&		playername,
+			int				descriptor,
+			int				channel
+) {
+	Trace(	"%cHALFQUIT%c%d%c%d%c%s%c%d%c%d%c\n",
+				RECORD_START,					FIELD_SEPARATOR,
+				time(NULL),						FIELD_SEPARATOR,
+				playerid,						FIELD_SEPARATOR,
+				playername.c_str(),				FIELD_SEPARATOR,
+				descriptor,						FIELD_SEPARATOR,
+				channel,						RECORD_END
+	);
+}
+
 void log_huh (
 			dbref		playerid,
 	const	CString&	playername,

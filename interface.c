@@ -2320,24 +2320,7 @@ descriptor_data::shutdownsock()
 	}
 	else
 	{
-		/* variables for timestamp */
-		time_t stamp;
-		struct tm *now;
-
-		/* get time info */
-		time (&stamp);
-		now = localtime (&stamp);
-
-		Trace( "HALFQUIT descriptor |%d|%d| player |%s|%d| at |%02d/%02d/%02d %02d:%02d\n",
-		CHANNEL(),
-		channel,
-		getname (get_player()),
-		get_player(),
-		now->tm_year,
-		now->tm_mon+1,
-		now->tm_mday,
-		now->tm_hour,
-		now->tm_min);
+		log_halfquit(get_player(), getname(get_player()), CHANNEL(), channel);
 	}
 }
 

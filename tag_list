@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added log_halfquit() and changed log call in interface.c
 	Added RECORD_START and RECORD_END to a case for log_disconnect (never connected). Now it should go into the DISCONNECT log.
 
 um1_033 - Grimthorpe (mainly) and Chisel fixes his code...
