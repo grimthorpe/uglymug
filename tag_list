@@ -8,6 +8,12 @@ Leave the Name: tag at the top of the file to get
 the correct release tag embedded in the game when you
 build it.
 
+um1_022 - Grimthorpe
+    Oh dear, @name & @alias forgot about the player cache. It is now bypassed
+    until I can find a better way of dealing with it.
+    @if/@for/@with ignore leading spaces (just like the command handler does)
+    interface.c tidyup.
+
 um1_021 - Grimthorpe
     We don't prompt for a password on connection if the player doesn't have one
     Open a list of ports to accept connections on
