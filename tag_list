@@ -13,6 +13,8 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+    Added 'HALFQUIT' so you can drop your connection for up to 5 minutes
+    and reconnect as if you didn't.
     Finally fixed @remote so that it works properly;
 
 um1_028 - Grimthorpe, emergency release due to the NPC bug.

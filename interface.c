@@ -148,6 +148,8 @@ static const char *too_many_attempts =
 	"\n\nToo many attempts, disconnecting.\n";
 static const char *passwords_dont_match =
 	"\nThe passwords didn't match. Character creation cancelled.\n";
+static const char* HALFQUIT_MESSAGE = "\nYour connection will be available for 5 minutes.\n";
+static const char* HALFQUIT_FAIL_MESSAGE = "\nYou never connected as a player!\n";
 
 /* Anything that's not in here will get a WONT/DONT. */
 
@@ -209,7 +211,8 @@ enum connect_states
 	DESCRIPTOR_CONNECTED,			/* Player is connected */
 	DESCRIPTOR_LIMBO_RECONNECTED,		/* Player is has been reconnected on another descriptor */
 	DESCRIPTOR_LIMBO,			/* Awaiting disconnection */
-	DESCRIPTOR_FAKED			/* Faked connection; NPC */
+	DESCRIPTOR_FAKED,			/* Faked connection; NPC */
+	DESCRIPTOR_HALFQUIT			/* Player has 'HALFQUIT' */
 };
 
 enum announce_states
@@ -221,7 +224,7 @@ enum announce_states
 	ANNOUNCE_SMD,				/* player fallen foul of an SMD read */
 	ANNOUNCE_TIMEOUT,			/* mortal been idle too long */
 	ANNOUNCE_PURGE,				/* player booting his idle connections */
-	ANNOUNCE_RECONNECT			/* player reconnects */
+	ANNOUNCE_RECONNECT,			/* player reconnects */
 };
 
 void add_to_queue(struct text_queue *q, const char *b, int n);
@@ -294,10 +297,15 @@ public:
 	int			_got_an_iac; // Set to non-zero if we've ever received an iac
 // Functions:
 public:
+	bool	IS_HALFQUIT()
+	{
+		return (_connect_state == DESCRIPTOR_HALFQUIT);
+	}
 	bool	IS_CONNECTED()
 	{
 		return ((_connect_state == DESCRIPTOR_CONNECTED)
-			|| (_connect_state == DESCRIPTOR_FAKED));
+			|| (_connect_state == DESCRIPTOR_FAKED)
+			|| (_connect_state == DESCRIPTOR_HALFQUIT));
 	}
 	bool	IS_FAKED()
 	{
@@ -1182,10 +1190,17 @@ void mud_main_loop(int argc, char** argv)
 			for (d = descriptor_list; d; d = dnext)
 			{
 				dnext = d->next;
-				if (d->get_connect_state() == DESCRIPTOR_LIMBO)
+				switch(d->get_connect_state())
+				{
+				case DESCRIPTOR_LIMBO:
+				case DESCRIPTOR_LIMBO_RECONNECTED:
+				case DESCRIPTOR_HALFQUIT:
 					d->shutdownsock ();
-				if (d->get_connect_state() == DESCRIPTOR_LIMBO_RECONNECTED)
-					d->shutdownsock ();
+					break;
+				default:
+					// Do nothing
+					break;
+				}
 			}
 		}
 
@@ -1224,7 +1239,8 @@ void mud_main_loop(int argc, char** argv)
 		for (d = descriptor_list; d; d=d->next)
 		{
 			if ((d->get_descriptor())	/* Don't want to watch concentrator descriptors - if you don't know why, go learn C, Keith */
-			  || (!d->IS_FAKED())) /* Don't forget to exclude NPCs either */
+			  && (!d->IS_FAKED()) /* Don't forget to exclude NPCs either */
+			  && (!d->IS_HALFQUIT())) /* Or HALFQUIT people */
 			{
 				if (d->input.head)
 					timeout = slice_timeout;
@@ -1399,6 +1415,11 @@ void mud_main_loop(int argc, char** argv)
 							d->queue_string ("Connect timeout.\n");
 							d->process_output ();
 							d->NUKE_DESCRIPTOR ();
+						}
+						else if(d->IS_HALFQUIT())
+						{
+							d->announce_player(ANNOUNCE_TIMEOUT);
+							d->NUKE_DESCRIPTOR();
 						}
 						else
 							d->warning_level ++;
@@ -2018,7 +2039,7 @@ descriptor_data::shutdownsock()
 	time_t stamp;
 	struct tm *now;
 /* For NPC connections, ignore most of this */
-	if(!IS_FAKED() && (get_connect_state() != DESCRIPTOR_LIMBO_RECONNECTED))
+	if(!IS_FAKED() && (get_connect_state() != DESCRIPTOR_LIMBO_RECONNECTED) && !IS_HALFQUIT())
 	{
 		if (get_player() != 0)
 		{
@@ -2047,6 +2068,7 @@ descriptor_data::shutdownsock()
 	{
 		shutdown (get_descriptor(), 2);
 		close (get_descriptor());
+		_descriptor = 0; // Clear out the descriptor
 	}
 #ifdef CONCENTRATOR
 	else if(!IS_FAKED())
@@ -2061,12 +2083,29 @@ descriptor_data::shutdownsock()
 #endif
 
 	freeqs ();
-	*prev = next;
-	if (next)
-		next->prev = prev;
 
-	delete (this);
-	ndescriptors--;
+	if(!IS_HALFQUIT())
+	{
+		*prev = next;
+		if (next)
+			next->prev = prev;
+
+		delete (this);
+		ndescriptors--;
+	}
+	else
+	{
+		Trace( "HALFQUIT descriptor |%d|%d| player |%s|%d| at |%02d/%02d/%02d %02d:%02d\n",
+		CHANNEL(),
+		channel,
+		getname (get_player()),
+		get_player(),
+		now->tm_year,
+		now->tm_mon+1,
+		now->tm_mday,
+		now->tm_hour,
+		now->tm_min);
+	}
 }
 
 
@@ -2356,7 +2395,10 @@ char *a,*a1,*b;
                 }
         }
 
-
+	if(IS_HALFQUIT())
+	{
+		return 1;
+	}
 	strcpy(b2, s);
 	b=b2;
 
@@ -2521,7 +2563,7 @@ descriptor_data::process_output()
 
 	for (qp = &output.head; (cur = *qp);)
 	{
-		if(IS_FAKED())
+		if(IS_FAKED() || IS_HALFQUIT())
 		{
 			cnt = cur->nchars;
 		}
@@ -3079,7 +3121,7 @@ descriptor_data::do_command (const char *command)
 	extern	char	*sys_errlist[];
 #endif
 
-	if (!strcmp (command, QUIT_COMMAND))
+	if(strcmp (command, QUIT_COMMAND) == 0)
 	{
 		if (IS_FAKED())
 			return 1; // NPC's can't QUIT!
@@ -3092,18 +3134,32 @@ descriptor_data::do_command (const char *command)
 #endif
 		return 0;
 	}
-	else if (!strcmp (command, WHO_COMMAND))
+	else if(strcmp (command, HALFQUIT_COMMAND) == 0)
+	{
+		if(IS_FAKED())
+			return 1; // NPC's can't HALFQUIT!
+
+		if (get_descriptor())
+		{
+			write (get_descriptor(), HALFQUIT_MESSAGE, strlen(HALFQUIT_MESSAGE));
+			NUKE_DESCRIPTOR();
+			_connect_state = DESCRIPTOR_HALFQUIT;
+			return 1;
+		}
+		write(get_descriptor(), HALFQUIT_FAIL_MESSAGE, strlen(HALFQUIT_FAIL_MESSAGE));
+	}
+	else if(strcmp (command, WHO_COMMAND) == 0)
 	{
 		output_prefix();
 		dump_users (NULL, (IS_CONNECTED() && (db[get_player()].get_flag(FLAG_HOST))) ? DUMP_WIZARD : 0);
 		output_suffix();
 	}
-	else if (!strcmp (command, IDLE_COMMAND))
+	else if(strcmp (command, IDLE_COMMAND) == 0)
 	{
 		queue_string ("Idle time increased to 3 minutes.\n");
 		last_time = (time_t) time(NULL) - IDLE_TIME_INCREASE;
 	}
-	else if (!strcmp (command, INFO_COMMAND))
+	else if(strcmp (command, INFO_COMMAND) == 0)
 	{
 		if ((fp=fopen (HELP_FILE, "r"))==NULL)
 			Trace("BUG:  %s: %s\n",HELP_FILE,sys_errlist[errno]);
@@ -3114,7 +3170,7 @@ descriptor_data::do_command (const char *command)
 		}
 		fclose(fp);
 	}
-	else if(!strcmp (command, SET_COMMAND))
+	else if(strcmp (command, SET_COMMAND) == 0)
 	{
 		/* Ensure we don't trash a constant string - PJC 23/12/96 */
 		char	*copied_command = safe_strdup (command);
@@ -3163,9 +3219,9 @@ descriptor_data::do_command (const char *command)
 		really_do_terminal_set(a1, a2, 0);
 		free (copied_command);
 	}
-	else if (!strncmp (command, PREFIX_COMMAND, strlen (PREFIX_COMMAND)))
+	else if (strncmp (command, PREFIX_COMMAND, strlen (PREFIX_COMMAND)) == 0)
 		set_output_prefix(command+strlen(PREFIX_COMMAND));
-	else if (!strncmp (command, SUFFIX_COMMAND, strlen (SUFFIX_COMMAND)))
+	else if (strncmp (command, SUFFIX_COMMAND, strlen (SUFFIX_COMMAND)) == 0)
 		set_output_suffix(command+strlen(SUFFIX_COMMAND));
 	else
 	{
@@ -3210,7 +3266,7 @@ descriptor_data::connect_a_player (
 	the_time = localtime (&now);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (d->IS_CONNECTED() && (player == d->get_player()))
+		if ((d->IS_CONNECTED() || d->IS_HALFQUIT()) && (player == d->get_player()))
 		{
 			//Put this descriptor in at this point
 			//Shutdown current descriptor
