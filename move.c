@@ -1103,7 +1103,14 @@ const	CString& command)
 
 	Matcher where_matcher (player, loc_string, TYPE_ROOM, get_effective_id ());
 	where_matcher.match_absolute ();
-	if (((loc = where_matcher.match_result ()) == NOTHING)
+	where_matcher.match_player ();
+	// If you @remote to a player, try to go to the player's location instead.
+	loc = where_matcher.match_result();
+	if ((loc >= 0) && (loc < db.get_top()) && (Typeof(loc) == TYPE_PLAYER))
+	{
+		loc = db[loc].get_location();
+	}
+	if ((loc == NOTHING)
 		|| (loc == AMBIGUOUS)
 		|| (loc < 0)
 		|| (loc >= db.get_top ())
