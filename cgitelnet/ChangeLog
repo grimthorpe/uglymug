@@ -1,0 +1,92 @@
+2000-04-07  Arturo Tena  <arturo__at__users.sourceforge.net>
+
+	* src/cgitelnet_msg.cgi.c: debug now the HTML code that is sent to the
+	  browser, and the text that is recieved from telnet.
+
+	* src/cgitelnet_input.cgi.c (show_input_page): Buf fixed, it gives the
+	  focus to the input text.
+
+	* src/cgitelnet.cgi.c (show_login_page): Bug fixed, file it's not
+	  called cgitelnet_login.cgi anymore.
+
+	* src/cgitelnet.cgi.c (main): Create message queue with permissions 610
+	  instead 600, to easier identification.
+
+	* include/cgitelnet_config.h, src/cgitelnet_login.cgi.c,
+	  src/cgitelnet_input.cgi.c, : Changed configuration from defines to
+	  variables, in preparation to readit from the XML file.
+	* src/cgitelnet_input.cgi.c: scroll settings are now configurable.
+
+	* include/cgitelnet_config.h (cgitelnet_config): Added.
+	* TODO, binaries/cgitelnet.xml, src/cgitelnet_config.c: Added.
+
+	* configure.in: configure package support/libxml.
+	* support/libxml/AUTHORS, support/libxml/COPYING,
+	  support/libxml/COPYING.LIB, support/libxml/ChangeLog,
+	  support/libxml/HTMLparser.c, support/libxml/HTMLparser.h,
+	  support/libxml/HTMLtree.c, support/libxml/HTMLtree.h,
+	  support/libxml/INSTALL, support/libxml/Makefile.am,
+	  support/libxml/NEWS, support/libxml/README, support/libxml/SAX.c,
+	  support/libxml/SAX.h, support/libxml/TODO, support/libxml/acconfig.h,
+	  support/libxml/autogen.sh, support/libxml/config.guess,
+	  support/libxml/config.sub, support/libxml/configure.in,
+	  support/libxml/debugXML.c, support/libxml/debugXML.h,
+	  support/libxml/encoding.c, support/libxml/encoding.h,
+	  support/libxml/entities.c, support/libxml/entities.h,
+	  support/libxml/error.c, support/libxml/install-sh,
+	  support/libxml/ltconfig, support/libxml/ltmain.sh,
+	  support/libxml/missing, support/libxml/mkinstalldirs,
+	  support/libxml/nanoftp.c, support/libxml/nanoftp.h,
+	  support/libxml/nanohttp.c, support/libxml/nanohttp.h,
+	  support/libxml/parser.c, support/libxml/parser.h,
+	  support/libxml/parserInternals.h, support/libxml/testHTML.c,
+	  support/libxml/testSAX.c, support/libxml/testXPath.c,
+	  support/libxml/tester.c, support/libxml/tree.c,
+	  support/libxml/tree.h, support/libxml/valid.c,
+	  support/libxml/valid.h, support/libxml/win32config.h.in,
+	  support/libxml/xlink.c, support/libxml/xlink.h,
+	  support/libxml/xml-config.in, support/libxml/xml-error.h,
+	  support/libxml/xmlConf.sh.in, support/libxml/xmlIO.c,
+	  support/libxml/xmlIO.h, support/libxml/xmlmemory.c,
+	  support/libxml/xmlmemory.h, support/libxml/xpath.c,
+	  support/libxml/xpath.h: Added.
+
+2000-04-03  Arturo Tena  <arturo__at__users.sourceforge.net>
+
+	* binaries, binaries/README: Added.
+	* src/Makefile.am: Display binaries/README instead custom message.
+
+2000-04-02  Arturo Tena  <arturo__at__users.sourceforge.net>
+
+	* configure.in, autogen.sh, NEWS, Makefile.am, AUTHORS: Added.
+
+	* VERSION, Makefile: Removed.
+
+	* support, support/Makefile.am, support/cgilib,
+	  support/cgilib/Makefile.am: Added
+	* cgi.h, cgi.c, cookies.c: Moved to support/cgilib.
+
+	* include, include/cgitelnet_config.h: Added.
+
+	* cgitelnet_login.c, cgitelnet_input.c, cgitelnet_msg.c: Moved to src.
+	* src, src/Makefile.am: Added.
+
+2000-03-29  Arturo Tena  <arturo__at__users.sourceforge.net>
+
+	* VERSION: stated this is a proof of concept.
+
+	* Released 0.1.0-PROOF-OF-CONCEPT.
+
+2000-03-29  Arturo Tena  <arturo__at__users.sourceforge.net>
+
+	* Makefile, README, VERSION, cgi.c, cgi.h, cgitelnet_config.h,
+	  cgitelnet_input.c, cgitelnet_login.c, cgitelnet_msg.c,
+          cookies.c: Added.
+
+2000-03-29  Arturo Tena  <arturo__at__users.sourceforge.net>
+
+	* ChangeLog: Added.
+	* COPYING: Added.
+	* www, www/cgitelnet.html, www/debug_1.html, www/index.html,
+          www/HOWTO-PUBLISH: Added.
+

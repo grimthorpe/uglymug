@@ -1,0 +1,9 @@
+* fix bug: cgitelnet_msg takes all the cpu on the server.
+* fix bug: leaked resources.
+* add: on-the-fly configuration, using a web page.
+* add: use telnet, ssh* or any other client*.
+	(* you need the client program installed and running,
+	   this may need platform-specific calls).
+* use autoconf/automake for easy, standard and automatic configuration and compilation.
+* homogenize the use of <pre> according if it is using fixed font
+* fix bug: indentation when using tabs (like in "ls")

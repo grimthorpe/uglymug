@@ -1,0 +1,102 @@
+
+NOTE this program is entirely based on the CVS code in:
+http://cgitelnet.sourceforge.net/
+
+I have attempted to contact the author, but had no response.
+
+I needed this program for the local project, and wanted to modify it.
+I believe that the changes I have made (at time of writing) are 
+significant and worthwhile, and almost without exception useful outside
+the local context.
+
+Below is the original readme, I will include all further details
+in README.UglyCODE
+
+JPK (Thu Jan 31 13:32:52 GMT 2002)
+-- 
+
+
+
+
+NOTE:
+     THIS PROGRAM IS A PROOF OF CONCEPT. AS SUCH, IT IS UNSTABLE AND
+     IT HAS MANY BUGS. DON'T EVEN THINK TO USE IT IN PRODUCTION SYSTEMS.
+
+     If you want it completed, visit http://cgitelnet.sourceforge.net/
+     to find out how.
+
+--
+
+
+cgitelnet - cgi gateway for telnet
+Copyright (C) 1999, 2000  Roberto Arturo Tena Sánchez
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+The included file 'COPYING' is a copy of the GNU General Public License.
+
+--
+
+
+PREREQUISITES: You must have an working network installation,
+               a working Web server cappable to execute CGI's
+               and a working copy of the UNIX program "telnet".
+
+BEFORE COMPILE (Optional): See in the file "cgitelnet_config.h" if there are
+               something that you want to change.
+
+TO COMPILE:    You should just need to do 'make' in order to compile
+               the CGI's.
+
+               The name of the CGI's are: 'cgitelnet_login.cgi',
+               'cgitelnet_msg.cgi', and 'cgitelnet_input.cgi'.  
+
+TO INSTALL:    1) Copy the three CGI's in the directory where execution
+                  of CGI's are allowed.
+
+               2) In your Web page write a link like this:
+
+<A HREF="http://www.yourserver.com/cgi-bin/cgitelnet_login.cgi">cgitelnet</A>
+
+
+--
+
+
+Home page: http://cgitelnet.sourceforge.net/
+
+
+--
+
+
+Note: cgitelnet uses the files 'cgi.c', 'cgi.h' and 'cookies.c', which are part of "The CGI Library" (cgilib 0.5) (from http://www.infodrom.north.de/cgilib/), which have the following text:
+
+cgi.c - Some simple routines for CGI programming
+Copyright (c) 1996-9  Martin Schulze <joey@infodrom.north.de>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111, USA.
+
