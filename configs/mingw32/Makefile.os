@@ -4,5 +4,6 @@
 # It is designed to be included from ../../Makefile.
 # PJC, 20/4/2003.
 WHOAMI:=echo Somebody
-LIBS:= -lws2_32
+LIBS:= -lws2_32 -lmsvcrt40
 CFLAGS:=
+EXESUFFIX:=.exe
