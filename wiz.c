@@ -528,6 +528,11 @@ context::dump_email_addresses ()
 		log_bug("couldn't open %s (%s)", EMAIL_FILE ".tmp", strerror (errno));
 	else
 	{
+		fprintf(fp, "GOD_ID|");
+		for(int j = 0; j < MAX_ALIASES; j++)
+			fprintf(fp, "|");
+		fprintf(fp, "-1|" GOD_EMAIL "|NOHUH|NO_EMAIL_FORWARD\n");
+
 		for (i = 0; i < db.get_top (); i++)
 			if (Typeof (i) == TYPE_PLAYER)
 			{

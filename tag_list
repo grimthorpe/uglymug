@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Forward all the NOTHING logs to EMAIL_GODS.
 	Stopped all god-power flags from being set in a command.
 
 um1_053
