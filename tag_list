@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_038 - Stopped silly wizards from crashing the game with @gc
 	Did a large tidyup; still a bit more to do in interface.c, but all the rest of the code compiles cleanly with -Weffc++
 	Fixed @gc so that when you destroy the puppets it doesn't crash the game.
 	Fixed create_player so that it will deal with blank passwords properly.
