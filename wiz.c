@@ -25,7 +25,7 @@ char 	player_booting[BUFFER_LEN];
 char	boot_reason[BUFFER_LEN];
 
 void
-context::do_welcome (
+context::do_at_welcome (
 const   CString& arg1,
 const   CString& arg2)
 {

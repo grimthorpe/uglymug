@@ -442,7 +442,7 @@ class	context
 	void				do_at_group		(const CString&, const CString&);
 	void				do_gripe		(const CString&, const CString&);
 #ifdef ALIASES
-	void				do_unalias		(const CString&, const CString&);
+	void				do_at_unalias		(const CString&, const CString&);
 	void				do_at_alias		(const CString&, const CString&);
 	void				do_at_listaliases	(const CString&, const CString&);
 #endif /* ALIASES */
@@ -565,19 +565,19 @@ class	context
 	void				do_at_success		(const CString&, const CString&);
 	void				do_tell			(const CString&, const CString&);
 	void				do_tellemote		(const CString&, const CString&);
-	void				do_terminal_set		(const CString&, const CString&);
-	void				do_test			(const CString&, const CString&);
-	void				do_truncate		(const CString&, const CString&);
-	void				do_unchpid		(const CString&, const CString&);
-	void				do_unlink		(const CString&, const CString&);
+	void				do_at_terminal		(const CString&, const CString&);
+	void				do_at_test		(const CString&, const CString&);
+	void				do_at_truncate		(const CString&, const CString&);
+	void				do_at_unchpid		(const CString&, const CString&);
+	void				do_at_unlink		(const CString&, const CString&);
 	void				do_unlock		(const CString&, const CString&);
-	void				do_variable		(const CString&, const CString&);
-	void				do_version		(const CString&, const CString&);
-	void				do_volume		(const CString&, const CString&);
-	void				do_volume_limit		(const CString&, const CString&);
-	void				do_wall			(const CString&, const CString&);
+	void				do_at_variable		(const CString&, const CString&);
+	void				do_at_version		(const CString&, const CString&);
+	void				do_at_volume		(const CString&, const CString&);
+	void				do_at_volume_limit	(const CString&, const CString&);
+	void				do_at_wall		(const CString&, const CString&);
 	void				do_at_warn		(const CString&, const CString&);
-	void				do_welcome		(const CString&, const CString&);
+	void				do_at_welcome		(const CString&, const CString&);
 	void				do_whisper		(const CString&, const CString&);
 	void				do_who			(const CString&, const CString&);
 #endif	/* !NO_GAME_CODE */

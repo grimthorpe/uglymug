@@ -1095,7 +1095,7 @@ const	CString& )
 }
 
 void
-context::do_unlink (
+context::do_at_unlink (
 const	CString& name,
 const	CString& )
 
@@ -1792,7 +1792,7 @@ const	CString& value)
 }
 
 void
-context::do_volume (
+context::do_at_volume (
 const	CString& object,
 const	CString& volume)
 {
@@ -1873,7 +1873,7 @@ const	CString& volume)
 }
 
 void
-context::do_volume_limit (
+context::do_at_volume_limit (
 const	CString& object,
 const	CString& volume_limit)
 {

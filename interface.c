@@ -4761,7 +4761,7 @@ const	CString& )
 
 
 void
-context::do_truncate(
+context::do_at_truncate(
 const CString& plist,
 const CString& string)
 {
@@ -4808,7 +4808,7 @@ const CString& string)
 			notify_colour(player, player, COLOUR_MESSAGES, "(Warning): %d player%s that you do not control so did not get underlined to.", error_count, (error_count==1) ? " is in a room" : "s are in rooms");
 	}
 }
-void context::do_terminal_set(const CString& command, const CString& arg)
+void context::do_at_terminal(const CString& command, const CString& arg)
 {
 	struct descriptor_data *d;
 

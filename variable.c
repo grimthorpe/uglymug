@@ -308,7 +308,7 @@ const	CString& val)
 }
 
 void
-context::do_test (
+context::do_at_test (
 const	CString& arg1,
 const	CString& arg2)
 {

@@ -258,25 +258,25 @@ command_details			command_table [] =
 	{"@stats",		&context::do_at_stats,		NO_COMMAND_FLAGS},
 	{"@success",		&context::do_at_success,	NO_COMMAND_FLAGS},
 	{"@teleport",		&context::do_at_location,	LEGAL_COMMAND},
-	{"@terminal",		&context::do_terminal_set,	NO_COMMAND_FLAGS},
-	{"@test",		&context::do_test,		LEGAL_COMMAND},
+	{"@terminal",		&context::do_at_terminal,	NO_COMMAND_FLAGS},
+	{"@test",		&context::do_at_test,		LEGAL_COMMAND},
 	{"@true",		&context::do_at_true,		LEGAL_COMMAND},
-	{"@truncate",		&context::do_truncate,		LEGAL_COMMAND},
+	{"@truncate",		&context::do_at_truncate,	LEGAL_COMMAND},
 #ifdef ALIASES
-	{"@unalias",		&context::do_unalias,		NO_COMMAND_FLAGS},
+	{"@unalias",		&context::do_at_unalias,	NO_COMMAND_FLAGS},
 #endif /* ALIASES */
 	{"@uncensor",		&context::do_at_uncensor,	LEGAL_COMMAND},
-	{"@unchpid",		&context::do_unchpid,		LEGAL_COMMAND},
+	{"@unchpid",		&context::do_at_unchpid,	LEGAL_COMMAND},
 	{"@unexclude",		&context::do_at_unexclude,	LEGAL_COMMAND},
-	{"@unlink",		&context::do_unlink,		NO_COMMAND_FLAGS},
+	{"@unlink",		&context::do_at_unlink,		NO_COMMAND_FLAGS},
 	{"@unlock",		&context::do_at_unlock,		NO_COMMAND_FLAGS},
-	{"@variable",		&context::do_variable,		NO_COMMAND_FLAGS},
-	{"@version",		&context::do_version,		NO_COMMAND_FLAGS},
-	{"@volume",		&context::do_volume,		NO_COMMAND_FLAGS},
-	{"@volumelimit",	&context::do_volume_limit,	NO_COMMAND_FLAGS},
-	{"@wall",		&context::do_wall,		FULL_COMPARE},
+	{"@variable",		&context::do_at_variable,	NO_COMMAND_FLAGS},
+	{"@version",		&context::do_at_version,	NO_COMMAND_FLAGS},
+	{"@volume",		&context::do_at_volume,		NO_COMMAND_FLAGS},
+	{"@volumelimit",	&context::do_at_volume_limit,	NO_COMMAND_FLAGS},
+	{"@wall",		&context::do_at_wall,		FULL_COMPARE},
 	{"@warn",		&context::do_at_warn,		FULL_COMPARE},
-	{"@welcomer",		&context::do_welcome,		NO_COMMAND_FLAGS},
+	{"@welcomer",		&context::do_at_welcome,	NO_COMMAND_FLAGS},
 	{"@who",		&context::do_at_who,		NO_COMMAND_FLAGS},
 	{"@with",		&context::do_at_with,		NO_COMMAND_FLAGS},
 	/* Basic commands */
@@ -311,7 +311,7 @@ command_details			command_table [] =
 	{"read",		&context::do_look_at,		NO_COMMAND_FLAGS},
 	{"say",			&context::do_say,		NO_COMMAND_FLAGS},
 	{"score",		&context::do_score,		NO_COMMAND_FLAGS},
-	{"set",			&context::do_terminal_set,	FULL_COMPARE},
+	{"set",			&context::do_at_terminal,	FULL_COMPARE},
 	{"swho",		&context::do_swho,		NO_COMMAND_FLAGS},
 	{"take",		&context::do_get,		NO_COMMAND_FLAGS},
 	{"tell",		&context::do_tell,		NO_COMMAND_FLAGS},
@@ -399,7 +399,7 @@ const	char	*key)
 
 
 void
-context::do_version (
+context::do_at_version (
 const	CString&,
 const	CString&)
 

@@ -840,11 +840,11 @@ const	CString& value)
 
 
 /*
- * do_variable: creates a variable called name.
+ * do_at_variable: creates a variable called name.
  * No colour added cos @var is obsolete :-)
 */
 void
-context::do_variable (
+context::do_at_variable (
 const	CString& variable_name,
 const	CString& value)
 {

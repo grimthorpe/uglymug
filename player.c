@@ -314,7 +314,7 @@ const	CString& string)
 }
 
 void
-context::do_unalias (
+context::do_at_unalias (
 const	CString& person,
 const	CString& string)
 

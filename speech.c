@@ -350,7 +350,7 @@ const	CString& arg2)
 
 
 void
-context::do_wall (
+context::do_at_wall (
 const	CString& arg1,
 const	CString& arg2)
 
