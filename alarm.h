@@ -23,14 +23,14 @@
 class	Pending
 {
     private:
-	Pending(const Pending&); // DUMMY
-	Pending& operator=(const Pending&); // DUMMY
+	Pending(const Pending&); ///< DUMMY - not allowed
+	Pending& operator=(const Pending&); ///< DUMMY - not allowed
 
-	Pending			*previous;
-	Pending			*next;
-	dbref			object;
+	Pending			*previous;	///< Link to previous Pending in list.
+	Pending			*next;		///< Link to next Pending in list.
+	dbref			object;		///< Object being stored in this node. 
     protected:
-	virtual	bool		operator<	(Pending &rhs)	{ return (object < rhs.object); }
+	virtual	bool		operator<	(Pending &rhs)	{ return (object < rhs.object); }	///< Default comparison operator; override in subclasses.
 				Pending		(dbref object);
     public:
 	void			insert_into	(Pending **list);
@@ -49,7 +49,7 @@ class	Pending_alarm
 : public Pending
 {
     private:
-	time_t			time_to_execute;
+	time_t			time_to_execute;	///< Time in seconds since epoch when this needs running.
 	bool			operator<	(Pending &rhs)	{ return (time_to_execute < (*(Pending_alarm*) &rhs).time_to_execute); }
     public:
 				Pending_alarm	(dbref object, time_t firing_time);

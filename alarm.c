@@ -1,4 +1,8 @@
 /* static char SCCSid[] = "@(#)alarm.c	1.11\t1/5/95"; */
+/** \file
+ * Implementation of alarms, Pending and Pending_alarm.
+ */
+
 #include "copyright.h"
 
 #include <time.h>
@@ -21,8 +25,12 @@
 
 
 /*
- * db_patch_alarms: Patch alarms in the database into the pending queue of alarms.
- *	Also does odd other things.
+ * Patch alarms in the database into the pending queue of alarms.
+ *	Also amended to do other things:
+ *	- Disconnect apparently-connected players;
+ *	- @connect each connected puppet;
+ *	- Build up the command cache;
+ *	- Regenerate the list of what references what.
  */
 
 void
@@ -93,6 +101,12 @@ db_patch_alarms ()
 }
 
 
+/**
+ * Increment *ptr past arbitrary whitespace followed by a positive integer. Return the integer.
+ *	Also reads '*' as -1.
+ *	Used to read the values from an alarm's description.
+ */
+
 static int
 eat_space_and_number (
 const	char	**ptr)
@@ -117,6 +131,11 @@ const	char	**ptr)
 	return (number);
 }
 
+
+/*
+ * Given an input string containing an absolute or relative time, return an int (TODO: time_t)
+ *	of when the time will next come up given the current system clock.
+ */
 
 static long
 time_of_next_cron (
@@ -189,6 +208,11 @@ const	String& string)
 	return (now);
 }
 
+
+/**
+ * Add the alarm at the specified dbref into the list of pending alarms.
+ */
+
 void
 Database::pend (
 dbref	alarm)
@@ -201,6 +225,10 @@ dbref	alarm)
 }
 
 
+/*
+ * If alarm exists in the list of pending alarms, remove it from that list.  If not, do nothing.
+ */
+
 void
 Database::unpend (
 dbref	alarm)
@@ -209,6 +237,12 @@ dbref	alarm)
 		alarms->remove_object ((Pending **) &alarms, alarm);
 }
 
+
+/**
+ * Emit a list of pending alarms.  Unusually for an @? command, this lists direct to the
+ * player rather than to a string. TODO: Make a version that can be interrogated by other
+ * commands.
+ */
 
 void
 context::do_query_pending (
@@ -250,6 +284,12 @@ const	String&)
 }
 
 
+/*
+ * If there is an alarm on the pending list that should have fired before now, remove it from
+ *	the pending list and return it.  Otherwise return NOTHING.  Designed to be called
+ *	multiple times until it returns NOTHING.
+ */
+
 dbref
 Database::alarm_pending (
 time_t	now)
@@ -271,6 +311,10 @@ time_t	now)
 }
 
 
+/**
+ * Create an unlinked Pending that knows its object.
+ */
+
 Pending::Pending (
 dbref	obj)
 
@@ -282,9 +326,9 @@ dbref	obj)
 }
 
 
-/*
+/**
  * doubly-linked-list maintenance with a sting in the tail - namely
- *	that we're maintaining the head of the list as well.
+ *	that we're maintaining the head of the list as well.  TODO: Better comment.
  */
 
 void
@@ -315,6 +359,10 @@ Pending	**list)
 }
 
 
+/**
+ * remove_from: Remove and return this item. *list is the previous pointer (i.e. the pointer to this item).
+ */
+
 Pending *
 Pending::remove_from (
 Pending	**list)
@@ -327,6 +375,10 @@ Pending	**list)
 	return (this);
 }
 
+
+/**
+ * Try to remove the candidate dbref from list.  Tail-recursive.
+ */
 
 void
 Pending::remove_object (
@@ -345,6 +397,10 @@ dbref	candidate)
 		next->remove_object (&((*list)->next), candidate);
 }
 
+
+/**
+ * Construct a new unlinked Pending_alarm with the given object and firing time.
+ */
 
 Pending_alarm::Pending_alarm (
 dbref	obj,
