@@ -12,6 +12,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_026 - Grimthorpe, Reaps - tagged by Reaps
     Made @email, @alias and @unalias write out the email address list
     each time they are used.
     Allowed XBuilder to increase recursion limit up to Wiz limit
