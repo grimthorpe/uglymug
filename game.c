@@ -828,7 +828,8 @@ const	char	*original_command)
 	char		*q;
 	const	char	*p;
 	char		smashed_original [MAX_COMMAND_LEN];
-	char		command [2 * MAX_COMMAND_LEN];
+	char		command_buf [2 * MAX_COMMAND_LEN];
+	char		*command = command_buf;
 	Boolean		command_done = False;
 	int		legal_command = 0;
 	dbref		tracer;
@@ -981,6 +982,15 @@ const	char	*original_command)
            braced command - eg {${commandlist[blah]}} where 'blah' doesn't exist within
            commandlist. This then bombs. If you get other crashes this may need a more general
 	   fix but I -think- this should do it. - Duncan */
+	/* It isn't good enough, because variable expansion can leave us with just a space
+	   so we need to get rid of leading spaces first - Adrian */
+
+	/* find command word- This is necessary as variable_substitution may have
+	   left us with a command such as: ' arg1 arg2' if the substitution returned
+	   a blank, as described above. We want to skip that space. */
+
+	for (; *command && isspace(*command); command++)
+		;
 
 	if ((command==NULL) || (*command=='\0'))
 	{
@@ -1025,7 +1035,6 @@ const	char	*original_command)
 	}
 	else
 	{
-		char		*cmd;
 		char		*a1;
 		char		*a2 = NULL;	/* In case we don't set it later */
 		char		*endarg;
@@ -1033,16 +1042,9 @@ const	char	*original_command)
 		/* parse arguments */
 		endarg = command + strlen(command);	/* Get the end of the command line */
 
-		/* find command word- This is necessary as variable_substitution may have
-                   left us with a command such as: ' arg1 arg2' if the substitution returned
-                   a blank, as described above. We want to skip that space. */
-
-		for (cmd=command; *cmd && isspace(*cmd); cmd++)
-			;
-
 		/* find arg1 */
 		/* move over command word */
-		for (a1 = cmd; *a1 && !isspace(*a1); a1++)
+		for (a1 = command; *a1 && !isspace(*a1); a1++)
 			;
 
 		/* NUL-terminate command word */
@@ -1074,7 +1076,7 @@ const	char	*original_command)
 			}
 		}
 
-		set_simple_command (cmd);
+		set_simple_command (command);
 		set_arg1 (a1);
 		set_arg2 (a2);
 	}

@@ -26,7 +26,7 @@
 
 #define	CHOPSIG		SIGUSR1		/* Signal caught by command */
 #define	usage()		fprintf(stderr,"Usage: %s <output file> <cut file>\n",argv[0])
-#define PIDFILE         "/usr/home/uglymug/ugly/logs/scat.pid"
+#define PIDFILE         "scat.pid"
 
 char *outputfile;
 char *cutfile;
@@ -36,18 +36,19 @@ FILE *out=NULL;
 extern char *sys_errlist[];
 #endif
 
+struct sigaction handle;
+
 int main(int argc, char *argv[])
 {
 char l[1024];
 FILE *pidfile=NULL;
 int tmp;
 
+
+	handle.sa_handler = handler;
+	handle.sa_flags = SA_RESTART;
 	/* First things first;: set up the signal handler */
-	if((int)signal(CHOPSIG, handler) < 0)
-	{
-		perror("signal() failed");
-		exit(errno);
-	}
+	sigaction(CHOPSIG, &handle, NULL);
 
 	/* output process id */
 	if((pidfile=fopen(PIDFILE,"w"))==NULL)
@@ -89,6 +90,8 @@ void handler()
 {
 	char command[1024];
 
+	fprintf(stderr, "Inside handler\n");
+
 	/* Close the last file (if any), open the next one */
 	if(out!=NULL)
 	{
@@ -103,4 +106,5 @@ void handler()
 		fprintf(stderr,"scat: can't create new output file '%s' (%s)",outputfile,sys_errlist[errno]);
 		exit(errno);
 	}
+	sigaction(CHOPSIG, &handle, NULL);
 }

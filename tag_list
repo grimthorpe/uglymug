@@ -8,6 +8,14 @@ Leave the Name: tag at the top of the file to get
 the correct release tag embedded in the game when you
 build it.
 
+um1_019 - Grimthorpe
+    Collection of updates:
+    Stop the game crashing if we get an almost-empty string after expanding
+    variables.
+    Stop the game making noise with @channel if run from a Silent softcode
+    command.
+    Fix 'scat' so that it works on SysV derived UNIX platforms.
+
 um1_018 - Grimthorpe
     More egg on face. string_match had a NULL string check the wrong
     way around.
