@@ -10,7 +10,7 @@
 #define GETC()		(*sp++)
 #define PEEKC()		(*sp)
 #define UNGETC(c)	(--sp)
-#define RETURN(c)	return;
+#define RETURN(c)	return c;
 #define ERROR(c)	fprintf (stderr, "BUG: Problem with regexp: %d\n", c);
 
 /* static char SCCSid[] = "@(#)regexp.c	1.4\t8/12/94"; */
