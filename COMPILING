@@ -12,14 +12,17 @@ How to compile UglyMUG
    unsupported, read the PORTING file.  If your environment is supported,
    this will tell you a platform type.  Call this $platform.
 
-3. Run:
+3. If you don't want make to spew a load of errors the first time you make it,
+   ensure the builds/$platform directory exists.
+
+4. Run:
      make
    or:
      make all
 
-4. Drink $beverage, while watching the screen warily for errors.
+5. Drink $beverage, while watching the screen warily for errors.
 
-5. Your compiled output should be builds/$platform/netmud, possibly with a
+6. Your compiled output should be builds/$platform/netmud, possibly with a
    suffix such as netmud.exe if your platform requires this.
 
-6. Start at doc/index.html to find out how to use UglyMUG.
+7. Start at doc/index.html to find out how to use UglyMUG.
