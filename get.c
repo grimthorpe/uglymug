@@ -340,8 +340,10 @@ context::do_query_contents (const char *const name, const char *const)
 			case TYPE_ROOM:
 			case TYPE_THING:
 			case TYPE_PLAYER:
-				set_return_string (unparse_for_return (*this, db[thing].get_contents ()));
-				return_status = COMMAND_SUCC;
+				thing = db[thing].get_contents();
+				set_return_string (unparse_for_return (*this, thing));
+				if(thing != NOTHING)
+					return_status = COMMAND_SUCC;
 				break;
 			default:
 				notify_colour(player, player, COLOUR_MESSAGES, "Only Rooms, Things and Players have a contents list.");
@@ -810,8 +812,10 @@ context::do_query_fuses (const char *const name, const char *const)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
-	set_return_string (unparse_for_return (*this, db[thing].get_fuses()));
-	return_status = COMMAND_SUCC;
+	thing = db[thing].get_fuses();
+	set_return_string (unparse_for_return (*this, thing));
+	if(thing != NOTHING)
+		return_status = COMMAND_SUCC;
 }
 
 void
@@ -1133,7 +1137,7 @@ context::do_query_next (const char *const name, const char *const)
 						}
 						else
 						{
-							return_status = COMMAND_SUCC;
+							return_status = COMMAND_FAIL;
 							set_return_string ("NOTHING");
 						}
 					}
@@ -1151,7 +1155,8 @@ context::do_query_next (const char *const name, const char *const)
 					}
 					while(thing != NOTHING && Typeof(thing) != TYPE_DICTIONARY);
 					set_return_string (unparse_for_return (*this, thing));
-					return_status = COMMAND_SUCC;
+					if(thing != NOTHING)
+						return_status = COMMAND_SUCC;
 					return;
 				}
 				break;
@@ -1169,7 +1174,7 @@ context::do_query_next (const char *const name, const char *const)
 						}
 						else
 						{
-							return_status = COMMAND_SUCC;
+							return_status = COMMAND_FAIL;
 							set_return_string ("NOTHING");
 						}
 					}
@@ -1187,7 +1192,10 @@ context::do_query_next (const char *const name, const char *const)
 					}
 					while(thing != NOTHING && Typeof(thing) != TYPE_ARRAY);
 					set_return_string (unparse_for_return (*this, thing));
-					return_status = COMMAND_SUCC;
+					if(thing != NOTHING)
+					{
+						return_status = COMMAND_SUCC;
+					}
 					return;
 				}
 				break;
@@ -1199,7 +1207,8 @@ context::do_query_next (const char *const name, const char *const)
 				}
 				while(thing != NOTHING && Typeof(thing) != TYPE_VARIABLE);
 				set_return_string (unparse_for_return (*this, thing));
-				return_status = COMMAND_SUCC;
+				if(thing != NOTHING)
+					return_status = COMMAND_SUCC;
 				return;
 
 			case TYPE_PROPERTY:
@@ -1209,15 +1218,18 @@ context::do_query_next (const char *const name, const char *const)
 				}
 				while(thing != NOTHING && Typeof(thing) != TYPE_PROPERTY);
 				set_return_string (unparse_for_return (*this, thing));
-				return_status = COMMAND_SUCC;
+				if(thing != NOTHING)
+					return_status = COMMAND_SUCC;
 				return;
 			default:
 				break;
 		}
 	}
 
-	set_return_string (unparse_for_return (*this, db[thing].get_next()));
-	return_status = COMMAND_SUCC;
+	thing = db[thing].get_next();
+	set_return_string (unparse_for_return (*this, thing));
+	if(thing != NOTHING)
+		return_status = COMMAND_SUCC;
 }
 
 
@@ -1621,8 +1633,10 @@ context::do_query_variables (const char *const name, const char *const)
 	if (thing == NOTHING)
 		return;
 
-	set_return_string (unparse_for_return (*this, db[thing].get_variables()));
-	return_status = COMMAND_SUCC;
+	dbref var = db[thing].get_variables();
+	set_return_string (unparse_for_return (*this, var));
+	if(var != NOTHING)
+		return_status = COMMAND_SUCC;
 }
 
 void
@@ -1634,8 +1648,10 @@ context::do_query_properties (const char *const name, const char *const)
 	if (thing == NOTHING)
 		return;
 
-	set_return_string (unparse_for_return (*this, db[thing].get_properties()));
-	return_status = COMMAND_SUCC;
+	dbref var = db[thing].get_properties();
+	set_return_string (unparse_for_return (*this, var));
+	if(var != NOTHING)
+		return_status = COMMAND_SUCC;
 }
 
 void
@@ -1647,8 +1663,10 @@ context::do_query_arrays (const char *const name, const char *const)
 	if (thing == NOTHING)
 		return;
 
-	set_return_string (unparse_for_return (*this, db[thing].get_arrays()));
-	return_status = COMMAND_SUCC;
+	dbref var = db[thing].get_arrays();
+	set_return_string (unparse_for_return (*this, var));
+	if(var != NOTHING)
+		return_status = COMMAND_SUCC;
 }
 
 void
@@ -1660,8 +1678,10 @@ context::do_query_dictionaries (const char *const name, const char *const)
 	if (thing == NOTHING)
 		return;
 
-	set_return_string (unparse_for_return (*this, db[thing].get_dictionaries()));
-	return_status = COMMAND_SUCC;
+	dbref var = db[thing].get_dictionaries();
+	set_return_string (unparse_for_return (*this, var));
+	if(var != NOTHING)
+		return_status = COMMAND_SUCC;
 }
 
 
