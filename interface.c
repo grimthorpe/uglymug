@@ -2461,7 +2461,7 @@ int i;
 			
 			if(terminal_xpos >= terminal_width)
 			{
-				i = 0;
+				i = 1; // Fix a 'bug' in tinyfugue that wraps on last char
 				while ((a>b) && (terminal_xpos>0) && (*a != ' '))
 				{
 					i++;
