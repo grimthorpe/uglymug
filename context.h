@@ -371,7 +371,7 @@ public:
 		String_pair		*locate_innermost_arg	(const String& name)	const;
 #ifndef	NO_GAME_CODE
 	bool				allow_another_step	();
-	void				process_basic_command	(const char *);
+	void				process_basic_command	(const String&);
 	String				sneakily_process_basic_command	(const String&, Command_status &);
 	bool				can_do_compound_command	(const String& command, const String& arg1, const String& arg2);
 	bool				can_override_command (const String& command, const String& arg1, const String& arg2);

@@ -1175,7 +1175,7 @@ const	String& command)
 //	moveto (player, loc);
 
 	const size_t old_depth = call_stack.size ();
-	process_basic_command (command.c_str());
+	process_basic_command (command);
 	while(call_stack.size () > old_depth)
 		step();
 

@@ -93,7 +93,7 @@ extern void		count_down_abort_fuses	(context &c, dbref fuse);
 extern	String		format_alias_string	(dbref thing);
 /* From game.c */
 extern	void		mud_time_sync		();
-extern	void		mud_command		(dbref player, const char *command);
+extern	void		mud_command		(dbref player, const String& command);
 extern	void		mud_run_dotcommand	(dbref player, const String& command);
 extern	void		mud_connect_player	(dbref player);
 extern	void		mud_disconnect_player	(dbref player);

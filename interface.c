@@ -245,8 +245,6 @@ int	iac_we_use[] =
 	-1
 };
 
-void add_to_queue(struct text_queue *q, const char *b, int n);
-
 void
 descriptor_data::do_write(const char * c, int i)
 {
@@ -273,9 +271,9 @@ descriptor_data::do_write(const char * c, int i)
 }
 
 void
-descriptor_data::save_command(const char* command)
+descriptor_data::save_command(String command)
 {
-	add_to_queue(&input, command, strlen(command)+1);
+	input.push_back(command);
 }
 
 struct	descriptor_data		*descriptor_list = NULL;
@@ -357,22 +355,17 @@ private:
 	LogCommand(const LogCommand&); // DUMMY
 	LogCommand& operator=(const LogCommand&); // DUMMY
 
-	char*	command;
+	String	command;
 	int	player;
 public:
-	LogCommand(int _player, const char*_command) : command(0), player(_player)
+	LogCommand(int _player, String _command) : command(_command), player(_player)
 	{
-		if(_command)
-			command = strdup(_command);
-		else
-			command = strdup("<null>");
 	}
 	~LogCommand()
 	{
-		FREE(command);
 	}
 	int get_player() { return player; }
-	const char* get_command() { return command; }
+	String get_command() { return command; }
 };
 
 LogCommand* LastCommands[MAX_LAST_COMMANDS];
@@ -1177,12 +1170,12 @@ void mud_main_loop(int argc, char** argv)
 			  && (!d->IS_FAKED()) /* Don't forget to exclude NPCs either */
 			  && (!d->IS_HALFQUIT())) /* Or HALFQUIT people */
 			{
-				if (d->input.head)
+				if (d->input.begin() != d->input.end())
 					timeout = slice_timeout;
 				else
 					FD_SET (d->get_descriptor(), &input_set);
 
-				if (d->output.head)
+				if (!d->output.empty())
 					FD_SET (d->get_descriptor(), &output_set);
 			}
 		}
@@ -1298,7 +1291,7 @@ void mud_main_loop(int argc, char** argv)
 						}
 					}
 					if (FD_ISSET (d->get_descriptor(), &output_set))
-					if (d->output.head)
+					if (!d->output.empty())
 						if (!d->process_output ())
 						{
 							if(d->get_player()) d->announce_player(ANNOUNCE_DISCONNECTED);
@@ -2127,7 +2120,6 @@ int			chanl)
 	_output_prefix(),
 	_output_suffix(),
 	connect_attempts(3),
-	output_size(0),
 	output(),
 	input(),
 	raw_input(NULL),
@@ -2250,61 +2242,42 @@ SOCKET make_socket(int port, unsigned long inaddr)
 	return s;
 }
 
-struct text_block *make_text_block(const char *s, int n)
+int
+text_buffer::flush(unsigned int min_to_drop)
 {
-	struct text_block *p;
-
-	MALLOC(p, struct text_block, 1);
-	MALLOC(p->buf, char, n);
-	memcpy (p->buf, s, n);
-	p->nchars = n;
-	p->start = p->buf;
-	p->nxt = NULL;
-	return p;
-}
-
-void free_text_block (struct text_block *t)
-{
-	FREE (t->buf);
-	FREE ((char *) t);
-	t = NULL;
-}
-
-void add_to_queue(struct text_queue *q, const char *b, int n)
-{
-	struct text_block *p;
-
-	if (n == 0)
-		return;
-
-	p = make_text_block (b, n);
-	p->nxt = NULL;
-	*q->tail = p;
-	q->tail = &p->nxt;
-}
-
-int flush_queue(struct text_queue *q, int n)
-{
-	struct text_block *p;
-	int really_flushed = 0;
-	
-	n += strlen(flushed_message);
-
-	while (n > 0 && (p = q->head))
+	min_to_drop += strlen (flushed_message);
+	if(min_to_drop > m_data.length())
 	{
-		n -= p->nchars;
-		really_flushed += p->nchars;
-		q->head = p->nxt;
-		free_text_block (p);
+		min_to_drop = m_data.length();
 	}
-	p = make_text_block(flushed_message, strlen(flushed_message));
-	p->nxt = q->head;
-	q->head = p;
-	if (!p->nxt)
-	    q->tail = &p->nxt;
+	String tmp(flushed_message);
+	m_data = tmp + (m_data.c_str() + min_to_drop);
 
-	really_flushed -= p->nchars;
-	return really_flushed;
+	return min_to_drop;
+}
+
+int
+text_buffer::write(int fd)
+{
+int written;
+int towrite = m_data.length();
+const char* data = m_data.c_str();
+	do
+	{
+		written = ::write(fd, (const void*)data, towrite);
+		if(written < 0)
+		{
+			String tmp = m_data;
+			m_data = String(data, towrite);
+			return written;
+		}
+		towrite -= written;
+		data += written;
+	}
+	while(towrite > 0);
+
+	m_data = NULLSTRING;
+	return 1;
 }
 
 int
@@ -2318,9 +2291,9 @@ descriptor_data::queue_write(const char *b, int n)
 
 	if(!terminal.noflush)
 	{
-		space = MAX_OUTPUT - output_size - n;
+		space = MAX_OUTPUT - output.size() - n;
 		if (space < 0)
-			output_size -= flush_queue(&output, -space);
+			output.flush(-space);
 	}
 	if(terminal.sevenbit)
 	{
@@ -2328,8 +2301,7 @@ descriptor_data::queue_write(const char *b, int n)
 			scratch_buffer[i] = ((unsigned char) b[i] >= 0x7f) ? terminal.sevenbit : b[i];
 		buf = scratch_buffer;
 	}
-	add_to_queue (&output, buf, n);
-	output_size += n;
+	output.add(buf, n);
 
 	if (!get_descriptor())
 		outgoing_conc_data_waiting = 1;
@@ -2577,50 +2549,34 @@ char *a,*a1,*b;
 int
 descriptor_data::process_output()
 {
-	struct text_block **qp, *cur;
 	int cnt;
 
-	for (qp = &output.head; (cur = *qp);)
+	if(IS_FAKED() || IS_HALFQUIT())
 	{
-		if(IS_FAKED() || IS_HALFQUIT())
+		cnt = output.size();
+	}
+	else if (get_descriptor())
+	{
+		if(output.write(get_descriptor()) < 0)
 		{
-			cnt = cur->nchars;
-		}
-		else if (get_descriptor())
-		{
-			cnt = write (get_descriptor(), cur -> start, cur -> nchars);
-			if (cnt < 0)
-			{
-				if (errno == EWOULDBLOCK)
-					return 1;
+			if (errno == EWOULDBLOCK)
+				return 1;
 
-				return 0;
-			}
+			return 0;
 		}
+	}
 #ifdef CONCENTRATOR
-		else
+*** BUG ME *** (Grimthorpe) Disabled at the moment; nobody uses it though.
+	else
+	{
+		if ((cnt = send_concentrator_data (channel, cur->start, cur->nchars))<1)
 		{
-			if ((cnt = send_concentrator_data (channel, cur->start, cur->nchars))<1)
-			{
-				log_bug("Concentrator disconnect in write() (process_output)");
-				return 0;
-			}
+			log_bug("Concentrator disconnect in write() (process_output)");
+			return 0;
 		}
+	}
 #endif
 
-		output_size -= cnt;
-		if (cnt == cur -> nchars)
-		{
-			if (!cur -> nxt)
-			output.tail = qp;
-			*qp = cur -> nxt;
-			free_text_block (cur);
-			continue;		/* do not adv ptr */
-		}
-		cur -> nchars -= cnt;
-		cur -> start += cnt;
-		break;
-	}
 	return 1;
 }
 
@@ -2648,27 +2604,12 @@ void make_nonblocking(int s)
 void
 descriptor_data::freeqs()
 {
-	struct text_block *cur, *next;
+	output.clear();
 
-	cur = output.head;
-	while (cur)
+	while(!input.empty())
 	{
-		next = cur -> nxt;
-		free_text_block (cur);
-		cur = next;
+		input.pop_front();
 	}
-	output.head = NULL;
-	output.tail = &output.head;
-
-	cur = input.head;
-	while (cur)
-	{
-		next = cur -> nxt;
-		free_text_block (cur);
-		cur = next;
-	}
-	input.head = NULL;
-	input.tail = &input.head;
 
 	if (raw_input)
 		FREE (raw_input);
@@ -3024,7 +2965,7 @@ descriptor_data::process_input (int len)
 				backslash_pending = false;
 			}
 			default:
-				if (p < pend && is_printable (*q))
+				if ((p < pend)&& is_printable (*q))
 				{
 charcount++;
 					if (backslash_pending)
@@ -3074,7 +3015,6 @@ process_commands()
 {
 	int			nprocessed;
 	struct	descriptor_data	*d, *dnext;
-	struct	text_block	*t;
 
 	do
 	{
@@ -3082,23 +3022,18 @@ process_commands()
 		for (d = descriptor_list; d; d = dnext)
 		{
 			dnext = d->next;
-			if (d->get_connect_state() != DESCRIPTOR_LIMBO && d -> quota > 0 && (t = d -> input.head))
+			if (d->get_connect_state() != DESCRIPTOR_LIMBO && d -> quota > 0 && (!d->input.empty()))
 			{
 				d -> quota--;
 				nprocessed++;
-				if (!d->do_command (t -> start))
+				String command = d->input.front();
+				d->input.pop_front();
+				if (!d->do_command (command))
 				{
 					if (d->get_connect_state() == DESCRIPTOR_CONNECTED)
 						d->announce_player (ANNOUNCE_DISCONNECTED);
 					d->NUKE_DESCRIPTOR ();
 				}
-//				else
-//				{
-					d -> input.head = t -> nxt;
-					if (!d -> input.head)
-						d -> input.tail = &d -> input.head;
-					free_text_block (t);
-//				}
 			}
 		}
 	}
@@ -3149,11 +3084,11 @@ const	String& )
 
 	
 int
-descriptor_data::do_command (const char *command)
+descriptor_data::do_command (String command)
 {
 	FILE		*fp;
 
-	if(strcmp (command, QUIT_COMMAND) == 0)
+	if(strcmp (command.c_str(), QUIT_COMMAND) == 0)
 	{
 		if (IS_FAKED())
 			return 1; // NPC's can't QUIT!
@@ -3166,7 +3101,7 @@ descriptor_data::do_command (const char *command)
 #endif
 		return 0;
 	}
-	else if(strcmp (command, HALFQUIT_COMMAND) == 0)
+	else if(strcmp (command.c_str(), HALFQUIT_COMMAND) == 0)
 	{
 		if(IS_FAKED())
 			return 1; // NPC's can't HALFQUIT!
@@ -3179,18 +3114,18 @@ descriptor_data::do_command (const char *command)
 		}
 		write(get_descriptor(), HALFQUIT_FAIL_MESSAGE, strlen(HALFQUIT_FAIL_MESSAGE));
 	}
-	else if(strcmp (command, WHO_COMMAND) == 0)
+	else if(strcmp (command.c_str(), WHO_COMMAND) == 0)
 	{
 		output_prefix();
 		dump_users (NULL, (IS_CONNECTED() && (db[get_player()].get_flag(FLAG_HOST))) ? DUMP_WIZARD : 0);
 		output_suffix();
 	}
-	else if(strcmp (command, IDLE_COMMAND) == 0)
+	else if(strcmp (command.c_str(), IDLE_COMMAND) == 0)
 	{
 		queue_string ("Idle time increased to 3 minutes.\n");
 		last_time = (time_t) time(NULL) - IDLE_TIME_INCREASE;
 	}
-	else if(strcmp (command, INFO_COMMAND) == 0)
+	else if(strcmp (command.c_str(), INFO_COMMAND) == 0)
 	{
 		if ((fp=fopen (HELP_FILE, "r"))==NULL)
 			log_bug("%s: %s",HELP_FILE, strerror (errno));
@@ -3201,10 +3136,10 @@ descriptor_data::do_command (const char *command)
 		}
 		fclose(fp);
 	}
-	else if (strncmp (command, PREFIX_COMMAND, strlen (PREFIX_COMMAND)) == 0)
-		set_output_prefix(command+strlen(PREFIX_COMMAND));
-	else if (strncmp (command, SUFFIX_COMMAND, strlen (SUFFIX_COMMAND)) == 0)
-		set_output_suffix(command+strlen(SUFFIX_COMMAND));
+	else if (strncmp (command.c_str(), PREFIX_COMMAND, strlen (PREFIX_COMMAND)) == 0)
+		set_output_prefix(command.c_str()+strlen(PREFIX_COMMAND));
+	else if (strncmp (command.c_str(), SUFFIX_COMMAND, strlen (SUFFIX_COMMAND)) == 0)
+		set_output_suffix(command.c_str()+strlen(SUFFIX_COMMAND));
 	else
 	{
 		if (IS_CONNECTED())
@@ -3223,7 +3158,7 @@ descriptor_data::do_command (const char *command)
 		}
 		else
 		{
-			return check_connect (command);
+			return check_connect (command.c_str());
 		}
 	}
 	return 1;
@@ -3647,7 +3582,7 @@ int	sig)
 		LogCommand* l = LastCommands[j];
 		if(l)
 		{
-			log_message("LASTCOMMAND:%d Player|%d|:%s", MAX_LAST_COMMANDS - i, l->get_player(), l->get_command());
+			log_message("LASTCOMMAND:%d Player|%d|:%s", MAX_LAST_COMMANDS - i, l->get_player(), l->get_command().c_str());
 		}
 	}
 	panic(message);

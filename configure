@@ -26,7 +26,7 @@ for i in /usr /usr/local /opt/pcre; do
   fi
 done
 
-echo # Local machine configuration. > $1
+echo '# Local machine configuration.' > $1
 echo LD_REGEXP=$LD_LIBPCRE >> $1
 echo CC_REGEXP=$CC_LIBPCRE >> $1
 

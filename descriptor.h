@@ -8,6 +8,7 @@
 #include "copyright.h"
 #include "db.h"
 #include "context.h"
+#include <list>
 
 enum connect_states
 {
@@ -38,28 +39,27 @@ enum announce_states
 
 struct sockaddr_in;
 
-struct text_block
+class text_buffer
 {
-	int		nchars;
-	text_block	*nxt;
-	char		*start;
-	char		*buf;
+public:
+	text_buffer() : m_data(NULLSTRING) {}
+	~text_buffer() {}
 
-	text_block() : nchars(0), nxt(NULL), start(NULL), buf(NULL) {}
+	void add(const char* ptr, int len)
+	{
+		m_data += ptr; //String(ptr, len);
+	}
+
+	int flush(unsigned int min_to_drop);
+	int write(int fd);
+	void clear() { m_data = NULLSTRING; }
+	bool empty() { return !m_data; }
+	int size() { return m_data.length(); }
 private:
-	text_block(const text_block&); // DUMMY
-	text_block& operator=(const text_block&); // DUMMY
-};
+	String	m_data;
 
-struct text_queue
-{
-	text_block	*head;
-	text_block	**tail;
-
-	text_queue() : head(NULL), tail(&head) {}
-private:
-	text_queue(const text_queue&); // DUMMY
-	text_queue& operator=(const text_queue&); // DUMMY
+	text_buffer(const text_buffer&);
+	text_buffer& operator=(const text_buffer&);
 };
 
 class descriptor_data
@@ -81,9 +81,8 @@ private:
 // Remove this when ready:
 public:
 	int			connect_attempts;
-	int			output_size;
-	struct	text_queue	output;
-	struct	text_queue	input;
+	text_buffer		output;
+	std::list<String>	input;
 	unsigned char		*raw_input;
 	unsigned char		*raw_input_at;
 	time_t			start_time;
@@ -246,8 +245,8 @@ public:
 	int	check_connect(const char *msg);
 	void	announce_player(announce_states state);
 
-	void save_command (const char *command);
-	int	do_command(const char *c);
+	void save_command (String command);
+	int	do_command(String command);
 
 	void	dump_users(const char *victim, int flags);
 private:

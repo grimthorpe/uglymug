@@ -893,7 +893,7 @@ Command_status	&sneaky_return_status)
 		const	size_t	old_depth = call_stack.size ();
 
 		/* Do the command */
-		process_basic_command (original_command.c_str());
+		process_basic_command (original_command);
 
 		/* If the call stack is deeper, we just ran a nested command.  Run it to completion. */
 		while (call_stack.size () > old_depth)
@@ -915,9 +915,10 @@ Command_status	&sneaky_return_status)
 
 void
 context::process_basic_command (
-const	char	*original_command)
+const	String&	_command)
 
 {
+	const char* original_command = _command.c_str();
 	const	char	*a0;
 	char		*q;
 	const	char	*p;
@@ -931,7 +932,7 @@ const	char	*original_command)
 	command_details	*entry;
 	const colour_at& ca= db[get_player()].get_colour_at();
 
-	if(original_command == NULL)
+	if(!original_command)
 		return;
 
 	/* robustify player */
@@ -951,7 +952,7 @@ const	char	*original_command)
 						getname(get_effective_id()),
 						db[player].get_location(),
 						getname(db[player].get_location()),
-						original_command
+						original_command.c_str()
 		);
 #ifdef	LOG_COMMAND_LINES
 	}
@@ -1332,13 +1333,13 @@ const	char	*original_command)
 void
 mud_command (
 dbref		player,
-const	char	*command)
+const String&	command)
 
 {
 	/* Sanity checks */
 	if ((Typeof (player) != TYPE_PLAYER) && (Typeof (player) != TYPE_PUPPET))
 	{
-		log_bug("Non-player %s(#%d) trying to execute the command \"%s\"", getname(player), player, command);
+		log_bug("Non-player %s(#%d) trying to execute the command \"%s\"", getname(player), player, command.c_str());
 		return;
 	}
 	if ((db[player].get_location() < 0) && (db[player].get_location() >= db.get_top ()))

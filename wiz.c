@@ -99,7 +99,7 @@ const	String& command)
 			call_stack.top()->set_effective_id(victim);
 
 		const size_t old_depth = call_stack.size ();
-		process_basic_command(command.c_str());
+		process_basic_command(command);
 		while(call_stack.size () > old_depth)
 			step();
 		if(!call_stack.empty())
