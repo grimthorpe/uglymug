@@ -1123,56 +1123,99 @@ context::do_query_next (const char *const name, const char *const)
 		{
 			case TYPE_DICTIONARY:
 				if(matcher.match_index_attempt_result())
+				{
 					if((value = db[thing].exist_element(matcher.match_index_result())))
+					{
 						if(db[thing].get_number_of_elements() >= value + 1)
 						{
 							return_status = COMMAND_SUCC;
 							set_return_string (db[thing].get_index (value + 1));
-							return;
 						}
 						else
 						{
 							return_status = COMMAND_SUCC;
 							set_return_string ("NOTHING");
-							return;
 						}
+					}
 					else
 					{
 						notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\".", matcher.match_index_result());
-						return;
 					}
-				else
-					break;
+					return;
+				}
+				else // Not an index, get the 'right' next.
+				{
+					do
+					{
+						thing = db[thing].get_next();
+					}
+					while(thing != NOTHING && Typeof(thing) != TYPE_DICTIONARY);
+					set_return_string (unparse_for_return (*this, thing));
+					return_status = COMMAND_SUCC;
+					return;
+				}
+				break;
+
 			case TYPE_ARRAY:
- 
 				if(matcher.match_index_attempt_result())
+				{
 					if((value = db[thing].exist_element(atoi(value_or_empty(matcher.match_index_result())))) > 0)
+					{
 						if(db[thing].get_number_of_elements() >= value + 1)
 						{
 							return_status = COMMAND_SUCC;
 							sprintf(scratch_return_string, "%d", value + 1);
 							set_return_string (scratch_return_string);
-							return;
 						}
 						else
 						{
 							return_status = COMMAND_SUCC;
 							set_return_string ("NOTHING");
-							return;
 						}
+					}
 					else
 					{
 						notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Array only has %d elements.", db[thing].get_number_of_elements());
-						return;
 					}
+					return;
+				}
 				else
-					break;
+				{
+					do
+					{
+						thing = db[thing].get_next();
+					}
+					while(thing != NOTHING && Typeof(thing) != TYPE_ARRAY);
+					set_return_string (unparse_for_return (*this, thing));
+					return_status = COMMAND_SUCC;
+					return;
+				}
+				break;
+
+			case TYPE_VARIABLE:
+				do
+				{
+					thing = db[thing].get_next();
+				}
+				while(thing != NOTHING && Typeof(thing) != TYPE_VARIABLE);
+				set_return_string (unparse_for_return (*this, thing));
+				return_status = COMMAND_SUCC;
+				return;
+
+			case TYPE_PROPERTY:
+				do
+				{
+					thing = db[thing].get_next();
+				}
+				while(thing != NOTHING && Typeof(thing) != TYPE_PROPERTY);
+				set_return_string (unparse_for_return (*this, thing));
+				return_status = COMMAND_SUCC;
+				return;
 			default:
 				break;
 		}
 	}
 
-			
 	set_return_string (unparse_for_return (*this, db[thing].get_next()));
 	return_status = COMMAND_SUCC;
 }
