@@ -432,7 +432,7 @@ context::do_chat(const char* arg1, const char* arg2)
 		{
 			notify_colour(player, player, COLOUR_CHANNEL_NAMES, "Default channel: %s", db[player].get_channel()->name().c_str());
 			sprintf(scratch_buffer, "On channels: ");
-			for(Channel* iter = Channel::head(); iter != NULL; iter++)
+			for(Channel* iter = Channel::head(); iter != NULL; iter=iter->next())
 			{
 				if(iter->player_connected(player))
 				{

@@ -7,6 +7,12 @@ correct version. In reverse order.
 Place the latest tag number at the top to ensure
 the version information in the game is correct.
 
+um1_013 - Grimthorpe
+    Nasty bug in the chat code; instead of iterating over the list with x-next()
+    I used x++ instead...
+    Also, the version string gets dumped to stderr rather than stdout so that
+    we know where the logs came from.
+
 um1_012 - Grimthorpe
     Second attempt at fixing '@endif' locking problem. We weren't flushing
     the parser cache.
