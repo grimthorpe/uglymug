@@ -165,8 +165,8 @@ struct	operation
 
 
 static	const	char		*bracket_match			(const char *, const char, const char);
-static	Command_status		full_parse_expression		(context &c, const char *expression, char *result_buffer, int space_left);
-static	void			full_parse_operand		(context &c, const char *&expression, char *result, int space_left);
+static	Command_status		full_parse_expression		(context &c, const char *expression, char *result_buffer, unsigned int space_left);
+static	void			full_parse_operand		(context &c, const char *&expression, char *result, unsigned int space_left);
 static	eval_ops		full_parse_operator		(context &c, const char *&expression, int ops_found);
 static	Command_status		full_frig_types			(context &c, enum eval_ops, struct operand_block*, int);
 
@@ -341,8 +341,7 @@ const Boolean
 context::variable_substitution (
 const	char	*arg,
 	char	*result,
-const	int	max_length)
-
+const	unsigned int	max_length)
 {
 	Boolean retval;
 
@@ -375,7 +374,7 @@ context::dollar_substitute (
 const	char	*&argp,
 	char	*&resp,
 const	int	depth,
-	int	space_left)
+	unsigned int	space_left)
 
 {
 		char		source_buffer [BUFFER_LEN];
@@ -452,7 +451,7 @@ const	int	depth,
 
 	const	String_pair	*arg;
 	const	char		*value = 0;
-		int		length;
+	unsigned int		length;
 
 	/* ... check for $[0123], else match... */
 	if (!strcmp (name_start, "0"))
@@ -674,7 +673,7 @@ void
 context::brace_substitute (
 const	char	*&argp,
 	char	*&resp,
-	int	space_left)
+	unsigned int	space_left)
 
 {
 	const	char		*command_start;
@@ -776,7 +775,7 @@ full_parse_expression (
 	context	&c,
 const	char	*expression,
 	char	*result_buffer,
-	int	space_left)
+unsigned int	space_left)
 
 {
 
@@ -1673,7 +1672,7 @@ full_parse_operand (
 	context		&c,
 const	char		*&expression,
 	char		*result_buffer,
-	int		space_left)
+unsigned int		space_left)
 
 {
 	const	char	*command_start;
@@ -2042,7 +2041,7 @@ struct	operand_block* 	results,
 {
 	char	*end;
 
-	if (op == EVAL_TYPE_NONE)
+	if (op == EVAL_OP_NONE)
 	{
 		/* Already notified during parse */
 		results->type = EVAL_TYPE_NONE;
