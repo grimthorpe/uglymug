@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Added missing # to hack message
 	Added log_boot() and changed the call in context::do_boot() accordingly
 	Made @terminal follow the 'Silent' flag rules, rather than just being silent when run from a softcode command.
 	More changes to @remote; this time keep processing the remoted command until completion.

@@ -66,7 +66,7 @@ const	CString& arg2)
 		{
 			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
 			log_hack(get_effective_id(),
-				"player %s(#%d): effective: %s(%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
+				"player %s(#%d): effective: %s(#%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
 						getname(get_player()),
 						get_player(),
 						getname(get_effective_id()),
