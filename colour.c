@@ -122,6 +122,8 @@ int rank_colour(dbref thing)
 {
 	if (thing == GOD_ID)
 		return COLOUR_GOD;
+	if (Retired(thing))
+		return COLOUR_RETIRED;
 	if (Wizard(thing))
 		return COLOUR_WIZARDS;
 	if (Apprentice(thing))
@@ -222,6 +224,7 @@ static struct
 
 	{"WelcomerTitles",	'~',	"%g%h"},
 
+	{"Retired",		'\177',	"%z%b%h"},
 	{NULL,		0}
 };
 

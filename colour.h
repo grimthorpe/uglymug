@@ -98,6 +98,7 @@
 #define COLOUR_TELLS		60
 #define	COLOUR_WELCOMER_TITLES	61
 
+#define	COLOUR_RETIRED		62
 
 struct colour_table_type
 {
