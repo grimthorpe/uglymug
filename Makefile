@@ -8,17 +8,25 @@ CPLUSPLUS=g++
 OPTIM=
  
 # CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wno-unused -Wwrite-strings -Wconversion
-CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+# CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+WHOAMI=whoami
 
-# Solaris 2.51
-#LIBS= -lm -ltermcap -lsocket -lnsl
+# Solaris 2.8
+# Shouldn't need this, but may help if desperate!
+#LIBS= -L/usr/ucblib -lucb -lm -ltermcap -lsocket -lnsl
+
+#LIBS= -L/usr/ucblib -lucb -lm -ltermcap -lsocket -lnsl
+#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+#CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+#WHOAMI=who am i
 
 # Linux
-#LIBS= -lm -ltermcap -ldl
+# LIBS= -lm -ltermcap -ldl
 # Linux + USE_TERMINFO in config.h
 #LIBS= -lm -ldl -lcurses -lcrypt
 # FreeBSD
 LIBS= -lm -lncurses -lcrypt 
+CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 
 HEADERS = \
 	alarm.h \
@@ -244,7 +252,7 @@ newversion:
 	fi
 
 version.h: newversion
-	@echo \#define VERSION \"[build \#`cat .version` by `whoami` at `date` on `hostname`]\" > version.h
+	@echo \#define VERSION \"[build \#`cat .version` by `${WHOAMI} | sed 's, .*,,'` at `date` on `hostname`]\" > version.h
 
 alarm.o : alarm.c \
 	alarm.h \
