@@ -213,14 +213,14 @@ const	CString& csrc,
 const	CString& csub)
 
 {
-const char* src = csrc.c_str();
 const char* sub = csub.c_str();
+const char* src = csrc.c_str();
 	/* If substring is NULL, automatic match */
 	if (!csub)
 		return (src);
 
 	/* If substring is non-NULL and source is NULL, fail. */
-	if (csrc)
+	if (!csrc)
 		return (NULL);
 
 	/* Otherwise, we have to hunt for it */
@@ -258,9 +258,8 @@ dbref		player,
 const	CString& cstr)
 
 {
-	const char* str = cstr.c_str();
-
 	char c;
+	const char* str = cstr.c_str();
 	static const char *subjective[4] = { "", "it", "she", "he" };
 	static const char *possessive[4] = { "", "its", "her", "his" };
 	static const char *objective[4] = { "", "it", "her", "him" };
@@ -270,7 +269,7 @@ const	CString& cstr)
 	{
 		buffer_length -= strlen(result);
 	}
-	else
+  else
 	{
 		buffer_length = 0;
 	}
