@@ -46,12 +46,35 @@ int config_fixed_font = 1;
 int config_break_lines = 1;
 int config_column_width = 80;
 char* config_foreground_color = "#000000";
-char* config_background_color = "#C0C0C0";
+char* config_background_color = "#E0C0C0";
 char config_escape = '';
 char config_escape_replace = ' ';
 int config_max_id_tries = 500;
 int config_buffer_size = 19600;
 int config_scroll_timeout = 50;
+/* JPK 
+   This needs to be global so that do_write_raw_str can change it
+*/
+time_t  last_browser_verify     = 0;
+/* JPK
+   This is the maximum number of seconds until we will write something
+   to the html output.  I believe that 30 seconds is a common timeout
+   by browsers, so it is set to 25 which gives us 5 seconds leeway,
+   but reduces teh output by an order of magnitude
+*/
+#define BROWSER_VERIFY_TIMEOUT 25
+
+/* JPK
+   This is how much it waits at the end of every loop.  It is measured
+   in microseconds.  The number should be LESS than 1000000.
+   1000 gives a delay of a millisecond, which should be sufficiently
+   small to make it imperceptible to the user, but save a LOT of CPU
+   cycles.  Practical trials support this.  It may well be able to
+   be increased with no adverse affects too.
+*/
+#define USLEEPTIME 1000
+
+
 #include "cgi.h"
 
 
@@ -90,7 +113,7 @@ void do_write (unsigned char c);
 void do_start (void);
 void term_app (int dummy);
 /* to avoid warnings when compiling with "-ansi" */
-int kill (int pid, int sig);
+/* int kill (int pid, int sig); */
 void show_error (char *s);
 
 
@@ -105,6 +128,12 @@ do_write_raw_str (char *s)
 {
 	write (FD_STDOUT, s, strlen (s));
 	write (FD_DEBUG_HTML, s, strlen (s));
+/* JPK
+   Every time we write out some html we are causing the browser to be
+   aware of us, so we don't need to artificially send a comment to keep
+   the connection alive
+*/
+	last_browser_verify=time(NULL);
 }
 
 
@@ -197,6 +226,15 @@ do_start (void)
 .BGWHITE { background: white; }\n\
 </style>\n\
 </head>\n\
+<SCRIPT LANGUAGE=\"JavaScript\"><!--\n
+function myScroll() {\n
+    window.scrollBy(0,100)\n
+    setTimeout('myScroll()',1000); // scrolls every 1000 miliseconds\n
+}\n
+\n
+if (document.layers || document.all)\n
+    myScroll()\n
+//--></SCRIPT>\n
 <body text=\"");
 	do_write_raw_str (config.foreground_color);
 	do_write_raw_str ("\" bgcolor=\"");
@@ -339,7 +377,8 @@ main (void)
 		close (pipefd1[1]);
 		close (pipefd2[0]);
 		close (pipefd2[1]);
-		execlp ("telnet", "telnet", server, port, NULL);
+		/* execlp ("telnet", "telnet", server, port, NULL); */
+		execlp ("telnet", "telnet", "uglymug.org.uk", "6239", NULL);
 		exit (2); /* shouldn't reach here */
 
 	} else /* parent */ {
@@ -351,8 +390,8 @@ main (void)
 		int     fd_flags;
 		int     ansi_state;
 		char   *ansi_color;
-		time_t  last_flush     = 0;
-		int     flushed        = 0;
+		time_t  last_flush              = 0;
+		int     flushed                 = 0;
 
 		buff = malloc (config.buffer_size);
 		if (buff == NULL) {
@@ -432,7 +471,19 @@ main (void)
 
 			/* verify if browser is still there */
 			/* XXX */
-			do_write_raw_str ("<!-- -->");
+
+/* JPK
+   We don't want to do this EVERY iteration.  Rather than do it every
+   n iterations the way to do it is every x seconds.
+   However we do not need to do it if something else has been written
+   in the last BROWSER_VERIFY_TIMEOUT seconds, so modify 
+   do_write_raw_str to reset the last_browser_verify rather than just
+   doing it here.
+*/
+		if (time(NULL) - last_browser_verify >= BROWSER_VERIFY_TIMEOUT)
+		{
+			do_write_raw_str ("<!-- JPK -->");
+		}
 
 			/* read from telnet and write to output */
 			nbytes = read (telnet_read, buff, config.buffer_size);
@@ -587,6 +638,15 @@ main (void)
 					}
 				}
 			}
+		/* JPK 
+		   Ok, don't want to just loop as far as we can here
+		   Solution, sleep for a bit.  Should use itimer, but
+		   usleep is so much easier!
+		*/
+		/* Pause for 1000th of a second, this should be significant
+		   for the computer, but not introduce a lag
+		*/
+		usleep(USLEEPTIME);
 		}
 	}
 
