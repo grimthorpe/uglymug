@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-	char *crypt (const char *key, const char *salt);
+	char *crypt (const char *pw, const char *salt);
 
 #ifdef	__cplusplus
 };
