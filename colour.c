@@ -120,8 +120,6 @@ struct colour_table_type colour_table[] =
 
 int rank_colour(dbref thing)
 {
-	if (thing == GOD_ID)
-		return COLOUR_GOD;
 	if (Retired(thing))
 		return COLOUR_RETIRED;
 	if (Wizard(thing))

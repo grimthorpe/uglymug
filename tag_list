@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Replaced most of GOD_ID's functionality with 7 flags. (Grimthorpe)
+	Fixed @with with dictionaries. (Grimthorpe)
 
 um1_052
 	Actually committed code for mortals to see IDs there are a number of

@@ -116,8 +116,8 @@ dbref	start)
 					else
 						days = (now - db[chaser].get_last_entry_time()) / 86400;
 
-					sprintf(temp_buffer, "%s", unparse_object (GOD_ID, chaser));
-					sprintf(temp_buffer, "%s [%s]", temp_buffer, unparse_object (GOD_ID, db[chaser].get_owner()));
+					sprintf(temp_buffer, "%s", unparse_object (UNPARSE_ID, chaser));
+					sprintf(temp_buffer, "%s [%s]", temp_buffer, unparse_object (UNPARSE_ID, db[chaser].get_owner()));
 					if(days == 9999)
 						sprintf(temp_buffer, "%s (Unknown)", temp_buffer);
 					else

@@ -760,18 +760,11 @@ execute_startups(void)
 	DOLIST (item, db[COMMAND_LAST_RESORT].get_commands())
 	{
 		if (!string_compare(db[item].get_name(),".startup"))
-			if (Wizard(db[item].get_owner()))
-			{
-				context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
-				c->prepare_compound_command (item, ".startup", "", "");
-				delete mud_scheduler.push_new_express_job (c);
-			}
-			else
-				log_hack(GOD_ID, "non-wizard character %s(#%d) owns .startup command #%d in #%d",
-							getname(db[item].get_owner()),
-							db[item].get_owner(),
-							item,
-							COMMAND_LAST_RESORT);
+		{
+			context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
+			c->prepare_compound_command (item, ".startup", "", "");
+			delete mud_scheduler.push_new_express_job (c);
+		}
 	}
 #endif
 }
@@ -786,20 +779,11 @@ execute_shutdown(void)
         DOLIST (item, db[COMMAND_LAST_RESORT].get_commands())
         {
 		if (!string_compare(db[item].get_name(),".shutdown"))
-			if (Wizard(db[item].get_owner()))
-			{
-				context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
-				c->prepare_compound_command(item, ".shutdown", "", "");
-				delete mud_scheduler.push_new_express_job (c);
-			}
-			else
-				log_hack(GOD_ID, 	"%s(#%d) owns .shutdown command #%d in #%d",
-							getname(db[item].get_owner()),
-							db[item].get_owner(),
-							item,
-							COMMAND_LAST_RESORT
-				);
-							
+		{
+			context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
+			c->prepare_compound_command(item, ".shutdown", "", "");
+			delete mud_scheduler.push_new_express_job (c);
+		}
         }
 #endif
 }
@@ -1359,7 +1343,7 @@ const	char	*command)
 	}
 	if ((db[player].get_location() < 0) && (db[player].get_location() >= db.get_top ()))
 	{
-		log_bug("Player #%s at location #%d", unparse_object (context (GOD_ID, context::DEFAULT_CONTEXT), player), db[player].get_location());
+		log_bug("Player #%s at location #%d", unparse_object (context (UNPARSE_ID, context::DEFAULT_CONTEXT), player), db[player].get_location());
 		return;
 	}
 
@@ -1425,7 +1409,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 				delete mud_scheduler.push_new_express_job (login_context);
 			}
 			else
-				log_hack(GOD_ID, "Global .login command (#%d) not owned by a Wizard", the_command);
+				log_hack(NOTHING, "Global .login command (#%d) not owned by a Wizard", the_command);
 	}
 
 }
@@ -1448,7 +1432,7 @@ void mud_connect_player (dbref player)
 
 	if(Retired(player) && Wizard(player))
 	{
-		log_hack(GOD_ID, "<<<RETIRED WIZARD>>> %s(#%d) Connected", getname(player), player);
+		log_hack(NOTHING, "<<<RETIRED WIZARD>>> %s(#%d) Connected", getname(player), player);
 	}
 	mud_run_dotcommand(player, ".login");
 }
@@ -1554,7 +1538,7 @@ void mud_time_sync ()
 		}
 		else
 		{
-			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context (GOD_ID, context::DEFAULT_CONTEXT), an_alarm));
+			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context (UNPARSE_ID, context::DEFAULT_CONTEXT), an_alarm));
 			alarm_block--;
 			return;
 		}

@@ -424,11 +424,6 @@ int	type)
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (player = d->get_player()))
 		{
-			if(player == GOD_ID)
-			{
-				god++;
-				blob = 0;
-			}
 			if(Builder(player))
 			{
 				builder++;
@@ -3944,39 +3939,31 @@ int			flags)
 				}
 
 				strcat (flag_buf, "(");
-				if (d->get_player() == GOD_ID)
+				bool wantbuilder = true;
+				if (Retired(d->get_player()))
 				{
-					strcat (flag_buf, "G");
+					strcat (flag_buf, "R");
+					wantbuilder = false;
+				}
+				else if (Wizard(d->get_player()))
+				{
+					strcat (flag_buf, "W");
+					wantbuilder = false;
 					wizard++;
 				}
-				else
+				else if (Apprentice(d->get_player()))
 				{
-					bool wantbuilder = true;
-					if (Retired(d->get_player()))
-					{
-						strcat (flag_buf, "R");
-						wantbuilder = false;
-					}
-					else if (Wizard(d->get_player()))
-					{
-						strcat (flag_buf, "W");
-						wantbuilder = false;
-						wizard++;
-					}
-					else if (Apprentice(d->get_player()))
-					{
-						strcat (flag_buf, "A");
-						wantbuilder = false;
-					}
-					if (XBuilder(d->get_player()))
-					{
-						strcat (flag_buf, "X");
-					}
-					else if (wantbuilder && (Builder(d->get_player())))
-					{
-						strcat (flag_buf, "B");
-						builder++;
-					}
+					strcat (flag_buf, "A");
+					wantbuilder = false;
+				}
+				if (XBuilder(d->get_player()))
+				{
+					strcat (flag_buf, "X");
+				}
+				else if (wantbuilder && (Builder(d->get_player())))
+				{
+					strcat (flag_buf, "B");
+					builder++;
 				}
 				if (Welcomer(d->get_player()))
 				{

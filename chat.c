@@ -129,7 +129,7 @@ static struct player_list *find_player_in_player_list(struct player_list *list, 
 
 static dbref find_list_dictionary(dbref player)
 {
-	Matcher matcher(player, list_dictionary, TYPE_DICTIONARY, GOD_ID);
+	Matcher matcher(player, list_dictionary, TYPE_DICTIONARY, UNPARSE_ID);
 	matcher.match_variable();
 	matcher.match_array_or_dictionary();
 

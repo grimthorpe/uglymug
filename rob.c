@@ -69,7 +69,7 @@ const	String& object_or_amount)
 			return;
 		}
 
-		if (player != GOD_ID)
+		if (!WriteAll(player))
 			if ((Wizard(who)) || (Apprentice(who) && Apprentice(player) && !Wizard(player)))
 			{
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());

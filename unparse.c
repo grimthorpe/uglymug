@@ -59,6 +59,13 @@ struct	flag_stuff	flag_list [] =
 	{"Natter",	FLAG_NATTER,		'\0'},
 	{"XBuilder",	FLAG_XBUILDER,		'X'},
 	{"Retired",	FLAG_RETIRED,		'R'},
+	{"SetGodPower",	FLAG_GOD_SET_GOD,	'\0'},
+	{"WriteAll",	FLAG_GOD_WRITE_ALL,	'\0'},
+	{"BootAll",	FLAG_GOD_BOOT_ALL,	'\0'},
+	{"ChownAll",	FLAG_GOD_CHOWN_ALL,	'\0'},
+	{"MakeWizard",	FLAG_GOD_MAKE_WIZARD,	'\0'},
+	{"PasswordReset",	FLAG_GOD_PASSWORD_RESET,	'\0'},
+	{"MoneyMaker",	FLAG_GOD_DEEP_POCKETS,	'\0'},
 
 	{"Male",	FLAG_MALE,		'\0'},
 	{"Female",	FLAG_FEMALE,		'\0'},
@@ -97,15 +104,12 @@ dbref	thing)
 	p++;
 
 	/* Print flags if there are any */
-	if (thing == GOD_ID)
-		*p++ = 'G';
-
 	for (i = 0; flag_list [i].string != NULL; i++)
 		if(((db[thing].get_flag(flag_list[i].flag))
 			&& (flag_list [i].quick_flag != '\0'))
-			/* If they are god, don't display W flag */
+			/* If they are retired, don't display W flag */
 			&& (!((flag_list[i].flag == FLAG_WIZARD) &&
-			      ((thing == GOD_ID) || Retired(thing)))))
+			      Retired(thing))))
 			*p++ = flag_list [i].quick_flag;
 	*p = '\0';
 	return buf;
@@ -132,9 +136,10 @@ dbref		thing)
 				sprintf (buf, "*FREE:#%d*", (int)thing);
 				return buf;
 			}
-			if(!(db[c.get_player ()].get_flag(FLAG_NUMBER))
-				&& (Visible(thing) || c.controls_for_read (thing)
-					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
+			if((c.get_player() == UNPARSE_ID) ||
+				(!(db[c.get_player ()].get_flag(FLAG_NUMBER))
+					&& (Visible(thing) || c.controls_for_read (thing)
+						|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing))))
 			{
 				/* show everything */
 				sprintf(buf, "%s%s(#%d%s)", getname(thing), COLOUR_REVERT, (int)thing, unparse_flags(thing));

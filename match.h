@@ -61,8 +61,8 @@ extern	Matcher_state matcher_state_array [];
 
 
 /* Usage:
- *	Matcher matcher (player, name, type);
- *	Matcher matcher (player, base_object, type);
+ *	Matcher matcher (player, name, type, effective_id);
+ *	Matcher matcher (player, base_object, effective_id);
  *	matcher.match_this ();
  *	matcher.match_that();
  *	...

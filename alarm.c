@@ -51,7 +51,7 @@ db_patch_alarms ()
 		// Force an @connect for each connected puppet.
 		if ((Typeof (i) == TYPE_PUPPET) && (Connected(i)))
 		{
-			context *c = new context (GOD_ID, context::DEFAULT_CONTEXT);
+			context *c = new context (db[i].get_owner(), context::DEFAULT_CONTEXT);
 			char tmpnum[20];
 			sprintf(tmpnum, "#%d", (int)i);
 			db[i].clear_flag(FLAG_CONNECTED);
@@ -87,13 +87,13 @@ db_patch_alarms ()
 			if ((Typeof (i) == TYPE_PLAYER) && (db [i].get_controller () != i))
 			{
 				if (Typeof (db [i].get_controller ()) != TYPE_PLAYER) {
-					log_bug("player %s(#%d) has non-player %s(#%d) as controller --- patching to GOD",
+					log_bug("player %s(#%d) has non-player %s(#%d) as controller --- patching to themselves",
 							getname(i),
 							i,
 							getname(db[i].get_controller()),
 							db[i].get_controller()
 					);
-					db [i].set_controller (GOD_ID);
+					db [i].set_controller (i);
 				}
 				db [db [i].get_controller ()].set_referenced ();
 			}

@@ -84,7 +84,7 @@ const	String& player_string)
 		/* Return group status */
 		if(db[player].get_build_id() != player)
 		{
-			Matcher matcher (db[player].get_build_id(), MEMBERS_LIST_NAME, TYPE_DICTIONARY, GOD_ID);
+			Matcher matcher (db[player].get_build_id(), MEMBERS_LIST_NAME, TYPE_DICTIONARY, UNPARSE_ID);
 			matcher.match_variable();
 			matcher.match_array_or_dictionary();
 			members = matcher.match_result();
@@ -108,7 +108,7 @@ const	String& player_string)
 	else if(!string_compare(group_string, "create"))
 	{
 		/* See if we are already a group */
-		Matcher matcher (player, MEMBERS_LIST_NAME, TYPE_DICTIONARY, GOD_ID);
+		Matcher matcher (player, MEMBERS_LIST_NAME, TYPE_DICTIONARY, UNPARSE_ID);
 		matcher.match_variable();
 		matcher.match_array_or_dictionary();
 		members = matcher.match_result();
@@ -199,7 +199,7 @@ const	String& player_string)
 	   lets move onto, erm, joining a group */
 
 	/* Find the group dictionary on the group player */
-	Matcher matcher (group, MEMBERS_LIST_NAME, TYPE_DICTIONARY, GOD_ID);
+	Matcher matcher (group, MEMBERS_LIST_NAME, TYPE_DICTIONARY, UNPARSE_ID);
 	matcher.match_variable();
 	matcher.match_array_or_dictionary();
 	members = matcher.match_result();
@@ -212,7 +212,7 @@ const	String& player_string)
 		if(members != NOTHING)
 		{
 			/* Check it is owned by GOD and set Wizard */
-			if((db[members].get_owner() != GOD_ID) || !Wizard(members))
+			if((db[members].get_owner() != UNPARSE_ID) || !Wizard(members))
 			{
 				notify(player, "Group Dictionary Error.");
 				return;
@@ -305,7 +305,7 @@ const	String& player_string)
 			return;
 		}
 		/*Check existence of dict*/
-		Matcher matcher (player, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+		Matcher matcher (player, (String)db[group].get_name(), TYPE_DICTIONARY, UNPARSE_ID);
 		matcher.match_variable();
 		matcher.match_array_or_dictionary();
 		if((support_list = matcher.match_result()) == NOTHING)
@@ -313,7 +313,7 @@ const	String& player_string)
 			/* No support list, give them one */
 			support_list = create_support_list(player, group, members);
 		}
-		else if(!Wizard(support_list) || (db[support_list].get_owner() != GOD_ID))
+		else if(!Wizard(support_list) || (db[support_list].get_owner() != UNPARSE_ID))
 		{
 			notify(player, "Support list error.");
 			return;
@@ -381,7 +381,7 @@ const	String& player_string)
 				/* Remove the support list from the player leaving the
 				   group, if they have one which they should bloody well
 				   do by this time */
-				Matcher matcher (canvasser, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+				Matcher matcher (canvasser, (String)db[group].get_name(), TYPE_DICTIONARY, UNPARSE_ID);
 				matcher.match_variable();
 				matcher.match_array_or_dictionary();
 				if((support_list = matcher.match_result()) != NOTHING)
@@ -411,7 +411,7 @@ const	String& player_string)
 					/* Remove the support list from the player leaving the
 					   group, if they have one which they should bloody well
 					   do by this time */
-					Matcher matcher (canvasser, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+					Matcher matcher (canvasser, (String)db[group].get_name(), TYPE_DICTIONARY, UNPARSE_ID);
 					matcher.match_variable();
 					matcher.match_array_or_dictionary();
 					if((support_list = matcher.match_result()) != NOTHING)
@@ -434,9 +434,7 @@ dbref	members)
 	dbref support_list;
 	unsigned int	j;
 
-	notify(GOD_ID, "I'm creating a support list on: %d", current_member);
-
-	payfor(GOD_ID, DICTIONARY_COST);
+	payfor(group, DICTIONARY_COST);
 	support_list = db.new_object(*new (Dictionary));
 	db[support_list].set_name(db[group].get_name());
 	db[support_list].set_location(current_member);
@@ -483,7 +481,7 @@ int add_up_votes(dbref	members,
 		else
 		{
 				/*Check existence of dict*/
-				Matcher matcher (current_member, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+				Matcher matcher (current_member, (String)db[group].get_name(), TYPE_DICTIONARY, UNPARSE_ID);
 				matcher.match_variable();
 				matcher.match_array_or_dictionary();
 				if((support_list = matcher.match_result()) == NOTHING)
@@ -496,8 +494,6 @@ int add_up_votes(dbref	members,
 				/*Add to total*/
 					woo = atoi(db[support_list].get_element(tmp).c_str());
 					support += woo;
-				/*Otherwise that member has not supported this new person*/
-					notify(GOD_ID, "Support is: %d (%s)", support, db[support_list].get_element(tmp).c_str());
 				}
 		}
 	}

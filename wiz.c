@@ -282,6 +282,8 @@ const	String& password)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player.");
 	else if (!controls_for_write (victim))
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
+	else if(SetGodPower(victim) && !PasswordReset(player))
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 	else if(password && !ok_password(password))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Bad password");
 	else
@@ -329,7 +331,7 @@ const	String& reason)
 	}
 
 #ifndef NO_GOD
-	if(get_effective_id() == 2222)
+	if(BootAll(get_effective_id()))
 	{
 		allow=1;
 	}
@@ -354,7 +356,7 @@ const	String& reason)
 		else if (Wizard (recipient))
 		{
 #ifndef NO_GOD
-			if (player == GOD_ID)
+			if (BootAll(player))
 			{
 				allow=1;
 			}

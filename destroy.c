@@ -17,7 +17,7 @@
 #include "colour.h"
 #include "log.h"
 
-#define RefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {log_bug("%s has REF cleared",unparse_object(god_context,(x)));}}
+#define CheckRefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {log_bug("%s has REF cleared",unparse_object(context(UNPARSE_ID, context::DEFAULT_CONTEXT),(x)));}}
 
 static	bool			empty_an_object				(dbref, dbref);
 
@@ -238,7 +238,6 @@ context	&c,
 dbref	zap_room)
 
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref	i;
 	dbref	temp;
 	bool	ok = true;
@@ -251,7 +250,7 @@ dbref	zap_room)
 			case TYPE_EXIT:
 				if (db[i].get_destination() == zap_room)
 				{
-					RefSet (zap_room)
+					CheckRefSet (zap_room)
 					if (!c.controls_for_write(i))
 					{
 						notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is linked to that room", unparse_object (c, i));
@@ -271,13 +270,13 @@ dbref	zap_room)
 			case TYPE_ROOM:
 				if ((db[i].get_parent () == zap_room) && !(c.controls_for_write (i)))
 				{
-					RefSet (zap_room)
+					CheckRefSet (zap_room)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Couldn't unlink child room %s.", unparse_object (c, i));
 					ok = false;
 				}
 				if ((db[i].get_destination() == zap_room) && !(c.controls_for_write (i)))
 				{
-					RefSet (zap_room)
+					CheckRefSet (zap_room)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Couldn't unlink dropto from room %s.", unparse_object (c, i));
 					ok = false;
 				}
@@ -291,7 +290,7 @@ dbref	zap_room)
 	{
 		if ((Typeof (i) == TYPE_ROOM) && (db[i].get_parent () == zap_room))
 		{
-			RefSet (zap_room)
+			CheckRefSet (zap_room)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Room %s reparented.", unparse_object (c, i));
 			db [i].set_parent (db [zap_room].get_parent ());
 			Modified (i);
@@ -300,7 +299,7 @@ dbref	zap_room)
 		/* search for all objects set to home here - reset to LIMBO even if they aren't owned by the player. */
 		if ((Typeof (i) != TYPE_FREE) && (db[i].get_destination() == zap_room))
 		{
-			RefSet (zap_room)
+			CheckRefSet (zap_room)
 			switch (Typeof (i))
 			{
 				case TYPE_PLAYER:
@@ -380,7 +379,6 @@ context	&c,
 dbref	zap_thing)
 
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	bool	ok = true;
 	dbref	i;
 
@@ -399,7 +397,7 @@ dbref	zap_thing)
 		if ((db[i].get_key()->contains (zap_thing))
 			|| (Container (i) && (db[i].get_lock_key ()->contains (zap_thing))))
 		{
-			RefSet (zap_thing)
+			CheckRefSet (zap_thing)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is keyed to that object.", unparse_object (c, i));
 			ok = false;
 		}
@@ -408,7 +406,7 @@ dbref	zap_thing)
 			case TYPE_THING:
 				if ((db[i].get_parent () == zap_thing) && !(c.controls_for_write (i)))
 				{
-					RefSet (zap_thing)
+					CheckRefSet (zap_thing)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Couldn't unlink child thing %s.", unparse_object (c, i));
 					ok = false;
 				}
@@ -418,7 +416,7 @@ dbref	zap_thing)
 			case TYPE_ROOM:
 				if (db[i].get_destination() == zap_thing)
 				{
-					RefSet (zap_thing)
+					CheckRefSet (zap_thing)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is linked to that thing.", unparse_object (c, i));
 					ok = false;
 				}
@@ -433,7 +431,7 @@ dbref	zap_thing)
 	{
 		if ((Typeof (i) == TYPE_THING) && (db[i].get_parent () == zap_thing))
 		{
-			RefSet (zap_thing)
+			CheckRefSet (zap_thing)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Thing %s reparented.", unparse_object (c, i));
 			db [i].set_parent (db [zap_thing].get_parent ());
 		}
@@ -441,7 +439,7 @@ dbref	zap_thing)
                 /* search for all objects set to home here - reset to LIMBO even if they aren't owned by the player. */
 		if ((Typeof (i) != TYPE_FREE) && (db[i].get_destination() == zap_thing))
 		{
-			RefSet (zap_thing)
+			CheckRefSet (zap_thing)
 			switch (Typeof (i))
 			{
                                 case TYPE_PLAYER:
@@ -619,7 +617,6 @@ context	&c,
 dbref	zap_player)
 
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref	i;
 	bool	ok = true;
 
@@ -628,25 +625,25 @@ dbref	zap_player)
 		{
 			if ((i != zap_player) && db[i].get_key()->contains (zap_player))
 			{
-				RefSet (zap_player)
+				CheckRefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Player is part of key to %s.", unparse_object (c, i));
 				ok = false;
 			}
 			if (Container (i) && db[i].get_lock_key ()->contains (zap_player))
 			{
-				RefSet (zap_player)
+				CheckRefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That player is part of lock key for container %s.", unparse_object (c, i));
 				ok = false;
 			}
 			if ((i != zap_player) && (Typeof (i) == TYPE_PLAYER) && (db[i].get_controller () == zap_player))
 			{
-				RefSet (zap_player)
+				CheckRefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That player is a controller of puppet %s.\n", unparse_object (c, i));
 				ok = false;
 			}
 			if ((Typeof (i) == TYPE_PLAYER) && (db[i].get_parent () == zap_player))
 			{
-				RefSet (zap_player)
+				CheckRefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That player is the parent of player %s.", unparse_object (c, i));
 				ok = false;
 			}
@@ -684,7 +681,7 @@ dbref	zap_player)
 		{
 			if ((db[i].get_owner() == zap_player) && (i != zap_player))
 			{
-				RefSet (zap_player)
+				CheckRefSet (zap_player)
 				db[i].set_owner(c.get_player ());
 				notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "WARNING: Changing owner of object #%d to you.", i);
 			}
@@ -714,13 +711,12 @@ context	&c,
 dbref	zap_exit)
 
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref i;
 
 	for (i = 0; i < db.get_top(); i++)
 		if ((Typeof(i) == TYPE_EXIT) && (db[i].get_parent() == zap_exit))
 		{
-			RefSet (zap_exit)
+			CheckRefSet (zap_exit)
 			notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Exit %s reparented.", unparse_object(c, i));
 			db[i].set_parent(db[zap_exit].get_parent());
 			Modified (i);
@@ -736,7 +732,6 @@ context	&c,
 dbref	zap_command)
 
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref	i;
 	bool	ok = true;
 
@@ -753,13 +748,13 @@ dbref	zap_command)
 			case TYPE_COMMAND:
 				if ((db[i].get_csucc () == zap_command) || (db[i].get_cfail () == zap_command))
 				{
-					RefSet (zap_command)
+					CheckRefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command in it's csucc or cfail.", unparse_object (c, i));
 					ok = false;
 				}
 				if (db[i].get_parent () == zap_command)
 				{
-					RefSet (zap_command)
+					CheckRefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Command %s reparented.", unparse_object (c, i));
 					db [i].set_parent (db [zap_command].get_parent ());
 					Modified (i);
@@ -768,7 +763,7 @@ dbref	zap_command)
 			case TYPE_THING:
 				if (db[i].get_lock_key ()->contains (zap_command))
 				{
-					RefSet (zap_command)
+					CheckRefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command in its key.", unparse_object (c, i));
 					ok = false;
 				}
@@ -776,7 +771,7 @@ dbref	zap_command)
 			case TYPE_FUSE:
 				if ((db[i].get_csucc () == zap_command) || (db[i].get_cfail () == zap_command))
 				{
-					RefSet (zap_command)
+					CheckRefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command.", unparse_object (c, i));
 					ok = false;
 				}
@@ -784,7 +779,7 @@ dbref	zap_command)
 			case TYPE_ALARM:
 				if (db[i].get_csucc () == zap_command)
 				{
-					RefSet (zap_command)
+					CheckRefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command.", unparse_object (c, i));
 					ok = false;
 				}
@@ -792,7 +787,7 @@ dbref	zap_command)
 		}
 		if ((Typeof (i) != TYPE_FREE) && (db[i].get_key()->contains (zap_command)))
 		{
-			RefSet (zap_command)
+			CheckRefSet (zap_command)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command in its lock.", unparse_object (c, i));
 			ok = false;
 		}
@@ -900,13 +895,12 @@ context	&c,
 dbref	zap_fuse)
 
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref i;
 
 	for (i = 0; i < db.get_top(); i++)
 		if ((Typeof(i) == TYPE_FUSE) && (db[i].get_parent() == zap_fuse))
 		{
-			RefSet (zap_fuse)
+			CheckRefSet (zap_fuse)
 			notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Fuse %s reparented.", unparse_object(c, i));
 			db[i].set_parent(db[zap_fuse].get_parent());
 			Modified (i);
@@ -921,13 +915,12 @@ check_and_destroy_alarm (
 context	&c,
 dbref	zap_alarm)
 {
-	context god_context (GOD_ID, context::DEFAULT_CONTEXT);
 	dbref i;
 
 	for (i = 0; i < db.get_top(); i++)
 		if ((Typeof(i) == TYPE_ALARM) && (db[i].get_parent() == zap_alarm))
 		{
-			RefSet (zap_alarm)
+			CheckRefSet (zap_alarm)
 			notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Alarm %s reparented.", unparse_object(c, i));
 			db[i].set_parent(db[zap_alarm].get_parent());
 			Modified (i);
@@ -1224,7 +1217,7 @@ const	String& )
 							db[i].set_owner(player); // Important to stop the game from crashing.
 							db[player].add_pennies(db[i].get_pennies());
 							// 20031104: DJT - Accountability: money
-							db[GOD_ID].set_money(db[GOD_ID].get_money()+db[i].get_money());
+							db[player].set_money(db[player].get_money()+db[i].get_money());
 							trash_container (i);
 						break;
 					default:

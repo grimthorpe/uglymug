@@ -181,12 +181,6 @@ const	String& )
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (in_command())
-	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Rereading of SMD list not allowed inside commands");
-		return;
-	}
-
 	if (!Wizard(player))
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "You want to get yourself banned?");

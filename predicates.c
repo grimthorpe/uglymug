@@ -37,7 +37,10 @@ unsigned char flag_map[][64] =
 	 FLAG_ARTICLE_SINGULAR_CONS, FLAG_ARTICLE_NOUN, 
 	 FLAG_WELCOMER, FLAG_XBUILDER, FLAG_PRETTYLOOK,
 	 FLAG_DONTANNOUNCE, FLAG_RETIRED, FLAG_LITERALINPUT,
-	 FLAG_NO_EMAIL_FORWARD, 0},
+	 FLAG_NO_EMAIL_FORWARD,
+	 FLAG_GOD_SET_GOD, FLAG_GOD_WRITE_ALL, FLAG_GOD_BOOT_ALL,
+	 FLAG_GOD_CHOWN_ALL, FLAG_GOD_MAKE_WIZARD, FLAG_GOD_PASSWORD_RESET, FLAG_GOD_DEEP_POCKETS,
+	 0},
 
 /*TYPE_PUPPET*/
 	{FLAG_ASHCAN, FLAG_CHOWN_OK, FLAG_CONNECTED, FLAG_FEMALE, FLAG_FIGHTING,
@@ -141,7 +144,7 @@ flag_type	flag)
  * TODO: Work out what this is used for, as the logic is hopelessly out of date.  PJC, 2003-10-26.
  */
 
-const bool
+bool
 can_link_to (
 const	context	&c,
 const	dbref	where)
@@ -176,7 +179,7 @@ const
 {
 	return(what >= 0 && what < db.get_top ()
 		&& (!Readonly (what))			/* Nothing set READONLY can be changed */
-		&& ((get_effective_id() == GOD_ID)							/* GOD controls everything */
+		&& (WriteAll(get_effective_id())		/* GOD controls everything */
 			|| (Wizard(player) && (player == get_effective_id()) && (!Wizard (what) || (Typeof(what) != TYPE_PLAYER)))	/* WIZARDs control everything except other WIZARD players */
 			|| (Wizard(get_effective_id()) && !Wizard (db[what].get_owner()))	/* Effective WIZARDs control mortals */
 			|| (get_effective_id() == db[what].get_owner())				/* Everyone controls themselves */
@@ -204,39 +207,29 @@ const	dbref	what)
 const
 
 {
+	return ::controls_for_read(player, what, get_effective_id());
+}
+
+bool
+controls_for_read (
+const	dbref	player,
+const	dbref	what,
+const	dbref	effective_id)
+
+{
 	return (what >= 0
 		&& what < db.get_top ()
-		&& (Wizard(get_effective_id ())						/* Effective WIZARDS can read anything */
-			|| (get_effective_id () == db [what].get_owner())		/* Everyone controls themselves */
-			|| (get_effective_id () == db [db [what].get_owner()].get_controller ()) /* Everyone controls themselves */
+		&& (	   (effective_id == UNPARSE_ID)					/* UNPARSE_ID can read anything */
+			|| Wizard(effective_id)						/* Effective WIZARDS can read anything */
+			|| (effective_id == db [what].get_owner())			/* Everyone controls themselves */
+			|| (effective_id == db [db [what].get_owner()].get_controller ()) /* Everyone controls themselves */
 			|| Wizard(player)						/* Real WIZARDS can read anything */
 			|| (player == db [what].get_owner())				/* Everyone controls themselves */
 			|| (player == db [db [what].get_owner()].get_controller ())	/* Everyone controls themselves */
 			|| (db[player].get_build_id() == db[what].get_owner())		/* Controls for their group */
 			|| (Visible(what))						/* Everyone can see visible things */
-			|| (Apprentice(get_effective_id()))				/* Effective APPRENTICES can read everything */
+			|| (Apprentice(effective_id))					/* Effective APPRENTICES can read everything */
 			|| (Apprentice(player))));					/* APPRENTICES can read everything */
-}
-
-
-/**
- * TODO: Is this still used?  If so, it shouldn't be!  PJC, 2003-10-26
- */
-
-const bool
-controls_for_read (
-const	dbref	/* real_who */,
-const	dbref	what,
-const	dbref	effective_who)
-
-{
-	return (what >= 0
-		&& what < db.get_top ()
-		&& (Wizard(effective_who)				/* Real and Effective WIZARDS can read anything */
-			|| (effective_who == db [what].get_owner())	/* Everyone controls themselves */
-			|| (effective_who == db [db [what].get_owner()].get_controller ()) /* Everyone controls themselves */
-			|| (Visible(what))				/* Everyone can see visible things */
-			|| (Apprentice(effective_who))));		/* Real and Effective APPRENTICES can read everything */
 }
 
 
@@ -244,7 +237,7 @@ const	dbref	effective_who)
  * TODO: I have no idea what this does! PJC 2003-10-26.
  */
 
-const bool
+bool
 can_link (
 const	context	&c,
 const	dbref	what)

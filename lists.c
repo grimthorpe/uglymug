@@ -63,7 +63,7 @@ struct	list_flags	playerlist_flag_list [] =
 dbref
 find_list_dictionary(dbref player, const char *which)
 {
-	Matcher matcher(player, which, TYPE_DICTIONARY, GOD_ID);
+	Matcher matcher(player, which, TYPE_DICTIONARY, UNPARSE_ID);
 	matcher.match_variable();
 	matcher.match_array_or_dictionary();
 

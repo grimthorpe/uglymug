@@ -1274,7 +1274,7 @@ const	String& newowner)
 		}
 
 		/* Check permissions for Wizards */
-		else if ((player != GOD_ID)
+		else if ((!ChownAll(player))
 			&& ((Wizard (owner) && owner != player)
 				|| (Wizard (thing) && (thing != player))))
 		{
@@ -1498,6 +1498,24 @@ const	String& flag)
 			notify_wizard_natter ("  %s has left Natter", getname_inherited (thing));
 		}
 	}
+	switch(f)
+	{
+	case FLAG_GOD_SET_GOD:
+	case FLAG_GOD_WRITE_ALL:
+	case FLAG_GOD_BOOT_ALL:
+	case FLAG_GOD_CHOWN_ALL:
+	case FLAG_GOD_MAKE_WIZARD:
+	case FLAG_GOD_PASSWORD_RESET:
+	case FLAG_GOD_DEEP_POCKETS:
+		if(Typeof(thing) == TYPE_PLAYER)
+		{
+			if(!SetGodPower(player))
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You don't have permission to change that god-like power.");
+				return;
+			}
+		}
+	}
 
 	if ((f==FLAG_DONTANNOUNCE) && (*flag.c_str() != NOT_TOKEN))
 	{
@@ -1545,7 +1563,7 @@ const	String& flag)
 
 
 	/* check for restricted flag */
-	if(!Wizard(get_effective_id ())
+	if(!MakeWizard(player) && !Wizard(get_effective_id ())
 		&& ((f == FLAG_WIZARD)
 			|| (f == FLAG_RETIRED)))
 	{
@@ -1605,7 +1623,7 @@ const	String& flag)
 			return;
 		}
 
-		if ((thing == GOD_ID) || (thing == COMMAND_LAST_RESORT) || (thing == LIMBO) || (thing == PLAYER_START))
+		if ((thing == COMMAND_LAST_RESORT) || (thing == LIMBO) || (thing == PLAYER_START))
 		{
 			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, "Now that would REALLY mess the database up!");
 			return;
@@ -1692,13 +1710,6 @@ const	String& flag)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "WARNING: Other players can now change ownership of objects to you without your permission!");
 	}
 
-	/* check for stupid wizard */
-	if(f == FLAG_WIZARD && *flag.c_str() == NOT_TOKEN && thing == player)
-	{
-		notify_colour(player,  player, COLOUR_ERROR_MESSAGES, "You cannot make yourself mortal.");
-		return;
-	}
-
 	if(f == FLAG_WIZARD && in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You just tried to execute an @set WIZARD in a command.");
@@ -1711,21 +1722,14 @@ const	String& flag)
 		return;
 	}
 
-#ifndef	NO_GOD
-	if((f == FLAG_WIZARD) && (player != GOD_ID) && (Typeof (thing) == TYPE_PLAYER))
+	if((f == FLAG_WIZARD) && (!MakeWizard(player)) && (Typeof (thing) == TYPE_PLAYER))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES,  "Only God may make Wizards.");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES,  "You may not make Wizards.");
 		return;
 	}
-#endif	/* NO_GOD */
 	if (f == FLAG_WIZARD && (Typeof(thing) == TYPE_PLAYER) && Puppet(thing))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You cannot set a puppet to be a wizard.");
-		return;
-	}
-	if (f == FLAG_WIZARD && !Wizard(player))
-	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Only Wizards can set that flag.");
 		return;
 	}
 	/* Check you can't trash a container with things in it */
@@ -1751,7 +1755,7 @@ const	String& flag)
 		}
 		if ( (get_current_command() != NOTHING) && (!Wizard(get_current_command())))
 		{
-			log_hack(GOD_ID, "Attempt to set ABORT flag on %s(#%d) by %s(%d) in command %s(%d)",
+			log_hack(NOTHING, "Attempt to set ABORT flag on %s(#%d) by %s(%d) in command %s(%d)",
 					getname(thing), thing,
 					getname(player), player,
 					getname(get_current_command()), get_current_command());
@@ -1765,9 +1769,9 @@ const	String& flag)
 	if ((f == FLAG_WIZARD) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if (Typeof(thing) == TYPE_COMMAND)
-			log_hack(GOD_ID, "<<<WIZARD>>> flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
+			log_hack(NOTHING, "<<<WIZARD>>> flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
 		else
-			log_hack(GOD_ID, "PROTECT: WIZARD flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
+			log_hack(NOTHING, "PROTECT: WIZARD flag set on %s(#%d) by %s(#%d)",getname(thing),thing,getname(player),player);
 	}
 	if (f == FLAG_READONLY)
 	{
@@ -2779,7 +2783,7 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 		RETURN_FAIL;
 	}
 
-	if((get_effective_id() != GOD_ID) && (amount>db[get_effective_id()].get_money()))
+	if(!MoneyMaker(get_effective_id()) && (amount>db[get_effective_id()].get_money()))
 	{
 		notify(player, "You don't have that much to give away.");
 		RETURN_FAIL;

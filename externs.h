@@ -146,9 +146,9 @@ extern	dbref		lookup_player		(dbref player, const String& name);
 
 /* From predicates.c */
 extern	object_flag_type type_to_flag_map	[];
-extern	const	bool	controls_for_read	(const dbref real_who, const dbref what, const dbref effective_who);
-extern	const	bool	can_link_to		(const context &c, const dbref where);
-extern	const	bool	can_link		(const context &c, const dbref exit);
+extern	bool	controls_for_read	(const dbref real_who, const dbref what, const dbref effective_who);
+extern	bool	can_link_to		(const context &c, const dbref where);
+extern	bool	can_link		(const context &c, const dbref exit);
 
 /* From speech.c */
 extern	void		notify_except		(dbref first, dbref originator, dbref exception, const char *msg);

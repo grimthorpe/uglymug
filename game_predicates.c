@@ -194,7 +194,7 @@ dbref	player,
 int	cost)
 
 {
-	if ((db[player].get_pennies() >= cost) || (player == GOD_ID) || (Wizard (player)) || (Apprentice(player)) || (XBuilder(player)))
+	if ((db[player].get_pennies() >= cost) || (MoneyMaker(player)) || (Wizard (player)) || (Apprentice(player)) || (XBuilder(player)))
 	{
 		db[player].set_pennies (db [player].get_pennies () - cost);
 		return 1;
@@ -597,7 +597,7 @@ dbref player)
         int guest_match;
 	char element[BUFFER_LEN];
        	sprintf(element, "#%d", (int)player);
-	Matcher matcher (GOD_ID, "guest_dictionary", TYPE_DICTIONARY, GOD_ID);
+	Matcher matcher (player, "guest_dictionary", TYPE_DICTIONARY, UNPARSE_ID);
 	matcher.match_variable_remote(COMMAND_LAST_RESORT);
 	matcher.match_array_or_dictionary();
 	if ((guest_match = matcher.match_result()) == NOTHING)

@@ -1251,7 +1251,7 @@ const	String& arg)
 
 {
 	/** For now, assume type == "leaf" **/
-	int			pos;
+	unsigned int		pos;
 	Matcher			*matcher = (Matcher *) NULL;
 
 	if (!arg)

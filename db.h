@@ -62,6 +62,7 @@ typedef	int	dbref;		///< Offset into db array, used as an object identity.
 const	dbref	NOTHING		(-1);		///< null dbref
 const	dbref	AMBIGUOUS	(-2);		///< multiple possibilities, for matchers
 const	dbref	HOME		(-3);		///< virtual room representing mover's home
+const	dbref	UNPARSE_ID	(-4);		///< Generic 'can always UNPARSE'
 
 typedef unsigned char	flag_type;
 typedef int		object_flag_type;
@@ -156,6 +157,14 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define	FLAG_RETIRED			53
 #define	FLAG_LITERALINPUT		54
 #define FLAG_NO_EMAIL_FORWARD		55
+/* God-like powers */
+#define FLAG_GOD_SET_GOD			56	// Catch-22, have to have this set in order to set it...
+#define FLAG_GOD_WRITE_ALL		57	// Overide all controls_for_write, apart from @password
+#define FLAG_GOD_BOOT_ALL		58	// Override all @boot checks
+#define FLAG_GOD_CHOWN_ALL		59	// Override all @chown checks
+#define FLAG_GOD_MAKE_WIZARD		60	// Can set Wizard on a Player
+#define FLAG_GOD_PASSWORD_RESET		61	// Can set any player's password
+#define	FLAG_GOD_DEEP_POCKETS		62	// Has an infinite supply of Drogna
 
 /* Used inside the code and not stored in the db */
 /* Lee says so and I belive him! */
@@ -238,6 +247,15 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define	Created(x)	(db[(x)].set_ctime())
 #define	Modified(x)	(db[(x)].set_mtime())
 #define	Accessed(x)	(db[(x)].set_atime())
+// God-like powers
+#define	SetGodPower(x)	(((x) == GOD_ID) || db[(x)].get_flag(FLAG_GOD_SET_GOD))
+#define	WriteAll(x)	(db[(x)].get_flag(FLAG_GOD_WRITE_ALL))
+#define	BootAll(x)	(db[(x)].get_flag(FLAG_GOD_BOOT_ALL))
+#define	ChownAll(x)	(db[(x)].get_flag(FLAG_GOD_CHOWN_ALL))
+#define	MakeWizard(x)	(db[(x)].get_flag(FLAG_GOD_MAKE_WIZARD))
+#define	PasswordReset(x)	(db[(x)].get_flag(FLAG_GOD_PASSWORD_RESET))
+#define	MoneyMaker(x)	(db[(x)].get_flag(FLAG_GOD_DEEP_POCKETS))
+
 
 #define PLAYER_PID_STACK_SIZE 16
 
