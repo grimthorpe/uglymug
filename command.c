@@ -172,7 +172,7 @@ Matcher		&matcher)
 	if (command < 0 || command >= db.get_top () || (Typeof(command) != TYPE_COMMAND))
 		return ACTION_STOP;
 	/* Push stack, with current EID if we already happen to be nested */
-	if ((call_stack.depth () >= depth_limit) || (!call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher))))
+	if ((call_stack.depth () >= depth_limit) || (!call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()))))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Recursion in command");
 		log_recursion (command, a1, a2);

@@ -245,10 +245,11 @@ class	Compound_command_and_arguments
 			dbref		csucc_cache;
 			dbref		cfail_cache;
 			Scope_stack	scope_stack;
+			bool		gagged; // Set true if this or previous compound commands 'Silent'
     protected:
 	virtual	const	int		line_for_outer_scope	()	const	{ return current_line + 1; };
     public:
-					Compound_command_and_arguments	(dbref c, context *, const char *sc, const char *a1, const char *a2, dbref eid, Matcher *m);
+					Compound_command_and_arguments	(dbref c, context *, const char *sc, const char *a1, const char *a2, dbref eid, Matcher *m, bool silent);
 	virtual				~Compound_command_and_arguments	();
 			Command_action	step			(context *);
 		const	char		*set_command		(dbref c);
@@ -266,6 +267,8 @@ class	Compound_command_and_arguments
 		const	Scope		&innermost_scope	()	const;
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
 		String_pair		*locate_innermost_arg	(const CString& name)	const;
+
+			bool		gagged_command		()	const	{ return gagged; }
 };
 
 typedef	Array_stack <Compound_command_and_arguments *>	Call_stack;
@@ -329,7 +332,7 @@ class	context
 	const	char			*get_innermost_arg2	()	const;
 	const	bool			in_command		()	const;
 	const	dbref			get_current_command	()	const;
-	const	bool			gagged_command		()	const	{ return ((get_current_command () != NOTHING) && Silent (get_current_command ())); }
+	const	bool			gagged_command		()	const	{ return (call_stack.is_empty())?false:call_stack.top()->gagged_command(); }
 	const	String&			get_return_string	()	const	{ return (return_string); }
 	const	dbref			get_effective_id	()	const;
 		void			copy_returns_from	(const context &source);

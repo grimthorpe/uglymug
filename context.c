@@ -251,14 +251,15 @@ const	char	*sc,
 const	char	*a1,
 const	char	*a2,
 const	dbref	eid,
-	Matcher	*m)
+	Matcher	*m,
+	bool	silent)
 : Command_and_arguments (sc, a1, a2, m)
 , Scope (*(Scope *)0)
 , effective_id (eid)
 , csucc_cache (NOTHING)
 , cfail_cache (NOTHING)
 , scope_stack (MAX_NESTING)
-
+, gagged(silent)
 {
 	const	char	*err;
 
@@ -267,6 +268,8 @@ const	dbref	eid,
 		notify(c->get_player(), "%s %s", err, unparse_object(*c, cmd));
 		set_command (NOTHING);
 	}
+	else if(Silent(cmd))
+		gagged = true;
 }
 
 
