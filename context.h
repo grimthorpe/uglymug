@@ -525,6 +525,7 @@ class	context
 	void				do_query_first_name	(const String&, const String&);
 	void				do_query_fuses		(const String&, const String&);
 	void				do_query_gravity_factor	(const String&, const String&);
+	void				do_query_hardcodecommands (const String&, const String&);
 	void				do_query_id		(const String&, const String&);
 	void				do_query_idletime	(const String&, const String&);
 	void				do_query_interval	(const String&, const String&);

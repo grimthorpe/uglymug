@@ -112,6 +112,7 @@ command_details			command_table [] =
 	{"@?firstname",		&context::do_query_first_name,		LEGAL_COMMAND},
 	{"@?fuses",		&context::do_query_fuses,		LEGAL_COMMAND},
 	{"@?gravityfactor",	&context::do_query_gravity_factor,	LEGAL_COMMAND},
+	{"@?hardcodecommands",	&context::do_query_hardcodecommands,	LEGAL_COMMAND},
 	{"@?id",		&context::do_query_id,			LEGAL_COMMAND},
 	{"@?idletime",		&context::do_query_idletime,		LEGAL_COMMAND},
 	{"@?interval",		&context::do_query_interval,		LEGAL_COMMAND},
@@ -321,6 +322,33 @@ command_details			command_table [] =
 	{"whisper",		&context::do_whisper,		NO_COMMAND_FLAGS},
 	{"who",			&context::do_who,		FULL_COMPARE},
 };
+
+
+/* JPK command to dump commands */
+void
+context::do_query_hardcodecommands(const String&, const String&)
+{
+unsigned int i;
+const	unsigned int	command_table_size = (sizeof (command_table) / sizeof (command_details));
+char *buf;
+
+	notify_colour (player,  player, COLOUR_MESSAGES, "Number of hardcode commands: %d",command_table_size);
+	buf=(char *)malloc(sizeof(command_table));
+
+	// First command
+	strcat(buf,command_table[0].name);
+
+	// The remaining commands separated with semi-colons.
+	for (i=1;i<command_table_size;i++)
+	{
+	//	notify_colour (player,  player, COLOUR_MESSAGES, "Command: %s",command_table[i].name);
+		strcat(buf,";");
+		strcat(buf,command_table[i].name);
+	}
+                return_status = COMMAND_SUCC;
+                set_return_string (buf);
+}
+
 
 
 static int
