@@ -46,11 +46,11 @@ const	CString& password)
 	return player;
 }
 
-dbref create_player(const CString& name, const CString& password)
+dbref create_player(const CString& name, const CString& password, bool effective_wizard)
 {
 	dbref	player;
 
-	if (!ok_player_name(name) || !ok_password(password))
+	if (!ok_player_name(name) || !ok_password(password, effective_wizard))
 		return NOTHING;
 
 	/* else he doesn't already exist, create him */

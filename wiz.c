@@ -517,7 +517,7 @@ const	CString& password)
 
 	if (!Wizard (get_effective_id ()))
 		notify_colour (player,player, COLOUR_ERROR_MESSAGES, "Only Wizards may create players.");
-	else if ((result = create_player (name, password)) == NOTHING)
+	else if ((result = create_player (name, password, Wizard(get_effective_id()))) == NOTHING)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES,"Illegal name or password.");
 		else
 		{

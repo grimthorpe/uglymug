@@ -187,7 +187,8 @@ void StringBuffer::unref()
 {
 	if((this) && ((--_ref) == 0))
 	{
-		delete const_cast<StringBuffer*>(this);
+		if(this != &EMPTYBUFFER)
+			delete const_cast<StringBuffer*>(this);
 	}
 }
 

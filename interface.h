@@ -10,7 +10,7 @@ extern	 dbref		shutdown_player;	/*The wizard shutting down*/
 extern	 const	char	*shutdown_reason;	/*The reason for shutdown*/
 extern	 time_t		game_start_time;	/*time game started*/
 
-extern	 dbref	create_player		(const CString& name, const CString& password);
+extern	 dbref	create_player		(const CString& name, const CString& password, bool effective_wizard = false);
 extern	 dbref	connect_player		(const CString& name, const CString& password);
 extern	 void	emergency_shutdown	(void);
 extern	 void	boot_player		(dbref player, dbref booter);

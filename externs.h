@@ -108,7 +108,7 @@ extern	int		payfor			(dbref who, int cost);
 extern	bool		ok_name			(const CString& name);
 extern	bool		ok_puppet_name		(const CString& puppet_name);
 extern	bool		ok_player_name		(const CString& player_name);
-extern	int		ok_password		(const CString& password);
+extern	bool		ok_password		(const CString& password, bool effective_wizard = false);
 #ifdef ALIASES
 extern	int		ok_alias_string		(dbref player,const CString& alias);
 #endif /* ALIASES */

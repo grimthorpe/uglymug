@@ -38,10 +38,10 @@
 
 // Make game.c happy
 const char* version = "trawl; unknown version.";
+const char* release = "UNKNOWN";
+
 int dump_interval = 10000000;
 
-CString NULLCSTRING;
-String NULLSTRING;
 /*
  * Function.
  */

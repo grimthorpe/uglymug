@@ -252,13 +252,14 @@ const	CString& name)
 }
 
 
-int
+bool
 ok_password (
-const	CString& password)
+const	CString& password, bool effective_wizard)
 
 {
-	if (!password || !*password.c_str())
-		return 0;
+// Wizards are allowed to set a NULL password, but mortals aren't.
+	if (!password)
+		return effective_wizard;
 	return 1;
 }
 
