@@ -31,6 +31,8 @@ extern String NULLSTRING;
  */
 class StringBuffer
 {
+friend class String;
+
 	char*		_buf;		// Pointer to the data
 	unsigned int	_len;		// The length of the string
 	unsigned int	_capacity;	// The total allocated space
@@ -55,7 +57,7 @@ class StringBuffer
 //			if required. Use NewBuffer to create a new StringBuffer
 	StringBuffer(unsigned int capacity = 0);
 	StringBuffer(const char* str);
-	StringBuffer(const char* str, unsigned int len);
+	StringBuffer(const char* str, unsigned int len, unsigned int capacity = 0);
 
 public:
 // Public member functions
@@ -80,6 +82,8 @@ public:
 
 // length - Return the length of the data, not including the \0 terminator.
 	unsigned int	length()	const	{ return _len; }
+
+	void		append(const char*, unsigned int len);
 };
 
 /*
@@ -111,6 +115,7 @@ public:
 	String& operator=(const String& cstr);
 	String& operator=(const char* cstr);
 
+	String& operator+=(const String& other);
 // Useful methods
 // c_str - Return a pointer to the underlying character buffer.
 //		Same guarantee as StringBuffer::c_str

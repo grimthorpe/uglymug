@@ -13,6 +13,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Modifed String so that you can append to it; just use +=
+
+
 um1_039 - ARGH!
 	Changed around @?connectedplayers in the command list so that it is in the right place.
 

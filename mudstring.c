@@ -43,6 +43,10 @@ void StringBuffer::resize(unsigned int newsize, bool copy=true)
 {
 	if(newsize <= _capacity)
 		return;
+	if((newsize - _capacity) < 32)
+	{
+		newsize += 32;
+	}
 	_capacity = newsize;
 	//while(newsize > _capacity)
 	//	_capacity += STRINGBUFFER_GROWSIZE;
@@ -74,8 +78,9 @@ StringBuffer::StringBuffer(const char* str) : _buf(0), _len(0), _capacity(0), _r
 		assign(str, strlen(str));
 	}
 }
-StringBuffer::StringBuffer(const char* str, unsigned int len) : _buf(0), _len(0), _capacity(0), _ref(0)
+StringBuffer::StringBuffer(const char* str, unsigned int len, unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
+	resize(capacity, false);	// Make sure we've got enough space.
 	if(str && *str)
 	{
 		assign(str, len);
@@ -110,6 +115,16 @@ void StringBuffer::unref()
 			delete const_cast<StringBuffer*>(this);
 	}
 }
+
+void
+StringBuffer::append(const char* other, unsigned int len)
+{
+	resize(_len+len, true);
+	memcpy(_buf+_len, other, len);
+	_len += len;
+	_buf[_len] = 0;
+}
+
 
 String::~String()
 {
@@ -160,6 +175,30 @@ String& String::operator=(const char* cstr)
 	else
 	{
 		_buffer->assign(0, 0);
+	}
+	return *this;
+}
+
+String&
+String::operator+=(const String& other)
+{
+	if(!other)
+		return *this;
+
+	if(!*this)
+	{
+		(*this) = other;
+	}
+	else
+	{
+		if(_buffer->refcount() > 1)
+		{
+			StringBuffer* tmp = new StringBuffer(_buffer->c_str(), _buffer->length(), _buffer->length() + other.length());
+			_buffer->unref();
+			_buffer = tmp;
+			_buffer->ref();
+		}
+		_buffer->append(other.c_str(), other.length());
 	}
 	return *this;
 }
