@@ -77,8 +77,12 @@ class context;
 class	Variable_stack
 {
     private:
+		Variable_stack(const Variable_stack&); // DUMMY
+		Variable_stack& operator=(const Variable_stack&); // DUMMY
+
 		String_pair_stack variable_stack;
     public:
+				Variable_stack		() : variable_stack() {}
 	virtual			~Variable_stack		();
 		String_pair	*addarg			(const String& n, const String& v);
 		String_pair	*check_and_add_arg	(const String& n, const String& v);
@@ -145,7 +149,6 @@ class	If_scope
 : public Scope
 {
 			bool		if_ok;
-			bool		no_endif;
 			int		stop_line;
 			int		endif_line;
     protected:
@@ -202,6 +205,9 @@ class	With_loop
 : public Loop
 {
     private:
+	With_loop(const With_loop&); // DUMMY
+	With_loop& operator=(const With_loop&); // DUMMY
+
 			int		counter;
 			dbref		dict;
 			String_pair	*index;
@@ -233,7 +239,7 @@ class	Command_and_arguments
 			void		set_arg2		(const String&);
     public:
 					Command_and_arguments	(const String&sc, const String&a1, const String&a2, Matcher *m);
-					~Command_and_arguments	();
+	virtual				~Command_and_arguments	();
 			void		pend_fuse		(dbref fuse, bool success, const String&simple_command, const String&arg1, const String&arg2, const Matcher &matcher);
 			void		fire_sticky_fuses	(context &c);
 		const	String&		get_simple_command	()	const		{ return (simple_command); }
@@ -327,7 +333,7 @@ class	context
 		void			execute			(void (context::*f) ())	{ (this->*f) (); }
     public:
 					context			(dbref pl, context &your_creator = *(context *) NULL);
-					~context		();
+	virtual				~context		();
 		void			execute_commands	();
 		void			command_executed	()	{ commands_executed++; }
 		void			set_step_limit		(int new_limit)	{ step_limit = new_limit; }
@@ -627,6 +633,9 @@ class	context
 class Dependency
 {
     private:
+	Dependency(const Dependency&); // DUMMY
+	Dependency& operator=(const Dependency&); // DUMMY
+
 			context		*blocker;
 			context		*blocked;
 			void		(context::*proceed_function) ();
@@ -644,7 +653,7 @@ class	Scheduler
     private:
 			Context_stack	contexts;
     public:
-					Scheduler	()		{}
+					Scheduler	(): contexts()	{}
 					~Scheduler	()		{}
 		bool			runnable	()	const	{ return !contexts.is_empty (); }
 		context			*step		();

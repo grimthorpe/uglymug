@@ -36,13 +36,9 @@ Scheduler	mud_scheduler;
 
 Scope::Scope (
 const	Scope	&os)
-: outer_scope (&os)
+: outer_scope (&os), current_line((&os)?outer_scope->line_for_inner_scope():1)
 
 {
-	if (&os)
-		current_line = outer_scope->line_for_inner_scope ();
-	else
-		current_line = 1;
 }
 
 
@@ -251,6 +247,8 @@ const	dbref	eid,
 	bool	silent)
 : Command_and_arguments (sc, a1, a2, m)
 , Scope (*(Scope *)0)
+, command(NOTHING)
+, player(c->get_player())
 , effective_id (eid)
 , csucc_cache (NOTHING)
 , cfail_cache (NOTHING)
@@ -259,7 +257,7 @@ const	dbref	eid,
 {
 	const	char	*err;
 
-	player = c->get_player();
+//	player = c->get_player();
 	if ((err = (set_command (cmd))) != 0)
 	{
 		notify(c->get_player(), "%s %s", err, unparse_object(*c, cmd));
@@ -884,13 +882,14 @@ const	Scope	&os,
 	bool	i)
 : Scope (os)
 , if_ok (i)
-
+, stop_line ((db[get_command()].get_parse_helper(current_line)) & 0xff)
+, endif_line((db[get_command()].get_parse_helper(current_line)) >> 8)
 {
-	dbref	command = get_command ();
-	unsigned short	temp = db [command].get_parse_helper (current_line);
+//	dbref	command = get_command ();
+//	unsigned short	temp = db [command].get_parse_helper (current_line);
 
-	stop_line = temp & 0xff;
-	endif_line = temp >> 8;
+//	stop_line = temp & 0xff;
+//	endif_line = temp >> 8;
 
 	/* Flip to the elseif / endif if required */
 	if (!if_ok)
@@ -918,8 +917,6 @@ If_scope::line_for_outer_scope ()
 const
 
 {
-	/* For backwards compatibility: there may not always be an endif line */
-	//return endif_line + (no_endif ? 0 : 1);
 	return endif_line + 1;
 }
 
@@ -1004,9 +1001,8 @@ Loop::Loop (
 const	Scope	&os)
 : Scope (os)
 , start_line (os.line_for_inner_scope ())
-
+, end_line (db [get_command ()].get_parse_helper (start_line))
 {
-	end_line = db [get_command ()].get_parse_helper (start_line);
 
 	/* We need to skip our start line as it's not useful */
 	current_line++;
@@ -1136,7 +1132,7 @@ const	String&name)
 , start (in_start)
 , end (in_end)
 , step (in_step)
-
+, argument(0)
 {
 	char	workspace [11];
 

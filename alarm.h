@@ -18,6 +18,9 @@
 class	Pending
 {
     private:
+	Pending(const Pending&); // DUMMY
+	Pending& operator=(const Pending&); // DUMMY
+
 	Pending			*previous;
 	Pending			*next;
 	dbref			object;

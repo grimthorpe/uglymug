@@ -1,6 +1,20 @@
+/********************************************************************
+ *
+ * MUDSTRING
+ *
+ * A managed string.
+ *
+ * Latest version: uses a shared buffer between strings to reduce the
+ *                 work done when copying data.
+ *
+ * Implemented Feb-2002 by Grimthorpe.
+ ********************************************************************/
+
 #include "mudstring.h"
+#include "copyright.h"
 #include <time.h>
 
+// NewBuffer - static method that returns a StringBuffer.
 StringBuffer*
 StringBuffer::NewBuffer(const char* ptr, unsigned int len = 0)
 {
@@ -10,6 +24,7 @@ static StringBuffer* EmptyBuffer = new StringBuffer();
 
 	if(!ptr || !*ptr)
 	{
+		// If there is no data to store, then return the default empty one.
 		return EmptyBuffer;
 	}
 
@@ -24,13 +39,6 @@ String NULLSTRING;
 
 #define STRINGBUFFER_GROWSIZE	64
 
-void StringBuffer::init()
-{
-	_capacity = 0;
-	_len = 0;
-	_buf = 0;
-	_ref = 0;
-}
 void StringBuffer::resize(unsigned int newsize, bool copy=true)
 {
 	if(newsize <= _capacity)
@@ -55,22 +63,19 @@ StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the
 		delete[] _buf;
 }
 
-StringBuffer::StringBuffer(unsigned int capacity = 0)
+StringBuffer::StringBuffer(unsigned int capacity = 0) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
-	init();
 	resize(capacity);
 }
-StringBuffer::StringBuffer(const char* str)
+StringBuffer::StringBuffer(const char* str) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
-	init();
 	if(str && *str)
 	{
 		assign(str, strlen(str));
 	}
 }
-StringBuffer::StringBuffer(const char* str, unsigned int len)
+StringBuffer::StringBuffer(const char* str, unsigned int len) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
-	init();
 	if(str && *str)
 	{
 		assign(str, len);
@@ -110,21 +115,25 @@ String::~String()
 {
 	_buffer->unref();
 }
-String::String(const char* str = 0)
+
+String::String(const char* str = 0) : _buffer(0)
 {
 	_buffer = StringBuffer::NewBuffer(str);
 	_buffer->ref();
 }
-String::String(const String& str)
+
+String::String(const String& str) : _buffer(0)
 {
 	_buffer=str._buffer;
 	_buffer->ref();
 }
-String::String(StringBuffer* buf)
+
+String::String(StringBuffer* buf) : _buffer(0)
 {
 	_buffer = buf;
 	_buffer->ref();
 }
+
 String& String::operator=(const String& cstr)
 {
 	if(cstr._buffer != _buffer)
@@ -135,6 +144,7 @@ String& String::operator=(const String& cstr)
 	}
 	return *this;
 }
+
 String& String::operator=(const char* cstr)
 {
 	if(_buffer->refcount () != 1)

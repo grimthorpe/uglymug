@@ -163,7 +163,7 @@ private:
     private:
 	dbref			parent;
     public:
-				Inheritable_object	()				{ parent = NOTHING; }
+				Inheritable_object	() : parent(NOTHING)		{ }
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
 		void		set_parent		(const dbref p);
@@ -184,7 +184,9 @@ private:
     private:
 	dbref			commands;	/* Commands attached to this object */
 	dbref			contents;	/* pointer to first item */
+	String			contents_string;
 	dbref			exits;		/* pointer to first exit for rooms */
+	String			exits_string;	/* A String to display instead of 'Obvious exits:' */
 	dbref			fuses;		/* Fuses and alarms attached to this object */
 	dbref			info_items;	/* pointer to first variable for this object */
 	dbref			destination;	/* pointer to destination of exits */
@@ -201,6 +203,8 @@ private:
 		void		set_fuses		(const dbref o)			{ fuses = o; }
 	const	dbref		get_commands		()			const	{ return commands; }
 	const	dbref		get_contents		()			const	{ return contents; }
+		void		set_contents_string	(const String& c);
+	const	String&		get_contents_string	()			const	{ return (contents_string); }
 	const	dbref		get_destination		()			const	{ return destination; }
 	const	dbref		get_exits		()			const	{ return exits; }
 	const	dbref		get_fuses		()			const	{ return fuses; }
@@ -467,7 +471,6 @@ private:
 	Room(const Room&); // DUMMY
 	Room& operator=(const Room&); // DUMMY
     private:
-	String			contents_string;
         time_t			last_entry_time;
     public:
 				Room			();
@@ -476,8 +479,6 @@ private:
 	const	bool		read			(FILE* f);
 	const	bool		destroy			(const dbref);
 		void		set_last_entry_time	()				{ time (&last_entry_time); }
-		void		set_contents_string	(const String& c);
-	const	String&		get_contents_string	()			const	{ return (contents_string); }
 	const	time_t		get_last_entry_time	()			const	{ return last_entry_time; }
 	const	double		get_inherited_mass	()			const;
 	const	double		get_inherited_volume	()			const;
@@ -496,17 +497,14 @@ private:
 	Thing(const Thing&); // DUMMY
 	Thing& operator=(const Thing&); // DUMMY
     private:
-		String		contents_string;	/* the string shown when the container is looked at and contains something */
 		boolexp		*lock_key;		/* the objects required to lock/unlock a container */
     public:
 				Thing			();
 	virtual			~Thing			();
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
-		void		set_contents_string	(const String& c);
 		void		set_lock_key		(boolexp *k);
 		void		set_lock_key_no_free	(boolexp *k)			{ lock_key=k; }
-	const	String&		get_contents_string	()			const	{ return (contents_string); }
 	const	boolexp		*get_lock_key		()			const	{ return (lock_key); }
 		boolexp		*get_lock_key_for_edit	()			const	{ return (lock_key); }
 	const	bool		destroy			(const dbref);

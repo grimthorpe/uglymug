@@ -427,7 +427,10 @@ int 	prettylook_is_on
 				if (!seen)
 				{
 					seen = 1;
-					notify_colour (c.get_player (), c.get_player(), COLOUR_CONTENTS, "Obvious exits:");
+					if(db[loc].get_exits_string())
+						notify_colour(c.get_player(), c.get_player(), COLOUR_CONTENTS, "%s", db[loc].get_exits_string().c_str());
+					else
+						notify_colour (c.get_player (), c.get_player(), COLOUR_CONTENTS, "Obvious exits:");
 					if (prettylook_is_on)
 						notify (c.get_player(), "%s~~~~~~~~~~~~~~%s",ca[COLOUR_UNDERLINES], COLOUR_REVERT);
 				}

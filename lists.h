@@ -25,6 +25,9 @@ typedef struct	player_list_entry
 class	Player_list
 {
 	private:
+	Player_list(const Player_list&); // DUMMY
+	Player_list& operator=(const Player_list&); // DUMMY
+
 		bool	_include_unconnected;
 		String	listnames[MAX_LIST_TELLS];
 		int	listcount;

@@ -24,7 +24,7 @@ private:
 			int	where;
 			T	*ary;
     public:
-			Array_stack	(int s)		{ ary = new T [size = s]; where = 0; }
+			Array_stack	(int s) : size(s), where(0), ary(new T[size])		{ }
 			~Array_stack	()		{ delete [] ary; }
 		bool	push		(T elem)	{ if (where >= size) return false; ary [where++] = elem; return true; }
 		T	pop		()		{ return ary [--where]; }
@@ -88,7 +88,7 @@ private:
 		int			depth;
 		Link_element <T>	*list;
     public:
-					Link_stack	()		{ list = 0; depth = 0; }
+					Link_stack	() : depth(0), list(0)	{}
 					~Link_stack	()		{ while (list) pop (); }
 	const	bool			is_empty	()	const	{ return !list; }
 		void			push		(const T &what)	{ Link_element <T> *temp = new Link_element <T> (what); temp->link_between (0, list); list = temp; depth++; }

@@ -37,9 +37,6 @@ class StringBuffer
 	int		_ref;		// The reference count.
 
 // Private member functions.
-// init - Called by all constructors to initialise the data.
-	void init();
-
 // resize - Resize the storage space to at least 'newsize'.
 //		If copy is true, copy over the data into the new buffer
 //		If copy is false, the buffer contents are undefined.

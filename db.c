@@ -956,10 +956,10 @@ const
 	putfieldtype(f, ROOM_LASTENTRY);
 	putint (f, last_entry_time);
 
-	if(contents_string)
+	if(get_contents_string())
 	{
 		putfieldtype(f, ROOM_CONTSTR);
-		putstring(f, contents_string);
+		putstring(f, get_contents_string());
 	}
 	return (true);
 }
@@ -1464,10 +1464,10 @@ const
 
 {
 	Massy_object::write (f);
-	if(contents_string)
+	if(get_contents_string())
 	{
 		putfieldtype(f, THING_CONTSTR);
-		putstring	(f, contents_string);
+		putstring	(f, get_contents_string());
 	}
 	if(lock_key)
 	{

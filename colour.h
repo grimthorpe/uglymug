@@ -111,6 +111,7 @@ extern struct colour_table_type	colour_table[];
 
 struct cplay
 {
+	cplay() : player(-1), output_string() {}
 		int		player;
 		String		output_string;
 };

@@ -75,15 +75,10 @@ const	char	*string)
 
 
 Database::Database ()
-
+	: array(NULL), top(NOTHING), free_start(NOTHING), free_end(NOTHING),
+		alarms(NULL), player_count(0), player_cache(NULL),
+		changed_player_list(NULL)
 {
-	array = NULL;
-	top = NOTHING;
-	free_start = NOTHING;
-	free_end = NOTHING;
-	alarms = NULL;
-	changed_player_list = NULL;
-	player_count = 0;
 }
 /*
  * ~Database: Set free all our objects. This relies on
@@ -254,14 +249,10 @@ const	dbref	to)
  */
 
 object::object ()
+	: name(NULLSTRING), location(NOTHING), next(NOTHING), owner(NOTHING)
 
 {
 	int	i;
-
-	name		= NULLSTRING;
-	location	= NOTHING;
-	next		= NOTHING;
-	owner		= NOTHING;
 	for(i=0;i<FLAGS_WIDTH;i++)
 		flags[i]='\0';
 }
@@ -600,6 +591,10 @@ const int object::exist_inherited_element(const int) const
 const unsigned int object::get_inherited_number_of_elements(void) const
 { IMPLEMENTATION_ERROR ("get_inherited_number_of_elements"); return 0; }
 
+/* Old_object */
+void object::set_exits_string (const String&)
+{ IMPLEMENTATION_ERROR ("exits_string") }
+
 /* Massy_thing */
 void object::set_gravity_factor (const double)
 { IMPLEMENTATION_ERROR ("gravity factor") }
@@ -744,9 +739,8 @@ Information::Information()
 /************************************************************************/
 
 Dictionary::Dictionary()
-
+	: indices(NULL)
 {
-	indices = NULL;
 }
 
 
@@ -1150,15 +1144,10 @@ const
 /************************************************************************/
 
 Lockable_object::Lockable_object ()
-
+	: key(TRUE_BOOLEXP), fail_message(), drop_message(),
+		succ_message(), ofail(), osuccess(),
+		odrop()
 {
-	key		= TRUE_BOOLEXP;
-	fail_message	= NULLSTRING;
-	succ_message	= NULLSTRING;
-	drop_message	= NULLSTRING;
-	ofail		= NULLSTRING;
-	osuccess	= NULLSTRING;
-	odrop		= NULLSTRING;
 }
 
 
@@ -1166,12 +1155,6 @@ Lockable_object::~Lockable_object ()
 
 {
 	set_key (TRUE_BOOLEXP);
-	set_fail_message (NULLSTRING);
-	set_succ_message (NULLSTRING);
-	set_drop_message (NULLSTRING);
-	set_ofail (NULLSTRING);
-	set_osuccess (NULLSTRING);
-	set_odrop (NULLSTRING);
 }
 
 
@@ -1290,14 +1273,10 @@ const unsigned int Inheritable_object::get_inherited_number_of_elements(void) co
 /************************************************************************/
 
 Old_object::Old_object ()
-
+	: commands(NOTHING), contents(NOTHING), contents_string(),
+		exits(NOTHING), exits_string(), fuses(NOTHING),
+		info_items(NOTHING), destination(NOTHING)
 {
-	destination	= NOTHING;
-	contents	= NOTHING;
-	exits		= NOTHING;
-	commands	= NOTHING;
-	info_items	= NOTHING;
-	fuses		= NOTHING;
 }
 
 
@@ -1363,6 +1342,13 @@ const
 	return(temp);
 }
 
+void
+Old_object::set_contents_string (
+const	String& c)
+{
+	contents_string = c;
+}
+
 
 /************************************************************************/
 /*									*/
@@ -1371,23 +1357,12 @@ const
 /************************************************************************/
 
 Room::Room()
-
+	: last_entry_time(0)
 {
-	contents_string= NULLSTRING;
-	last_entry_time = 0;
 }
 
 Room::~Room()
 {
-	set_contents_string(NULLSTRING);
-}
-
-void
-Room::set_contents_string (
-const	String& c)
-
-{
-	contents_string = c;
 }
 
 
@@ -1398,13 +1373,9 @@ const	String& c)
 /************************************************************************/
 
 Massy_object::Massy_object ()
-
+	: gravity_factor(1.0), mass(0.0), volume(0.0), mass_limit(0.0),
+		volume_limit(0.0)
 {
-	gravity_factor = 1.0;
-	mass = 0.0;
-	volume = 0.0;
-	mass_limit = 0.0;
-	volume_limit = 0.0;
 }
 
 
@@ -1418,17 +1389,10 @@ Massy_object::Massy_object ()
 /************************************************************************/
 
 puppet::puppet ()
-
+	: pennies(0), score(0), last_name_change(time(NULL)),
+		build_id(NOTHING), race(), who_string(), email_addr(),
+		money(0), fsm_states(NULL)
 {
-	last_name_change = time(NULL);
-	pennies		= 0;
-	score		= 0;
-	race		= NULLSTRING;
-	who_string	= NULLSTRING;
-	email_addr	= NULLSTRING;
-	fsm_states	= NULL;
-	money		= 0;
-	build_id	= NOTHING;
 }
 
 
@@ -1473,24 +1437,16 @@ const	String& s)
 /************************************************************************/
 
 Player::Player ()
-
+	: recall(NULL), password(), controller(NOTHING), colour(NULL),
+		col_at(NULL), colour_play(NULL), colour_play_size(0),
+		channel(NULL)
 {
-	int	i;
-
-	password 	= NULLSTRING;
-	colour		= NULL;
-	col_at		= NULL;
-	colour_play	= NULL;
-	colour_play_size= 0;
 #ifdef ALIASES
+	int	i;
 	for (i = 0; i < MAX_ALIASES; i++)
 		alias[i]	= NULLSTRING;
 
 #endif
-	channel = NULL;
-
-	//Recall Buffer things
-	recall=0;
 }
 
 
@@ -1918,27 +1874,15 @@ const
 /************************************************************************/
 
 Thing::Thing ()
-
+	: lock_key(TRUE_BOOLEXP)
 {
-	contents_string = NULLSTRING;
-	lock_key = TRUE_BOOLEXP;
 }
 
 
 Thing::~Thing ()
 
 {
-	set_contents_string	(NULLSTRING);
 	set_lock_key		(TRUE_BOOLEXP);
-}
-
-
-void
-Thing::set_contents_string (
-const	String& c)
-
-{
-	contents_string = c;
 }
 
 
@@ -2322,7 +2266,8 @@ const	dbref	item)
 
 	if (Typeof (temp = db[item].get_location()) != TYPE_FREE)
 		db [temp].set_exits(remove_first (db [temp].get_exits(), item));
-	db [db [item].get_owner ()].add_pennies (EXIT_COST);
+	if(db[item].get_owner() != NOTHING)
+		db [db [item].get_owner ()].add_pennies (EXIT_COST);
 
 	return (db.delete_object (item));
 }
@@ -2340,7 +2285,10 @@ const	dbref	item)
 	destroy_all_fuses (item);
 	destroy_all_variables (item);
 
-	db [db [item].get_owner ()].add_pennies (PUPPET_COST);
+	if(db[item].get_owner() != NOTHING)
+	{
+		db [db [item].get_owner ()].add_pennies (PUPPET_COST);
+	}
 	if (Typeof (temp = db[item].get_location()) != TYPE_FREE)
 		db[temp].set_contents(remove_first (db[temp].get_contents(), item));
 

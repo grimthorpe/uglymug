@@ -9,6 +9,12 @@
 
 #include "mudstring.h"
 #include "config.h"
+
+/* special dbref's */
+#define	NOTHING			(-1)		/* null dbref */
+#define	AMBIGUOUS		(-2)		/* multiple possibilities, for matchers */
+#define	HOME			(-3)		/* virtual	room, represents mover's home */
+
 #include "colour.h"
 
 #ifdef DBREF_BUG_HUNTING
@@ -233,10 +239,6 @@ class	Channel;
 
 
 
-/* special dbref's */
-#define	NOTHING			(-1)		/* null dbref */
-#define	AMBIGUOUS		(-2)		/* multiple possibilities, for matchers */
-#define	HOME			(-3)		/* virtual	room, represents mover's home */
 
 
 #define PLAYER_PID_STACK_SIZE 16
@@ -628,6 +630,7 @@ class	object
 	virtual		void	set_destination_no_check	(const dbref o);
 	virtual		void	set_contents			(const dbref o);
 	virtual		void	set_exits			(const dbref o);
+	virtual		void	set_exits_string		(const String&);
 	virtual		void	set_commands			(const dbref o);
 	virtual		void	set_info_items			(const dbref o);
 	virtual		void	set_fuses			(const dbref o);
@@ -709,6 +712,7 @@ class	object
 	virtual	const	dbref	get_contents			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_destination			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_exits			()			const	{ return NOTHING; }
+	virtual 	String&	get_exits_string		()			const	{ return NULLSTRING; }
 	virtual	const	dbref	get_fuses			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_info_items			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_variables			()			const	{ return NOTHING; }
@@ -804,6 +808,7 @@ class	object_and_flags
 
 struct player_cache_struct
 {
+	player_cache_struct() : name(), player(NOTHING), state(CACHE_INVALID) {}
 	String		name;
 	dbref		player;
 	int		state;

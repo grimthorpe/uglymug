@@ -13,6 +13,8 @@
 
 #include "copyright.h"
 
+#include "descriptor.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,7 +109,8 @@ int		shutdown_flag = 0;
 dbref		shutdown_player = NOTHING;
 static	char	vsnprintf_result[BUFFER_LEN];
 static	char	scratch[BUFFER_LEN];
-static	int	check_descriptors;
+bool descriptor_data::check_descriptors = false;
+//static	int	check_descriptors;
 int			peak_users;
 
 String str_on = "on";
@@ -197,212 +200,11 @@ int	iac_we_use[] =
 	-1
 };
 
-struct text_block
-{
-	int			nchars;
-	struct	text_block	*nxt;
-	char			*start;
-	char			*buf;
-};
-
-
-struct text_queue
-{
-	struct	text_block	*head;
-	struct	text_block	**tail;
-};
-
-enum connect_states
-{
-	DESCRIPTOR_UNCONNECTED,			/* Just initialised */
-	DESCRIPTOR_NAME,			/* Await player name */
-	DESCRIPTOR_PASSWORD,			/* Await password */
-	DESCRIPTOR_NEW_CHARACTER_PROMPT,	/* New Character? */
-	DESCRIPTOR_CONFIRM_PASSWORD,		/* Re-enter password */
-	DESCRIPTOR_CONNECTED,			/* Player is connected */
-	DESCRIPTOR_LIMBO_RECONNECTED,		/* Player is has been reconnected on another descriptor */
-	DESCRIPTOR_LIMBO,			/* Awaiting disconnection */
-	DESCRIPTOR_FAKED,			/* Faked connection; NPC */
-	DESCRIPTOR_HALFQUIT			/* Player has 'HALFQUIT' */
-};
-
-enum announce_states
-{
-	ANNOUNCE_CREATED,			/* player just been created */
-	ANNOUNCE_CONNECTED,			/* player just connected */
-	ANNOUNCE_BOOTED,			/* player just booted */
-	ANNOUNCE_DISCONNECTED,			/* player just QUITed */
-	ANNOUNCE_SMD,				/* player fallen foul of an SMD read */
-	ANNOUNCE_TIMEOUT,			/* mortal been idle too long */
-	ANNOUNCE_PURGE,				/* player booting his idle connections */
-	ANNOUNCE_RECONNECT,			/* player reconnects */
-};
-
 void add_to_queue(struct text_queue *q, const char *b, int n);
 
-class descriptor_data
+void
+descriptor_data::do_write(const char * c, int i)
 {
-public:
-	descriptor_data(int sock, sockaddr_in *a, int conc = 0);
-	~descriptor_data();
-private:
-	int			_descriptor;
-	dbref			_player;	/* Initilized to zero; hence (d->get_player() == 0) implies never connected */
-	String			_player_name;	/* Used at connect time - not necessarily correct outside check_connect */
-	String			_password;	/* Used at connect time - not necessarily correct outside check_connect */
-	enum connect_states	_connect_state;
-	String			_output_prefix;
-	String			_output_suffix;
-// Remove this when ready:
-public:
-	int			connect_attempts;
-	int			output_size;
-	struct	text_queue	output;
-	struct	text_queue	input;
-	unsigned char		*raw_input;
-	unsigned char		*raw_input_at;
-	time_t			start_time;
-	time_t			last_time;
-        time_t                  time_since_idle;
-	int			warning_level;
-	int			quota;
-	int			backslash_pending;
-	int			cr_pending;
-	int			indirect_connection;	/* got hostname through a SNDLOC */
-	String			hostname;
-	struct	sockaddr_in	address;
-	descriptor_data		*next;
-	descriptor_data		**prev; // Pointer to previous->next!
-	struct		{
-				String bold_on;
-				String bold_off;
-				String underscore_on;
-				String underscore_off;
-				String backspace;
-				String clearline;
-			}	termcap;
-	struct		{
-				int	width;
-				int	height;
-				String	type;
-				int	xpos;
-				bool	wrap;
-				bool	lftocr;
-				bool	pagebell;
-				bool	recall;
-				bool	effects;
-				bool	halfquit;
-				bool	noflush;
-			}	terminal;
-	int			channel;
-
-	int			myoutput;
-
-	bool			t_echo;
-	int			t_lflow;
-	int			t_linemode;
-
-	enum IAC_STATUS	{	IAC_OUTSIDE_IAC,	IAC_GOT_FIRST_IAC,
-				IAC_GOT_COMMAND,	IAC_INSIDE_IAC,
-				IAC_GOT_ANOTHER_IAC }
-				t_iac;
-	unsigned char*		t_iacbuf;
-	int			t_piacbuf;
-	int			t_liacbuf;
-	unsigned char		t_iac_command;
-	unsigned char		t_iac_option;
-
-	bool			_got_an_iac; // Set to non-zero if we've ever received an iac
-// Functions:
-public:
-	bool	IS_HALFQUIT()
-	{
-		return (_connect_state == DESCRIPTOR_HALFQUIT);
-	}
-	bool	IS_CONNECTED()
-	{
-		return ((_connect_state == DESCRIPTOR_CONNECTED)
-			|| (_connect_state == DESCRIPTOR_FAKED)
-			|| (_connect_state == DESCRIPTOR_HALFQUIT));
-	}
-	bool	IS_FAKED()
-	{
-		return (_connect_state == DESCRIPTOR_FAKED);
-	}
-	bool	CHANNEL()
-	{
-		return ((get_descriptor()==0)? -channel:get_descriptor());
-	}
-	void	NUKE_DESCRIPTOR()
-	{
-		if(_connect_state != DESCRIPTOR_LIMBO_RECONNECTED)
-		{
-			_connect_state = DESCRIPTOR_LIMBO;
-		}
-		check_descriptors = 1;
-	}
-	void	HALFQUIT()
-	{
-		NUKE_DESCRIPTOR();
-		_connect_state = DESCRIPTOR_HALFQUIT;
-	}
-	void	output_prefix();
-	void	output_suffix();
-	void	set_output_prefix(const String& s) { _output_prefix = s; }
-	void	set_output_suffix(const String& s) { _output_suffix = s; }
-
-	enum connect_states
-		get_connect_state()	{ return _connect_state; }
-	void	set_connect_state(enum connect_states cs)
-					{ _connect_state = cs; }
-	void	connect_a_player	(dbref player, announce_states connect_state);
-	int	get_descriptor()	{ return _descriptor; }
-	int	get_player()		{ return _player; }
-	const String& 	get_player_name()	{ return _player_name;}
-	const String&	get_password()		{ return _password;}
-	void	set_player(int p)	{ _player = p; }
-	void	set_player_name(const String& p) { _player_name = p; }
-	void	set_password(const String& p) { _password = p; }
-
-	int	queue_string(const char *, int show_literally = 0, int store_in_recall_buffer = 1);
-	int	queue_string(const String& s, int show_literally = 0, int store_in_recall_buffer = 1)
-	{
-		return queue_string(s.c_str(), show_literally, store_in_recall_buffer);
-	}
-	int	queue_write(const char *, int len);
-
-	void	send_telnet_option(unsigned char command, unsigned char option);
-	void	initial_telnet_options();
-	int	process_telnet_options(unsigned char *, int);
-	int	__process_telnet_options(unsigned char *&, unsigned char*&, unsigned char*);
-	void	get_value_from_subnegotiation(unsigned char *, unsigned char, int);
-
-	void	set_echo(bool echo);
-	int	set_terminal_type(const String& terminal);
-	Command_status	terminal_set_termtype(const String& , bool);
-	String	terminal_get_termtype();
-	Command_status	terminal_set_lftocr(const String& , bool);
-	String	terminal_get_lftocr();
-	Command_status	terminal_set_pagebell(const String& , bool);
-	String	terminal_get_pagebell();
-	Command_status	terminal_set_width(const String& , bool);
-	String	terminal_get_width();
-	Command_status	terminal_set_height(const String& , bool);
-	String	terminal_get_height();
-	Command_status	terminal_set_wrap(const String& , bool);
-	String	terminal_get_wrap();
-	Command_status	terminal_set_echo(const String& , bool);
-	String	terminal_get_echo();
-	Command_status	terminal_set_recall(const String& , bool);
-	String	terminal_get_recall();
-	Command_status	terminal_set_effects(const String& , bool);
-	String	terminal_get_effects();
-	Command_status	terminal_set_halfquit(const String& , bool);
-	String	terminal_get_halfquit();
-	Command_status	terminal_set_noflush(const String& , bool);
-	String	terminal_get_noflush();
-	void	do_write(const char * c, int i)
-	{
 /*
  * There is a logic behind this function!
  *
@@ -422,36 +224,14 @@ public:
  *
  * Grimthorpe 6-June-1997
  */
-		if(_got_an_iac && t_echo) write(get_descriptor(), c, i);
-	}
+	if(_got_an_iac && t_echo) write(get_descriptor(), c, i);
+}
 
-	int	process_output();
-	int	process_input(int len = 0);
-	void	shutdownsock();
-	void	freeqs();
-
-	void	welcome_user();
-	void	splat_motd();
-	int	check_connect(const char *msg);
-	void	announce_player(announce_states state);
-
-	void save_command (const char *command)
-	{
-		add_to_queue (&input, command, strlen(command)+1);
-	}
-	int	do_command(const char *c);
-
-	void	dump_users(const char *victim, int flags);
-	void	dump_swho();
-private:
-	// Declared but not implemented.
-	descriptor_data();
-	descriptor_data(const descriptor_data&);
-	descriptor_data& operator=(const descriptor_data&);
-};
-
-
-
+void
+descriptor_data::save_command(const char* command)
+{
+	add_to_queue(&input, command, strlen(command)+1);
+}
 
 struct	descriptor_data		*descriptor_list = NULL;
 
@@ -467,7 +247,7 @@ static	int			outgoing_conc_data_waiting = 0;
 
 void				process_commands	(void);
 void				make_nonblocking	(int s);
-const	char			*convert_addr 		(struct in_addr *);
+const	char			*convert_addr 		(unsigned long);
 struct	descriptor_data		*new_connection		(int sock);
 void				parse_connect 		(const char *msg, char *command, char *user, char *pass);
 int				make_socket		(int, unsigned long);
@@ -528,12 +308,14 @@ struct terminal_set_command
 class LogCommand
 {
 private:
+	LogCommand(const LogCommand&); // DUMMY
+	LogCommand& operator=(const LogCommand&); // DUMMY
+
 	char*	command;
 	int	player;
 public:
-	LogCommand(int _player, const char*_command)
+	LogCommand(int _player, const char*_command) : command(0), player(_player)
 	{
-		player = _player;
 		if(_command)
 			command = strdup(_command);
 		else
@@ -1285,9 +1067,9 @@ void mud_main_loop(int argc, char** argv)
 
 		// The Leech & ReaperMan Consortium (1995)
 
-		if (check_descriptors)
+		if (descriptor_data::check_descriptors)
 		{
-			check_descriptors = 0;
+			descriptor_data::check_descriptors = 0;
 			for (d = descriptor_list; d; d = dnext)
 			{
 				dnext = d->next;
@@ -1599,7 +1381,7 @@ struct descriptor_data *new_connection(int sock)
 	{
 		log_bug("KeepAlive option not set, errno=%d", errno);
 	}
-	log_accept(newsock, ntohs (addr.sin_port), convert_addr (&(addr.sin_addr)));
+	log_accept(newsock, ntohs (addr.sin_port), convert_addr (addr.sin_addr.s_addr));
 	return new descriptor_data (newsock, &addr);
 }
 
@@ -1928,7 +1710,7 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			break;
 		
 		case TELOPT_SNDLOC:
-			if(address.sin_addr.s_addr != LOGTHROUGH_HOST)
+			if(address != LOGTHROUGH_HOST)
 			{
 				log_bug("Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST", get_descriptor());
 				break;
@@ -2121,7 +1903,7 @@ descriptor_data::set_terminal_type(const String& termtype)
 
 struct cached_addr
 {
-	cached_addr() { addr = 0; count = 0; lastused = 0; }
+	cached_addr() : addr(0), name(), count(0), lastused(0) {}
 	u_long	addr;
 	String	name;
 	u_long	count;
@@ -2180,19 +1962,18 @@ u_long bestindex = 0;
 
 const char *
 convert_addr (
-struct	in_addr	*a)
+unsigned long addr)
 
 {
 	struct	hostent	*he;
 	static	char	buffer [MAX(20, MAXHOSTNAMELEN)];
 	char		compare_buffer [MAXHOSTNAMELEN];
-	u_long		addr = ntohl (a->s_addr);
 
 	if(get_cached_addr(addr, buffer))
 	{
 		return buffer;
 	}
-	if (smd_dnslookup (addr) && ((he = gethostbyaddr ((char *) a, sizeof(*a), AF_INET)) != NULL))
+	if (smd_dnslookup (addr) && ((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL))
 	{
 		char	*pos;
 
@@ -2337,8 +2118,8 @@ int			channel)
 	indirect_connection     = 0;
 	if(a)
 	{
-		address = *a;
-		hostname = convert_addr (&(a->sin_addr));
+		address = a->sin_addr.s_addr;
+		hostname = convert_addr(address);
         }
         else
 		hostname = "Concentrator";
@@ -3496,7 +3277,7 @@ descriptor_data::check_connect (const char *input)
 		}
 		else
 		{
-			if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!string_compare(luser, "guest")))
+			if(smd_cantuseguests(ntohl(address)) && (!string_compare(luser, "guest")))
 			{
 				queue_string(guest_create_banned);
 				log_message("BANNED GUEST %s on descriptor %d", luser, CHANNEL());
@@ -3509,7 +3290,7 @@ descriptor_data::check_connect (const char *input)
 	}
         else if ((strlen(command) >=2) && (string_prefix("create", command)))
         {
-                if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
+                if(smd_cantcreate(ntohl(address)))
                 {
                         queue_string(create_banned);
 						log_message("BANNED CREATE %s on descriptor %d", luser, CHANNEL());
@@ -3534,7 +3315,7 @@ descriptor_data::check_connect (const char *input)
 		switch(get_connect_state())
 		{
 			case DESCRIPTOR_NAME:
-				if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!string_compare(command, "guest")))
+				if(smd_cantuseguests(ntohl(address)) && (!string_compare(command, "guest")))
 				{
 					queue_string(guest_create_banned);
 					log_message("BANNED GUEST %s on descriptor %d", luser, CHANNEL());
@@ -3586,7 +3367,7 @@ descriptor_data::check_connect (const char *input)
 					*command=tolower(*command);
 					if(*command=='y')
 					{
-						if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
+						if(smd_cantcreate(ntohl(address)))
 						{
 							queue_string(create_banned);
 							log_message("BANNED CREATE %s on descriptor %d", luser, CHANNEL());
@@ -4163,9 +3944,9 @@ int			flags)
 				if (want_npcs==0)
 				{
 					/* ... and machine name */
-					if (d->address.sin_addr.s_addr == LOGTHROUGH_HOST)
+					if (d->address == LOGTHROUGH_HOST)
 						logthrough++;
-					else if ((d->address.sin_addr.s_addr & 0xffff0000) == LOCAL_ADDRESS_MASK || d->address.sin_addr.s_addr == INADDR_LOOPBACK)
+					else if ((d->address & 0xffff0000) == LOCAL_ADDRESS_MASK || d->address == INADDR_LOOPBACK)
 						local++;
 					else
 						inet++;
@@ -5134,7 +4915,7 @@ u_long	host_addr;
 
 	for(d=descriptor_list; d!=NULL; d=d->next)
 	{
-		host_addr = ntohl (d->address.sin_addr.s_addr);
+		host_addr = ntohl (d->address);
 
 		if (is_banned (host_addr))
 		{
@@ -5146,7 +4927,7 @@ u_long	host_addr;
 		{
 			if(((d->hostname.c_str()[0]) >= '0') && ((d->hostname.c_str()[0]) <= '9'))
 			{
-				d->hostname=convert_addr (&(d->address.sin_addr));
+				d->hostname=convert_addr (d->address);
 			}
 		}
 		

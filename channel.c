@@ -35,18 +35,14 @@ class ChannelPlayer
 	ChannelPlayer& operator=(const ChannelPlayer&);
 	ChannelPlayer(const ChannelPlayer&);
 public:
-	ChannelPlayer(dbref p, ChannelPlayer** pprev)
+	ChannelPlayer(dbref p, ChannelPlayer** pprev) :
+		Player(p), Controller(false), Timestamp(0), Next(*pprev), PPrev(pprev)
 	{
-		Player = p;
-		Controller = false;
-		Timestamp = 0;
-		Next = *pprev;
 		if(Next)
 		{
 			Next->PPrev = &Next;
 		}
 		*pprev = this;
-		PPrev = pprev;
 	}
 	~ChannelPlayer()
 	{
@@ -79,9 +75,12 @@ public:
 
 class Channel
 {
+private:
+	Channel(const Channel&); // DUMMY
+	Channel& operator=(const Channel&); // DUMMY
 	String		Name;
-	bool		Private;
-	bool		Censored;
+	bool		IsPrivate;
+	bool		IsCensored;
 
 	ChannelPlayer*	Players;
 	ChannelPlayer*	Invites;
@@ -123,10 +122,10 @@ public:
 		
 	const String&	name() { return Name; }
 	void		set_name(const String& n) { Name = n; }
-	bool	get_private() { return Private; }
-	void	set_private(bool s) { Private = s; }
-	bool	get_censored() { return Censored; }
-	void	set_censored(bool s) {Censored = s; }
+	bool	get_private() { return IsPrivate; }
+	void	set_private(bool s) { IsPrivate = s; }
+	bool	get_censored() { return IsCensored; }
+	void	set_censored(bool s) {IsCensored = s; }
 
 	bool	add_invite(dbref p);
 	bool	remove_invite(dbref p);
@@ -169,21 +168,14 @@ public:
 Channel* Channel::Head = 0;
 
 Channel::Channel(const String& n)
+	: Name(n), IsPrivate(false), IsCensored(false), Players(0),
+		Invites(0), Bans(0), Next(Head), PPrev(&Head)
 {
-	Name = n;
-	Censored = false;
-	Private = false;
-	Players = 0;
-	Invites = 0;
-	Bans = 0;
-
-	Next = Head;
 	Head = this;
 	if(Next)
 	{
 		Next->PPrev = &Next;
 	}
-	PPrev = &Head;
 }
 
 Channel::~Channel()
@@ -1267,8 +1259,8 @@ context::do_channel_who(const String& name, const String& arg2)
 			ca[COLOUR_TITLES],
 			channel->name().c_str(),
 			ca[COLOUR_ERROR_MESSAGES],
-			channel->get_private() ? "(Private)" : "",
-			channel->get_censored() ? "(Censored)" : "");
+			channel->get_private() ? "(IsPrivate)" : "",
+			channel->get_censored() ? "(IsCensored)" : "");
 
 	notify(player, "%sPlayers on channel: %-30s                                    %sIdle%s",
 			ca[COLOUR_MESSAGES],

@@ -1154,7 +1154,9 @@ context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!Wizard (get_effective_id ()))
+	if (!Wizard (get_effective_id ())
+		&& !Apprentice(get_effective_id())
+		&& !XBuilder(get_effective_id()))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
