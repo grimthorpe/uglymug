@@ -1321,7 +1321,7 @@ unsigned int	space_left)
 				break;
 
 			case EVAL_OP_MIDSTRING:
-				if (strlen(results[2].string) < results[1].integer)
+				if (strlen(results[2].string) < (size_t)results[1].integer)
 				{
 					if (c.gagged_command()==False)
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
@@ -1361,7 +1361,7 @@ unsigned int	space_left)
 				break;
 
 			case EVAL_OP_NCHAR:
-				if (strlen(results[1].string) < results[0].integer)
+				if (strlen(results[1].string) < (size_t)results[0].integer)
 				{
 					if (c.gagged_command()==False)
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"Argument past end of string in nchar");
@@ -1415,7 +1415,7 @@ unsigned int	space_left)
 				break;
 
 			case EVAL_OP_SUBSTR:
-				if ((results[0].integer < 1) || (results[0].integer > strlen(results[2].string)))
+				if ((results[0].integer < 1) || ((size_t)(results[0].integer) > strlen(results[2].string)))
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Substr position out of range");
 					strcpy (result_buffer, error_return_string);
