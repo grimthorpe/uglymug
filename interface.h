@@ -11,6 +11,7 @@ extern	 const	char	*shutdown_reason;	/*The reason for shutdown*/
 extern	 time_t		game_start_time;	/*time game started*/
 
 #define BUFFER_LEN	((MAX_COMMAND_LEN)*4)
+/* #define BUFFER_LEN	8192 */
 
 extern	 dbref	create_player		(const char *name, const char *password);
 extern	 dbref	connect_player		(const char *name, const char *password);

@@ -349,10 +349,10 @@ class	context
 	void				maybe_dropto		(dbref loc, dbref dropto);
 	void				send_contents		(dbref loc, dbref dropto);
 
-	const	Boolean			variable_substitution	(const char *arg, char *result, int max_length);
+	const	Boolean			variable_substitution	(const char *arg, char *result, unsigned int max_length);
 	const	Boolean			nested_variable_substitution	(const char *&, char *, const int, const int space_left);
-	const	Boolean			dollar_substitute	(const char *&argp, char *&resp, const int depth, int space_left);
-		void			brace_substitute	(const char *&, char *&, int space_left);
+	const	Boolean			dollar_substitute	(const char *&argp, char *&resp, const int depth, unsigned int space_left);
+		void			brace_substitute	(const char *&, char *&, unsigned int space_left);
 
 	void				do_alarm		(const char *name, const char *command_name);
 	void				do_ammo_type		(const char *name, const char *command_name);

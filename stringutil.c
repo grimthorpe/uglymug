@@ -273,8 +273,14 @@ const	char	*str)
 					case 'O':
 					case 's':
 					case 'S':
-						if (buffer_length > strlen(db[player].get_name())) strcat(result, db[player].get_name());
-						else buffer_length = -1;
+						if (buffer_length > strlen(db[player].get_name()))
+						{
+							strcat(result, db[player].get_name());
+						}
+						else
+						{
+							buffer_length = -1;
+						}
 						break;
 					case 'p':
 					case 'P':

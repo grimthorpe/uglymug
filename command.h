@@ -21,7 +21,8 @@ extern		char	scratch_buffer [];
 extern		int	command_depth;
 
 
-#define MAX_COMMAND_LEN		2048
+/*  static const unsigned int MAX_COMMAND_LEN=2048; */
+#define MAX_COMMAND_LEN		2048 
 #define	MAX_COMMAND_DEPTH	16
 #define MAX_NESTING		10
 
