@@ -783,28 +783,40 @@ Command_status	&sneaky_return_status)
 	const	char	*cached_return_string;
 	const	char	*sneaky_return_string;
 
-	/* Fill in our caches */
-	cached_return_status = return_status;
-	cached_return_string = return_string;
-	return_string = empty_string; // Stop the return_string from being free'd by the sneakily processed command.
+	int depth = get_sneaky_executed_depth();
+	if(depth > (get_depth_limit() - call_stack.depth()))
+	{
+		sneaky_return_string = 0;
+	}
+	else
+	{
+		set_sneaky_executed_depth(depth+1);
 
-	/* Remember how deeply nested we were before */
-	const	int	old_depth = call_stack.depth ();
+		/* Fill in our caches */
+		cached_return_status = return_status;
+		cached_return_string = return_string;
+		return_string = empty_string; // Stop the return_string from being free'd by the sneakily processed command.
 
-	/* Do the command */
-	process_basic_command (original_command);
+		/* Remember how deeply nested we were before */
+		const	int	old_depth = call_stack.depth ();
 
-	/* If the call stack is deeper, we just ran a nested command.  Run it to completion. */
-	while (call_stack.depth () > old_depth)
-		step ();
+		/* Do the command */
+		process_basic_command (original_command);
 
-	/* Fill in our returns */
-	sneaky_return_status = return_status;
-	sneaky_return_string = return_string;
+		/* If the call stack is deeper, we just ran a nested command.  Run it to completion. */
+		while (call_stack.depth () > old_depth)
+			step ();
 
-	/* Fix the old returns */
-	return_status = cached_return_status;
-	return_string = cached_return_string;
+		/* Fill in our returns */
+		sneaky_return_status = return_status;
+		sneaky_return_string = return_string;
+
+		/* Fix the old returns */
+		return_status = cached_return_status;
+		return_string = cached_return_string;
+
+		set_sneaky_executed_depth(depth);
+	}
 	return (sneaky_return_string);
 }
 

@@ -1542,6 +1542,12 @@ const	char	*flag)
 		return;
 	}
 
+	if(f == FLAG_APPRENTICE && in_command())
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You just tried to execute an @set APPRENTICE in a command.");
+		return;
+	}
+
 #ifndef	NO_GOD
 	if((f == FLAG_WIZARD) && (player != GOD_ID) && (Typeof (thing) == TYPE_PLAYER))
 	{

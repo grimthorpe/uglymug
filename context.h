@@ -288,6 +288,7 @@ class	context
 		dbref			unchpid_id;
 		Call_stack		call_stack;
 		int			commands_executed;
+		int			sneaky_executed_depth;
 		int			step_limit;
 		int			depth_limit;
 		const	char		*return_string;
@@ -319,6 +320,8 @@ class	context
 		void			maybe_free		(const char *s)	const;
 		void			calling_from_command	()		{ called_from_command = True; }
 	const	int			get_commands_executed	()	const	{ return (commands_executed); }
+	const	int			get_sneaky_executed_depth()	const	{ return (sneaky_executed_depth); }
+		void			set_sneaky_executed_depth(int d)	{ sneaky_executed_depth = d; }
 	const	int			get_depth_limit		()	const	{ return (depth_limit); }
 	const	dbref			get_player		()	const	{ return (player); }
 	const	dbref			get_unchpid_id		()	const	{ return (unchpid_id); }
