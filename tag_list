@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+um1_034 - Some people did some changes.
 	Even more updates to the String code; We're going live with 'String' and 'StringBuffer', a nice combination of powerful manipulation and data sharing.
 	Updated the Recall code so that all the buffers are only created when required.
 	Fixed up more BUG logs to use log_bug instead of fprintf/fputs
