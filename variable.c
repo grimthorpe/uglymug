@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)variable.c	1.50\t10/11/95";
+/* static char SCCSid[] = "@(#)variable.c	1.50\t10/11/95"; */
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
