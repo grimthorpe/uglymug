@@ -41,6 +41,23 @@
 #	define	USE_WINSOCK2		1
 #endif
 
+// Windows (2000)
+#ifdef _WIN32
+#	define	HAS_CURSES		0
+#	define	HAS_FORK		0
+#	define	HAS_SIGNALS		0
+#	define	NEEDS_CRYPT_H		1
+#	define	NEEDS_GETDTABLESIZE	1
+#	define	NEEDS_GETOPT		1
+#	define	NEEDS_RESOURCES		0
+#	define	NEEDS_STRSIGNAL		1
+#	define	USE_BSD_SOCKETS		0
+#	define	USE_WINSOCK2		1
+#	define	strncasecmp		strnicmp
+#	define	vsnprintf		_vsnprintf
+#	define	snprintf		_snprintf
+#endif
+
 // Defaults - assume a UNIX of some kind.
 #ifndef	HAS_CURSES
 #	define	HAS_CURSES	1
