@@ -1,5 +1,5 @@
-/*
- * alarm.h: Header file for things that need to know about pending
+/** \file
+ * Header file for things that need to know about pending
  *	structures and similar delights.
  *
  *	Peter Crowther, 14/8/94.
@@ -14,6 +14,11 @@
 #endif	/* _MATCH_H */
 
 #pragma interface
+
+/**
+ * A doubly-linked list of dbrefs.  TODO: Replace with one of the STL collections
+ *	that can deal with sorted lists.
+ */
 
 class	Pending
 {
@@ -35,6 +40,10 @@ class	Pending
 	dbref			get_object	()		{ return (object); }
 };
 
+
+/**
+ * Adds the notion of a time to execute to the basic Pending list.
+ */
 
 class	Pending_alarm
 : public Pending

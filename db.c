@@ -12,6 +12,7 @@
 #include <math.h>
 #include <time.h>
 #include "db.h"
+#include "db_fields.h"
 #include "objects.h"
 #include "interface.h"
 #include "config.h"
