@@ -37,10 +37,12 @@
 #define ecmp(s1, s2, n)	(!strncmp(s1, s2, n))
 
 
-static char	*braslist[NBRA];
-static char	*braelist[NBRA];
+static const	char	*braslist[NBRA];
+static const	char	*braelist[NBRA];
 int	sed, nbra;
-char	*loc1, *loc2, *locs;
+const	char	*loc1;
+const	char	*loc2;
+char	*locs;
 static int	nodelim;
 
 int	circf;
@@ -49,7 +51,7 @@ static int	size;
 
 static char	bittab[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
-static void getrnge(register char *str)
+static void getrnge(register const char *str)
 {
 	register int sizecode;
 
@@ -62,7 +64,7 @@ static void getrnge(register char *str)
 }
 
 /*ARGSUSED*/
-char *compile(char *instring,register char *ep, char *endbuf, int seof)
+char *compile(const char *instring,register char *ep, char *endbuf, int seof)
 // char *instring;
 // register char *ep;
 // char *endbuf;
@@ -329,12 +331,12 @@ char *compile(char *instring,register char *ep, char *endbuf, int seof)
 }
 
 
-int advance(register char *lp, register char *ep)
+int advance(register const char *lp, register const char *ep)
 {
         int tmp;
-	register char *curlp;
+	register const char *curlp;
 	register int c;
-	char *bbeg; 
+	const char *bbeg; 
 	register char neg;
 	unsigned int ct;
 
@@ -575,7 +577,7 @@ int advance(register char *lp, register char *ep)
 	/*NOTREACHED*/
 }
 
-int step(register char *p1, register char *p2)
+int step(register const char *p1, register const char *p2)
 {
 	register int c;
 
