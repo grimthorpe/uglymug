@@ -610,37 +610,6 @@ dbref	player)
 	return (count);
 }
 
-/*******************************************************
- * I am removing the following two functions for now, as they cause
- * compiler warnings, and Peter asked me to remove as many warnings
- * as possible.
- *
- * Grimthorpe 6-June-1997
- *
-static void
-colour_queue_string(
-struct descriptor_data *d,
-const char *s,
-int colour)
-{
-	d->queue_string(db[d->get_player()].get_colour_at()[colour]);
-	d->queue_string(s);
-	d->queue_string(COLOUR_REVERT);
-}
-
-static void
-colour_queue_player_string(
-struct descriptor_data	*d,
-const char		*s,
-dbref			talker)
-{
-	d->queue_string(player_colour(d->get_player(), talker, NO_COLOUR));
-	d->queue_string(s);
-	d->queue_string(COLOUR_REVERT);
-}
- *
- *******************************************************/
-
 void notify_area (dbref area, dbref originator, const char *fmt, ...)
 {
 	struct descriptor_data *d;
@@ -803,32 +772,12 @@ void notify_welcomer_natter(const char *fmt, ...)
 		}
 }
 
-
-void colour_player_notify(dbref player, dbref victim, const char *fmt, ...)
-{
-	struct descriptor_data *d;
-	va_list vl;
-
-	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
-	va_end (vl);
-
-	for (d = descriptor_list; d; d = d->next)
-		if (d->IS_CONNECTED() && d->get_player() == player)
-		{
-			d->queue_string (player_colour(player, victim, NO_COLOUR));
-			d->queue_string (vsnprintf_result);
-			d->queue_string (COLOUR_REVERT);
-			d->queue_string ("\n");
-		}
-}
-
-	/* This function is passed:
-	 * The player who is being notified
-	 * The talker who is the person notifying
-	 * The type of operation being done (say, tell etc...)
-	 * And the strings
-	 */
+/* This function is passed:
+ * The player who is being notified
+ * The talker who is the person notifying
+ * The type of operation being done (say, tell etc...)
+ * And the strings
+ */
 void notify_colour(
 dbref player,
 dbref talker,
@@ -1093,20 +1042,11 @@ void beep (dbref player)
 
 	for (d = descriptor_list; d; d = d->next)
 	{
-		if (d->IS_CONNECTED() && d->get_player() == player && d->terminal_pagebell)
+		if (d->IS_CONNECTED() && d->terminal_pagebell)
 		{
-			d->queue_write ("\007", 1);
-			d->process_output ();
+			d->queue_write("\007", 1);
+			d->process_output();
 		}
-	}
-}
-
-void beep (struct descriptor_data *d)
-{
-	if (d->IS_CONNECTED() && d->terminal_pagebell)
-	{
-		d->queue_write("\007", 1);
-		d->process_output();
 	}
 }
 
