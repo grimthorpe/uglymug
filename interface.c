@@ -2334,6 +2334,11 @@ char *a,*a1,*b;
 					break;
 				case '\0':
 					return 1;
+				case '$':
+				case '{':
+				case '\\':
+					*(raw_input_at++) = '\\';
+					// Fallthrough
 				default:
 					*(raw_input_at++) = *(s++);
 					break;
