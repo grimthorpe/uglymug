@@ -10,20 +10,20 @@ OPTIM=
 ####################################
 #           Solaris 2.8
 ####################################
-#WHOAMI=who am i
-#LIBS= -lcurses -lm -ltermcap -lsocket -lnsl
+WHOAMI=who am i
+LIBS= -lcurses -lm -ltermcap -lsocket -lnsl
 # Normal
-#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
 ####################################
 #              Linux
 ####################################
-WHOAMI=whoami
-LIBS= -lm -ldl -lcurses -lcrypt
+#WHOAMI=whoami
+#LIBS= -lm -ldl -lcurses -lcrypt
 # Normal
-CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
