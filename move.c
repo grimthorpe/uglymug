@@ -1172,15 +1172,14 @@ const	String& command)
 	while(call_stack.size () > old_depth)
 		step();
 
+	db[player].set_remote_location(cached_loc);
 	/* Just make sure players don't pull silly stunts like zapping the thing they remoted out of */
 	if ((cached_loc < 0) || (cached_loc >= db.get_top ())
 		|| (Typeof(cached_loc) == TYPE_FREE)
 		|| ((Typeof (cached_loc) != TYPE_ROOM) && !Container (cached_loc)))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Oops! Someone zapped the location you came from! You'd better go to limbo");
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Oops! You can't return to where you came from! You'd better go to limbo");
 		enter_room(LIMBO);
 	}
-	else
-		db[player].set_remote_location(cached_loc);
 }
 
