@@ -46,7 +46,7 @@ int config_fixed_font = 1;
 int config_break_lines = 1;
 int config_column_width = 80;
 char* config_foreground_color = "#000000";
-char* config_background_color = "#C0C0C0";
+char* config_background_color = "#D0C0C0";
 char config_escape = '';
 char config_escape_replace = ' ';
 int config_max_id_tries = 500;
@@ -101,8 +101,20 @@ show_error (char *s)
 void
 show_input_page (void)
 {
+// JPK Added the style sheet to this bit, plus modified end of printf
 	printf ("\
 <html><head><title></title>\n\
+<style>\n\
+.BGDEFAULT { background: %s; }\n\
+.BGBLACK { background: black; }\n\
+.BGRED { background: red; }\n\
+.BGGREEN { background: green; }\n\
+.BGYELLOW { background: yellow; }\n\
+.BGBLUE { background: blue; }\n\
+.BGMAGENTA { background: magenta; }\n\
+.BGCYAN { background: cyan; }\n\
+.BGWHITE { background: white; }\n\
+</style>\n\
 <script>\n\
 var win = window.parent.frames[\"cgitelnet_msg\"];\n\
 var last = -1;	/* last vertical position */\n\
@@ -120,7 +132,8 @@ function scrollWindowDown ()\n\
 	}\n\
 }\n\
 </script>\n\
-</head><body onLoad='\n\
+</head>
+<body bgcolor=\"%s\" text=\"%s\" onLoad='\n\
 scrollWindowDown (); \
 running = 1; \
 document.input_form.input.focus(); \
@@ -142,7 +155,7 @@ return true; \
 </form>\n\
 </td></tr></table>\n\
 </body></html>\n\
-", config.scroll_by, config.scroll_timeout, key /*, (with_enter ? "checked" : "")*/);
+", config.background_color, config.scroll_by, config.scroll_timeout, config.background_color, config.foreground_color, key /*, (with_enter ? "checked" : "")*/);
 
 /*<with Enter:<input type=\"checkbox\" name=\"with_enter\" %s>\n\*/
 }
