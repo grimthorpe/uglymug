@@ -2149,6 +2149,68 @@ descriptor_data::set_terminal_type(const CString& termtype)
 
 #endif /* USE_TERMINFO */
 
+#define CACHE_ADDR_SIZE 256
+
+struct cached_addr
+{
+	cached_addr() { addr = 0; count = 0; lastused = 0; }
+	u_long	addr;
+	String	name;
+	u_long	count;
+	time_t	lastused;
+};
+cached_addr cached_addresses[CACHE_ADDR_SIZE];
+
+bool
+get_cached_addr(u_long addr, char* name)
+{
+int i;
+	for(i = 0; i < CACHE_ADDR_SIZE; i++)
+	{
+		if(cached_addresses[i].addr == addr)
+		{
+			strcpy(name, cached_addresses[i].name.c_str());
+			cached_addresses[i].count++;
+			time(&(cached_addresses[i].lastused));
+			return true;
+		}
+	}
+	return false;
+}
+
+void
+set_cached_addr(u_long addr, const CString& name)
+{
+int i;
+u_long mintime = 0xffffffff;
+u_long mincount = 0xffffffff;
+u_long bestindex = 0;
+	for(i = 0; i < CACHE_ADDR_SIZE; i++)
+	{
+		if(cached_addresses[i].addr == 0)
+		{
+fprintf(stderr, "New cache in location %d\n", i);
+			cached_addresses[i].addr = addr;
+			cached_addresses[i].name = name;
+			cached_addresses[i].count = 1;
+			time(&(cached_addresses[i].lastused));
+			return;
+		}
+		if((cached_addresses[i].count < mincount)
+			|| ((cached_addresses[i].count == mincount)
+				&& (cached_addresses[i].lastused < mintime)))
+		{
+			mincount = cached_addresses[i].count;
+			mintime = cached_addresses[i].lastused;
+			bestindex = i;
+		}
+	}
+	cached_addresses[bestindex].addr = addr;
+	cached_addresses[bestindex].name = name;
+	cached_addresses[bestindex].count = 1;
+	time(&(cached_addresses[bestindex].lastused));
+}
+
 const char *
 convert_addr (
 struct	in_addr	*a)
@@ -2159,6 +2221,10 @@ struct	in_addr	*a)
 	char		compare_buffer [MAXHOSTNAMELEN];
 	u_long		addr = ntohl (a->s_addr);
 
+	if(get_cached_addr(addr, buffer))
+	{
+		return buffer;
+	}
 	if (smd_dnslookup (addr) && ((he = gethostbyaddr ((char *) a, sizeof(*a), AF_INET)) != NULL))
 	{
 		char	*pos;
@@ -2183,6 +2249,7 @@ struct	in_addr	*a)
 		/* Not local, or not found in db */
 		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
 	}
+	set_cached_addr(addr, buffer);
 	return (buffer);
 }
 
