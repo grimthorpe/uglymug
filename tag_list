@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fix for SNDLOC recognition code, and a couple of byte-ordering bugs.  IJC
 	Permit ISO-8859-15 characters to be used for everything except player names.  IJC
 	Added drogna list and sort to trawl
 	Stop do_examine from changing atime on objects.  IJC

@@ -118,7 +118,7 @@ const char *strsignal (const int sig)
 
 #define	HELP_FILE		"help.txt"
 #define	SIGNAL_STACK_SIZE	200000
-#define	LOGTHROUGH_HOST		0x7f000001	/* 127.0.0.1 */
+#define	LOGTHROUGH_HOST		INADDR_LOOPBACK	/* 127.0.0.1 */
 #define	LOCAL_ADDRESS_MASK	0x7f000000	/* 127.0.0.0 */
 #define	DOMAIN_STRING		""
 
@@ -1754,17 +1754,17 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			break;
 		
 		case TELOPT_SNDLOC:
-			if(address != LOGTHROUGH_HOST)
+			if(ntohl(address) != LOGTHROUGH_HOST)
 			{
 				log_bug("Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST", get_descriptor());
 				break;
 			}
 			memcpy(scratch, buf, size);
-			scratch[size-1]=0;
+			scratch[size]=0;
 #ifdef DEBUG_TELNET
 			log_debug("Descriptor %d location is '%s'", get_descriptor(), scratch);
 #endif
-			indirect_connection=1;
+			service = "Redirect";
 			hostname = scratch;
 			send_telnet_option(WONT, TELOPT_SNDLOC);
 			break;
@@ -2037,7 +2037,8 @@ unsigned long addr)
 	else
 	{
 		/* Not local, or not found in db */
-		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+		long bsaddr = ntohl(addr);
+		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
 	}
 	return (buffer);
 }
@@ -2130,7 +2131,6 @@ int			chanl)
 	quota(COMMAND_BURST_SIZE),
 	backslash_pending(false),
 	cr_pending(0),
-	indirect_connection(false),
 	hostname(),
 	address(0),
 	service(),
@@ -2185,14 +2185,14 @@ int			chanl)
 			case 1394:
 				service="Robot";
 				break;
-			case 6239:
+			case TINYPORT:
 				service="Main";
 				break;
 			case 8080:
 				service="WebGW";
 				break;
 			default:
-				sprintf(tmpstring,"%d",local_port);
+				sprintf(tmpstring,"%d",htons(local_port));
 				service=tmpstring;
 				break;
 		}
@@ -4045,10 +4045,7 @@ int			flags)
 			strcat(buf, flag_buf);
 			if (flags & DUMP_WIZARD)
 			{
-				if (d->indirect_connection)
-					snprintf (flag_buf, sizeof(flag_buf), " <%s>", d->hostname.c_str());
-				else
-					snprintf (flag_buf, sizeof(flag_buf), " [%s:%s]", d->hostname.c_str(),d->service.c_str());
+				snprintf (flag_buf, sizeof(flag_buf), " [%s:%s]", d->hostname.c_str(),d->service.c_str());
 				strcat(buf, flag_buf);
 			}
 

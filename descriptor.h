@@ -93,7 +93,6 @@ public:
 	int			quota;
 	bool			backslash_pending;
 	int			cr_pending;
-	int			indirect_connection;	/* got hostname through a SNDLOC */
 	String			hostname;
 	unsigned long		address;
 	String			service; // What the port connected to is for
