@@ -385,6 +385,11 @@ context		*context)
 		return ACTION_STOP;
 	}
 
+	/* Check to see if the command has been destroyed. If it has been 'replaced' then assume the replacer knows what they're doing. */
+	if(Typeof(command) != TYPE_COMMAND)
+	{
+		current_line = -1;
+	}
 	/* Check for a return from the chain */
 	if ((current_line != -1) && (current_line <= db[command].get_inherited_number_of_elements()))
 	{
