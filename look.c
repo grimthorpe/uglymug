@@ -89,9 +89,9 @@ dbref	player)
 		for(;line<block_end;line++)
 		{
 			if (linenumbers)
-				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces[tab_level], db[command].get_inherited_element(line));
+				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces[tab_level], value_or_empty(db[command].get_inherited_element(line)));
 			else
-				notify_censor(player, player, "%s%s", spaces[tab_level], db[command].get_inherited_element(line));
+				notify_censor(player, player, "%s%s", spaces[tab_level], value_or_empty(db[command].get_inherited_element(line)));
 		}
 
 		if (force_outdent)
@@ -852,7 +852,22 @@ const	char	*)
 					flag_description(thing));
 			break;
 		default:
-			notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
+/*			if((db[thing].get_key() == TRUE_BOOLEXP) && (db[thing].get_parent != NOTHING))
+			{
+				notify(player, "%sOwner:%s %s; %sKey [INHERITED]:%s %s; %sFlags:%s%s",
+					colour_at[COLOUR_TITLES],
+					COLOUR_REVERT,
+					stored_owner,
+					colour_at[COLOUR_TITLES],
+					COLOUR_REVERT,
+					db[thing].get_inherited_key()->unparse (*this),
+					colour_at[COLOUR_TITLES],
+					COLOUR_REVERT,
+					flag_description(thing));
+			}
+			else*/
+			{
+				notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
 					colour_at[COLOUR_TITLES],
 					COLOUR_REVERT,
 					stored_owner,
@@ -862,6 +877,7 @@ const	char	*)
 					colour_at[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
+			}
 			break;
 	}
 
