@@ -24,20 +24,22 @@
 
 struct smd
 {
-	int		inet;		/* Inet or JANET site */
 	u_long		host;		/* host address */
 	u_long		mask;		/* mask for the address */
 	int		flags;		/* Misc. flags */
 	bool		temp;		/* whether it is a temporary (not written to file) ban */
-	struct	smd	*next;		/* Next entry */
+	smd		*next;		/* Next entry */
+	smd& operator=(const smd& other)
+	{
+		host = other.host;
+		mask = other.mask;
+		flags = other.flags;
+		temp = other.temp;
+		return *this;
+	}
 };
 
 static struct smd *smd_list = NULL;
-
-#define MALLOC(result, type) do {				\
-	if (!((result) = (type *) malloc (sizeof (type))))	\
-        	panic("Out of memory");				\
-	} while (0)
 
 #define SEPARATORS " \t\n"
 
@@ -52,13 +54,13 @@ static struct smd *smd_list = NULL;
 
 
 static bool
-is_in_smd_list (u_long a)
+is_in_smd_list (const u_long addr)
 {
-	struct smd *b;
+	smd *b;
 
 	for (b = smd_list; b != NULL; b = b->next)
 	{
-		if (a == b->host)
+		if (addr == b->host)
 			return true;
 	}
 
@@ -66,19 +68,15 @@ is_in_smd_list (u_long a)
 }
 
 static void
-replace_smd_entry (u_long a, struct smd *b)
+replace_smd_entry (const u_long addr, struct smd *b)
 {
 	struct smd *c;
 	
 	for (c = smd_list; c != NULL; c = c->next)
 	{
-		if (a == c->host)
+		if (addr == c->host)
 		{
-			c->inet		= b->inet;
-			c->host		= b->host;
-			c->mask		= b->mask;
-			c->flags	= b->flags;
-			c->temp		= b->temp;
+			c = b;
 		}
 	}
 }
@@ -103,7 +101,7 @@ remove_smd_entry (u_long a)
 			if (b == smd_list)
 			{
 				smd_list = b->next;
-				free(b);
+				delete b;
 			}
 			else
 			{
@@ -115,7 +113,7 @@ remove_smd_entry (u_long a)
 				else
 					x->next = b->next;
 
-				free (b);
+				delete b;
 			}
 		}
 	}
@@ -136,39 +134,25 @@ get_smd_flags(u_long a)
 }
 
 static u_long   
-addr_numtoint(const CString& addr, int inet)
+addr_numtoint(const CString& addr)
 {
-	if(inet)
-		return (ntohl(inet_addr(addr.c_str())));
-
-	/* No JANET support yet... */
-	return 0xffffffff;
+	return (ntohl(inet_addr(addr.c_str())));
 }
 
 static u_long
-addr_nametoint(const CString& addr, int inet)
+addr_nametoint(const CString& addr)
 {
 	struct hostent *a;
-	if(inet)
-	{
-		a = gethostbyname(addr.c_str());
-		if(a!= NULL)
-			return ntohl(((struct in_addr *)a->h_addr_list[0])->s_addr);
-		else
-			return 0xffffffff;
-	}
-
-	/* No JANET support yet... */
+	a = gethostbyname(addr.c_str());
+	if(a!= NULL)
+		return ntohl(((struct in_addr *)a->h_addr_list[0])->s_addr);
 	return 0xffffffff;
 }
 
 static u_long
-getmask(char *mask, int inet)
+getmask(char *mask)
 {
-	if(inet)
-		return strtoul(mask, (char **)NULL, 0);
-
-	return 0xffffffff;
+	return strtoul(mask, (char **)NULL, 0);
 }
 
 void
@@ -180,12 +164,10 @@ const	CString& )
 	struct smd *a, *b;
 	FILE *smdfile;
 	char smdinp[ BUFFER_LEN ];
-	char *inet;
 	char *addr;
 	char *flag;
 	int eol = 0;
 	u_long tmp_host;
-	u_long tmp_inet;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -208,7 +190,7 @@ const	CString& )
 	{
 		b = a;
 		a = a -> next;
-		free(b);
+		delete b;
 	}
 	smd_list = NULL;
 
@@ -220,34 +202,22 @@ const	CString& )
 
 	while(fgets(smdinp, 1024, smdfile) != NULL)
 	{
-		if((inet = strtok(smdinp, SEPARATORS)) && (inet[0] != '#'))
+		if((addr = strtok(smdinp, SEPARATORS)) && (addr[0] != '#'))
 		{
 			addr = strtok(NULL, SEPARATORS);
 
-			switch (inet[0])	/* Inet or JANET switch */
-			{
-			case 'i':	/* Inet */
-			case 'I':
-				tmp_inet = 1;
-				break;
-			default:
-				tmp_inet = 0;
-			}
 			if((*addr >= '0') && (*addr <= '9'))
-				tmp_host = addr_numtoint(addr, tmp_inet);
+				tmp_host = addr_numtoint(addr);
 			else
-				tmp_host = addr_nametoint(addr, tmp_inet);
+				tmp_host = addr_nametoint(addr);
 
 			if(tmp_host == 0xffffffff)	/* If machine doesn't exist */
 				continue;	/* forget it */
 
-			MALLOC(a, struct smd);
+			a = new smd;
 			a -> temp = 0;			/* Not temporary */
 			a -> host = tmp_host;
-			a -> inet = tmp_inet;
-			if(tmp_inet)
-				a -> mask = DEFAULT_MASK;
-
+			a -> mask = DEFAULT_MASK;
 			a -> flags = DEFAULT_FLAGS;
 
 			while(((flag = strtok(NULL, SEPARATORS)) != NULL) &&
@@ -294,7 +264,7 @@ const	CString& )
 						{
 							if(flag[0] != '#')
 							{
-								a -> mask = getmask(flag, a->inet);
+								a -> mask = getmask(flag);
 								a -> host = (a -> host) & (a -> mask);
 							}
 							else
@@ -328,12 +298,7 @@ addr_inttostr(struct smd *a)
 static char z[80];
 u_long b;
 	b = a -> host;
-	if(a -> inet)
-	{
-		sprintf(z, "inet %3ld.%3ld.%3ld.%3ld", (b>>24)&0xff, (b>>16)&0xff, (b>>8)&0xff, b&0xff);
-	}
-	else
-		z[0] = 0;
+	sprintf(z, "inet %3ld.%3ld.%3ld.%3ld", (b>>24)&0xff, (b>>16)&0xff, (b>>8)&0xff, b&0xff);
 	return z;
 }
 
@@ -431,7 +396,7 @@ const	CString& arg2)
 		host = strdup(arg2.c_str());
 		mask = strdup(arg2.c_str());
 
-		MALLOC(a, struct smd);
+		a = new smd;
 
 		/*
 		 * We expect the 2nd arg (host/mask) to look something like: aaa.bbb.ccc.ddd/255.255.255.0
@@ -447,13 +412,13 @@ const	CString& arg2)
 		 * Check the site name seems ok
 		 */
 
-		host_num = addr_numtoint(host, 1);
+		host_num = addr_numtoint(host);
 
 		if (
-		    (host_num == addr_numtoint("127.0.0.1", 1)) ||
-		    (host_num == addr_numtoint("localhost", 1)) ||
-		    (host_num == addr_numtoint("uglymug.org.uk", 1)) ||
-		    (host_num == addr_numtoint("wyrm.compsoc.man.ac.uk", 1))
+		    (host_num == addr_numtoint("127.0.0.1")) ||
+		    (host_num == addr_numtoint("localhost")) ||
+		    (host_num == addr_numtoint("uglymug.org.uk")) ||
+		    (host_num == addr_numtoint("wyrm.compsoc.man.ac.uk"))
 		   )
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Banning %s is strongly discouraged. Site not banned.", host);
@@ -463,7 +428,7 @@ const	CString& arg2)
 		if (host_num == 0xffffffff)
 		{
 			/* Might have enetered as name, not IP */
-			host_num = addr_nametoint(host, 1);
+			host_num = addr_nametoint(host);
 
 			if (host_num == 0xffffffff)
 			{
@@ -497,7 +462,6 @@ const	CString& arg2)
 		/*
 		 * Add the new ban
 		 */
-		a->inet		= 1;
 		a->host		= host_num;
 		a->flags	= DEFAULT_FLAGS | BANNED;
 		a->temp		= true;
@@ -505,7 +469,7 @@ const	CString& arg2)
 		if (mask == NULL)
 			a->mask = DEFAULT_MASK;
 		else
-			a->mask	= addr_numtoint(mask, 1);
+			a->mask	= addr_numtoint(mask);
 
 		/*
 		 * See if we already have this site listed
@@ -556,7 +520,7 @@ const	CString& arg2)
 			RETURN_FAIL;
 		}
 
-		if (remove_smd_entry(addr_nametoint(arg2, 1)))
+		if (remove_smd_entry(addr_nametoint(arg2)))
 			notify_colour(player, player, COLOUR_MESSAGES, "Ban lifted for %s", arg2.c_str());
 		else
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Ban not found for %s", arg2.c_str());
