@@ -193,6 +193,35 @@ const	CString& )
 	set_return_string (ok_return_string);
 }
 
+void
+context::do_recall (
+const	CString& lines,
+const	CString& dummy)
+
+{
+        if (in_command())
+        {
+                notify_colour (player, player, COLOUR_ERROR_MESSAGES,  "Sorry, @recall may not be used within compound commands.");
+                return;
+        }
+
+        int num_lines = MAX_RECALL_LINES;
+
+
+        if(lines)
+        {
+                num_lines = strtol (lines.c_str(), (char **)NULL, 10);
+
+                if((num_lines <= 0) || (num_lines > MAX_RECALL_LINES))
+                {
+                        num_lines = MAX_RECALL_LINES;
+                }
+        }
+
+        notify_norecall (player, "%s", "---------------Recall-----------------------------------------\n");
+        db[player].output_recall(num_lines, this);
+        notify_norecall (player, "%s", "---------------End Recall-------------------------------------\n");
+}
 
 void
 context::do_alias (

@@ -1,4 +1,5 @@
 #include "copyright.h"
+#include "command.h"
 #ifndef _Config_h_
 #define _Config_h_
 
@@ -28,6 +29,8 @@
 
 #undef  DEBUG			/* For debugging */
 #undef	MATCH_DEBUG		/* Match debug lines */
+
+#define BUFFER_LEN      ((MAX_COMMAND_LEN)*4)
 
 /* Name change time in seconds */
 #define NAME_TIME		300
@@ -163,6 +166,8 @@ const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 #define MAX_ALIAS_LENGTH	20
 
 #define MAX_WHO_STRING		80
+
+#define MAX_RECALL_LINES	400
 
 #define CURRENCY_NAME		"Drogna"
 

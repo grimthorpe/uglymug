@@ -554,6 +554,7 @@ class	context
 	void				do_query_who		(const CString&, const CString&);
 	void				do_quit			(const CString&, const CString&);
 	void				do_race			(const CString&, const CString&);
+	void				do_recall		(const CString&, const CString&);
 	void				do_at_rem		(const CString&, const CString&);
 	void				do_remote		(const CString&, const CString&);
 	void				do_return		(const CString&, const CString&);

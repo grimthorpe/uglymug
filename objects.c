@@ -670,6 +670,12 @@ void object::set_alias (const int, const CString&)
 { IMPLEMENTATION_ERROR ("alias") }
 #endif /* ALIASES */
 
+void object::add_recall_line (const CString&)
+{ IMPLEMENTATION_ERROR ("add_recall_line") }
+
+void object::output_recall (const int lines, const context * con)
+{ IMPLEMENTATION_ERROR ("output_recall") }
+
 void object::set_password (const CString&)
 { IMPLEMENTATION_ERROR ("password") }
 
@@ -1536,6 +1542,16 @@ Player::Player ()
 	experience = 0;
 	last_attack_time = 0;
 	channel = NULL;
+
+	//Recall Buffer things
+	for (i = 0; i < MAX_RECALL_LINES; i++)
+		recall_buffer[i] = NULL;
+	recall_buffer_next=0;
+	recall_buffer_build[0]=NULL;
+	recall_buffer_wrapped=0;
+
+
+
 }
 
 
@@ -1556,6 +1572,115 @@ const	CString& what)
 }
 #endif
 
+void
+Player::add_recall_line (
+const CString& strung)
+{
+        //Quick thing of what this does and why.
+        //As things are notified we place things into the output_lines_build
+        //string and whenever we get a newline we put the whole thing into
+        //the recall array. If we didn't group them you end up by each
+        //line of the recall array having a few characters as the whole
+        //output line is built up. When we go to output it if the output_lines_build
+        //is not empty we output it at the end. This can mean that you
+        //get 51 lines if you did @recall but it is 0430 you picky bastard.
+        //Love Reaps.
+
+	const char* string = strung.c_str();
+
+
+        if(string)
+        {
+                if(strchr(string, '\n'))
+                {
+                        if(recall_buffer_build)
+                        {
+                                strcat(recall_buffer_build, string);
+                                ASSIGN_STRING (recall_buffer[recall_buffer_next], recall_buffer_build);
+                                recall_buffer_next++;
+                                recall_buffer_build[0] = NULL;
+                        }
+                        else
+                        {
+                                strcpy(recall_buffer_build, string);
+                                recall_buffer_next++;
+                        }
+                }
+                else
+                {
+                        if(recall_buffer_build)
+                        {
+                                strcat(recall_buffer_build, string);
+                        }
+                        else
+                        {
+                                strcpy(recall_buffer_build, string);
+                        }
+                }
+
+                if(recall_buffer_next == MAX_RECALL_LINES)
+                {
+                        recall_buffer_next = 0;
+                        recall_buffer_wrapped = 1;
+                }
+
+        }
+}
+
+void
+Player::output_recall (
+const int	lines,
+const context *	con)
+{
+
+	int thelines = lines;
+
+        //Return if there is nothing in the buffer yet
+        if(recall_buffer_next == 0 && recall_buffer_wrapped == 0)
+        {
+                return;
+        }
+
+        //Check there is enough in the buffer already
+        if(!recall_buffer_wrapped)
+        {
+                if(thelines > recall_buffer_next)
+                {
+                        thelines = recall_buffer_next;
+                }
+        }
+
+        int line_to_output=recall_buffer_next - thelines;
+
+        if(line_to_output < 0)
+        {
+                if(recall_buffer_wrapped)
+                {
+                        line_to_output = MAX_RECALL_LINES + line_to_output;
+                }
+                else
+                {
+                        line_to_output = 0;
+                }
+        }
+
+        for(int i=0;i<thelines;i++)
+        {
+                if(line_to_output >= MAX_RECALL_LINES)
+                {
+                        line_to_output = 0;
+                }
+
+                notify_norecall(con->get_player(), "%s", (char *)recall_buffer[line_to_output]);
+                line_to_output++;
+        }
+
+        if(recall_buffer_build)
+        {
+                notify_norecall(con->get_player(), "%s", recall_buffer_build);
+        }
+
+}
 
 void
 Player::set_colour (

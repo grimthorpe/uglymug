@@ -12,6 +12,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Made @email, @alias and @unalias write out the email address list
+    each time they are used.
+    Allowed XBuilder to increase recursion limit up to Wiz limit
+    Added @recall - set default to 400 lines
     Fixed the censorship code so that '<rudeword1><rudeword2>' is now output
     as '**********************' instead of '***********<rudeword2>'
     Made swho work out how many entries to display properly.
@@ -21,8 +25,6 @@ information doesn't get lost.
     Modified String::clear to be String::empty because of a macro definition
     in curses.h (clear->wclear(X)). Changed all (1) reference outside of
     mudstring.h
-    Made @email, @alias and @unalias write out the email address list
-    each time they are used.
 
 um1_025 - Grimthorpe; tagged by Chisel
     When a new player is created, it executes ALL the commands in PLAYER_START

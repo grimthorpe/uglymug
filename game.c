@@ -247,6 +247,7 @@ command_details			command_table [] =
 	{"@puppet",		&context::do_puppet,		NO_COMMAND_FLAGS},
 	{"@queue",		&context::do_at_queue,		FULL_COMPARE},
 	{"@race",		&context::do_race,		NO_COMMAND_FLAGS},
+	{"@recall",		&context::do_recall,		NO_COMMAND_FLAGS},
 	{"@recursionlimit",	&context::do_at_recursionlimit, NO_COMMAND_FLAGS},
 	{"@rem",		&context::do_at_rem,		FULL_COMPARE},
 	{"@remote",		&context::do_remote,		NO_COMMAND_FLAGS},

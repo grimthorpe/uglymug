@@ -516,6 +516,7 @@ npc.o:	npc.c \
 	objects.h
 
 objects.o: objects.c \
+	config.h \
 	db.h \
 	mudstring.h \
 	externs.h \

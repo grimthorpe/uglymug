@@ -3160,7 +3160,8 @@ const	CString&	name)
 const
 
 {
-	struct player_cache_struct *pc, key;
+//	struct player_cache_struct *pc, key;
+	struct player_cache_struct key;
 
 	if(!name)
 		return NOTHING;

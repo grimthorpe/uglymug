@@ -327,6 +327,7 @@ public:
 	void	set_player_name(const CString& p) { _player_name = p; }
 	void	set_password(const CString& p) { _password = p; }
 
+	int	queue_string2(const char *, int show_literally, int store_in_recall_buffer = 1);
 	int	queue_string(const char *, int show_literally = 0);
 	int	queue_string(const CString& s, int show_literally = 0)
 	{
@@ -968,6 +969,23 @@ void notify(dbref player, const char *fmt, ...)
 			d->queue_string ("\n");
 		}
 }
+
+void notify_norecall(dbref player, const char *fmt, ...)
+{
+        struct descriptor_data *d;
+        va_list vl;
+
+        va_start (vl, fmt);
+        vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+        va_end (vl);
+
+        for (d = descriptor_list; d; d = d->next)
+                if (d->IS_CONNECTED() && d->get_player() == player)
+                {
+                        d->queue_string2 (vsnprintf_result, 0, 0);
+                }
+}
+
 
 /* notify_censor used when we want to take account of the censorship
    flags 'censored' and 'censorall' */
@@ -2281,8 +2299,19 @@ descriptor_data::queue_write(const char *b, int n)
    To get colour, just use as normal, queue_string(s)
 	- Dunk 3/2/96
 */
+/* Note. Abandon all hope. Reaps is on the coding trail.
+   Have added extra layer below queue_string(const char *s, int show_literally)
+   so that the @recall command can happily pump information
+   straight out from the recall buffer without it being
+   put back into the recall buffer on the way through. */
 int
 descriptor_data::queue_string(const char *s, int show_literally)
+{
+        return queue_string2(s, show_literally, 1);
+}
+
+int
+descriptor_data::queue_string2(const char *s, int show_literally, int store_in_recall_buffer)
 {
 static char b1[2*BUFFER_LEN];
 static char b2[2*BUFFER_LEN];
@@ -2325,6 +2354,16 @@ char *a,*a1,*b;
 		}
 		return 1;
 	}
+
+        if(get_player())
+        {
+                if(store_in_recall_buffer)
+                {
+//                      printf("ADDING: %s\n", s);
+                        db[get_player()].add_recall_line(s);
+                }
+        }
+
 
 	strcpy(b2, s);
 	b=b2;

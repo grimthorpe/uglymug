@@ -9,6 +9,8 @@
 #ifndef	_OBJECTS_H
 #define	_OBJECTS_H
 
+#include "config.h"
+
 #pragma interface
 
 class	Information
@@ -337,6 +339,13 @@ class	Player
 
 {
     private:
+	//Items for the circular buffer to store lines for @recall - Reaps
+	char* 			recall_buffer[MAX_RECALL_LINES]; //the buffer
+	int			recall_buffer_next;		 //Next place to put a line
+	int			recall_buffer_wrapped;			 //Have we wrapped the buffer yet
+	char			recall_buffer_build[BUFFER_LEN]; //Buffer to build lines
+	
+
 #ifdef ALIASES
 	String			alias[MAX_ALIASES];
 #endif
@@ -371,6 +380,11 @@ class	Player
 	virtual			~Player			();
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE *f, int db_version, int iformat);
+
+
+		void		add_recall_line		(const CString& strung);
+		void		output_recall		(const int lines, const context * con);
+
 		void		set_colour		(const char *new_colour);
 		CString		get_colour		()			const	{return colour;}
 		void		set_colour_at		(colour_at* c)		{ if(c != col_at) delete col_at; col_at = c; }
