@@ -238,7 +238,9 @@ object::object ()
 , location(NOTHING)
 , next(NOTHING)
 , m_owner(NOTHING)
-
+, m_ctime(0)
+, m_mtime(0)
+, m_atime(0)
 {
 	int	i;
 	for (i = 0; i < FLAGS_WIDTH; i++)

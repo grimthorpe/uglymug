@@ -124,6 +124,7 @@ const	String& object_or_amount)
 				}
 			}
 			db[who].set_pennies(db[who].get_pennies() + amount);
+			Accessed (who);
 		}
 		return;
 	}
@@ -165,6 +166,8 @@ const	String& object_or_amount)
 	notify_censor_colour(player, player, COLOUR_MESSAGES, "You gave %s %s%s.", getname_inherited (who), getarticle (object, ARTICLE_LOWER_DEFINITE), getname_inherited (object));
 	notify_public_colour(who, player, COLOUR_MESSAGES, "%s gives you %s%s.", getname_inherited (player), getarticle (object, ARTICLE_LOWER_INDEFINITE), getname_inherited (object));
 	moveto (object, who);
+	Accessed (object);
+	Accessed (who);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }

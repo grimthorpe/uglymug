@@ -228,7 +228,7 @@ const	String& args)
 		return;
 	}
 
-
+	Accessed (object);
 
 	strcpy (decompiled_name, decompile_string(db[object].get_name()));
 

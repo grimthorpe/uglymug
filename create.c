@@ -233,6 +233,7 @@ const	String& linkto)
 		db[exit].set_owner (ID);
 		Settypeof(exit, TYPE_EXIT);
 		db[exit].set_location (loc);
+		Created (exit);
 
 		/* link it in */
 		PUSH (exit, loc, exits);
@@ -267,6 +268,8 @@ const	String& linkto)
 				{
 					/* it's ok, link it */
 					db[exit].set_destination (loc);
+					if (loc != HOME)
+						Accessed (loc);
 					if (!in_command())
 						notify_colour(player, player, COLOUR_MESSAGES, "Linked.");
 
@@ -378,6 +381,9 @@ const	String& room_name)
 				/* link has been validated and paid for; do it */
 				db[thing].set_owner (get_effective_id ());
 				db[thing].set_destination (room);
+				Modified (thing);
+				if (room != HOME)
+					Accessed (room);
 				return_status = COMMAND_SUCC;
 
 				/* notify the player */
@@ -390,7 +396,7 @@ const	String& room_name)
 				if (room != HOME)
 					if (Typeof(room)!=TYPE_ROOM)
 					{
-						notify_colour(player, player, COLOUR_ERROR_MESSAGES,  "You can only set a players home to be a room.");
+						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only set a player's home to be a room.");
 						return;
 					}
 			case TYPE_THING:
@@ -412,6 +418,8 @@ const	String& room_name)
 				}
 				/* do the link */
 				db[thing].set_destination (room); /* home */
+				Modified (thing);
+				Accessed (room);
 				if (!in_command())
 					notify_colour(player, player, COLOUR_MESSAGES, "Home set.");
 
@@ -430,6 +438,9 @@ const	String& room_name)
 					}
 				/* do the link, in location */
 				db[thing].set_destination (room); /* dropto */
+				Modified (thing);
+				if (room != HOME)
+					Accessed (room);
 				if (!in_command())
 					notify_colour(player, player, COLOUR_MESSAGES, "Dropto set.");
 
@@ -502,8 +513,8 @@ const	String& desc)
 	db[room].set_volume (STANDARD_ROOM_VOLUME);
 	db[room].set_mass_limit (STANDARD_ROOM_MASS_LIMIT);
 	db[room].set_volume_limit (STANDARD_ROOM_VOLUME_LIMIT);
-
 	db[room].set_destination (NOTHING);
+	Created (room);
 
 	if (!in_command())
 	{
@@ -569,6 +580,7 @@ const	String& desc)
 		db[thing].set_mass_limit (STANDARD_THING_MASS_LIMIT);
 		db[thing].set_volume_limit (STANDARD_THING_VOLUME_LIMIT);
 		db[thing].set_lock_key (TRUE_BOOLEXP);
+		Created (thing);
 
 		/* home is here (if we can link to it) or player's home */
 		if((loc = db[player].get_location ()) != NOTHING && can_link_to (*this, loc))
@@ -655,6 +667,7 @@ const	String& commands)
 	db[thing].set_owner(new_owner);
 	db[thing].set_flag(FLAG_OPAQUE);
 	Settypeof(thing, TYPE_COMMAND);
+	Created(thing);
 
 	/* link it in */
 	PUSH (thing, player, commands);
@@ -717,6 +730,7 @@ const	String& )
 	db[thing].set_location (player);
 	db[thing].set_owner (ID);
 	Settypeof(thing, TYPE_ARRAY);
+	Created(thing);
 
 	/* link it in */
 	PUSH (thing, player, info_items);
@@ -779,6 +793,7 @@ const	String& )
 	db[thing].set_location (player);
 	db[thing].set_owner (ID);
 	Settypeof(thing, TYPE_DICTIONARY);
+	Created(thing);
 
 	/* link it in */
 	PUSH (thing, player, info_items);
@@ -841,6 +856,7 @@ const	String& value)
 	db[thing].set_location (player);
 	db[thing].set_owner (ID);
 	Settypeof(thing, TYPE_PROPERTY);
+	Created(thing);
 
 	/* link it in */
 	PUSH (thing, player, info_items);
@@ -916,6 +932,7 @@ notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a d
 	db[thing].set_location (player);
 	db[thing].set_owner (ID);
 	Settypeof(thing, TYPE_VARIABLE);
+	Created(thing);
 
 	/* link it in */
 	PUSH (thing, player, info_items);
@@ -1027,6 +1044,9 @@ const	String& command_name)
 			return;
 		}
 		db[thing].set_csucc (destination);
+		Modified (thing);
+		if (destination != HOME)
+			Accessed (destination);
 		if (!in_command())
 		{
 			if (destination == NOTHING)
@@ -1094,6 +1114,9 @@ const	String& command_name)
 			return;
 		}
 		db[thing].set_cfail (destination);
+		Modified (thing);
+		if (destination != HOME)
+			Accessed (destination);
 		if (!in_command())
 		{
 			if (destination == NOTHING)
@@ -1147,6 +1170,7 @@ context::do_at_fuse (const String& fuse_name, const String& command_name)
 	db[thing].set_destination (NOTHING);
 	db[thing].set_owner (ID);
 	Settypeof(thing, TYPE_FUSE);
+	Created(thing);
 
 	/* link it in */
 	PUSH (thing, player, fuses);
@@ -1162,6 +1186,9 @@ context::do_at_fuse (const String& fuse_name, const String& command_name)
 			return;
 
 		db[thing].set_exits (destination);
+		Modified (thing);
+		if (destination != HOME)
+			Accessed (destination);
 		if (!in_command())
 			notify_colour (player,player, COLOUR_MESSAGES, "Linked.");
 	}
@@ -1218,6 +1245,7 @@ context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
 	db[thing].set_destination (NOTHING);
 	db[thing].set_owner (ID);
 	Settypeof(thing, TYPE_ALARM);
+	Created (thing);
 
 	/* and we're done */
 	if (!in_command())
@@ -1303,6 +1331,7 @@ const	String& )
 	db[thing].set_owner (ID);
 	db[thing].set_build_id(thing);
 	Settypeof(thing, TYPE_PUPPET);
+	Created (thing);
 
 	/* and we're done */
 	notify_colour(player, player, COLOUR_MESSAGES, "Puppet %s created with id #%d", getname (thing), thing);

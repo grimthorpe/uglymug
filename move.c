@@ -46,6 +46,7 @@ const	String&)
 		notify_colour(player,player, COLOUR_ERROR_MESSAGES, "You can't fit in there - %s", fit_errlist [fit_error]);
 	}
 	enter_room (thing);
+	Accessed (thing);
 
 	if (!Dark(player))
 	{
@@ -105,6 +106,8 @@ const	String&)
 	}
 
 	enter_room (loc);
+	Accessed (loc);
+
 	if (!Dark(player))
 	{
 		sprintf(scratch_buffer, "%s has arrived.", getname_inherited (player));
@@ -713,6 +716,8 @@ const	String& where)
 			return;
 		}
 		
+		Accessed (thing);
+
 		switch(Typeof(thing))
 		{
 			case TYPE_THING:
@@ -911,6 +916,7 @@ const	String& where)
 			return;
 		}
 
+		Accessed (thing);
 
 		/* Do the drop */
 		switch (Typeof (thing))
@@ -1165,6 +1171,7 @@ const	String& command)
 
 	cached_loc = db [player].get_location();
 	db[player].set_remote_location(loc);	// sets up the fudged location.
+	Accessed (loc);
 //	moveto (player, loc);
 
 	const size_t old_depth = call_stack.size ();

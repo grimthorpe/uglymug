@@ -173,6 +173,8 @@ const	String& element)
 
 	/* Do it */
 	db[thing].insert_element(index, element);
+	Modified (thing);
+
 	if (!gagged_command() && !in_command())
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Inserted.");
 
@@ -254,6 +256,7 @@ const	String& direction)
 
 	/* Do it */
 	db[thing].sort_elements(direct);
+	Modified (thing);
 	RETURN_SUCC;
 }
 
@@ -321,6 +324,8 @@ const	String& newrace)
 
 	/* Assuming all OK, changing race... */
 	db[thing].set_race (newrace);
+	Modified (thing);
+
 	if (!in_command())
 		notify_colour (player, player, COLOUR_MESSAGES,"Race Set.");
 
@@ -470,6 +475,7 @@ const	String& newname)
 	}
 
 	db[thing].set_name(newname);
+	Modified (thing);
 
 	if(Typeof(thing)==TYPE_PLAYER)
 		db.add_player_to_cache(thing, newname);
@@ -640,6 +646,7 @@ const	String& description)
 			break;
 	}
 
+	Modified (thing);
 
 	if (!in_command())
 		notify_colour (player, player, COLOUR_MESSAGES, "Description set.");
@@ -692,6 +699,8 @@ const	String& message)
 		}
 
 		db[thing].set_fail_message(message);
+		Modified (thing);
+
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Message set.");
 
@@ -748,6 +757,8 @@ const	String& message)
 		}
 
 		db[thing].set_succ_message(message);
+		Modified (thing);
+
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Message set.");
 		return_status = COMMAND_SUCC;
@@ -811,6 +822,8 @@ const	String& message)
 		}
 
 		db[thing].set_drop_message(message);
+		Modified (thing);
+
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 		if (!in_command())
@@ -864,6 +877,8 @@ const	String& message)
 		}
 
 		db[thing].set_osuccess(message);
+		Modified (thing);
+
 		if (!in_command())
 			notify_colour(player,  player, COLOUR_MESSAGES, "Message set.");
 		return_status = COMMAND_SUCC;
@@ -915,6 +930,8 @@ const	String& message)
 		}
 
 		db[thing].set_ofail(message);
+		Modified (thing);
+
 		if (!in_command())
 		notify_colour(player, player, COLOUR_MESSAGES, "Message set.");
 
@@ -966,6 +983,8 @@ const	String& message)
 		}
 			
 		db[thing].set_odrop(message);
+		Modified (thing);
+
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Message set.");
 
@@ -1051,6 +1070,8 @@ const	String& keyname)
 
 					/* everything ok, do it */
 					db[thing].set_key(key);
+					Modified (thing);
+
 					if (!in_command())
 						notify_colour(player, player, COLOUR_MESSAGES, "Locked.");
 
@@ -1097,6 +1118,8 @@ const	String& )
 				}
 			default:
 				db[thing].set_key(TRUE_BOOLEXP);
+				Modified (thing);
+
 				if (!in_command())
 					notify_colour(player,  player, COLOUR_MESSAGES, "Unlocked.");
 
@@ -1145,6 +1168,7 @@ const	String& )
 			if (db[exit].get_destination() != NOTHING)
 				db[db[exit].get_owner()].set_pennies(db[db[exit].get_owner()].get_pennies() + LINK_COST);
 			db[exit].set_destination(NOTHING);
+			Modified (exit);
 			if (!in_command())
 				notify_colour(player, player, COLOUR_MESSAGES, "Unlinked.");
 			return_status = COMMAND_SUCC;
@@ -1152,6 +1176,7 @@ const	String& )
 			break;
 		case TYPE_ROOM:
 			db[exit].set_destination(NOTHING);
+			Modified (exit);
 			if (!in_command())
 				notify_colour(player, player, COLOUR_MESSAGES, "Dropto removed.");
 
@@ -1324,6 +1349,7 @@ const	String& newowner)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "I don't know how to change ownership of that type of object - SEE A WIZARD!");
 			return;
 	}
+	Modified (thing);
 	if (!in_command())
 		notify_colour(player,  player, COLOUR_MESSAGES, "Owner changed.");
 	return_status = COMMAND_SUCC;
@@ -1772,6 +1798,7 @@ const	String& flag)
 	{
 		/* reset the flag */
 		db[thing].clear_flag(f);
+		Modified (thing);
 		if (!in_command())
 			notify_colour(player,  player, COLOUR_MESSAGES, "Flag reset.");
 	}
@@ -1779,6 +1806,7 @@ const	String& flag)
 	{
 		/* set the flag */
 		db[thing].set_flag(f);
+		Modified (thing);
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Flag set.");
 	}
@@ -1846,6 +1874,7 @@ const	String& value)
 
 	sprintf (scratch_return_string, "%ld",db[player].get_score ());
 	db[victim].set_score (score);
+	Modified (victim);
 	return_status = COMMAND_SUCC;
 	set_return_string (scratch_return_string);
 }
@@ -1924,6 +1953,7 @@ const	String& volume)
 	}
 
 	db[victim].set_volume (new_volume);
+	Modified (victim);
 
 	if (!in_command())
 		notify_colour (player, player, COLOUR_MESSAGES, "Set.");
@@ -2015,6 +2045,7 @@ const	String& volume_limit)
 	}
 
 	db[victim].set_volume_limit (new_volume_limit);
+	Modified (victim);
 
 	if (!in_command())
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Set.");
@@ -2095,6 +2126,7 @@ const	String& mass)
 	}
 
 	db[victim].set_mass (new_mass);
+	Modified (victim);
 
 	if (!in_command())
 		notify_colour (player,  player, COLOUR_MESSAGES, "Set.");
@@ -2186,6 +2218,7 @@ const	String& mass_limit)
 	}
 
 	db[victim].set_mass_limit (new_mass_limit);
+	Modified (victim);
 
 	if (!in_command())
 		notify_colour (player,  player, COLOUR_MESSAGES, "Set.");
@@ -2255,6 +2288,7 @@ context::do_at_gravity_factor (const String& object, const String& gravity_facto
 
 	old_gravity_factor = db[victim].get_gravity_factor (); /* NOT inherited! */
 	db[victim].set_gravity_factor (new_gravity_factor);
+
 	if ((db[victim].get_inherited_mass_limit () != HUGE_VAL)
 	&& (db[victim].get_inherited_mass_limit () < find_mass_of_contents_except (victim, NOTHING)))
 	{
@@ -2262,6 +2296,8 @@ context::do_at_gravity_factor (const String& object, const String& gravity_facto
 		db[victim].set_gravity_factor (old_gravity_factor);
 		return;
 	}
+
+	Modified (victim);
 
 	if (!in_command())
 		notify_colour (player, player, COLOUR_MESSAGES, "Set.");
@@ -2549,6 +2585,10 @@ const	String& new_location_string)
 			return;
 		}
 	}
+
+	Accessed (victim);
+	Accessed (new_location);
+
 	if (!in_command())
 		notify_colour (player, player, COLOUR_MESSAGES, "Located.");
 	return_status = COMMAND_SUCC;
@@ -2598,7 +2638,10 @@ const	String& keyname)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "I don't understand that key.");
 			return;
 		}
+
 		db[container].set_lock_key (key);
+		Modified (container);
+
 		if (!in_command())
 		{
 			if (!keyname)
@@ -2642,6 +2685,7 @@ const	String& parent_name)
 	if (!parent_name)
 	{
 		db [thing].set_parent (NOTHING);
+		Modified (thing);
 		if (!in_command ())
 			notify_colour (player, player, COLOUR_MESSAGES, "Unlinked.");
 		return_status = COMMAND_SUCC;
@@ -2681,6 +2725,8 @@ const	String& parent_name)
 
 	/* Looks like it's all OK */
 	db [thing].set_parent (parent);
+	Modified (thing);
+	Accessed (parent);
 	if (!in_command ())
 		notify_colour (player, player, COLOUR_MESSAGES, "Linked.");
 	return_status = COMMAND_SUCC;
@@ -2774,6 +2820,8 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 
 	db[get_effective_id()].set_money(db[get_effective_id()].get_money()-amount);
 	db[victim].set_money(db[victim].get_money()+amount);
+	Accessed (get_effective_id());
+	Accessed (victim);
 
 	if(!in_command())
 	{
@@ -2881,6 +2929,8 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 
 	db[get_effective_id()].set_money(db[get_effective_id()].get_money()+amount);
 	db[victim].set_money(db[victim].get_money()-amount);
+	Accessed (get_effective_id());
+	Accessed (victim);
 
 	if(!in_command())
 	{

@@ -190,6 +190,7 @@ const	String& )
 				already_had_one = 1;
 			}
 
+			Accessed(loc);
 			set_return_string (scratch_return_string);
 			return_status = COMMAND_SUCC;
 		}
@@ -210,6 +211,8 @@ context::do_query_area (const String& name, const String& the_area)
 		return;
 	if ((thing = find_for_query (*this, name, 0)) == NOTHING)
 		return;
+
+	Accessed(thing);
 
 	if (in_area (thing, area))
 	{
@@ -260,7 +263,8 @@ context::do_query_article (const String& name, const String& type)
 		return;
 	}
 
-	return_status= COMMAND_SUCC;
+	Accessed(thing);
+	return_status=COMMAND_SUCC;
 	return;
 }
 
@@ -273,6 +277,8 @@ context::do_query_cfail (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+
+	Accessed(thing);
 	set_return_string (unparse_for_return (*this, db[thing].get_exits()));
 	return_status = COMMAND_SUCC;
 }
@@ -294,6 +300,7 @@ context::do_query_commands (const String& name, const String&)
 			case TYPE_THING:
 			case TYPE_PLAYER:
 			case TYPE_PUPPET:
+				Accessed(thing);
 				set_return_string (unparse_for_return (*this, db[thing].get_commands()));
 				return_status = COMMAND_SUCC;
 				break;
@@ -321,6 +328,8 @@ const	String&)
 	if (victim == NOTHING)
 		return;
 
+	Accessed (victim);
+
 	if (Connected (victim))
 	{
 		return_status = COMMAND_SUCC;
@@ -345,6 +354,7 @@ context::do_query_contents (const String& name, const String&)
 			case TYPE_THING:
 			case TYPE_PLAYER:
 				thing = db[thing].get_contents();
+				Accessed (thing);
 				set_return_string (unparse_for_return (*this, thing));
 				if(thing != NOTHING)
 					return_status = COMMAND_SUCC;
@@ -368,6 +378,7 @@ context::do_query_controller (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (unparse_for_return (*this, db [thing].get_controller ()));
 }
@@ -385,6 +396,7 @@ context::do_query_cstring (const String& name, const String&)
 		return_status = COMMAND_FAIL;
 		return;
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_contents_string ().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -398,6 +410,7 @@ context::do_query_csucc (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	set_return_string (unparse_for_return(*this, db[thing].get_contents()));
 	return_status = COMMAND_SUCC;
 }
@@ -425,6 +438,7 @@ context::do_query_descendantfrom (const String& first, const String& parent_str)
 	if ((parent = parent_matcher.noisy_match_result ()) == NOTHING)
 		return;
 
+	Accessed (parent);
 	return_status = COMMAND_SUCC;
 	do {
 		if ((temp = db[thing].get_parent ()) != NOTHING)
@@ -538,7 +552,8 @@ context::do_query_description (const String& name, const String&)
 			return_status = COMMAND_SUCC;
 			break;
 	}
-	
+
+	Accessed (thing);
 }
 
 void
@@ -550,6 +565,7 @@ context::do_query_destination(const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing != NOTHING)
 	{
+		Accessed (thing);
 		set_return_string (unparse_for_return (*this, db[thing].get_destination()));
 		return_status = COMMAND_SUCC;
 	}
@@ -584,6 +600,7 @@ context::do_query_drop (const String& name, const String&)
 					getname(player), player);
 		}
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_drop_message().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -607,6 +624,7 @@ context::do_query_elements (const String& name, const String&)
 				else
 					set_return_string ("NOTHING");
 
+				Accessed (thing);
 				return_status = COMMAND_SUCC;
 				break;
 			case TYPE_ARRAY:
@@ -614,6 +632,8 @@ context::do_query_elements (const String& name, const String&)
 					set_return_string ("1");
 				else
 					set_return_string ("NOTHING");
+
+				Accessed (thing);
 				return_status = COMMAND_SUCC;
 				break;
 			default:
@@ -640,6 +660,7 @@ context::do_query_email (const String& name, const String&)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		else
 		{
+			Accessed (victim);
 			return_status = COMMAND_SUCC;
 			set_return_string (db[victim].get_email_addr ().c_str());
 		}
@@ -702,6 +723,8 @@ context::do_query_exist (const String& name, const String& owner_string)
 					return_status = COMMAND_SUCC;
 					break;
 			}
+
+			Accessed (result);
 		}
 		if (result == AMBIGUOUS)
 			set_return_string ("Ambiguous");
@@ -758,6 +781,8 @@ context::do_query_exist (const String& name, const String& owner_string)
 						return_status = COMMAND_SUCC;
 						break;
 				}
+
+				Accessed (result);
 			}
 			if (result == AMBIGUOUS)
 				set_return_string ("Ambiguous");
@@ -773,6 +798,7 @@ context::do_query_exits (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, db[thing].get_exits()));
 	return_status = COMMAND_SUCC;
 }
@@ -801,6 +827,7 @@ context::do_query_fail (const String& name, const String&)
 					getname(player), player);
 		}
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_fail_message().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -824,6 +851,7 @@ context::do_query_first_name (const String& name, const String&)
 			*name_end = '\0';
 		set_return_string (scratch_return_string);
 	}
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 }
 
@@ -836,10 +864,11 @@ context::do_query_fuses (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	thing = db[thing].get_fuses();
+
 	set_return_string (unparse_for_return (*this, thing));
-	if(thing != NOTHING)
-		return_status = COMMAND_SUCC;
+	return_status = COMMAND_SUCC;
 }
 
 void
@@ -861,6 +890,7 @@ context::do_query_gravity_factor (const String& name, const String&)
 		default:
 			return;
 	}
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (scratch_return_string);
 }
@@ -873,6 +903,7 @@ context::do_query_id (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, thing));
 	return_status = COMMAND_SUCC;
 }
@@ -893,6 +924,7 @@ context::do_query_idletime (const String& name, const String&)
 		return;
 	}
 	sprintf (scratch_return_string, "%ld", (long int)interval);
+	Accessed (thing);
 	set_return_string (scratch_return_string);
 	return_status = COMMAND_SUCC;
 }
@@ -928,6 +960,7 @@ context::do_query_key (const String& name, const String&)
 	}
 	else
 	{
+		Accessed (thing);
 		set_return_string (db[thing].get_lock_key ()->unparse_for_return (*this));
 		return_status = COMMAND_SUCC;
 	}
@@ -948,6 +981,7 @@ context::do_query_last_entry (const String& name, const String&)
 		else
 		{
 			sprintf (scratch_buffer, "%ld", (long int)db[thing].get_last_entry_time());
+			Accessed (thing);
 			set_return_string (scratch_buffer);
 			return_status = COMMAND_SUCC;
 		}
@@ -964,6 +998,7 @@ context::do_query_location (const String& name, const String&)
 		return;
 	if (!controls_for_read(db[thing].get_location()) && !controls_for_read(thing))
 		return;
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, db[thing].get_location()));
 	return_status = COMMAND_SUCC;
 }
@@ -976,6 +1011,7 @@ context::do_query_lock (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	set_return_string (db[thing].get_key ()->unparse_for_return (*this));
 	return_status = COMMAND_SUCC;
 }
@@ -999,6 +1035,7 @@ context::do_query_mass (const String& name, const String&)
 		default:
 			return;
 	}
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (scratch_return_string);
 }
@@ -1022,6 +1059,7 @@ context::do_query_mass_limit (const String& name, const String&)
 		default:
 			return;
 	}
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (scratch_return_string);
 }
@@ -1044,6 +1082,7 @@ context::do_query_money (const String& name, const String&)
 		default:
 			return;
 	}
+	Accessed (victim);
 	return_status = COMMAND_SUCC;
         set_return_string (scratch_return_string);
 }
@@ -1077,6 +1116,8 @@ context::do_query_name (const String& name, const String& type)
 
 	if (thing == NOTHING)
 		return;
+
+	Accessed (thing);
 
 	if (!type)	/* Do they want an article too? */
 	{
@@ -1280,6 +1321,7 @@ context::do_query_odrop (const String& name, const String&)
 					getname(player), player);
 		}
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_odrop().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -1308,6 +1350,7 @@ context::do_query_ofail (const String& name, const String&)
 					getname(player), player);
 		}
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_ofail().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -1336,6 +1379,7 @@ context::do_query_osuccess (const String& name, const String&)
 					getname(player), player);
 		}
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_osuccess().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -1349,6 +1393,7 @@ context::do_query_owner (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, db[thing].get_owner()));
 	return_status = COMMAND_SUCC;
 }
@@ -1362,6 +1407,7 @@ context::do_query_parent (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, db[thing].get_parent ()));
 	return_status = COMMAND_SUCC;
 }
@@ -1375,6 +1421,7 @@ context::do_query_bps (const String& name, const String&)
 	if (thing == NOTHING)
 		return;
 	sprintf (scratch_return_string, "%d", db[thing].get_pennies());
+	Accessed (thing);
 	set_return_string (scratch_return_string);
 	return_status = COMMAND_SUCC;
 }
@@ -1415,7 +1462,7 @@ context::do_query_aliases (const String& name, const String&)
 	if (thing == NOTHING)
 		return;
 
-
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (format_alias_string(thing));
 }
@@ -1430,6 +1477,7 @@ context::do_query_race (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (db[thing].get_race ().c_str());
 }
@@ -1477,6 +1525,7 @@ context::do_query_score (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	sprintf (scratch_return_string, "%ld", db[thing].get_score ());
 	set_return_string (scratch_return_string);
@@ -1497,6 +1546,8 @@ context::do_query_set (const String& name, const String& flag)
 	for (i = 0; flag_list [i].string != NULL; i ++)
 		if (string_prefix (flag_list[i].string, flag))
 		{
+			Accessed (thing);
+
 			if (db[thing].get_flag(flag_list [i].flag))
 			{
 				return_status = COMMAND_SUCC;
@@ -1521,6 +1572,7 @@ context::do_query_size (const String& name, const String&)
 		case TYPE_DICTIONARY:
 		case TYPE_COMMAND:
 			sprintf (scratch_return_string, "%d", db[thing].get_number_of_elements());
+			Accessed (thing);
 			set_return_string (scratch_return_string);
 			return_status = COMMAND_SUCC;
 			break;
@@ -1559,6 +1611,7 @@ context::do_query_success (const String& name, const String&)
 					getname(player), player);
 		}
 	}
+	Accessed (thing);
 	set_return_string (db[thing].get_succ_message().c_str());
 	return_status = COMMAND_SUCC;
 }
@@ -1588,6 +1641,9 @@ context::do_query_typeof (const String& name, const String& type)
 	thing = find_for_query (*this, name, 0);
 	if (thing == NOTHING)
 		return;
+
+	Accessed (thing);
+
 	if (!type)
 	{
 		return_status = COMMAND_SUCC;
@@ -1697,6 +1753,7 @@ context::do_query_variables (const String& name, const String&)
 		return;
 
 	dbref var = db[thing].get_variables();
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, var));
 	if(var != NOTHING)
 		return_status = COMMAND_SUCC;
@@ -1712,6 +1769,7 @@ context::do_query_properties (const String& name, const String&)
 		return;
 
 	dbref var = db[thing].get_properties();
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, var));
 	if(var != NOTHING)
 		return_status = COMMAND_SUCC;
@@ -1727,6 +1785,7 @@ context::do_query_arrays (const String& name, const String&)
 		return;
 
 	dbref var = db[thing].get_arrays();
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, var));
 	if(var != NOTHING)
 		return_status = COMMAND_SUCC;
@@ -1742,6 +1801,7 @@ context::do_query_dictionaries (const String& name, const String&)
 		return;
 
 	dbref var = db[thing].get_dictionaries();
+	Accessed (thing);
 	set_return_string (unparse_for_return (*this, var));
 	if(var != NOTHING)
 		return_status = COMMAND_SUCC;
@@ -1767,6 +1827,7 @@ context::do_query_volume (const String& name, const String&)
 		default:
 			return;
 	}
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (scratch_return_string);
 }
@@ -1790,6 +1851,7 @@ context::do_query_volume_limit (const String& name, const String&)
 		default:
 			return;
 	}
+	Accessed (thing);
 	return_status = COMMAND_SUCC;
 	set_return_string (scratch_return_string);
 }
@@ -1813,6 +1875,7 @@ context::do_query_weight (const String& name, const String&)
 		default :
 			return;
 	}
+	Accessed (thing);
 	set_return_string (scratch_return_string);
 	return_status = COMMAND_SUCC;
 }
@@ -1827,9 +1890,58 @@ context::do_query_who (const String& name, const String&)
 	if (victim == NOTHING)
 		return;
 
+	Accessed (victim);
 	return_status = COMMAND_SUCC;
 	set_return_string (db[victim].get_who_string ().c_str());
 }
 
+void
+context::do_query_ctime (const String& name, const String&)
+{
+	time_t 	t;
+	dbref	thing = find_for_query (*this, name, 1);
 
+	set_return_string (error_return_string);
+	return_status = COMMAND_FAIL;
+	if (thing == NOTHING)
+		return;
+	if (!(t = db[thing].get_ctime ()))
+		return;
+	sprintf (scratch_return_string, "%ld", t);
+	set_return_string (scratch_return_string);
+	return_status = COMMAND_SUCC;
+}
+	
+void
+context::do_query_mtime (const String& name, const String&)
+{
+	time_t 	t;
+	dbref	thing = find_for_query (*this, name, 1);
 
+	set_return_string (error_return_string);
+	return_status = COMMAND_FAIL;
+	if (thing == NOTHING)
+		return;
+	if (!(t = db[thing].get_mtime ()))
+		return;
+	sprintf (scratch_return_string, "%ld", t);
+	set_return_string (scratch_return_string);
+	return_status = COMMAND_SUCC;
+}
+	
+void
+context::do_query_atime (const String& name, const String&)
+{
+	time_t 	t;
+	dbref	thing = find_for_query (*this, name, 1);
+
+	set_return_string (error_return_string);
+	return_status = COMMAND_FAIL;
+	if (thing == NOTHING)
+		return;
+	if (!(t = db[thing].get_atime ()))
+		return;
+	sprintf (scratch_return_string, "%ld", t);
+	set_return_string (scratch_return_string);
+	return_status = COMMAND_SUCC;
+}

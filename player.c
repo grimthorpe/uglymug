@@ -71,6 +71,8 @@ dbref create_player(const String& name, const String& password, bool effective_w
 	db[player].set_flag		(FLAG_PRETTYLOOK);
 	db[player].set_flag		(FLAG_FCHAT);
 	Settypeof			(player, TYPE_PLAYER);
+	Created				(player);
+
 	if(password)
 	{
 		db[player].set_password		((char *) (crypt(password.c_str(), password.c_str()) +2));
@@ -126,7 +128,7 @@ const	String& newpw)
 
 	if(!old)
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "Whats your old password?");
+		notify_colour(player, player, COLOUR_MESSAGES, "What's your old password?");
 		return;
 	}
 	if(string_compare((char *) (crypt(old.c_str(), old.c_str()) + 2), db[player].get_password ()))
@@ -142,6 +144,7 @@ const	String& newpw)
 	}
 
 	db[player].set_password ((crypt(newpw.c_str(), newpw.c_str()) +2));
+	Modified (player);
 	notify_colour(player, player, COLOUR_MESSAGES, "Password changed.");
 
 	return_status = COMMAND_SUCC;
@@ -197,6 +200,8 @@ const	String& )
 		buf = db [owner].get_alias (i).c_str();
 		notify_censor(player, player, "%sAlias %d:%s %s", ca[COLOUR_TITLES],(i + 1), COLOUR_REVERT, (buf ? buf : "<not set>"));
 	}
+
+	Accessed (owner);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -305,6 +310,8 @@ const	String& string)
 	 */
 
 	result = db[victim].add_alias(string);
+	Modified (victim);
+
 	if (!gagged_command())
 	{
 		switch (result)
@@ -358,6 +365,8 @@ const	String& string)
 
 	if (db[victim].remove_alias(string))
 	{
+		Modified (victim);
+
 		if (!gagged_command())
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "Alias removed.");
@@ -400,7 +409,7 @@ const	String& string)
 
 	if(Typeof(victim) != TYPE_PLAYER && Typeof(victim) != TYPE_PUPPET)
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That is no t a player or NPC");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That is not a player or NPC.");
 		return;
 	}
 
@@ -421,8 +430,9 @@ const	String& string)
 	if (really_in_command() && !Wizard(get_current_command()))
 		notify_colour (victim, victim, COLOUR_ERROR_MESSAGES, "WARNING: Your who string has been changed to %s.", string.c_str());
 	else if (!in_command())
-		notify_colour (player,  player, COLOUR_MESSAGES,"Set.");
+		notify_colour (player, player, COLOUR_MESSAGES, "Set.");
 
+	Modified (victim);
 
 	return_status = COMMAND_SUCC;
 	set_return_string (db[victim].get_who_string ().c_str());
@@ -519,6 +529,9 @@ const	String& other)
 		db[victim].set_owner (controller);
 	else
 		db[victim].set_controller (controller);
+
+	Modified (victim);
+	Accessed (controller);
 
 	return_status = COMMAND_SUCC;
 	set_return_string (unparse_for_return (*this, victim));

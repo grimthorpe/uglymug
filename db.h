@@ -235,7 +235,9 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define Wizard(x)	(db[(x)].get_flag(FLAG_WIZARD))
 #define XBuilder(x)	(db[(x)].get_flag(FLAG_XBUILDER))
 #define NoForwardEmail(x)	(db[(x)].get_flag(FLAG_NO_EMAIL_FORWARD))
-
+#define	Created(x)	(db[(x)].set_ctime())
+#define	Modified(x)	(db[(x)].set_mtime())
+#define	Accessed(x)	(db[(x)].set_atime())
 
 #define PLAYER_PID_STACK_SIZE 16
 
@@ -300,6 +302,9 @@ class	object
 	unsigned char		flags[FLAGS_WIDTH];	///< Flag list (bits)
 //	typeof_type		type;		///< Type of object
 	dbref			m_owner;	///< who controls this object
+	time_t			m_ctime;	///< creation time
+	time_t			m_mtime;	///< modification time
+	time_t			m_atime;	///< access time
 #ifdef ALIASES
 			void	set_alias			(const int which, const String& what);
 			int	look_at_aliases			(const String&)	const	{ return 0; }
@@ -322,12 +327,20 @@ class	object
 
 			void	set_flag			(const int f)			{ flags[f/8] |= (1<<(f%8)); }
 			void	clear_flag			(const int f)			{ flags[f/8] &= ~(1<<(f%8)); }
-			int	get_flag			(const int f)		const	{ return(flags[f/8] & (1<<(f%8))); }
+			int	get_flag			(const int f)			{ return(flags[f/8] & (1<<(f%8))); }
 			void	set_flag_byte			(const int c, const flag_type v){ flags[c] = v; }
-			unsigned char	get_flag_byte		(const int c)		const	{ return (flags[c]); }
-
+			unsigned char	get_flag_byte		(const int c)			const { return (flags[c]); }
 
 			void	set_referenced			()				{ set_flag(FLAG_REFERENCED); }
+
+			void	set_ctime			()				{ time(&m_ctime); }
+			void	set_mtime			()				{ time(&m_mtime); }
+			void	set_atime			()				{ time(&m_atime); }
+
+			void	set_ctime			(const time_t t)		{ m_ctime=t; }
+			void	set_mtime			(const time_t t)		{ m_mtime=t; }
+			void	set_atime			(const time_t t)		{ m_atime=t; }
+
 	virtual		void	set_name			(const String& str);
 	virtual		void	set_location			(const dbref o)			{ location = o; }
 	virtual		void	set_remote_location		(const dbref o);
@@ -420,6 +433,9 @@ class	object
 		const	dbref	get_real_next			()			const	{ return next; }
 		const	dbref	get_owner			()			const	{ return m_owner; }
 		const	dbref	owner				()			const	{ return m_owner; }
+		const	time_t	get_ctime			()			const	{ return m_ctime; }
+		const	time_t	get_mtime			()			const	{ return m_mtime; }
+		const	time_t	get_atime			()			const	{ return m_atime; }
 	/* Describable_object */
 	virtual	const	String& get_description		()			const	{ return NULLSTRING; }
 		const	String& get_inherited_description	()			const;

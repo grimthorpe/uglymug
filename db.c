@@ -247,6 +247,12 @@ const
 	}
 	putfieldtype	(f, OBJECT_OWNER);
 	putref		(f, m_owner);
+	putfieldtype	(f, OBJECT_CTIME);
+	putint		(f, m_ctime);
+	putfieldtype	(f, OBJECT_MTIME);
+	putint		(f, m_mtime);
+	putfieldtype	(f, OBJECT_ATIME);
+	putint		(f, m_atime);
 	return (true);
 }
 
@@ -284,6 +290,15 @@ object::read (
 			break;
 		case OBJECT_OWNER:
 			m_owner = getref(f);
+			break;
+		case OBJECT_CTIME:
+			m_ctime = getint(f);
+			break;
+		case OBJECT_MTIME:
+			m_mtime = getint(f);
+			break;
+		case OBJECT_ATIME:
+			m_atime = getint(f);
 			break;
 		default:
 			log_bug("Something has gone seriously wrong in object::read\nField Type:%d", fieldtype);
@@ -348,6 +363,15 @@ Dictionary::read (
 			break;
 		case DICTIONARY_OWNER:
 			set_owner_no_check (getref(f));
+			break;
+		case DICTIONARY_CTIME:
+			set_ctime (getint(f));
+			break;
+		case DICTIONARY_MTIME:
+			set_mtime (getint(f));
+			break;
+		case DICTIONARY_ATIME:
+			set_atime (getint(f));
 			break;
 		case DICTIONARY_ELEMENTS:
 			for(i=getint(f); i; i--)
@@ -427,6 +451,15 @@ Array::read (
 		case ARRAY_OWNER:
 			set_owner_no_check (getref(f));
 			break;
+		case ARRAY_CTIME:
+			set_ctime (getint(f));
+			break;
+		case ARRAY_MTIME:
+			set_mtime (getint(f));
+			break;
+		case ARRAY_ATIME:
+			set_atime (getint(f));
+			break;
 		case ARRAY_ELEMENTS:
 		case ARRAY_STORAGE_ELEMENTS:
 			get_array_elements(f, this);
@@ -484,6 +517,15 @@ Describable_object::read (
 			break;
 		case DOBJECT_OWNER:
 			set_owner_no_check (getref(f));
+			break;
+		case DOBJECT_CTIME:
+			set_ctime (getint(f));
+			break;
+		case DOBJECT_MTIME:
+			set_mtime (getint(f));
+			break;
+		case DOBJECT_ATIME:
+			set_atime (getint(f));
 			break;
 		case DOBJECT_DESC:
 			set_description(getstring(f));
@@ -580,6 +622,15 @@ Lockable_object::read (
 		case LOBJECT_OWNER:
 			set_owner_no_check (getref(f));
 			break;
+		case LOBJECT_CTIME:
+			set_ctime (getint(f));
+			break;
+		case LOBJECT_MTIME:
+			set_mtime (getint(f));
+			break;
+		case LOBJECT_ATIME:
+			set_atime (getint(f));
+			break;
 		case LOBJECT_DESC:
 			set_description(getstring(f));
 			break;
@@ -665,6 +716,15 @@ Inheritable_object::read (
 			break;
 		case IOBJECT_OWNER:
 			set_owner_no_check (getref(f));
+			break;
+		case IOBJECT_CTIME:
+			set_ctime (getint(f));
+			break;
+		case IOBJECT_MTIME:
+			set_mtime (getint(f));
+			break;
+		case IOBJECT_ATIME:
+			set_atime (getint(f));
 			break;
 		case IOBJECT_DESC:
 			set_description(getstring(f));
@@ -780,6 +840,15 @@ Old_object::read (
 		case OOBJECT_OWNER:
 			set_owner_no_check (getref(f));
 			break;
+		case OOBJECT_CTIME:
+			set_ctime (getint(f));
+			break;
+		case OOBJECT_MTIME:
+			set_mtime (getint(f));
+			break;
+		case OOBJECT_ATIME:
+			set_atime (getint(f));
+			break;
 		case OOBJECT_DESC:
 			set_description(getstring(f));
 			break;
@@ -869,6 +938,15 @@ Room::read (
 			break;
 		case ROOM_OWNER:
 			set_owner_no_check (getref(f));
+			break;
+		case ROOM_CTIME:
+			set_ctime (getint(f));
+			break;
+		case ROOM_MTIME:
+			set_mtime (getint(f));
+			break;
+		case ROOM_ATIME:
+			set_atime (getint(f));
 			break;
 		case ROOM_DESC:
 			set_description(getstring(f));
@@ -1035,6 +1113,15 @@ Massy_object::read (
 		case MOBJECT_OWNER:
 			set_owner_no_check (getref(f));
 			break;
+		case MOBJECT_CTIME:
+			set_ctime (getint(f));
+			break;
+		case MOBJECT_MTIME:
+			set_mtime (getint(f));
+			break;
+		case MOBJECT_ATIME:
+			set_atime (getint(f));
+			break;
 		case MOBJECT_DESC:
 			set_description(getstring(f));
 			break;
@@ -1140,6 +1227,15 @@ puppet::read(
 			break;
 		case PUPPET_OWNER:
 			set_owner_no_check (getref(f));
+			break;
+		case PUPPET_CTIME:
+			set_ctime (getint(f));
+			break;
+		case PUPPET_MTIME:
+			set_mtime (getint(f));
+			break;
+		case PUPPET_ATIME:
+			set_atime (getint(f));
 			break;
 		case PUPPET_DESC:
 			set_description(getstring(f));
@@ -1355,6 +1451,15 @@ Player::read (
 		case PLAYER_DESC:
 			set_description(getstring(f));
 			break;
+		case PLAYER_CTIME:
+			set_ctime (getint(f));
+			break;
+		case PLAYER_MTIME:
+			set_mtime (getint(f));
+			break;
+		case PLAYER_ATIME:
+			set_atime (getint(f));
+			break;
 		case PLAYER_KEY:
 			set_key_no_free (getboolexp (f));
 			break;
@@ -1512,6 +1617,15 @@ Thing::read (
 			break;
 		case THING_OWNER:
 			set_owner_no_check (getref(f));
+			break;
+		case THING_CTIME:
+			set_ctime (getint(f));
+			break;
+		case THING_MTIME:
+			set_mtime (getint(f));
+			break;
+		case THING_ATIME:
+			set_atime (getint(f));
 			break;
 		case THING_DESC:
 			set_description(getstring(f));

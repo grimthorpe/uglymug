@@ -515,6 +515,7 @@ public:
 	void				do_query_area		(const String&, const String&);
 	void				do_query_article	(const String&, const String&);
 	void				do_query_arrays		(const String&, const String&);
+	void				do_query_atime		(const String&, const String&);
 	void				do_query_bps		(const String&, const String&);
 	void				do_query_can		(const String&, const String&);
 	void				do_query_cfail		(const String&, const String&);
@@ -527,6 +528,7 @@ public:
 	void				do_query_controller	(const String&, const String&);
 	void				do_query_cstring	(const String&, const String&);
 	void				do_query_csucc		(const String&, const String&);
+	void				do_query_ctime		(const String&, const String&);
 	void				do_query_descendantfrom	(const String&, const String&);
 	void				do_query_description	(const String&, const String&);
 	void				do_query_destination	(const String&, const String&);
@@ -551,6 +553,7 @@ public:
 	void				do_query_mass		(const String&, const String&);
 	void				do_query_mass_limit	(const String&, const String&);
 	void				do_query_money		(const String&, const String&);
+	void				do_query_mtime		(const String&, const String&);
 	void				do_query_my		(const String&, const String&);
 	void				do_query_myself		(const String&, const String&);
 	void				do_query_name		(const String&, const String&);

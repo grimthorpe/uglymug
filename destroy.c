@@ -79,6 +79,7 @@ const	String& )
 		return;
 	}
 	db[object].empty_object();
+	Modified (object);
 
 	if(!in_command())
 		notify_colour (player, player, COLOUR_MESSAGES, "Emptied.");
@@ -293,6 +294,7 @@ dbref	zap_room)
 			RefSet (zap_room)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Room %s reparented.", unparse_object (c, i));
 			db [i].set_parent (db [zap_room].get_parent ());
+			Modified (i);
 		}
 
 		/* search for all objects set to home here - reset to LIMBO even if they aren't owned by the player. */
@@ -304,10 +306,12 @@ dbref	zap_room)
 				case TYPE_PLAYER:
 					notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Player %s: Home reset to Limbo.", unparse_object (c, i));
 					db[i].set_destination(LIMBO);
+					Modified (i);
 					break;
 				case TYPE_THING:
 					notify_colour(c.get_player(), c.get_player() , COLOUR_MESSAGES, "Thing %s: Home reset to Limbo.", unparse_object(c, i));
 					db[i].set_destination(LIMBO);
+					Modified (i);
 					break;
 				case TYPE_EXIT:
 					/* Don't warn if it'll go anyway */
@@ -316,10 +320,12 @@ dbref	zap_room)
 						notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Exit %s: Unlinked.", unparse_object (c, i));
 					}
 					db[i].set_destination(NOTHING);
+					Modified (i);
 					break;
 				case TYPE_ROOM:
 					notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Room %s: Dropto removed.", unparse_object (c, i));
 					db[i].set_destination(NOTHING);
+					Modified (i);
 					break;
 			}
 		}
@@ -335,6 +341,7 @@ dbref	zap_room)
 				db[zap_room].set_contents (remove_first (temp, db[zap_room].get_contents ()));
 				db[temp].set_location (LIMBO);
 				PUSH (temp, LIMBO, contents);
+				Accessed (temp);
 			}
 		}
 		else
@@ -344,12 +351,14 @@ dbref	zap_room)
 			{
 				notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Object %s: Re-homed to Limbo.", unparse_object (c, temp));
 				db[temp].set_destination(LIMBO);
+				Modified (temp);
 			}
 
 			/* If it is a remoted player or puppet, then put them back to where they 'really' are */
 			if(db[temp].get_real_location() != db[temp].get_location())
 			{
 				db[temp].set_location(db[temp].get_real_location());
+				Accessed (temp);
 			}
 			else if (!moveto (temp, db[temp].get_destination()))
 			{
@@ -714,6 +723,7 @@ dbref	zap_exit)
 			RefSet (zap_exit)
 			notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Exit %s reparented.", unparse_object(c, i));
 			db[i].set_parent(db[zap_exit].get_parent());
+			Modified (i);
 		}
 	db[zap_exit].destroy(zap_exit);
 	return (true);
@@ -752,6 +762,7 @@ dbref	zap_command)
 					RefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Command %s reparented.", unparse_object (c, i));
 					db [i].set_parent (db [zap_command].get_parent ());
+					Modified (i);
 				}
 				break;
 			case TYPE_THING:
@@ -834,6 +845,7 @@ const	String&	elem)
 	}
 
 	db[zap_array].destroy_element(temp);
+	Modified (zap_array);
 	if(Typeof(zap_array) == TYPE_COMMAND)
 	{
 		db[zap_array].flush_parse_helper();
@@ -868,6 +880,7 @@ const	String&	elem)
 	}
 
 	db[zap_dictionary].destroy_element(temp);
+	Modified (zap_dictionary);
 	return (true);
 }
 
@@ -896,6 +909,7 @@ dbref	zap_fuse)
 			RefSet (zap_fuse)
 			notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Fuse %s reparented.", unparse_object(c, i));
 			db[i].set_parent(db[zap_fuse].get_parent());
+			Modified (i);
 		}
 	db[zap_fuse].destroy(zap_fuse);
 	return (true);
@@ -916,6 +930,7 @@ dbref	zap_alarm)
 			RefSet (zap_alarm)
 			notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "Alarm %s reparented.", unparse_object(c, i));
 			db[i].set_parent(db[zap_alarm].get_parent());
+			Modified (i);
 		}
 	db[zap_alarm].destroy(zap_alarm);
 	return (true);

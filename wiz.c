@@ -296,6 +296,7 @@ const	String& password)
 			db[victim].set_password(NULLSTRING);
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Password set to NOTHING. The game will not prompt for a password");
 		}
+		Modified (victim);
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Password changed.");
 		notify_colour(victim, player, COLOUR_ERROR_MESSAGES, "Your password has been changed by %s.", getname_inherited (player));
 		return_status = COMMAND_SUCC;
@@ -493,6 +494,7 @@ const	String& email_addr)
 	{
 		/* it's ok, do it */
 		db[victim].set_email_addr (email_addr);
+		Modified (victim);
 
 		/* Only do warning if email is not null */
 		if(email_addr)

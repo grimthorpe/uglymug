@@ -216,6 +216,7 @@ const	String& arg2)
 			}
 			notify_public_colour(player, who, COLOUR_WHISPERS, "You whisper \"%s\" to %s.", arg2.c_str(), getname_inherited (who));
 			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", value_or_empty(getname_inherited (player)), arg2.c_str());
+			Accessed (who);
 #ifndef QUIET_WHISPER
 			sprintf(scratch_buffer, "%s whispers something to %s.",
 				value_or_empty(getname_inherited (player)), value_or_empty(getname_inherited (who)));
@@ -588,7 +589,6 @@ const	String& part2)
 
 		while (target != NOTHING)
 		{
-
 			const colour_at& ca=db[target].get_colour_at();
 			context	unparse_context (target, *this);
 			strcpy (scratch_buffer, unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE));
@@ -600,6 +600,8 @@ const	String& part2)
 				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z to %s from %s%s %s%s", targets.generate_courtesy_string(player, target), ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));
 			else
 				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z from %s%s%s %s", ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));
+
+			Accessed (target);
 
 			target=targets.get_next();
 		}

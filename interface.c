@@ -4129,6 +4129,7 @@ struct  descriptor_data *d;
         d = new descriptor_data(0, 0, 0); // No fd, No sockaddr, No channel
         d->set_player( victim );
         db[victim].set_flag(FLAG_CONNECTED);
+	Accessed (victim);
         notify(player, "Connected");
         return_status = COMMAND_SUCC;
         set_return_string (ok_return_string);
@@ -4179,6 +4180,7 @@ struct  descriptor_data *d;
                         break;
                 }
         db[victim].clear_flag(FLAG_CONNECTED); // NPC disconnected
+	Accessed (victim);
         notify(player, "Disconnected");
 
         return_status = COMMAND_SUCC;
@@ -4234,6 +4236,7 @@ struct  descriptor_data *d;
                 if (d->IS_CONNECTED() && (d->get_player() == victim))
                 {
                         d->save_command(command.c_str());
+			Accessed (victim);
                         break;
                 }
         return_status = COMMAND_SUCC;

@@ -178,6 +178,7 @@ Matcher		&matcher)
 	/* If we're handed an illegal command, give up now */
 	if (command < 0 || command >= db.get_top () || (Typeof(command) != TYPE_COMMAND))
 		return ACTION_STOP;
+
 	/* Push stack, with current EID if we already happen to be nested */
 	if (call_stack.size () >= depth_limit)
 	{
@@ -187,6 +188,7 @@ Matcher		&matcher)
 		return ACTION_HALT;
 	}
 
+	Accessed (command);
 	call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()));
 
 	if(Backwards(command))
@@ -220,6 +222,7 @@ dbref		eid,
 Matcher		&matcher)
 {
 	Command_action ret = prepare_compound_command (command, sc, a1, a2, eid, matcher);
+
 	if (ret == ACTION_CONTINUE)
 	{
 		/* Schedule ourselves */

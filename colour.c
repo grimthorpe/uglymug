@@ -225,6 +225,9 @@ static struct
 	{"WelcomerTitles",	'~',	"%g%h"},
 
 	{"Retired",		'\177',	"%z%b%h"},
+
+	{"Timestamps",		'\200',	"%z%y"},
+
 	{NULL,		0}
 };
 

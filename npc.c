@@ -56,6 +56,7 @@ void context::do_at_event(const char *name, const char *event)
 	}
 
 	db[npc].event(player, npc, event);
+	Accessed (npc);
 
 	set_return_string (ok_return_string);
 	return_status=COMMAND_SUCC;

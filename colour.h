@@ -100,6 +100,8 @@
 
 #define	COLOUR_RETIRED		62
 
+#define	COLOUR_TIMESTAMPS	63
+
 struct colour_table_type
 {
 	const char	*name;

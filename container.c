@@ -56,6 +56,7 @@ const	String& )
 	else
 	{
 		db[container].set_flag(FLAG_OPEN);
+		Modified (container);
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
 			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are now open", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
 		else
@@ -110,6 +111,7 @@ const	String& )
 	else
 	{
 		db[container].clear_flag(FLAG_OPEN);
+		Modified (container);
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
 			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are now closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
 		else
@@ -146,6 +148,7 @@ const	String& description)
 	else
 	{
 		db[container].set_contents_string (description);
+		Modified (container);
 		if (!in_command ())
 		{
 			if (description && *description.c_str() != '\0')
@@ -191,6 +194,7 @@ const	String& )
 	else
 	{
 		db[container].set_flag(FLAG_LOCKED);
+		Modified (container);
 		notify_colour (player, player, COLOUR_MESSAGES, "Locked.");
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
@@ -232,6 +236,7 @@ const	String& )
 	else
 	{
 		db[container].clear_flag(FLAG_LOCKED);
+		Modified (container);
 		notify_colour (player, player, COLOUR_MESSAGES, "Unlocked.");
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);

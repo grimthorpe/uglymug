@@ -17,6 +17,8 @@
 
 #define	CONTENTS_TAB	2
 
+static char *tiny_time_string(time_t interval);
+
 /*
  * look_container: We know the thing's a container, and have already printed out
  *	its top-level name.
@@ -567,6 +569,8 @@ const	String& )
 		matcher.match_everything ();
 		if((thing = matcher.noisy_match_result()) != NOTHING)
 		{
+			Accessed (thing);
+
 			switch(Typeof(thing))
 			{
 				case TYPE_ROOM:
@@ -766,6 +770,7 @@ const	String& )
 	else
 		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing));
 	strcpy (stored_owner, unparse_object(*this, db[thing].get_owner()));
+
 	switch(Typeof(thing))
 	{
 		case TYPE_ARRAY:
@@ -1562,7 +1567,56 @@ const	String& )
 		default:
 			break;
 	}
+
+	if(db[thing].get_ctime() || db[thing].get_mtime() || db[thing].get_atime())
+	{
+		notify_colour(player, player, COLOUR_CONTENTS, "Timestamps:");
+
+		time(&now);
+
+		if((last=db[thing].get_ctime()))
+		{
+			sprintf(scratch_buffer, "  %sCreate:%s %s(+%s)%s", 
+				ca[COLOUR_TITLES], 
+				ca[COLOUR_TIMESTAMPS], 
+				ctime(&last), 
+				tiny_time_string(now-last),
+				COLOUR_REVERT);
+
+			*strchr(scratch_buffer, '\n') = ' ';
+			notify(player, "%s", scratch_buffer);
+		}
+
+		if((last=db[thing].get_mtime()))
+		{
+			sprintf(scratch_buffer, "  %sModify:%s %s(+%s)%s", 
+				ca[COLOUR_TITLES], 
+				ca[COLOUR_TIMESTAMPS], 
+				ctime(&last), 
+				tiny_time_string(now-last),
+				COLOUR_REVERT);
+
+			*strchr(scratch_buffer, '\n') = ' ';
+			notify(player, "%s", scratch_buffer);
+		}
+
+		if((last=db[thing].get_atime()))
+		{
+			sprintf(scratch_buffer, "  %sAccess:%s %s(+%s)%s", 
+				ca[COLOUR_TITLES], 
+				ca[COLOUR_TIMESTAMPS], 
+				ctime(&last), 
+				tiny_time_string(now-last),
+				COLOUR_REVERT);
+
+			*strchr(scratch_buffer, '\n') = ' ';
+			notify(player, "%s", scratch_buffer);
+		}
+	}
+
+	Accessed (thing);
 }
+
 
 void
 context::do_score (
@@ -1570,6 +1624,8 @@ const	String& ,
 const	String& )
 
 {
+	Accessed (player);
+
 	notify_colour(player, player, COLOUR_MESSAGES, "You have %d %s.",
 		db[player].get_pennies(),
 		db[player].get_pennies() == 1 ? "building point" : "building points");
@@ -1591,6 +1647,8 @@ const	String& )
 {
 	dbref thing;
 	const colour_at& ca = db[player].get_colour_at();
+
+	Accessed (player);
 
 	if((thing = db[player].get_contents()) == NOTHING)
 		notify_colour(player, player, COLOUR_MESSAGES, "You aren't carrying anything.");
@@ -1650,7 +1708,7 @@ const	String& string)
 	}
 	if (!descriptor)
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "Who's things do you want to list?");
+		notify_colour(player, player, COLOUR_MESSAGES, "Whose things do you want to list?");
 		return;
 	}
 
@@ -2069,6 +2127,21 @@ char *small_time_string (time_t interval)
 
 	strcat(buffer, ".");
 
+	return buffer;
+}
+
+
+static char *tiny_time_string(time_t interval)
+{
+	static char buffer[80];
+	int days, hours, minutes, seconds;
+
+	interval -= (days = interval / 86400) * 86400;
+	interval -= (hours = interval / 3600) * 3600;
+	interval -= (minutes = interval / 60) * 60;
+	seconds= interval;
+
+	sprintf (buffer, "%dd%dh%dm%ds", days, hours, minutes, seconds);
 	return buffer;
 }
 
