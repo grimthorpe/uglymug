@@ -156,6 +156,8 @@ class	Matcher
 	/* The following exist to support @?my match and @?my leaf for bits of code that do their own matching. */
 	void			set_my_match			(dbref my_match)	{ exact_match = my_match; }
 	void			set_my_leaf			(dbref my_leaf)		{ thing = my_leaf; }
+
+	Boolean			was_absolute			()			{ return (absolute != NOTHING) || (absolute_loc != NOTHING); }
 };
 
 #endif	/* _MATCH_H */

@@ -67,13 +67,26 @@ const	char	*arg2)
 		return (False);
 	}
 
+#ifdef HACK_HUNTING
+	if((get_effective_id() != player)
+		&& (!matcher.was_absolute()))
+	{
+		notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string);
+		Trace("HACK|%s(%d)| Command %s(%d) has non-absolute command '%s' called while in @chpid\n",
+			getname(get_effective_id()), get_effective_id(),
+			getname(get_current_command()), get_current_command(),
+			command_string);
+	}
+#endif /* HACK_HUNTING */
 	/* Cannot directly do dark commands - if we find one, keep hunting. */
 	do
 	{
 		if (!Dark (command))
 		{
 			if (could_doit (*this, command))
+			{
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
+			}
 			/* Whether it worked or not, we've tried our best */
 			return True;
 		}
