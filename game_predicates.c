@@ -367,6 +367,7 @@ dbref destination)
 						return NOT_CONTAINER;
 				case TYPE_ROOM :
 				case TYPE_PLAYER :
+				case TYPE_PUPPET : /* canis */
 					contents_of_dest_volume		= find_volume_of_contents (destination);
 					contents_of_dest_mass		= find_mass_of_contents_except (destination, NOTHING);
 					if ((destination_volume_limit != HUGE_VAL)
@@ -452,6 +453,7 @@ dbref thing)
 		case TYPE_ROOM :
 		case TYPE_THING :
 		case TYPE_PLAYER :
+		case TYPE_PUPPET :    /* canis */
 			return (db[thing].get_inherited_volume_limit ());
 			break;
 		default:
@@ -468,6 +470,7 @@ dbref thing)
 		case TYPE_ROOM :
 		case TYPE_THING :
 		case TYPE_PLAYER :
+		case TYPE_PUPPET :    /* canis */
 			return (db[thing].get_inherited_mass_limit ());
 			break;
 		default:
@@ -484,6 +487,7 @@ dbref thing)
 		case TYPE_ROOM:
 		case TYPE_THING:
 		case TYPE_PLAYER:
+		case TYPE_PUPPET :    /* canis */
 			return(db[thing].get_inherited_volume ());
 			break;
 		default:
@@ -500,6 +504,7 @@ dbref thing)
 		case TYPE_ROOM:
 		case TYPE_THING:
 		case TYPE_PLAYER:
+		case TYPE_PUPPET :    /* canis */
 			return(db[thing].get_inherited_mass ());
 			break;
 		default:
@@ -522,6 +527,7 @@ dbref thing)
 		switch (Typeof(looper))
 		{
 			case TYPE_PLAYER :	/* player's take up their volume and what they're carrying */
+			case TYPE_PUPPET :    /* canis */
 				total_volume += find_volume_of_contents(looper);
 			case TYPE_THING :
 			case TYPE_ROOM :
@@ -556,6 +562,7 @@ dbref exception)
 			{
 				case TYPE_THING :
 				case TYPE_PLAYER :
+				case TYPE_PUPPET :    /* canis */
 				case TYPE_ROOM :
 					partial_mass *= db[looper].get_inherited_mass () + find_mass_of_contents_except (looper, exception); 
 				default:

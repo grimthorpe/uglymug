@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Allowed NPCs to carry Thing objects. (canis)
+
 	Stop censored channels from screwing up output by players set CensorAll.
 	Reduce the HACK alerts for commands located via global player name.
 	Put in support for using PCRE library. Should auto-detect it and build appropriately.
