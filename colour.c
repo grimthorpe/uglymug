@@ -42,8 +42,8 @@
 
 
 static	void	free_colour_play(const dbref, const cplay *);
-static	void	output_player_colours(const dbref player);
-static	void	output_attribute_colours(const dbref player);
+static	void	output_player_colours(const dbref player, const dbref victim);
+static	void	output_attribute_colours(const dbref player, const dbref victim);
 
 /* %s, %o, %p and %n are all pronouns. */
 
@@ -267,23 +267,50 @@ output_array(cplay * array, int size)
 
 void
 context::do_at_listcolours(
-const	char	*type,
-const	char	*)
+const	char	*target,
+const	char	*type)
 
 {
+	dbref victim; // For Wizards
+
 	set_return_string (ok_return_string);
 	return_status=COMMAND_SUCC;
 	
-	if(string_prefix(type, "players"))
-		output_player_colours(player);
+	victim = player;	// Default to listing current player
+
+	if((target && *target) && !string_prefix(target, "players"))
+	{
+		if((victim = lookup_player(player, target)) == NOTHING)
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player");
+			set_return_string(error_return_string);
+			return_status = COMMAND_FAIL;
+			return;
+		}
+		if (!controls_for_read(victim))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			set_return_string(error_return_string);
+			return_status = COMMAND_FAIL;
+			return;
+		}
+	}
 	else
-		output_attribute_colours(player);
+	{
+		type = target;
+	}
+
+	if(type && *type && string_prefix(type, "players"))
+		output_player_colours(player, victim);
+	else
+		output_attribute_colours(player, victim);
 }
 
 
 static void
 output_attribute_colours (
-const	dbref	player)
+const	dbref	player,
+const	dbref	victim)
 
 {
 	const	char	*colour_string;
@@ -294,7 +321,7 @@ const	dbref	player)
 		int	x = 0;
 		int	comma = 0;
 
-	colour_string = db[player].get_colour();
+	colour_string = db[victim].get_colour();
 
 	search_buf[0] = ' ';
 	search_buf[2] = '\0';
@@ -342,24 +369,41 @@ const	dbref	player)
 		x++;
 	}
 	if(header == 0)
-		notify_colour(player, player, COLOUR_MESSAGES, "None of your colour attributes have been set");
+	{
+		if(player == victim)
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "None of your colour attributes have been set");
+		}
+		else
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "None of %s's colour attributes have been set", db[victim].get_name());
+		}
+	}
 }
 
 static void output_player_colours(
-dbref player
+const dbref player,
+const dbref victim
 )
 {
-	const	cplay	*cplay_store = db[player].get_colour_play();
+	const	cplay	*cplay_store = db[victim].get_colour_play();
 		char	colour_store[BUFFER_LEN];
 		char	*cia_store;
 		int	header = 0;
 		int	comma = 0;
-		int	no_of_players = db[player].get_colour_play_size();
+		int	no_of_players = db[victim].get_colour_play_size();
 		int	player_count = 0;
 
 	if(no_of_players == 0)
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "You have no colours set for any players");
+		if(player == victim)
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "You have no colours set for any players");
+		}
+		else
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "%s has no colours set for any players", db[victim].get_name());
+		}
 		return;
 	}
 
@@ -437,6 +481,10 @@ const	char	*colour_codes)
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "There isn't an attribute or player called \"%s\".", cia);
 			return;
+		}
+		if(colour_player == player)
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "Warning: Setting a colour attribute on yourself will affect lots of output.");
 		}
 	}
 
