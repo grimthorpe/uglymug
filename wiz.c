@@ -515,7 +515,7 @@ context::dump_email_addresses ()
 
 	/* Flup's email dumping routine */
 	if ((fp=fopen (EMAIL_FILE ".tmp", "w"))==NULL)
-		log_bug("couldn't open %s (%s)", EMAIL_FILE ".tmp", sys_errlist[errno]);
+		log_bug("couldn't open %s (%s)", EMAIL_FILE ".tmp", strerror (errno));
 	else
 	{
 		for (i = 0; i < db.get_top (); i++)
