@@ -6,6 +6,16 @@ by_default_just_make: netmud
 CC=gcc
 CPLUSPLUS=g++
 OPTIM=
+
+####################################
+#          Which OS?
+####################################
+#FreeBSD is covered by the Solaris syntax
+#FreeBSD_UNAME!=uname -sm | sed 's/ /-/g'
+
+SOLMAKE_UNAME:sh=uname -sm|sed 's/ /-/g'
+GMAKE_UNAME=$(shell uname -sm|sed 's/ /-/g')
+SUFFIX=.$(FreeBSD_UNAME)$(GMAKE_UNAME)$(SOLMAKE_UNAME)
  
 ####################################
 #           Solaris 2.8
@@ -13,9 +23,19 @@ OPTIM=
 WHOAMI.sparc=who am i
 LIBS.sparc= -lcurses -lm -ltermcap -lsocket -lnsl
 # Normal
-CFLAGS.sparc= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+CFLAGS.sparc= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion -DJPK_SPARC
 # Extra debug info
-#CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+#CFLAGS.sparc= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+
+WHOAMI.SunOS-sun4c=$(WHOAMI.sparc)
+WHOAMI.SunOS-sun4m=$(WHOAMI.sparc)
+WHOAMI.SunOS-sun4u=$(WHOAMI.sparc)
+LIBS.SunOS-sun4c=$(LIBS.sparc)
+LIBS.SunOS-sun4m=$(LIBS.sparc)
+LIBS.SunOS-sun4u=$(LIBS.sparc)
+CFLAGS.SunOS-sun4c=$(CFLAGS.sparc)
+CFLAGS.SunOS-sun4m=$(CFLAGS.sparc)
+CFLAGS.SunOS-sun4u=$(CFLAGS.sparc)
 
 ####################################
 #              Linux
@@ -23,23 +43,47 @@ CFLAGS.sparc= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 WHOAMI.i386-linux=whoami
 LIBS.i386-linux= -lm -ldl -lcurses -lcrypt
 # Normal
-CFLAGS.i386-linux= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+CFLAGS.i386-linux= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion -DJPK_Linux
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+
+WHOAMI.Linux-i386=$(WHOAMI.i386-linux)
+WHOAMI.Linux-i486=$(WHOAMI.i386-linux)
+WHOAMI.Linux-i586=$(WHOAMI.i386-linux)
+WHOAMI.Linux-i686=$(WHOAMI.i386-linux)
+LIBS.Linux-i386=$(LIBS.i386-linux)
+LIBS.Linux-i486=$(LIBS.i386-linux)
+LIBS.Linux-i586=$(LIBS.i386-linux)
+LIBS.Linux-i686=$(LIBS.i386-linux)
+CFLAGS.Linux-i386=$(CFLAGS.i386-linux)
+CFLAGS.Linux-i486=$(CFLAGS.i386-linux)
+CFLAGS.Linux-i586=$(CFLAGS.i386-linux)
+CFLAGS.Linux-i686=$(CFLAGS.i386-linux)
 
 ####################################
 #            FreeBSD
 ####################################
-#WHOAMI=whoami
-#LIBS= -lm -lncurses -lcrypt 
+WHOAMI.freebsd=whoami
+LIBS.freebsd= -lm -lncurses -lcrypt 
 # Normal
-#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+CFLAGS.freebsd= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion -DJPK_FREEBSD
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
-WHOAMI=$(WHOAMI.$(HOSTTYPE))
-CFLAGS=$(CFLAGS.$(HOSTTYPE))
-LIBS=$(LIBS.$(HOSTTYPE))
+WHOAMI.FreeBSD-i386=$(WHOAMI.freebsd)
+LIBS.FreeBSD-i386=$(LIBS.freebsd)
+CFLAGS.FreeBSD-i386=$(CFLAGS.freebsd)
+
+
+#############################################
+
+#WHOAMI=$(WHOAMI.$(HOSTTYPE))
+#CFLAGS=$(CFLAGS.$(HOSTTYPE))
+#LIBS=$(LIBS.$(HOSTTYPE))
+
+WHOAMI=$(WHOAMI$(SUFFIX))
+LIBS=$(LIBS$(SUFFIX))
+CFLAGS=$(CFLAGS$(SUFFIX))
 
 VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 
