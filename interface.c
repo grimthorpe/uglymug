@@ -255,6 +255,7 @@ public:
 	class	descriptor_data	*next;
 	class	descriptor_data	**prev; // Pointer to previous->next!
 	int                     terminal_width;
+	int                     terminal_wrap;
 	int			terminal_height;
 	char			*terminal_type;
 	struct		{
@@ -338,6 +339,7 @@ public:
 	Command_status	terminal_set_termtype(const char *, int);
 	Command_status	terminal_set_lftocr(const char *, int);
 	Command_status	terminal_set_pagebell(const char *, int);
+	Command_status	terminal_set_width(const char *, int);
 	Command_status	terminal_set_wrap(const char *, int);
 	Command_status	terminal_set_echo(const char *, int);
 	Command_status	really_do_terminal_set(const char *, const char *, int);
@@ -425,6 +427,7 @@ struct terminal_set_command
 } terminal_set_command_table[] =
 {
 	{ "termtype",	&descriptor_data::terminal_set_termtype },
+	{ "width",	&descriptor_data::terminal_set_width },
 	{ "wrap",	&descriptor_data::terminal_set_wrap },
 	{ "lftocr",	&descriptor_data::terminal_set_lftocr },
 	{ "pagebell",	&descriptor_data::terminal_set_pagebell },
@@ -2217,6 +2220,7 @@ int			channel)
 	terminal_xpos		= 0;
 	terminal_lftocr		= 1;
 	terminal_pagebell	= 1;
+	terminal_wrap		= 1;
 	termcap.bold_on		= NULL;
 	termcap.bold_off	= NULL;
 	termcap.underscore_on	= NULL;
@@ -2405,66 +2409,64 @@ int i;
 	strcpy(b2, s);
 	b=b2;
 
-	if(terminal_width)
+// Do word-wrap.
+// We want to wrap at the last <space> before the end-of-line. If there isn't
+// one, don't try to wrap.
+	if((terminal_width > 0) && (terminal_wrap))
 	{
 		int percent_primed= 0; /* Take acct of %colour *not* affecting wrap */
+		char* last_space = 0; /* The last place we saw a space. */
 		a = b;
 		while (*a)
 		{
 			switch (*a)
 			{
-				case '\n':
-					terminal_xpos = -1;
-					break;
+			case '\n':
+				terminal_xpos = 0; // We increment the position
+				last_space = 0;
+				a++;
+				continue;
+				break;
 
-				case '%':
-					if (percent_primed)
-					{
-						terminal_xpos--;
-						percent_primed= 0;
-					}
-					else
-						percent_primed= 1;
-					break;
-				case '\033': /* ANSI code */
-					while ((*a) && (*a!='m'))
-						a++;
+			case '\033': /* ANSI code. But why would we get one here? */
+				while ((*a) && (*a!='m'))
 					a++;
-					break;
-				default:
-					if (percent_primed)
-					{
-						terminal_xpos-=2;
-						percent_primed= 0;
-					}
-					break;
+				if(*a)
+				{
+					a++;
+				}
+				continue;
+				break;
+
+			case '%':
+				terminal_xpos--;
+				percent_primed = !percent_primed;
+				break;
+
+			case ' ':
+				if(!percent_primed)
+					last_space = a;
+				// FALLTHROUGH
+			default:
+				if (percent_primed)
+				{
+					percent_primed= 0;
+					a++;
+					continue;
+				}
+				break;
 			}
-		
-			
+
 			if(terminal_xpos+1 >= terminal_width)
 			{
-				i = 1; // Fix a 'bug' in tinyfugue that wraps on last char
-				while ((a>b) && (terminal_xpos>0) && (*a != ' '))
+				if(last_space != 0)
 				{
-					i++;
-					a--;
-					terminal_xpos--;
+					a = last_space;
+					last_space = 0;
+					*a++ = '\n';
 				}
-				if (a == b) break;
-				if ((*a == ' ') && (i < terminal_width))
-				{
-					*a++='\n';
-					terminal_xpos = 0;
-				}
-				else
-				{
-					if(*a == ' ') a++;
-					while(*a && (*a!=' ') && (*a!='\n'))
-					{
-						a++;
-						terminal_xpos = (terminal_xpos + 1) % terminal_width;
-					}
-				}
+				terminal_xpos = 0;
+				a++;
 			}
 			else
 			{
@@ -4325,6 +4327,34 @@ descriptor_data::terminal_set_termtype (const char *termtype, int)
 
 
 Command_status
+descriptor_data::terminal_set_width(const char *width, int commands_executed)
+{
+	int			i;
+
+	if(width && *width)
+	{
+		i = atoi (width);
+		if (i<0)
+		{
+			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
+			return COMMAND_FAIL;
+		}
+		if (i)
+			i = MAX(i,20); // Don't have an upper limit, cos someone might want it that wide.
+		terminal_width = i;
+	}
+	if(!commands_executed)
+	{
+		if(terminal_width == 0)
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is unset");
+		else
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is %d", terminal_width);
+	}
+
+	return COMMAND_SUCC;
+}
+
+Command_status
 descriptor_data::terminal_set_wrap(const char *width, int commands_executed)
 {
 	int			i;
@@ -4340,10 +4370,11 @@ descriptor_data::terminal_set_wrap(const char *width, int commands_executed)
 		if (i)
 			i = MIN(MAX(i,20),256);
 		terminal_width = i;
+		terminal_wrap = (terminal_width > 0);
 	}
 	if(!commands_executed)
 	{
-		if(terminal_width == 0)
+		if(terminal_wrap == 0)
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is off");
 		else
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap width is %d", terminal_width);
