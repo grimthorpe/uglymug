@@ -5,9 +5,13 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <signal.h>
-#include <sys/wait.h>
+#if	HAS_FORK
+#	include <sys/wait.h>
+#endif	/* HAS_FORK */
 #include <sys/time.h>
-#include <sys/resource.h>
+#if	NEEDS_RESOURCES
+#	include <sys/resource.h>
+#endif	/* NEEDS_RESOURCES */
 #include <sys/types.h>
 #include <errno.h>
 #include <time.h>
@@ -22,7 +26,7 @@
 #include "interface.h"
 #include "log.h"
 
-/* Bits'n'pieces that SunOS appears not to define in any of its header files. PJC 15/4/96. 
+/* Bits'n'pieces that SunOS appears not to define in any of its header files. PJC 15/4/96.
 #ifdef	__sun
 extern	int	nice	(int);
 extern	int	wait3	(union wait *, int, struct rusage *);
@@ -518,6 +522,8 @@ const	String& arg2)
 }
 
 
+#if	HAS_SIGNALS
+
 static void
 alarm_handler (
 int			sig)
@@ -532,6 +538,7 @@ int			sig)
 	signal(SIGALRM, alarm_handler);
 }
 
+
 static void
 hup_handler (
 int			sig)
@@ -543,6 +550,8 @@ int			sig)
 
 	signal(SIGHUP, alarm_handler);
 }
+
+#endif	/* HAS_SIGNALS */
 
 
 static void
@@ -578,17 +587,32 @@ dump_database_internal ()
 }
 
 
+void
+dump_core ()
+
+{
+#if	HAS_SIGNALS
+	kill (getpid (), SIGQUIT);
+#endif	/* HAS_SIGNALS */
+	_exit(1);
+}
+
+
+/**
+ * Invoked if there's a problem while the game's already trying to dump a panic dump.
+ *	Not a lot it can do other than log an error and try to save a cre for later analysis.
+ */
+
+#if	HAS_SIGNALS
 static void
 double_panic (
 int	sig)
 
 {
-	log_panic("DOUBLE PANIC: Got signal %d during panic dump!", sig);
-
-	/* gi's a core */
-	kill (getpid (), SIGQUIT);
-	_exit(1);
+	log_panic ("DOUBLE PANIC: Got signal %d during panic dump!", sig);
+	dump_core ();
 }
+#endif	/* HAS_SIGNALS */
 
 
 void
@@ -598,26 +622,27 @@ const	char	*message)
 {
 	char	panicfile [2048];
 	FILE	*f;
-	int	i;
 	int	exitcode;
 
 	log_panic(message);
 
+#if	HAS_SIGNALS
 	/* turn off signals */
 	signal(0, SIG_IGN);
 	signal(1, SIG_IGN);
 	signal(2, SIG_IGN);
-	for (i = 4; i < NSIG; i++)
+	for (int i = 4; i < NSIG; i++)
 		signal(i, SIG_IGN);
 	signal(SIGSTOP, double_panic);
 	signal(SIGCONT, double_panic);
 	signal(SIGTSTP, double_panic);
+#endif	/* HAS_SIGNALS */
 
 	/* dump panic file */
 	sprintf (panicfile, "%s.PANIC", dumpfile);
 	if ((f = fopen (panicfile, "w")) == NULL)
 	{
-		perror ("CANNOT OPEN PANIC FILE, DOES IT HURT");
+		perror ("Cannot open panic file (the game has lost data)");
 		exitcode = 135;
 	}
 	else
@@ -632,10 +657,7 @@ const	char	*message)
 	/** Interface shutdown moved here while debugging interface problems. PJC 20/2/95. **/
 	/* shut down interface */
 	emergency_shutdown ();
-
-	/* Get a core dump */
-	kill (getpid (), SIGQUIT);
-	_exit (exitcode);
+	dump_core ();
 }
 
 
@@ -650,10 +672,15 @@ dump_database ()
 }
 
 
+/**
+ * Dump the current state of the database without pausing the engine if possible.
+ */
+
 static void
 fork_and_dump ()
 
 {
+#if	HAS_FORK
 	int	child;
 
 	epoch++;
@@ -679,9 +706,19 @@ fork_and_dump ()
 		alarm_triggered = 0;
 		alarm (dump_interval);
 	}
+#else	/* !HAS_FORK */
+	// TODO: Tell everyone that the database is being dumped.
+	dump_database_internal();
+	// TODO: Tell everyone that the database has been dumped.
+#endif	/* HAS_FORK */
 }
 
 
+/**
+ * Listen out for child processes (on systems that have fork()) and reap them.
+ */
+
+#if	HAS_FORK
 static void
 reaper (
 int			sig)
@@ -697,6 +734,7 @@ int			sig)
 	alarm_triggered = -1;
 	signal(SIGCHLD, reaper);	/* needed on some OS's */
 }
+#endif	/* HAS_FORK */
 
 void
 execute_startups(void)
@@ -801,17 +839,27 @@ const	char	*outfile)
 	fclose(f);
 
 	/* initialize random number generator */
+#if	HAS_SRAND48
 	srand48 (getpid ());
+#endif	/* HAS_SRAND48 */
 
 	/* set up dumper */
 	if (dumpfile)
 		free(dumpfile);
 	dumpfile = alloc_string(outfile);
-	signal(SIGALRM, alarm_handler);
+#if	HAS_SIGNALS
 	signal(SIGHUP, hup_handler);
-	signal(SIGCHLD, reaper);
-	alarm_triggered = 0;
+#endif	/* HAS_SIGNALS */
+
+	// Things to do with periodic dumps
+#if	HAS_SIGNALS
+	signal(SIGALRM, alarm_handler);
 	alarm(dump_interval);
+#endif	/* HAS_SIGNALS */
+	alarm_triggered = 0;
+#if	HAS_FORK
+	signal(SIGCHLD, reaper);
+#endif	/* HAS_FORK */
 	
 	/* read smd file */
 	context	*read_context = new context (GOD_ID, context::DEFAULT_CONTEXT);
