@@ -1441,6 +1441,14 @@ const	CString& flag)
 		{
 			notify_colour (thing, player, COLOUR_ERROR_MESSAGES, "WARNING: %s has set you Natter, in order to escape type '@set me = !natter'", getname(player));
 		}
+		if (*flag.c_str() != NOT_TOKEN)
+		{
+			notify_wizard_natter ("  %s has joined Natter", getname_inherited (thing));
+		}
+		else
+		{
+			notify_wizard_natter ("  %s has left Natter", getname_inherited (thing));
+		}
 	}
 
 	if ((f==FLAG_DONTANNOUNCE) && (*flag.c_str() != NOT_TOKEN))
