@@ -1,0 +1,3 @@
+
+SUBDIRS = cgilib libxml
+

@@ -1,0 +1,3 @@
+scp index.html cgitelnet.sourceforge.net:cgitelnetweb
+scp cgitelnet.html cgitelnet.sourceforge.net:cgitelnetweb
+scp debug_1.html cgitelnet.sourceforge.net:cgitelnetweb

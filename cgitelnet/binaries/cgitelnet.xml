@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<cgitelnet-configuration xmlns="http://cgitelnet.sourceforge.net/configuration/1.0.0">
+  <fixed-font>yes</fixed-font>
+  <break-lines>yes<break-ines>
+  <column-width>80</column-width>
+  <foreground-color>#000000</foreground-color>
+  <background-color>#C0C0C0</background-color>
+  <escape></escape>
+  <escape-replace> </escape-replace>
+  <max-id-tries>500</max-id-tries>
+  <config-buffer-size>19600</config-buffer-size>
+  <config-scroll-timeout>50</config-scroll-timeout>
+  <config-scroll-by>300</config-scroll-by>
+</cgitelnet-configuration>

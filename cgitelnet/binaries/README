@@ -1,0 +1,6 @@
+
+*****************************************************************************
+*** After compiling cgitelnet, copy the files on the binaries directory to
+*** your web cgi directory, and access cgitelnet.cgi from your Web browser.
+*****************************************************************************
+
