@@ -643,6 +643,7 @@ class	object
 	virtual		void	set_commands			(const dbref o);
 	virtual		void	add_command			(const dbref o);
 	virtual		void	remove_command			(const dbref o);
+	virtual		dbref	find_command			(const String&) const;
 	virtual		void	set_info_items			(const dbref o);
 	virtual		void	set_fuses			(const dbref o);
 	/* Command */

@@ -578,6 +578,9 @@ void object::add_command (const dbref)
 void object::remove_command (const dbref)
 { IMPLEMENTATION_ERROR ("remove_command") }
 
+dbref object::find_command (const String&) const
+{ return NOTHING;}
+
 void object::set_info_items (const dbref)
 { IMPLEMENTATION_ERROR ("info_item") }
 
@@ -1340,6 +1343,20 @@ std::map<String, dbref>::iterator remove;
 			remove++;
 		}
 	}
+}
+
+dbref
+Old_object::find_command (
+const	String& name) const
+{
+	std::map<String, dbref>::const_iterator iter;
+	iter = get_commandmap()->find(name);
+
+	if(iter != get_commandmap()->end())
+	{
+		return iter->second;
+	}
+	return NOTHING;
 }
 
 void

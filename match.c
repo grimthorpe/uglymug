@@ -732,23 +732,17 @@ Matcher::match_command_internal ()
 	{
 		if (internal_restart == NOTHING)
 		{
-			std::map<String, dbref>::const_iterator iter;
-			iter = db[internal_inheritance_restart].get_commandmap()->find(match_name);
-			if(iter != db[internal_inheritance_restart].get_commandmap()->end())
+			dbref tmp;
+			tmp = db[internal_inheritance_restart].find_command(match_name);
+			if(tmp != AMBIGUOUS)
 			{
-				if(iter->second != AMBIGUOUS)
+				internal_inheritance_restart = db[internal_inheritance_restart].get_parent();
+				if(tmp == NOTHING)
 				{
-					internal_inheritance_restart = db [internal_inheritance_restart].get_parent ();
-					// We've found an exact match
-					exact_match = iter->second;
-					return true;
+					continue;
 				}
-			}
-			else
-			{
-				// We've not found an entry
-				internal_inheritance_restart = db [internal_inheritance_restart].get_parent ();
-				continue;
+				exact_match = tmp;
+				return true;
 			}
 			// If we get here then we've found an AMBIGUOUS entry.
 

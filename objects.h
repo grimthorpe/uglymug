@@ -202,6 +202,7 @@ private:
 		void		set_commands		(const dbref o)			{ commands = o; }
 		void		add_command		(const dbref o);
 		void		remove_command		(const dbref o);
+		dbref		find_command		(const String& n) const;
 		void		set_info_items		(const dbref o)			{ info_items = o; }
 		void		set_fuses		(const dbref o)			{ fuses = o; }
 	const	dbref		get_commands		()			const	{ return commands; }
