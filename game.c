@@ -306,7 +306,7 @@ command_details			command_table [] =
 	{"lremove",		&context::do_lremove,		NO_COMMAND_FLAGS},
 	{"lset",		&context::do_lset,		NO_COMMAND_FLAGS},
 	{"move",		&context::do_move,		NO_COMMAND_FLAGS},
-	{"notify",		&context::do_notify,		NO_COMMAND_FLAGS},
+	{"notify",		&context::do_notify,		FULL_COMPARE},
 	{"open",		&context::do_open,		NO_COMMAND_FLAGS},
 	{"page",		&context::do_page,		NO_COMMAND_FLAGS},
 	{"pose",		&context::do_pose,		NO_COMMAND_FLAGS},
