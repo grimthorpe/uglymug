@@ -157,6 +157,7 @@ command_details			command_table [] =
 #endif /* ALIASES */
 	{"@ammotype",		&context::do_ammo_type,		NO_COMMAND_FLAGS},
 	{"@ammunition",		&context::do_ammunition,	NO_COMMAND_FLAGS},
+	{"@areanotify",		&context::do_at_areanotify,	NO_COMMAND_FLAGS},
 	{"@armour",		&context::do_armour,		NO_COMMAND_FLAGS},
 	{"@array",		&context::do_array,		NO_COMMAND_FLAGS},
 	{"@attributes",		&context::do_attributes,	NO_COMMAND_FLAGS},
@@ -1003,9 +1004,9 @@ const	char	*original_command)
 	}
 	else if (*command == NOTIFY_TOKEN)
 	{
-		set_simple_command ("notify");
-		set_arg1 (command + 1);
-		set_arg2 (NULL);
+		set_simple_command ("@areanotify");
+		set_arg1 ("here");
+		set_arg2 (command + 1);
 	}
 	else if ((*command != '@') && (can_move (*this, command)))
 	{

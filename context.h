@@ -472,6 +472,7 @@ class	context
 	void				do_name			(const char *name, const char *newname);
 	void				do_natter		(const char *arg1, const char *arg2);
 	void				do_newpassword		(const char *name, const char *password);
+	void				do_at_areanotify	(const char *arg1, const char *arg2);
 	void				do_notify		(const char *arg1, const char *arg2);
 	void				do_odrop		(const char *name, const char *message);
 	void				do_ofail		(const char *name, const char *message);

@@ -228,6 +228,36 @@ const	char	*arg2)
  
 
 void
+context::do_at_areanotify (
+const	char	*arg1,
+const	char	*arg2)
+
+{
+	dbref loc;
+
+	return_status = COMMAND_FAIL;
+	set_return_string (error_return_string);
+        Matcher where_matcher (player, arg1, TYPE_ROOM, get_effective_id ());
+        where_matcher.match_everything ();
+        if (((loc = where_matcher.match_result ()) == NOTHING)
+                || (loc == AMBIGUOUS)
+                || (loc < 0)
+                || (loc >= db.get_top ())
+//                || ((Typeof (loc) != TYPE_ROOM) && !Container (loc)) // Should we restrict it to rooms or containers?
+                || !controls_for_read (loc))
+        {
+                notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+                return;
+        }
+
+	/* notify everybody */
+	notify_area(loc, player, "%s", arg2);
+	return_status = COMMAND_SUCC;
+	set_return_string (ok_return_string);
+}
+
+
+void
 context::do_notify (
 const	char	*arg1,
 const	char	*arg2)
