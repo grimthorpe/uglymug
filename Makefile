@@ -17,6 +17,9 @@ BUILD_DIR:=$(BUILDS_DIR)/$(BUILD_ENVIRONMENT)
 
 by_default_just_make: $(BUILDS_DIR) $(BUILD_DIR) $(BUILD_DIR)/netmud$(EXESUFFIX)
 
+checkenvironment:
+	@echo Your environment appears to be: '$(BUILD_ENVIRONMENT)'
+
 INCLUDE:=configs/$(BUILD_ENVIRONMENT)/include
 # Whatever you put in for $(CC) must be able to grok ANSI C.
 CC:=gcc $(INCLUDE:%=-I%)
