@@ -339,7 +339,7 @@ class	Player
 {
     private:
 	//Items for the circular buffer to store lines for @recall - Reaps
-	char* 			recall_buffer[MAX_RECALL_LINES]; //the buffer
+	String 			recall_buffer[MAX_RECALL_LINES]; //the buffer
 	int			recall_buffer_next;		 //Next place to put a line
 	int			recall_buffer_wrapped;			 //Have we wrapped the buffer yet
 	char			recall_buffer_build[BUFFER_LEN]; //Buffer to build lines

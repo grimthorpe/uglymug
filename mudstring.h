@@ -131,12 +131,14 @@ public:
 	String(const char* str)
 	{
 		init();
-		copy(str);
+		if(str)
+			copy(str);
 	}
 	String(const String& str)
 	{
 		init();
-		copy(str.buf, str.len);
+		if(str)
+			copy(str.buf, str.len);
 	}
 	String(const CString& str)
 	{

@@ -1544,14 +1544,12 @@ Player::Player ()
 	channel = NULL;
 
 	//Recall Buffer things
-	for (i = 0; i < MAX_RECALL_LINES; i++)
-		recall_buffer[i] = NULL;
+	//for (i = 0; i < MAX_RECALL_LINES; i++)
+	//	recall_buffer[i] = NULL;
+	// No need to clean out the buffer, as it is now done with 'String's
 	recall_buffer_next=0;
-	recall_buffer_build[0]=NULL;
+	recall_buffer_build[0]='\0';
 	recall_buffer_wrapped=0;
-
-
-
 }
 
 
@@ -1588,43 +1586,28 @@ const CString& strung)
 
 	const char* string = strung.c_str();
 
-
-        if(string)
-        {
-                if(strchr(string, '\n'))
-                {
-                        if(recall_buffer_build)
-                        {
-                                strcat(recall_buffer_build, string);
-                                ASSIGN_STRING (recall_buffer[recall_buffer_next], recall_buffer_build);
-                                recall_buffer_next++;
-                                recall_buffer_build[0] = NULL;
-                        }
-                        else
-                        {
-                                strcpy(recall_buffer_build, string);
-                                recall_buffer_next++;
-                        }
-                }
-                else
-                {
-                        if(recall_buffer_build)
-                        {
-                                strcat(recall_buffer_build, string);
-                        }
-                        else
-                        {
-                                strcpy(recall_buffer_build, string);
-                        }
-                }
-
-                if(recall_buffer_next == MAX_RECALL_LINES)
-                {
-                        recall_buffer_next = 0;
-                        recall_buffer_wrapped = 1;
-                }
-
-        }
+	char* nlpos = 0;
+	while((nlpos = strchr(string, '\n')) != 0)
+	{
+		if((nlpos == string) && (!*recall_buffer_build))
+		{
+			string++;
+			continue; // Leave blank lines alone.
+		}
+		strncat(recall_buffer_build, string, (nlpos+1)-string);
+		recall_buffer[recall_buffer_next++] = recall_buffer_build;
+		recall_buffer_build[0] = '\0';
+		if(recall_buffer_next == MAX_RECALL_LINES)
+		{
+			recall_buffer_next = 0;
+			recall_buffer_wrapped = 1;
+		}
+		string = nlpos+1;
+	}
+	if(*string)
+	{
+		strcat(recall_buffer_build, string);
+	}
 }
 
 void
@@ -1671,7 +1654,7 @@ const context *	con)
                         line_to_output = 0;
                 }
 
-                notify_norecall(con->get_player(), "%s", (char *)recall_buffer[line_to_output]);
+                notify_norecall(con->get_player(), "%s", recall_buffer[line_to_output].c_str());
                 line_to_output++;
         }
 

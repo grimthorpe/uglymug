@@ -12,6 +12,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Cleaned up the @recall code so that it uses 'String' instead of char*
     Fixed NPC code in queue_string so that it escapes $, \ and {.
     @recursionlimit can be used by Apprentices to increate the recursion limit
     @remote *player works like @teleport *player, so that you go to the room
