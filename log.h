@@ -28,6 +28,7 @@
 	void		log_created			(int, dbref, const String&);
 	//void		log_credit			(dbref, dbref, int, const char*);
 	void		log_credit			(dbref, const String&, dbref, const String&, int, const char*);
+	void		log_debit			(dbref, const String&, dbref, const String&, int, const char*);
 	void		log_debug			(const char *, ...);
 	void		log_disconnect		(dbref, const String&, int, int, const String&, bool);
 	void		log_dumping			(bool, const char *, ...);

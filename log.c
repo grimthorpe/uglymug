@@ -185,6 +185,30 @@ void log_created (
 }
 
 
+void log_debit (
+			dbref		giver,
+	const	String&		givername,
+			dbref		taker,
+	const	String&		takername,
+			int			amount,
+	const	char*		currency_name
+) {
+    /*
+     * e.g. DEBIT|timestamp|giver|taker|amount|currency
+     */
+
+    Trace(	"%cDEBIT%c%d%c%d%c%s%c%d%c%s%c%d%c%s%c\n",
+			RECORD_START,						FIELD_SEPARATOR,
+			time(NULL),							FIELD_SEPARATOR,
+			giver,								FIELD_SEPARATOR,
+			givername.c_str(),					FIELD_SEPARATOR,
+			taker,								FIELD_SEPARATOR,
+			takername.c_str(),					FIELD_SEPARATOR,
+			amount,								FIELD_SEPARATOR,
+			currency_name,						RECORD_END
+	);
+}
+
 void log_credit (
 			dbref		giver,
 	const	String&		givername,

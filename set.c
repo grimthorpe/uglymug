@@ -2793,13 +2793,14 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 		RETURN_FAIL;
 	}
 
+
 	if(!Apprentice(player) && !Wizard(get_effective_id()))
 	{
 		notify(player, permission_denied.c_str());
-                RETURN_FAIL;
+               RETURN_FAIL;
 	}
 
-	if(in_command() && !Wizard(get_current_command()))
+	if(in_command())
 	{
 		notify(player, permission_denied.c_str());
 		RETURN_FAIL;
@@ -2848,6 +2849,12 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 		return;
 	}
 
+	if(!controls_for_write(victim))
+	{
+		notify(player, "Permission denied.");
+		RETURN_FAIL;
+	}
+
 	if((db[victim].get_money()-amount)<0)
 	{
 		notify(player, "You can't make someone go into the red.");
@@ -2868,7 +2875,7 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name().c_str());
 		notify(victim, "%s takes %d %s from you.", db[player].get_name().c_str(), amount, currency_name);
 	}
-	log_credit(get_effective_id(), db[get_effective_id()].get_name().c_str(), victim, db[victim].get_name().c_str(), amount, currency_name);
+	log_debit(get_effective_id(), db[get_effective_id()].get_name().c_str(), victim, db[victim].get_name().c_str(), amount, currency_name);
 
 	RETURN_SUCC;
 }

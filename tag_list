@@ -14,6 +14,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Altered do_at_debit not to work in commands and only to work under
+		controls_for_write
 	Modify tell code to miss out a space before an apostrophe ("Flup's a pedant" rather than "Flup 's").  IJC
 	Add 'years' output to time_string().  IJC
 	Make it impossible for wizards and apprentices to go cash negative.  Just God.  JPK
