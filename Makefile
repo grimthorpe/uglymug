@@ -1,4 +1,4 @@
-MAKEFLAGS=-k -B
+MAKEFLAGS=-k
 # This makefile uses the following features that are limited to gmake:
 # - Include lists that cause regeneration of the files (include *.d)
 # - Variable substitution $(FRED:%=builds/$(VAR)/%)
