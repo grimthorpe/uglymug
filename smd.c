@@ -100,8 +100,6 @@ remove_smd_entry (u_long a)
 	{
 		if (b->host == a)
 		{
-			fprintf (stderr, "Found the entry.\n");
-
 			if (b == smd_list)
 			{
 				smd_list = b->next;

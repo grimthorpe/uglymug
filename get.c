@@ -564,7 +564,7 @@ context::do_query_drop (const char *const name, const char *const)
 	if (Typeof(thing) == TYPE_VARIABLE)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?drop used with a variable. This is a deprecated command");
-		fprintf(stderr, "BUG: @?drop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+		Trace( "BUG: @?drop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
 	set_return_string (db[thing].get_drop_message());
 	return_status = COMMAND_SUCC;
@@ -771,7 +771,7 @@ context::do_query_fail (const char *const name, const char *const)
 	if (Typeof(thing) == TYPE_VARIABLE)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?fail used with a variable. This is a deprecated command");
-		fprintf(stderr, "BUG: @?fail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+		Trace( "BUG: @?fail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
 	set_return_string (db[thing].get_fail_message());
 	return_status = COMMAND_SUCC;
@@ -1187,7 +1187,7 @@ context::do_query_odrop (const char *const name, const char *const)
 	if (Typeof(thing) == TYPE_VARIABLE)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?odrop used with a variable. This is a deprecated command");
-		fprintf(stderr, "BUG: @?odrop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+		Trace( "BUG: @?odrop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
 	set_return_string (db[thing].get_odrop());
 	return_status = COMMAND_SUCC;
@@ -1205,7 +1205,7 @@ context::do_query_ofail (const char *const name, const char *const)
 	if (Typeof(thing) == TYPE_VARIABLE)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?ofail used with a variable. This is a deprecated command");
-		fprintf(stderr, "BUG: @?ofail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+		Trace( "BUG: @?ofail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
 	set_return_string (db[thing].get_ofail());
 	return_status = COMMAND_SUCC;
@@ -1223,7 +1223,7 @@ context::do_query_osuccess (const char *const name, const char *const)
 	if (Typeof(thing) == TYPE_VARIABLE)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?osuccess used with a variable. This is a deprecated command");
-		fprintf(stderr, "BUG: @?osuccess used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+		Trace( "BUG: @?osuccess used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
 	set_return_string (db[thing].get_osuccess());
 	return_status = COMMAND_SUCC;
@@ -1438,7 +1438,7 @@ context::do_query_success (const char *const name, const char *const)
 	if (Typeof(thing) == TYPE_VARIABLE)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?success used with a variable. This is a deprecated command");
-		fprintf(stderr, "BUG: @?success used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+		Trace( "BUG: @?success used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
 	set_return_string (db[thing].get_succ_message());
 	return_status = COMMAND_SUCC;

@@ -14,7 +14,7 @@ extern	void	*realloc	(void *, int);
 void init_mud_memory ()
 {
 	if ((mem_file = fopen (MEMORY_LOG_FILE, "w")) == NULL)
-		fprintf (stderr, "Cannot open \"%s\" for writing.\n",
+		Trace( "Cannot open \"%s\" for writing.\n",
 			MEMORY_LOG_FILE);
 }
 

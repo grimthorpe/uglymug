@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
 	if(argc < 1)
 	{
-		fprintf(stderr, "Usage: %s [owner]\n", *argv);
+		Trace( "Usage: %s [owner]\n", *argv);
 		exit(1);
 	}
     
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
 	if(db.read(stdin) < 0)
 	{
-		fprintf(stderr, "%s: bad input\n", argv[0]);
+		Trace( "%s: bad input\n", argv[0]);
 		exit(5);
 	}
 

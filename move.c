@@ -154,7 +154,7 @@ dbref   where)
                 }
                 else
                 {
-                        fprintf (stderr, "BUG: Move to create recursive contents: %d -> %d\n", what, where);
+                        Trace( "BUG: Move to create recursive contents: %d -> %d\n", what, where);
                         return False;
                 }
         }
@@ -172,7 +172,7 @@ dbref   where)
                                 where = db[what].get_destination();
 			if (where == NOTHING)
 			{
-				fprintf(stderr, "BUG: Attempt to move object to *NOTHING*\n");
+				Trace( "BUG: Attempt to move object to *NOTHING*\n");
 				return False;
 			}
                                 /* FALLTHROUGH */
@@ -226,7 +226,7 @@ dbref   where)
                                 db[what].set_next(NOTHING);
                         break;
                 default:
-                        fprintf (stderr, "BUG: Unhandled object type in moveto()!\n");
+                        Trace( "BUG: Unhandled object type in moveto()!\n");
         }
         return True;
 }

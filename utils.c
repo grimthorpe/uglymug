@@ -103,7 +103,7 @@ int	article_base)
 		article_base = 0;
         if ((article_base < 0) || (article_base > 3))
 	{
-		fprintf(stderr, "BUG: Invalid article base (%d) in getarticle ()\n", article_base);
+		Trace("BUG: Invalid article base (%d) in getarticle ()\n", article_base);
 		article_base = 0;
 	}
 	return (articles[ConvertArticle (thing) + 4 * article_base]);

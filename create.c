@@ -434,7 +434,7 @@ const	char	*room_name)
 				break;
 			default:
 				notify(player, "Internal error: weird object type.");
-				fprintf(stderr, "BUG: Weird object in @link: Typeof(%d) = 0x%x\n", thing, Typeof(thing));
+				Trace( "BUG: Weird object in @link: Typeof(%d) = 0x%x\n", thing, Typeof(thing));
 				return;
 		}
 		return_status = COMMAND_SUCC;
@@ -847,7 +847,7 @@ const	char	*variable_name,
 const	char	*value)
 {
 notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a deprecated command. Please use @property instead.");
-fprintf(stderr, "BUG: Player %d used @variable in command %d\n", player, get_current_command());
+Trace( "BUG: Player %d used @variable in command %d\n", player, get_current_command());
 	dbref	thing;
 
 	return_status = COMMAND_FAIL;

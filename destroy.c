@@ -16,7 +16,7 @@ static char SCCSid[] = "@(#)destroy.c	1.39\t10/17/95";
 #include "context.h"
 #include "colour.h"
 
-#define RefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {fprintf(stderr,"BUG: %s has REF cleared\n",unparse_object(god_context,(x)));}}
+#define RefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {Trace("BUG: %s has REF cleared\n",unparse_object(god_context,(x)));}}
 
 static	Boolean			empty_an_object				(dbref, dbref);
 
@@ -628,7 +628,7 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 			if(Typeof(who) != TYPE_PLAYER)
 			{
 				if(errors)
-					fprintf(stderr, "BUG: Attempting to remove a playerlist reference where the target player doesn't exist (in @destroy/@ashcan)\n");
+					Trace( "BUG: Attempting to remove a playerlist reference where the target player doesn't exist (in @destroy/@ashcan)\n");
 				i++;
 				continue;
 			}
@@ -636,11 +636,11 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 			if(hislist == NOTHING)
 			{
 				if(errors)
-					fprintf(stderr, "BUG: Attempting to remove a playerlist reference where the list doesn't exist (in @destroy/@ashcan)");
+					Trace( "BUG: Attempting to remove a playerlist reference where the list doesn't exist (in @destroy/@ashcan)");
 			}
 			else if ((element= db[hislist].exist_element(smallbuf))==0)
 			{
-				fprintf(stderr,"BUG: Attempting to remove a playerlist reference where none exists (in @destroy)\n");
+				Trace("BUG: Attempting to remove a playerlist reference where none exists (in @destroy)\n");
 			}
 			else
 			{
@@ -650,7 +650,7 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 					nowarning=0;
 				}
 				db[hislist].destroy_element(element);
-fprintf(stderr, "Player list updated\n");
+Trace( "Player list updated\n");
 			}
 			i++;
 		}
@@ -708,19 +708,19 @@ fprintf(stderr, "Player list updated\n");
 					newlist[strlen(newlist)-1]='\0';
 					db[hislist].set_element(j, NULL, newlist);
 					j++;
-fprintf(stderr, "Custom list updated\n");
+Trace( "Custom list updated\n");
 				}
 				else
 				{
 					db[hislist].destroy_element(j); 
 					deadlists++;
-fprintf(stderr, "Custom list destroyed\n");
+Trace( "Custom list destroyed\n");
 				}
 			}
 			if (deadlists>0)
 				notify_colour(who,who,COLOUR_MESSAGES, "(%d empty custom list%sbeen deleted because of this)", deadlists, (deadlists==1) ? " has ":"s have ");
 			if (sanity_count !=0)
-				fprintf(stderr, "BUG: Sanity count for reverse lists incorrect in @destroy. Out by %d\n", sanity_count);
+				Trace( "BUG: Sanity count for reverse lists incorrect in @destroy. Out by %d\n", sanity_count);
 
 			i++;
 		}
@@ -1327,7 +1327,7 @@ const	char	*)
 						db [i].destroy (i);
 						break;
 					default:
-	//					fprintf (stderr, "BUG: Unknown object type %d at %d with ASHCAN flag set.\n", db [i].get_flags (), i);
+	//					Trace( "BUG: Unknown object type %d at %d with ASHCAN flag set.\n", db [i].get_flags (), i);
 						break;
 				}
 			}
@@ -1441,7 +1441,7 @@ const	char	*)
 								moveto (object, LIMBO);
 							break;
 						default:
-							fprintf (stderr, "BUG: Room %d has illegal object type on its contents list (object %d).\n", i, object);
+							Trace( "BUG: Room %d has illegal object type on its contents list (object %d).\n", i, object);
 							break;
 					}
 				}

@@ -378,7 +378,7 @@ const	char	*newname)
 				}
 				db[thing].set_last_name_change(now);
 #ifdef LOG_NAME_CHANGES
-				fprintf (stderr, "NAME CHANGE: %s to %s\n", db[thing].get_name(), newname);
+				Trace( "NAME CHANGE: %s to %s\n", db[thing].get_name(), newname);
 #endif
 				db.remove_player_from_cache(db[thing].get_name());
 			}
@@ -650,7 +650,7 @@ const	char	*message)
 				return;
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @fail used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @fail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @fail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 
 			default:
 				break;
@@ -696,7 +696,7 @@ const	char	*message)
 				
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @success used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @success used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @success used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 				break;
 			
@@ -750,7 +750,7 @@ const	char	*message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @drop used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @drop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @drop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 				break;
 		}
@@ -793,7 +793,7 @@ const	char	*message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @osuccess used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @osuccess used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @osuccess used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 				break;
 		}
@@ -834,7 +834,7 @@ const	char	*message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @ofail used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @ofail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @ofail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 				break;
 		}
@@ -875,7 +875,7 @@ const	char	*message)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @odrop used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @odrop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @odrop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 				break;
 		}
@@ -940,7 +940,7 @@ const	char	*keyname)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @lock used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @lock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @lock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 
 				if (keyname == NULL || (key = parse_boolexp (player, keyname)) == TRUE_BOOLEXP)
@@ -989,7 +989,7 @@ const	char	*)
 
 			case TYPE_VARIABLE:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning: @unlock used with a variable. This is a deprecated command.");
-				fprintf(stderr, "BUG: @unlock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
+				Trace("BUG: @unlock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 				db[thing].set_key(TRUE_BOOLEXP);
 				if (!in_command())
@@ -1581,7 +1581,7 @@ const	char	*flag)
 		}
 		if ( (get_current_command() != NOTHING) && (!Wizard(get_current_command())))
 		{
-			fprintf(stderr, "HACK - Attempt to set ABORT flag on %d by %d in command %d\n", thing, player, get_current_command());
+			Trace("HACK - Attempt to set ABORT flag on %d by %d in command %d\n", thing, player, get_current_command());
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Abort fuses may only be created in commands if the command is set Wizard.");
 			return;
 		}
@@ -1592,9 +1592,9 @@ const	char	*flag)
 	if ((f == FLAG_WIZARD) && (*flag != NOT_TOKEN))
 	{
 		if (Typeof(thing) == TYPE_COMMAND)
-			fprintf(stderr,"HACK - <<<WIZARD>>> flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
+			Trace("HACK - <<<WIZARD>>> flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
 		else
-			fprintf(stderr,"PROTECT - WIZARD flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
+			Trace("PROTECT - WIZARD flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
 	}
 	if (f == FLAG_READONLY)
 	{
@@ -2680,7 +2680,7 @@ void context::do_credit(const char *arg1, const char *arg2)
 		notify(player, "You give %d %s to %s.", amount, currency_name, db[victim].get_name());
 		notify(victim, "%s gives you %d %s.", db[player].get_name(), amount, currency_name);
 	}
-	fprintf(stderr, "CREDIT: %s(%d) gives %d to %s(%d)\n", db[player].get_name(), player, amount, db[victim].get_name(), victim);
+	Trace( "CREDIT: %s(%d) gives %d to %s(%d)\n", db[player].get_name(), player, amount, db[victim].get_name(), victim);
 
 	RETURN_SUCC;
 }
@@ -2774,7 +2774,7 @@ void context::do_debit(const char *arg1, const char *arg2)
 		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name());
 		notify(victim, "%s takes %d %s from you.", db[player].get_name(), amount, currency_name);
 	}
-	fprintf(stderr, "CREDIT: %s(%d) gives -%d to %s(%d)\n", db[player].get_name(), player, amount, db[victim].get_name(), victim);
+	Trace( "CREDIT: %s(%d) gives -%d to %s(%d)\n", db[player].get_name(), player, amount, db[victim].get_name(), victim);
 
 	RETURN_SUCC;
 }

@@ -1,1 +1,1 @@
-#define VERSION "[build #2 by adrian at Tue Jun 12 10:40:24 BST 2001 on spoogle.uglymug.org.uk]"
+#define VERSION "[build #13 by adrian at Wed Jun 13 13:41:44 BST 2001 on spoogle.uglymug.org.uk]"

@@ -329,7 +329,7 @@ const	char	*arg2)
 	if (Wizard (get_effective_id ()) || Apprentice (player))
 	{
 #ifdef	LOG_WALLS
-		fprintf(stderr, "WALL from %s(%d): %s\n", getname_inherited (player), player, message);
+		Trace("WALL from %s(%d): %s\n", getname_inherited (player), player, message);
 #endif	/* LOG_WALLS */
 		if(!blank(message))
 		{
@@ -358,7 +358,7 @@ const	char	*arg2)
 	if (Wizard (get_effective_id ()) || Apprentice (player))
 	{
 #ifdef	LOG_WALLS
-		fprintf(stderr, "BROADCAST from %s(%d): %s\n", getname_inherited (player), player, message);
+		Trace("BROADCAST from %s(%d): %s\n", getname_inherited (player), player, message);
 #endif	/* LOG_WALLS */
 		if(!blank(message))
 		{
@@ -390,7 +390,7 @@ const	char	*arg2)
 		notify_colour(player, player, COLOUR_MESSAGES, "Not really worth taking a note of, huh?");
 	else
 	{
-		fprintf(stderr, "NOTE from |%s|(%d) in %s%s(%d)[%s]: %s\n",
+		Trace("NOTE from |%s|(%d) in %s%s(%d)[%s]: %s\n",
 			getname_inherited (player),
 			player,
 			getarticle (db[player].get_location(), ARTICLE_LOWER_INDEFINITE),

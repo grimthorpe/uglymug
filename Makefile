@@ -36,7 +36,8 @@ HEADERS = \
 	match.h \
 	memory.h \
 	objects.h \
-	regexp_interface.h
+	regexp_interface.h \
+	debug.h
 
 # C_OBJECTS are compiled with gcc, not g++
 C_OBJECTS = \
@@ -96,14 +97,16 @@ SOURCES	= \
 	unparse.c \
 	utils.c \
 	variable.c \
-	wiz.c
+	wiz.c \
+	debug.c
 
 UTIL_OBJECTS = \
 	db.o \
 	objects.o \
 	predicates.o \
 	unparse.o \
-	utils.o
+	utils.o \
+	debug.o
 
 OBJECTS	= \
 	$(UTIL_OBJECTS) \

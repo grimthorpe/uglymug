@@ -256,10 +256,10 @@ static char *find_cia(const char *colour_string, char* cia)
 static void
 output_array(cplay * array, int size)
 {
-	fprintf(stderr, "Size of array: %d\n", size);
+	Trace( "Size of array: %d\n", size);
 	for(int x=0;x<size;x++)
 	{
-		fprintf(stderr, "Element [%d] : %s\n", x, array[x].output_string);
+		Trace( "Element [%d] : %s\n", x, array[x].output_string);
 	}
 }
 
@@ -522,7 +522,7 @@ const	char	*colour_codes)
 	/* Set the storage string on the player */
 	db[player].set_colour(new_colour);
 #ifdef DEBUG_COLOUR
-	fprintf(stderr, "Colour string is:'%s'\n", new_colour);
+	Trace( "Colour string is:'%s'\n", new_colour);
 #endif
 
 	/* Update the memory, colour array */

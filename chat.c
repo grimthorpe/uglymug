@@ -710,7 +710,7 @@ void context::do_tell(const char *arg1, const char *arg2)
 
 	if((channel=my_atoi(arg1))!=0 && !strchr(arg1, ',') && !strchr(arg1, ';'))
 	{
-		   fprintf(stderr, "It's channel %d\n", channel);
+		   Trace( "It's channel %d\n", channel);
 		  
 
 		if(channel>MAX_CHANNELS)
@@ -724,7 +724,7 @@ void context::do_tell(const char *arg1, const char *arg2)
 
 
 		for(current=channels[channel].list; current; current=current->next)
-			fprintf(stderr, "  Member of %d:  %s\n", channel, db[current->player].get_name());
+			Trace( "  Member of %d:  %s\n", channel, db[current->player].get_name());
 
 		/* Is the channel in use? */
 

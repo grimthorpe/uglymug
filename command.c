@@ -104,7 +104,7 @@ const	char	*arg2)
 	if (command == AMBIGUOUS)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Ambiguous command.");
-		fprintf (stderr, "BUG: Ambiguous command (%s) in #%d\n", command_string, COMMAND_LAST_RESORT);
+		Trace( "BUG: Ambiguous command (%s) in #%d\n", command_string, COMMAND_LAST_RESORT);
 		notify_wizard_unconditional ("Error: There's an ambiguous match on '%s' in #%d!", command_string, COMMAND_LAST_RESORT);
 		return (False);
 	}
@@ -187,7 +187,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-		fprintf(stderr,"Compound_command parse %d: %s\n", line, command_block);
+		Trace("Compound_command parse %d: %s\n", line, command_block);
 #endif	/* DEBUG */
 
 		switch (what_is_next (command_block))
@@ -242,7 +242,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-		fprintf(stderr,"For_loop parse: %s\n", command_block);
+		Trace("For_loop parse: %s\n", command_block);
 #endif	/* DEBUG */
 
 		switch (what_is_next (command_block))
@@ -299,7 +299,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-		fprintf(stderr,"With_loop parse: %s\n", command_block);
+		Trace("With_loop parse: %s\n", command_block);
 #endif	/* DEBUG */
 
 		switch (what_is_next (command_block))
@@ -362,7 +362,7 @@ const	int	start_line,
 	{
 		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
 #ifdef	DEBUG
-		fprintf(stderr,"If_scope parse: %s\n", command_block);
+		Trace("If_scope parse: %s\n", command_block);
 #endif	/* DEBUG */
 
 		temp_result=what_is_next(command_block);
@@ -793,7 +793,7 @@ const char *)
 	}
 
 	/* Should never get here */
-	fprintf (stderr, "BUG: @end processed by %s in a command with no scope (%s).\n", unparse_object (GOD_ID, player), unparse_object (GOD_ID, get_current_command ()));
+	Trace( "BUG: @end processed by %s in a command with no scope (%s).\n", unparse_object (GOD_ID, player), unparse_object (GOD_ID, get_current_command ()));
 }
 
 

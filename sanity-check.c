@@ -940,13 +940,13 @@ void Database::sanity_check ()
 
 	if((sanity_file = fopen(SANITY_CHECK_OUTPUT_FILE, "w")) == NULL)
 	{
-		fprintf(stderr, "Couldn't open Sanity Check file: %s\n", SANITY_CHECK_OUTPUT_FILE);
+		Trace( "Couldn't open Sanity Check file: %s\n", SANITY_CHECK_OUTPUT_FILE);
 		exit(1);
 	}
 
 	if ((sanity_array = (struct sanity_item *) malloc (db.get_top() * sizeof (struct sanity_item))) == NULL)
 	{
-		fprintf (stderr, "Couldn't allocate array for sanity-check array\n");
+		Trace( "Couldn't allocate array for sanity-check array\n");
 		exit (1);
 	}
 	//Little line to let you know it has worked sort of

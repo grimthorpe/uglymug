@@ -73,7 +73,7 @@ db_patch_alarms ()
 			{
 				if (Typeof (db [i].get_controller ()) != TYPE_PLAYER)
 				{
-					fprintf (stderr, "BUG: Player %d has non-player %d as controller --- patching to GOD.\n", i, db[i].get_controller());
+					Trace( "BUG: Player %d has non-player %d as controller --- patching to GOD.\n", i, db[i].get_controller());
 					db [i].set_controller (GOD_ID);
 				}
 				db [db [i].get_controller ()].set_referenced ();
@@ -324,7 +324,7 @@ dbref	candidate)
 
 {
 	if (this == NULL)
-		fprintf (stderr, "BUG: Attempt to remove element from list that didn't contain it.\n");
+		Trace( "BUG: Attempt to remove element from list that didn't contain it.\n");
 	else if (object == candidate)
 	{
 		remove_from (list);

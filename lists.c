@@ -104,7 +104,7 @@ delete_reverse_map(dbref bloke_being_deleted, dbref bloke_doing_delete)
 	sprintf(smallbuf,"%d", bloke_doing_delete);
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
-		fprintf(stderr, "BUG: Attempting to remove a reverse player mapping where none exists.\n");
+		Trace( "BUG: Attempting to remove a reverse player mapping where none exists.\n");
 	else
 		db[lists].destroy_element(element);
 }
@@ -136,7 +136,7 @@ remove_clist_reference(dbref bloke_being_lremoved, dbref bloke_doing_lremove)
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
 	{
-		fprintf(stderr, "BUG: Trying to remove a reverse custom list reference when none exists.\n");
+		Trace( "BUG: Trying to remove a reverse custom list reference when none exists.\n");
 		return;
 	}
 	value= atoi(db[lists].get_element(element)) - 1;
@@ -386,7 +386,7 @@ Player_list::set_included(PLE *player, Boolean state, const char *message = NULL
 
 	if (!player)
 	{
-		fprintf(stderr,"BUG: Trying to set the included state of NULL.\n");
+		Trace("BUG: Trying to set the included state of NULL.\n");
 		return;
 	}
 	filtered_size+=(state==player->included)?0:(state==True)?1:-1;
@@ -611,7 +611,7 @@ Player_list::add_player(int player, Boolean fromlist=False)
 {
 	if (Typeof(player) != TYPE_PLAYER)
 	{
-		fprintf(stderr, "BUG: Non-player %d on a player list.\n",player);
+		Trace( "BUG: Non-player %d on a player list.\n",player);
 		return list;
 	}
 
@@ -1105,7 +1105,7 @@ void context::do_llist(const char *arg1, const char *)
 			{
 				target=atoi(db[lists].get_index(i));
 				if (Typeof(target) != TYPE_PLAYER)
-					fprintf(stderr,"BUG: Non-player on player list.\n");
+					Trace("BUG: Non-player on player list.\n");
 				else	
 					notify_colour(player, player, COLOUR_MESSAGES, "     %s%s%-20s%%w%%h: %s", colour_at[rank_colour(target)], Connected(target)?"*":" ",  db[target].get_name(), playerlist_flags(atoi(db[lists].get_element(i))));
 

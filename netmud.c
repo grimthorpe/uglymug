@@ -67,7 +67,7 @@ char	**argv)
 				sscanf(optarg, "%d", &dump_interval);
 				if(dump_interval<1)
 				{
-					fprintf(stderr, "Dump interval must be at least 1 minute - setting to %d minutes.\n", DUMP_INTERVAL/60);
+					Trace( "Dump interval must be at least 1 minute - setting to %d minutes.\n", DUMP_INTERVAL/60);
 					dump_interval=DUMP_INTERVAL*60;
 				}
 				break;
@@ -107,7 +107,7 @@ char	**argv)
 	
 	if (errflg)
 	{
-		fprintf(stderr, "usage:  netmud [-fcishABCHPRW]\n\n
+		Trace( "usage:  netmud [-fcishABCHPRW]\n\n
 	        h gives this help.
 
 		c does a sanity-check. Game run.
@@ -132,20 +132,20 @@ char	**argv)
 	getrlimit(RLIMIT_NOFILE,&lim);
 	lim.rlim_cur=MAX_USERS+4;
 	if(setrlimit(RLIMIT_NOFILE,&lim)<0)
-		fprintf(stderr, "BUG: setrlimit() failed\n");
+		Trace( "BUG: setrlimit() failed\n");
 #endif
 
 	srand (time(NULL));
 	game_start_time = time(NULL);
 	if (argc-optind<2)
 	{
-		fprintf (stderr, "Usage: %s infile dumpfile [port]\n", *argv);
+		Trace( "Usage: %s infile dumpfile [port]\n", *argv);
 		exit (1);
 	}
 	init_strings ();
 	if (init_game (argv[optind], argv[optind + 1]) < 0)
 	{
-		fprintf (stderr, "Couldn't load %s!\n", argv[optind]);
+		Trace( "Couldn't load %s!\n", argv[optind]);
 		exit (2);
 	}
 	set_signals ();

@@ -37,7 +37,7 @@ char	**argv)
 
 	if(db_read(stdin) < 0)
 	{
-		fprintf (stderr, "%s: bad input\n", argv[0]);
+		Trace( "%s: bad input\n", argv[0]);
 		exit(5);
 	}
 

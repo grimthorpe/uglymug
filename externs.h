@@ -1,6 +1,8 @@
 #include <sys/time.h>
 #include "copyright.h"
 
+#include "debug.h"
+
 #ifndef	_DH_H
 #include "db.h"
 #endif	/* _DB_H */

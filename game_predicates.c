@@ -599,7 +599,7 @@ dbref player)
 	matcher.match_array_or_dictionary();
 	if ((guest_match = matcher.match_result()) == NOTHING)
         {
-                fprintf(stderr, "BUG: Cannot find guest_dictionary in #4\n");
+                Trace( "BUG: Cannot find guest_dictionary in #4\n");
                 return (False);
         }
         else

@@ -456,11 +456,11 @@ const	char*	arg2)
 	shutdown_reason = alloc_string(reconstruct_message(arg1, arg2));
 	if (!blank(shutdown_reason))
 	{
-		fprintf (stderr, "SHUTDOWN: by %s(%d). Reason: %s\n", getname(player), player, shutdown_reason);
+		Trace( "SHUTDOWN: by %s(%d). Reason: %s\n", getname(player), player, shutdown_reason);
 	}
 	else
 	{
-		fprintf (stderr, "SHUTDOWN: by %s(%d) for no apparent reason.\n", getname(player), player);
+		Trace( "SHUTDOWN: by %s(%d) for no apparent reason.\n", getname(player), player);
 	}
 	fflush (stderr);
 	shutdown_flag = 2;
@@ -515,12 +515,12 @@ dump_database_internal ()
 		if(ferror(db_writefile))
 		{
 			notify_wizard_unconditional("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n",ferror(db_writefile));
-			fprintf(stderr,"ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n", ferror(db_writefile));
+			Trace("ERROR: DATABASE DIDN'T DUMP CLEANLY. Error %d\n", ferror(db_writefile));
 		}
 		if(fclose (db_writefile))
 		{
 			notify_wizard_unconditional("Database dump didn't close properly\n");
-			fprintf(stderr,"ERROR: Database dump #%d didn't close properly\n", epoch);
+			Trace("ERROR: Database dump #%d didn't close properly\n", epoch);
 		}
 		if (rename (tmpfile, dumpfile) < 0)
 			perror(dumpfile);
@@ -535,7 +535,7 @@ double_panic (
 int	sig)
 
 {
-	fprintf (stderr, "DOUBLE PANIC: Got signal %d during panic dump!\n", sig);
+	Trace( "DOUBLE PANIC: Got signal %d during panic dump!\n", sig);
 
 	/* gi's a core */
 	kill (getpid (), SIGQUIT);
@@ -553,7 +553,7 @@ const	char	*message)
 	int	i;
 	int	exitcode;
 
-	fprintf (stderr, "PANIC: %s\n", message);
+	Trace( "PANIC: %s\n", message);
 
 	/* turn off signals */
 	signal(0, SIG_IGN);
@@ -574,10 +574,10 @@ const	char	*message)
 	}
 	else
 	{
-		fprintf (stderr, "DUMPING: %s\n", panicfile);
+		Trace( "DUMPING: %s\n", panicfile);
 		db.write (f);
 		fclose (f);
-		fprintf (stderr, "DUMPING: %s (done)\n", panicfile);
+		Trace( "DUMPING: %s (done)\n", panicfile);
 		exitcode = 136;
 	}
 
@@ -597,9 +597,9 @@ dump_database ()
 {
 	epoch++;
 
-	fprintf (stderr, "DUMPING: %s.#%d#\n", dumpfile, epoch);
+	Trace( "DUMPING: %s.#%d#\n", dumpfile, epoch);
 	dump_database_internal ();
-	fprintf (stderr, "DUMPING: %s.#%d# (done)\n", dumpfile, epoch);
+	Trace( "DUMPING: %s.#%d# (done)\n", dumpfile, epoch);
 }
 
 
@@ -611,7 +611,7 @@ fork_and_dump ()
 
 	epoch++;
 
-	fprintf (stderr, "CHECKPOINTING: %s.#%d#\n", dumpfile, epoch);
+	Trace( "CHECKPOINTING: %s.#%d#\n", dumpfile, epoch);
 	child = fork ();
 	if(child == 0)
 	{	/* in the child */
@@ -665,7 +665,7 @@ execute_startups(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
-				fprintf(stderr, "HACK: %s owns .startup command\n", getname(item));
+				Trace( "HACK: %s owns .startup command\n", getname(item));
 	}
 #endif
 }
@@ -687,7 +687,7 @@ execute_shutdown(void)
 				delete mud_scheduler.push_express_job (c);
 			}
 			else
-				fprintf(stderr, "HACK: %s owns .shutdown command\n", getname(item));
+				Trace( "HACK: %s owns .shutdown command\n", getname(item));
         }
 #endif
 }
@@ -706,27 +706,27 @@ const	char	*outfile)
 		return -1;
 	
 	/* ok, read it in */
-	fprintf (stderr, "LOADING: %s\n", infile);
+	Trace( "LOADING: %s\n", infile);
 	if (db.read (f) < 0)
 		return (-1);
 
 	/* Run the sanity-checker if required */
 	if (sanity_check_db || sanity_only || fix_things)
 	{
-		fprintf(stderr, "Running Sanity Check\n");
+		Trace( "Running Sanity Check\n");
 		db.sanity_check();
 		if(range || fatal)
 		{
 			total_failures = fatal + range;
-			fprintf(stderr, "SANITY-CHECK failed on %d count%s", total_failures, total_failures == 1 ? "\n" : "s\n");
-			fprintf(stderr, "SANITY-CHECK %d fatal%s, %d range%s ", fatal, fatal == 1 ? "":"s", range, range == 1 ? "":"d");
+			Trace( "SANITY-CHECK failed on %d count%s", total_failures, total_failures == 1 ? "\n" : "s\n");
+			Trace( "SANITY-CHECK %d fatal%s, %d range%s ", fatal, fatal == 1 ? "":"s", range, range == 1 ? "":"d");
 			if(hack_check)
-				fprintf(stderr, "%d hacks%s ", hack, hack == 1 ? "":"s");
-			fprintf(stderr, "%d other%s\n", broken, broken == 1 ? "\n":"s\n");
+				Trace( "%d hacks%s ", hack, hack == 1 ? "":"s");
+			Trace( "%d other%s\n", broken, broken == 1 ? "\n":"s\n");
 			exit(1);
 		}
 		if(fixed)
-			fprintf(stderr, "SANITY-CHECK has repaired %d faults\n", fixed);
+			Trace( "SANITY-CHECK has repaired %d faults\n", fixed);
 	}
 
 	/* If we were only running the checker, give up now */
@@ -735,7 +735,7 @@ const	char	*outfile)
 
 	/* Keep going */
 	db_patch_alarms ();
-	fprintf(stderr, "LOADING: %s (done)\n", infile);
+	Trace( "LOADING: %s (done)\n", infile);
 
 	/* everything ok */
 	fclose(f);
@@ -824,7 +824,7 @@ const	char	*original_command)
 	/* robustify player */
 	if(player < 0 || player >= db.get_top () || ((Typeof(player) != TYPE_PLAYER) && (Typeof(player) != TYPE_PUPPET)))
 	{
-		fprintf(stderr, "BUG: process_basic_command: bad player %d\n", player);
+		Trace( "BUG: process_basic_command: bad player %d\n", player);
 		return;
 	}
 
@@ -833,7 +833,7 @@ const	char	*original_command)
 	if (!in_command())
 	{
 #endif /* LOG_COMMAND_LINES */
-		fprintf(stderr, "COMMAND from %s(%d)(%d) in %s(%d): %s\n",
+		Trace( "COMMAND from %s(%d)(%d) in %s(%d): %s\n",
 			getname(player), get_effective_id (), player,
 			getname(db[player].get_location()),
 			db[player].get_location(),
@@ -1118,7 +1118,7 @@ const	char	*original_command)
 			notify_colour(player, player, COLOUR_MESSAGES, "Huh?    (Type \"help\" for help.)");
 #ifdef LOG_FAILED_COMMANDS
 		if((!controls_for_write (db[player].get_location())) && (!NoHuhLogs(db[db[player].get_location()].get_owner())))
-			fprintf(stderr, "HUH|%s|%d|%s|%d|%s|%s %s\n",
+			Trace( "HUH|%s|%d|%s|%d|%s|%s %s\n",
 				getname (player), player,
 				getname (db[player].get_location()), db[player].get_location(),
 				getname (db[db[player].get_location()].get_owner()),
@@ -1136,7 +1136,7 @@ const	char	*original_command)
 			&& (Wizard (get_effective_id ()))
 			&& (!legal_command)
 			&& (!Wizard(get_current_command ())))
-			fprintf (stderr,
+			Trace(
 				"HACK: %s(%d) hacked %s(%d) (originally %s) giving %s %s=%s\n",
 				getname (player), player,
 				getname (get_current_command ()), get_current_command (),
@@ -1162,7 +1162,7 @@ const	char	*original_command)
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Basic command returned NULL string (wizards have been notified).");
 		notify_wizard ("BUG: Basic command returned NULL. Command was:");
 		notify_wizard ("%s", original_command);
-		fprintf (stderr, "BUG: Command returned NULL return_string: %s (%s).\n", command, original_command);
+		Trace("BUG: Command returned NULL return_string: %s (%s).\n", command, original_command);
 		set_return_string (error_return_string);
 	}
 
@@ -1272,7 +1272,7 @@ void mud_connect_player (dbref player)
 				delete mud_scheduler.push_express_job (login_context);
 			}
 			else
-				fprintf(stderr, "HACK: Global .login command not owned by a Wizard\n");
+				Trace( "HACK: Global .login command not owned by a Wizard\n");
 	}
 
 }
@@ -1319,7 +1319,7 @@ void mud_disconnect_player (dbref player)
 				delete mud_scheduler.push_express_job (logout_context);
 			}
 			else
-				fprintf(stderr, "HACK: Global .logout command not owned by a Wizard\n");
+				Trace( "HACK: Global .logout command not owned by a Wizard\n");
 	}
 
 	if (connection_count (player) == 0)

@@ -433,7 +433,7 @@ struct terminal_set_command
 
 #ifdef DEBUG
 #define FREE(x) { if((x)==NULL) \
-			fprintf(stderr, "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
+			Trace( "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
 		  else \
 		  { \
 		  	free((x)); \
@@ -1253,7 +1253,7 @@ void mud_main_loop(int port)
 				{
 					if (errno != EINTR && errno != EMFILE && errno != ECONNREFUSED && errno != EWOULDBLOCK && errno != ENFILE)
 					{
-fprintf(stderr, "new_connection returned %d, errno=%d\nThe old code would have ABORTED here, but we're continuing.", newd, errno);
+Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED here, but we're continuing.", newd, errno);
 						//perror ("new_connection");
 						//abort();
 					}
@@ -1345,7 +1345,7 @@ fprintf(stderr, "new_connection returned %d, errno=%d\nThe old code would have A
 						d->last_time=now;
 						d->warning_level=0;
 						if(!d->process_output ())
-							fprintf(stderr, "Wank dick, channel %d.\n", d->channel);
+							Trace( "Wank dick, channel %d.\n", d->channel);
 					}
 				}
 #endif
@@ -1438,7 +1438,7 @@ int connect_concentrator(int sock)
 	int			addr_len;
 	int			newsock;
 
-	fprintf(stderr, "CONCENTRATOR:  connected\n");
+	Trace( "CONCENTRATOR:  connected\n");
 
 	addr_len=sizeof(addr);
 	newsock=accept(sock, (struct sockaddr *) &addr, &addr_len);
@@ -1473,7 +1473,7 @@ struct descriptor_data *new_connection(int sock)
 		return (0);
 	}
 
-	fprintf (stderr, "ACCEPT from |%s|%d| on descriptor |%d\n", convert_addr (&(addr.sin_addr)), ntohs (addr.sin_port), newsock);
+	Trace( "ACCEPT from |%s|%d| on descriptor |%d\n", convert_addr (&(addr.sin_addr)), ntohs (addr.sin_port), newsock);
 	return new descriptor_data (newsock, &addr);
 }
 
@@ -1490,7 +1490,7 @@ descriptor_data::send_telnet_option(unsigned char command, unsigned char option)
 	sendbuf[2]=option;
 
 #ifdef DEBUG_TELNET
-	fprintf(stderr, "Sent option '%s %s'\n", TELCMD(command), TELOPT(option));
+	Trace( "Sent option '%s %s'\n", TELCMD(command), TELOPT(option));
 #endif /* DEBUG_TELNET */
 	write(get_descriptor(), sendbuf, 3);
 }
@@ -1537,7 +1537,7 @@ int count = 0;
 	case IAC_GOT_COMMAND:
 		t_iac_option = *(buf++);
 #ifdef DEBUG_TELNET
-		fprintf(stderr, "Got option '%s %s'\n", TELCMD(t_iac_command), TELOPT(t_iac_option));
+		Trace( "Got option '%s %s'\n", TELCMD(t_iac_command), TELOPT(t_iac_option));
 #endif /* DEBUG_TELNET */
 
 		switch(t_iac_command)
@@ -1665,10 +1665,10 @@ int count = 0;
 				return 0;
 			}
 			if(c!=SE)
-				fprintf(stderr,"Telnet option warning, descriptor %d:  %x isn't IAC SE\n", get_descriptor(), c);
+				Trace("Telnet option warning, descriptor %d:  %x isn't IAC SE\n", get_descriptor(), c);
 			t_iacbuf[t_piacbuf]=0;
 #ifdef DEBUG_TELNET
-			fprintf(stderr, "Got command '%s' for '%s'\n", TELCMD(t_iac_command), TELOPT(t_iac_option));
+			Trace( "Got command '%s' for '%s'\n", TELCMD(t_iac_command), TELOPT(t_iac_option));
 #endif /* DEBUG_TELNET */
 			get_value_from_subnegotiation(t_iacbuf, t_iac_option, t_piacbuf);
 			free(t_iacbuf); t_iacbuf = 0;
@@ -1780,11 +1780,11 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			terminal_width=buf[0]*256 + buf[1];
 			terminal_height=buf[2]*256 + buf[3];
 #ifdef DEBUG_TELNET
-			fprintf(stderr, "Descriptor %d terminal dimensions:  %d x %d\n", get_descriptor(), terminal_width, terminal_height);
+			Trace( "Descriptor %d terminal dimensions:  %d x %d\n", get_descriptor(), terminal_width, terminal_height);
 #endif
 			if(terminal_width < 20 || terminal_height < 5)
 			{
-				fprintf(stderr, "Descriptor %d gave silly terminal dimensions (%d x %d)\n", get_descriptor(), terminal_width, terminal_height);
+				Trace( "Descriptor %d gave silly terminal dimensions (%d x %d)\n", get_descriptor(), terminal_width, terminal_height);
 				terminal_width=0;
 				terminal_height=0;
 			}
@@ -1795,7 +1795,7 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			memcpy(scratch_buffer, buf+1, size);
 			scratch_buffer[size]=0;
 #ifdef DEBUG_TELNET
-			fprintf(stderr, "Descriptor %d terminal type is '%s'\n", get_descriptor(), scratch_buffer);
+			Trace( "Descriptor %d terminal type is '%s'\n", get_descriptor(), scratch_buffer);
 #endif
 			set_terminal_type(scratch_buffer);
 			send_telnet_option(WONT, TELOPT_TTYPE);	/* To make sure we don't have to send it */
@@ -1804,13 +1804,13 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 		case TELOPT_SNDLOC:
 			if(address.sin_addr.s_addr != LOGTHROUGH_HOST)
 			{
-				fprintf(stderr, "Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST\n", get_descriptor());
+				Trace( "Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST\n", get_descriptor());
 				break;
 			}
 			memcpy(scratch_buffer, buf, size);
 			scratch_buffer[size-1]=0;
 #ifdef DEBUG_TELNET
-			fprintf(stderr, "Descriptor %d location is '%s'\n", get_descriptor(), scratch_buffer);
+			Trace( "Descriptor %d location is '%s'\n", get_descriptor(), scratch_buffer);
 #endif
 			indirect_connection=1;
 			strcpy(hostname, scratch_buffer);
@@ -1839,10 +1839,10 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 	if (setupterm (terminal, get_descriptor(), &setupterm_error) != OK)
 	{
 		if (setupterm_error == -1)
-			fprintf (stderr, "BUG:  Terminfo database could not be found.\n");
+			Trace( "BUG:  Terminfo database could not be found.\n");
 #ifdef DEBUG_TELNET
 		else if (setupterm_error == 0)
-			fprintf (stderr, "BUG: Terminal type '%s' from descriptor %d not in the terminfo database\n", terminal, get_descriptor());
+			Trace( "BUG: Terminal type '%s' from descriptor %d not in the terminfo database\n", terminal, get_descriptor());
 #endif
 		FREE(terminal);
 		return 0;
@@ -1858,14 +1858,14 @@ int descriptor_data::set_terminal_type (const char *const termtype)
 	{
 		terminal_width = tigetnum("cols");
 #ifdef DEBUG_TELNET
-		fprintf(stderr, "Terminal width (from terminfo):  %d\n", terminal_width);
+		Trace( "Terminal width (from terminfo):  %d\n", terminal_width);
 #endif
 	}
 	if (terminal_height == 0)
 	{
 		terminal_height = tigetnum("lines");
 #ifdef DEBUG_TELNET
-		fprintf(stderr, "Terminal height (from terminfo):  %d\n", terminal_height);
+		Trace( "Terminal height (from terminfo):  %d\n", terminal_height);
 #endif
 	}
 
@@ -1939,7 +1939,7 @@ descriptor_data::set_terminal_type(const char *termtype)
 	if(tgetent(ltermcap, terminal)!=1)
 	{
 #ifdef DEBUG_TELNET
-		fprintf(stderr, "BUG: Terminal type '%s' from descriptor %d not in /etc/termcap\n", terminal, get_descriptor());
+		Trace( "BUG: Terminal type '%s' from descriptor %d not in /etc/termcap\n", terminal, get_descriptor());
 #endif
 		FREE(terminal);
 		return 0;
@@ -1955,14 +1955,14 @@ descriptor_data::set_terminal_type(const char *termtype)
 	{
 		terminal_width=tgetnum("co");
 #ifdef DEBUG_TELNET
-	fprintf(stderr, "Terminal width (from termcap):  %d\n", terminal_width);
+	Trace( "Terminal width (from termcap):  %d\n", terminal_width);
 #endif
 	}
 	if(terminal_height == 0)
 	{
 		terminal_height=tgetnum("li");
 #ifdef DEBUG_TELNET
-	fprintf(stderr, "Terminal height (from termcap):  %d\n", terminal_height);
+	Trace( "Terminal height (from termcap):  %d\n", terminal_height);
 #endif
 	}
 
@@ -2101,7 +2101,7 @@ descriptor_data::shutdownsock()
 			mud_disconnect_player (get_player());
 			time (&stamp);
 			now = localtime (&stamp);
-			fprintf (stderr, "DISCONNECT descriptor |%d|%d| player |%s|%d| at |%02d/%02d/%02d %02d:%02d\n",
+			Trace( "DISCONNECT descriptor |%d|%d| player |%s|%d| at |%02d/%02d/%02d %02d:%02d\n",
 			CHANNEL(),
 			channel,
 			getname (get_player()),
@@ -2114,7 +2114,7 @@ descriptor_data::shutdownsock()
 		}
 		else
 		{
-			fprintf (stderr, "DISCONNECT descriptor |%d| never connected\n",
+			Trace( "DISCONNECT descriptor |%d| never connected\n",
 			CHANNEL());
 		}
 	}
@@ -2379,7 +2379,7 @@ int i;
 
 	if(get_connect_state()==DESCRIPTOR_LIMBO)
 	{
-		fprintf(stderr, "WARNING:  Attempt to queue_string to a limbo'd descriptor\n");
+		Trace( "WARNING:  Attempt to queue_string to a limbo'd descriptor\n");
 		return 0;
 	}
 	else if(IS_FAKED()) // Output text to a NPC
@@ -2590,7 +2590,7 @@ descriptor_data::process_output()
 		{
 			if ((cnt = send_concentrator_data (channel, cur->start, cur->nchars))<1)
 			{
-				fprintf(stderr,"Concentrator disconnect in write() (process_output)\n");
+				Trace("Concentrator disconnect in write() (process_output)\n");
 				return 0;
 			}
 		}
@@ -2770,7 +2770,7 @@ descriptor_data::announce_player (announce_states state)
 			sprintf (scratch_return_string, "[%s has purged an idle connection from %s]\n", db[get_player()].get_name (), hostname);
 			break;
 		default :
-			fprintf (stderr, "BUG: Unknown state (%d) encounted in announce_player()\n", state);
+			Trace( "BUG: Unknown state (%d) encounted in announce_player()\n", state);
 			break;
 	}
 
@@ -3156,7 +3156,7 @@ descriptor_data::do_command (const char *command)
 	else if (!strcmp (command, INFO_COMMAND))
 	{
 		if ((fp=fopen (HELP_FILE, "r"))==NULL)
-			fprintf (stderr,"BUG:  %s: %s\n",HELP_FILE,sys_errlist[errno]);
+			Trace("BUG:  %s: %s\n",HELP_FILE,sys_errlist[errno]);
 		else
 		{
 			while (fgets(scratch_buffer, BUFFER_LEN, fp)!=NULL)
@@ -3253,18 +3253,18 @@ descriptor_data::check_connect (const char *msg)
 		if (player == NOTHING || player == 0)
 		{
 			queue_string (connect_fail);
-			fprintf (stderr, "FAILED CONNECT |%s| on descriptor |%d\n", luser, CHANNEL());
+			Trace( "FAILED CONNECT |%s| on descriptor |%d\n", luser, CHANNEL());
 		}
 		else
 		{
 			if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!strcasecmp(luser, "guest")))
 			{
 				queue_string(guest_create_banned);
-				fprintf (stderr, "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
+				Trace( "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
 			}
 			else
 			{
-				fprintf (stderr, "CONNECTED |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
+				Trace( "CONNECTED |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
 				 db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 				set_connect_state(DESCRIPTOR_CONNECTED);
 				set_player( player );
@@ -3279,7 +3279,7 @@ descriptor_data::check_connect (const char *msg)
 		if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
 		{
 			queue_string(create_banned);
-			fprintf (stderr, "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
+			Trace( "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
 		}
 		else
 
@@ -3288,12 +3288,12 @@ descriptor_data::check_connect (const char *msg)
 			if (player == NOTHING)
 			{
 				queue_string (create_fail);
-				fprintf (stderr, "FAILED CREATE |%s| on descriptor |%d\n",
+				Trace( "FAILED CREATE |%s| on descriptor |%d\n",
 				luser, CHANNEL());
 			}
 			else
 			{
-				fprintf (stderr, "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
+				Trace( "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
 				db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 				set_connect_state(DESCRIPTOR_CONNECTED);
 				set_player( player );
@@ -3311,7 +3311,7 @@ descriptor_data::check_connect (const char *msg)
 				if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!strcasecmp(command, "guest")))
 				{
 					queue_string(guest_create_banned);
-					fprintf (stderr, "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
+					Trace( "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
 					welcome_user();
 				}
 				else
@@ -3359,7 +3359,7 @@ descriptor_data::check_connect (const char *msg)
 						if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
 						{
 							queue_string(create_banned);
-							fprintf (stderr, "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
+							Trace( "BANNED CREATE |%s| on descriptor |%d\n", luser, CHANNEL());
 							queue_string (name_prompt);
 							set_connect_state(DESCRIPTOR_NAME);
 						}
@@ -3410,7 +3410,7 @@ descriptor_data::check_connect (const char *msg)
 					{
 						/* Invalid password */
 						queue_string (connect_fail);
-						fprintf (stderr, "FAILED CONNECT |%s| on descriptor |%d\n",
+						Trace( "FAILED CONNECT |%s| on descriptor |%d\n",
 						get_player_name(), CHANNEL());
 						if(--connect_attempts==0)
 						{
@@ -3426,7 +3426,7 @@ descriptor_data::check_connect (const char *msg)
 					}
 					else
 					{
-						fprintf (stderr, "CONNECTED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
+						Trace( "CONNECTED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
 						db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 						set_connect_state(DESCRIPTOR_CONNECTED);
 						set_player( player );
@@ -3446,14 +3446,14 @@ descriptor_data::check_connect (const char *msg)
 					if (player == NOTHING)
 					{
 						queue_string (create_fail);
-						fprintf (stderr, "BUG: FAILED CREATE %s on descriptor %d (THIS SHOULD NOT HAPPEN!)\n",
+						Trace( "BUG: FAILED CREATE %s on descriptor %d (THIS SHOULD NOT HAPPEN!)\n",
 						luser, CHANNEL());
 						queue_string (name_prompt);
 						set_connect_state(DESCRIPTOR_NAME);
 					}
 					else
 					{
-						fprintf (stderr, "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
+						Trace( "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
 						db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 						set_connect_state(DESCRIPTOR_CONNECTED);
 						set_player ( player );
@@ -3470,7 +3470,7 @@ descriptor_data::check_connect (const char *msg)
 				break;
 
 			default:
-				fprintf(stderr, "BUG: check_connect called with connect_state==DESCRIPTOR_CONNECTED or DESCRIPTOR_LIMBO\n");
+				Trace( "BUG: check_connect called with connect_state==DESCRIPTOR_CONNECTED or DESCRIPTOR_LIMBO\n");
 				break;
 		}
 	}
@@ -4544,7 +4544,7 @@ static struct descriptor_data *which_descriptor(int channel)
 			break;
 
 	if(!d)
-		fprintf(stderr,"CONCENTRATOR:  couldn't find channel %d in descriptor list!\n", channel);
+		Trace("CONCENTRATOR:  couldn't find channel %d in descriptor list!\n", channel);
 
 	return d;
 }
@@ -4558,7 +4558,7 @@ int process_concentrator_input(int sock)
 
 	if ((i=read(sock, &msg, sizeof(msg)))<sizeof(msg))
 	{
-		fprintf(stderr,"CONCENTRATOR:  corrupt message received - wanted %d bytes, got %d\n", sizeof(msg), i);
+		Trace("CONCENTRATOR:  corrupt message received - wanted %d bytes, got %d\n", sizeof(msg), i);
 		return 0;
 	}
 
@@ -4568,7 +4568,7 @@ int process_concentrator_input(int sock)
 
 			/* This is the equivalent of new_connection() for concentrator connections */
 
-			fprintf(stderr, "ACCEPT from concentrator(%d) on channel %d\n", sock, msg.channel);
+			Trace( "ACCEPT from concentrator(%d) on channel %d\n", sock, msg.channel);
 			new descriptor_data (0, NULL, msg.channel);
 			break;
 
@@ -4584,11 +4584,11 @@ int process_concentrator_input(int sock)
 			if((d=which_descriptor(msg.channel)))
 				d->process_input (msg.len);
 			else
-				fprintf(stderr, "CONCENTRATOR:  got data on unknown channel %d (discarded)\n", msg.channel);
+				Trace( "CONCENTRATOR:  got data on unknown channel %d (discarded)\n", msg.channel);
 			break;
 
 		default:
-			fprintf(stderr, "CONCENTRATOR:  unknown message type %d received (discarded)\n", msg.type);
+			Trace( "CONCENTRATOR:  unknown message type %d received (discarded)\n", msg.type);
 			break;
 	}
 
@@ -4613,7 +4613,7 @@ void concentrator_disconnect(void)
 {
 	struct descriptor_data *d;
 
-	fprintf(stderr, "CONCENTRATOR:  dropped connection (players booted)\n");
+	Trace( "CONCENTRATOR:  dropped connection (players booted)\n");
 	for (d=descriptor_list; d; d=d->next)
 	{
 		if (d->channel)

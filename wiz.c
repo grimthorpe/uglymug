@@ -459,7 +459,7 @@ const	char	*email_addr)
 
 		/* Flup's email dumping routine */
                 if ((fp=fopen (EMAIL_FILE, "w"))==NULL)
-                        fprintf (stderr, "BUG: couldn't open %s (%s)\n", EMAIL_FILE, sys_errlist[errno]);
+                        Trace( "BUG: couldn't open %s (%s)\n", EMAIL_FILE, sys_errlist[errno]);
                 else
                 {
                         for (i = 0; i < db.get_top (); i++)

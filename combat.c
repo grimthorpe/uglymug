@@ -281,7 +281,7 @@ const	char	*)
 			break;
 		default:
 			notify(player, "I don't know how to deal with that type of combat item. Tell a wizard.");
-			fprintf(stderr, "BUG: Don't know type of combat item in do_attributes.\n");
+			Trace( "BUG: Don't know type of combat item in do_attributes.\n");
 			return;
 	}
 	set_return_string (ok_return_string);

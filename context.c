@@ -85,7 +85,7 @@ const	char	*val)
 
 	if (!(temp = locatearg (name))) /* This shouldn't happen! */
 	{
-		fprintf(stderr,"BUG: Trying to find non-existent argument %s.\n", name);
+		Trace("BUG: Trying to find non-existent argument %s.\n", name);
 		return False;
 	}
 	temp->set_value (val);
@@ -394,13 +394,13 @@ context		*context)
 		{
 			case ACTION_HALT:
 				/* This should never happen.. Deal with it anyway */
-				fprintf(stderr, "BUG: ACTION_HALT returned to Compound_command_and_arguments::step()\n");
+				Trace( "BUG: ACTION_HALT returned to Compound_command_and_arguments::step()\n");
 				while (!scope_stack.is_empty())
 					delete scope_stack.pop();
 				return ACTION_HALT;
 	
 			case ACTION_UNSET:
-				fprintf(stderr, "BUG: ACTION_UNSET returned to Compound_command_and_arguments::step()\n");
+				Trace( "BUG: ACTION_UNSET returned to Compound_command_and_arguments::step()\n");
 				/* Fallthrough */
 
 			case ACTION_STOP:
@@ -441,7 +441,7 @@ context		*context)
 		context->command_executed();
 
 #ifdef LOG_COMMANDS
-		fprintf (stderr, "COMPOUND: %s(%d)\n", value_or_empty (db [get_current_command ()].get_name ()), get_current_command ());
+		Trace( "COMPOUND: %s(%d)\n", value_or_empty (db [get_current_command ()].get_name ()), get_current_command ());
 #endif
 
 		/* Now work out where to go */
@@ -521,7 +521,7 @@ context		*context)
 				set_command(NOTHING);
 				return ACTION_HALT;
 			default:
-				fprintf (stderr, "BUG: Player %s(%d) ran command %s(%d) which returned invalid boolean.\n",
+				Trace( "BUG: Player %s(%d) ran command %s(%d) which returned invalid boolean.\n",
 					getname (player), player,
 					getname (command), command);
 				set_command (NOTHING);
@@ -804,7 +804,7 @@ context::step ()
 				delete call_stack.pop ();
 			}
 			else
-				fprintf(stderr, "BUG: Empty call stack when ACTION_STOP returned to context::step()\n");
+				Trace( "BUG: Empty call stack when ACTION_STOP returned to context::step()\n");
 
 			/* If that's all we've got to do, we've finished */
 			if (call_stack.is_empty ())
@@ -821,6 +821,9 @@ context::step ()
 			call_stack.top ()->fire_sticky_fuses (*this);
 			delete call_stack.pop ();
 			return (ACTION_RESTART);
+		case ACTION_UNSET:
+			// When do we get this?
+			Trace("WARNING: Command_action::step is in state ACTION_UNSET.\n");
 	}
 
 	/* If we get here, there's more to do, so request that we be stepped again */
@@ -971,7 +974,7 @@ context	*c)
 		/* current_line incremented here in case the command modifies it */
 		current_line+=db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
 #ifdef	DEBUG
-		fprintf(stderr,"If: CurrentLine %s\n", command_block);
+		Trace("If: CurrentLine %s\n", command_block);
 #endif	/* DEBUG */
 		c->process_basic_command (command_block);
 		return ACTION_CONTINUE;
@@ -991,7 +994,7 @@ context	*c)
 		/* OK, we're evaluating an elseif / else */
 		db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
 #ifdef	DEBUG
-		fprintf(stderr,"If: CurrentLine %s\n", command_block);
+		Trace("If: CurrentLine %s\n", command_block);
 #endif	/* DEBUG */
 		c->process_basic_command (command_block);
 		/* do_at_elseif will have been called by the elseif / else */
@@ -1083,7 +1086,7 @@ context	*c)
 	/* It's a normal line */
 	current_line+=db[get_command()].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
 #ifdef	DEBUG
-	fprintf(stderr,"Loop: CurrentLine %s\n", command_block);
+	Trace("Loop: CurrentLine %s\n", command_block);
 #endif	/* DEBUG */
 	c->process_basic_command (command_block);
 	return ACTION_CONTINUE;
@@ -1253,6 +1256,10 @@ Scheduler::step ()
 			returned = contexts.pop ();
 			returned->set_scheduled (False);
 			return returned;
+		case ACTION_UNSET:
+			// When do we get this?
+			Trace("WARNING: Scheduler::step is in state ACTION_UNSET.\n");
+			break;
 		case ACTION_CONTINUE:
 			/* Do nothing */
 			;

@@ -242,7 +242,7 @@ const	char	*val)
 	/* Check whether the argument exists in the top nesting */
 	if (call_stack.is_empty())
 	{
-		fprintf(stderr, "BUG: Trying to add a local to an empty call stack!");
+		Trace("BUG: Trying to add a local to an empty call stack!");
 		return; /* Erm, where can we add it! This should never occur */
 	}
 
@@ -349,7 +349,7 @@ const	int	max_length)
 	retval = nested_variable_substitution (arg, result, 0, max_length);
 	if (strlen (result) > max_length)
 	{
-		fprintf (stderr, "BUG: Buffer overflow: %s\n", getname (get_player ()));
+		Trace( "BUG: Buffer overflow: %s\n", getname (get_player ()));
 		result[max_length -1] = '\0';
 	}
 
@@ -395,7 +395,7 @@ const	int	depth,
 		nested_variable_substitution (source_pointer, result_buffer, depth + 1, space_left);
 		if (strlen (result_buffer) > space_left)
 		{
-			fprintf (stderr, "Buffer overflow by %s.\n", getname (get_player ()));
+			Trace( "Buffer overflow by %s.\n", getname (get_player ()));
 			strcpy (result_buffer, too_big);
 		}
 		name_start = result_buffer;

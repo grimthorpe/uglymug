@@ -25,7 +25,7 @@ static char SCCSid[] = "@(#)db.c	1.46\t7/27/95";
 
 #ifdef DEBUG
 #define FREE(x) { if((x)==NULL) \
-			fprintf(stderr, "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
+			Trace( "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
 		  else \
 		  { \
 		  	free((x)); \
@@ -72,7 +72,7 @@ object	*it)
 // In order to make the db load sane, junk additional elements.
 	if(use_elements < num_elements)
 	{
-		fprintf(stderr, "BUG: Array too large on database load, truncated from %d to %d elements\n", num_elements, use_elements);
+		Trace( "BUG: Array too large on database load, truncated from %d to %d elements\n", num_elements, use_elements);
 		for(; i <= num_elements; i++)
 			getstring(f);
 	}
@@ -273,7 +273,7 @@ const	int	oldflag)
 		default:
 			break;
 	}
-	fprintf(stderr, "Unknown flag in lock, converted to 0");
+	Trace( "Unknown flag in lock, converted to 0");
 	return(0);
 }
 
@@ -493,8 +493,8 @@ const	int	iformat)
 					owner = getref(f);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in object::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in object::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -581,8 +581,8 @@ const	int	iformat)
         				}
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Dictionary::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Dictionary::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -671,8 +671,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Array::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Array::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -742,8 +742,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Describable_object::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Describable_object::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -875,8 +875,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Lockable_object::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Lockable_object::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -976,8 +976,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Inheritable_object::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Inheritable_object::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -1125,8 +1125,8 @@ const	int	iformat)
 					get_array_elements (f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Old_object::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Old_object::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -1264,8 +1264,8 @@ const	int	iformat)
 					set_contents_string(getstring(f));
 					break;
                                 default:
-                                        fprintf(stderr, "Something has gone seriously wrong in Room::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+                                        Trace( "Something has gone seriously wrong in Room::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -1446,8 +1446,8 @@ const	int	iformat)
 					get_array_elements (f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Massy_object::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Massy_object::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -1590,8 +1590,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Puppet::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Puppet::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -1882,8 +1882,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
 				default:
-					fprintf(stderr, "Something has gone seriously wrong in Player::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+					Trace( "Something has gone seriously wrong in Player::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
 			}
 		}
@@ -2033,8 +2033,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
                                 default:
-                                        fprintf(stderr, "Something has gone seriously wrong in Thing::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+                                        Trace( "Something has gone seriously wrong in Thing::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
                         }
                 }
@@ -2182,8 +2182,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
                                 default:
-                                        fprintf(stderr, "Something has gone seriously wrong in Weapon::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+                                        Trace( "Something has gone seriously wrong in Weapon::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
                         }
                 }
@@ -2294,8 +2294,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
                                 default:
-                                        fprintf(stderr, "Something has gone seriously wrong in Armour::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+                                        Trace( "Something has gone seriously wrong in Armour::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
                         }
                 }
@@ -2397,8 +2397,8 @@ const	int	iformat)
 					get_array_elements(f, this);
 					break;
                                 default:
-                                        fprintf(stderr, "Something has gone seriously wrong in Ammunition::read\n");
-					fprintf(stderr, "Field Type: %d\n", fieldtype);
+                                        Trace( "Something has gone seriously wrong in Ammunition::read\n");
+					Trace( "Field Type: %d\n", fieldtype);
 					exit(1);
                         }
                 }
@@ -2589,7 +2589,7 @@ int	iformat)
 		}
 
 	error:
-		fprintf(stderr,"getboolexp1:  INVALID EXPRESSION\n");
+		Trace("getboolexp1:  INVALID EXPRESSION\n");
 		abort();			/* bomb out */
 	return (TRUE_BOOLEXP);
 }
@@ -2712,7 +2712,7 @@ const	int	version)
 		case TYPE_VARIABLE:
 			break;
 		default:
-//			fprintf (stderr, "BUG: Tried to read object of (unknown) type %d.\n", get_flags() & OLD_TYPE_MASK);
+//			Trace( "BUG: Tried to read object of (unknown) type %d.\n", get_flags() & OLD_TYPE_MASK);
 			return (False);
 	}
 
@@ -2743,13 +2743,13 @@ FILE	*f)
 
 	if(fscanf (f, "***UglyMug %s DUMP Format %d***", format, &version) != 2)
 	{
-		fprintf(stderr, "File is not a recognised UglyMug dump format\n");
+		Trace( "File is not a recognised UglyMug dump format\n");
 		return(NOTHING);
 	}
 
 	if (strcasecmp(format, "Beta(tagged)") == 0)
 	{
-		fprintf(stderr, "Beta(tagged) Database DUMP format recognised.\n");
+		Trace( "Beta(tagged) Database DUMP format recognised.\n");
 		iformat = 1;
 	}
 	else if (strcasecmp(format, "Alpha") == 0)
@@ -2757,18 +2757,18 @@ FILE	*f)
 
 		if (version < 9)
 		{
-			fprintf (stderr, "Alpha Database DUMP format version %d is no longer supported.\n", version);
+			Trace( "Alpha Database DUMP format version %d is no longer supported.\n", version);
 			return (NOTHING);
 		}
 		else
 		{
-			fprintf (stderr, "Alpha Database DUMP format version %d recognised.\n", version);
+			Trace( "Alpha Database DUMP format version %d recognised.\n", version);
 			iformat = 0;
 		}
 	}
 	else
 	{
-		fprintf(stderr, "Unrecognised UglyMug DUMP format. Bailing out.\n");
+		Trace( "Unrecognised UglyMug DUMP format. Bailing out.\n");
 		return(NOTHING);
 	}
 
@@ -2790,7 +2790,7 @@ FILE	*f)
 				/* This is guaranteed to be a separator IF version > 13 */
 				if(((iformat == 1) || (version > 13)) && ((ch = get_next_char(f)) != '#'))
 				{
-					fprintf (stderr, "ERROR: Object not correctly saved - Looking for <\\002>#, got <\\002> 0x%x (%c).\n", ch, ch);
+					Trace( "ERROR: Object not correctly saved - Looking for <\\002>#, got <\\002> 0x%x (%c).\n", ch, ch);
 					return (-1);
 				}
 				/* another entry, yawn */
@@ -2798,13 +2798,13 @@ FILE	*f)
 
 				if (error)
 				{
-					fprintf (stderr, "... skipped to #%d.\n", i);
+					Trace( "... skipped to #%d.\n", i);
 					error = False;
 				}
 
 				if (i <= last_entry)
 				{
-					fprintf (stderr, "Major Problem Dudes - Item #%d is out of order guv.\n", i);
+					Trace( "Major Problem Dudes - Item #%d is out of order guv.\n", i);
 					if((iformat == 1) || (version > 13))
 						while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 					else
@@ -2947,7 +2947,7 @@ FILE	*f)
 			case '*':
 				if(strcmp(getstring (f), "**END OF DUMP***"))
 				{
-					fprintf (stderr, "Got a * without **END OF DUMP***.\n");
+					Trace( "Got a * without **END OF DUMP***.\n");
 					return (-1);
 				}
 				else
@@ -2965,7 +2965,7 @@ FILE	*f)
 					continue;
 				}
 			default:
-				fprintf (stderr, "Expected <\\002> or #, got 0x%x (%c). Last object read was #%d. Skipping to next #...\n",
+				Trace( "Expected <\\002> or #, got 0x%x (%c). Last object read was #%d. Skipping to next #...\n",
 					ch,
 					ch,
 					last_entry);
@@ -2994,7 +2994,7 @@ FILE *f)
 {
 	if ((buffer = (char *) malloc(LOAD_BUFFER_SIZE + 1)) == NULL)
 	{
-		fprintf(stderr,"initialise_load_buffer:  MALLOC FAILED\n");
+		Trace("initialise_load_buffer:  MALLOC FAILED\n");
 		abort();
 	}
 	fread (buffer, sizeof(char), LOAD_BUFFER_SIZE, f);
@@ -3055,7 +3055,7 @@ FILE *f)
 
 #ifdef DEBUG
 	if (field_end - load_pointer >= BUFFER_LEN)
-		fprintf (stderr, "BUG: Can't handle field size. Aborting db load.");
+		Trace("BUG: Can't handle field size. Aborting db load.");
 #endif
 
 	*field_end = '\0';

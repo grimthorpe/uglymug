@@ -92,13 +92,13 @@ const
 					return db[c.get_player ()].get_flag (thing);
 				else
 				{
-					fprintf(stderr,"BUG: eval_internal - Bad flag number %d\n", thing);
+					Trace("BUG: eval_internal - Bad flag number %d\n", thing);
 					return False;
 				}
 
 				break; /* Unreachable, but just for neatness */
 			default:
-				fprintf(stderr,"BUG: eval_internal - Bad node type %d.\n", type);
+				Trace("BUG: eval_internal - Bad node type %d.\n", type);
 				return False;
 		}
 
@@ -346,7 +346,7 @@ const
 	}
 
 	/* Should always be one of the above types */
-	fprintf (stderr, "BUG: boolexp::contains: Invalid node type %d.\n", type);
+	Trace( "BUG: boolexp::contains: Invalid node type %d.\n", type);
 	return (False);
 }
 
@@ -412,7 +412,7 @@ const
 				}
 				else
 				{
-					fprintf(stderr,"BUG: unparse_internal : bad type %c\n", type);
+					Trace("BUG: unparse_internal : bad type %c\n", type);
 				}
 		}
 	}
@@ -476,7 +476,7 @@ const
 				}
 				else
 				{
-					fprintf(stderr,"BUG: unparse_for_return_internal - unknown type %c\n", type);
+					Trace("BUG: unparse_for_return_internal - unknown type %c\n", type);
 					abort();
 				}
 		}
@@ -561,7 +561,7 @@ boolexp::sanitise ()
 			break;
 		default:
 			/* bad type */
-			fprintf (stderr, "BUG: recursive_sane_lock: bad type %d. Removing node and all sub-nodes.\n", type);
+			Trace("BUG: recursive_sane_lock: bad type %d. Removing node and all sub-nodes.\n", type);
 			return (TRUE_BOOLEXP);
 	}
 

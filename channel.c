@@ -65,7 +65,7 @@ struct	channel	*channel)
 
 	if(channel->players)
 	{
-		fprintf(stderr, "BUG: delete_channel called with non-empty channel\n");
+		Trace( "BUG: delete_channel called with non-empty channel\n");
 		return;
 	}
 
@@ -454,7 +454,7 @@ const	char	*arg2)
 	if(!channel_player)
 	{
 		notify(player, "%sBug in code - player missing from default channel.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-		fprintf(stderr, "BUG: player missing from default channel\n");
+		Trace( "BUG: player missing from default channel\n");
 		RETURN_FAIL;
 	}
 

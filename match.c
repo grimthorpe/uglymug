@@ -266,7 +266,7 @@ dbref			effective_player)
 	}
 
 #ifdef MATCH_DEBUG
-	fprintf(stderr, "abs: %d, p: %s, string: %s, beg: %s\n", absolute_loc, p, match_name, beginning);
+	Trace( "abs: %d, p: %s, string: %s, beg: %s\n", absolute_loc, p, match_name, beginning);
 #endif
 }
 
@@ -1032,7 +1032,7 @@ Matcher::match_continue ()
 			default:
 				/* Oops... */
 				notify_wizard ("Error in command search - state out of range.");
-				fprintf (stderr, "BUG: Error in command search - state %d out of range.\n", current_state);
+				Trace( "BUG: Error in command search - state %d out of range.\n", current_state);
 		}
 		current_state = matcher_fsm_array [path] [current_state];
 	}

@@ -45,7 +45,7 @@ int dump_interval = 10000000;
 
 void print_helpful_message(const char *msg)
 {
-	fprintf(stderr, "%s: %s\n",
+	Trace("%s: %s\n",
 			APPNAME, msg);
 }
 
@@ -57,11 +57,11 @@ int main ()
 {
 	int		i;
 
-	fprintf(stderr, "%s diagnostic: Starting db.read() from stdin.\n",
+	Trace("%s diagnostic: Starting db.read() from stdin.\n",
 				APPNAME);
 	if (db.read(stdin) < 0)
 	{
-		fprintf(stderr, "%s error: Cannot read DB\n",
+		Trace("%s error: Cannot read DB\n",
 				APPNAME);
 		exit(1);
 	}
