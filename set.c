@@ -2742,11 +2742,8 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 	Matcher matcher(player, arg1, TYPE_PLAYER, get_effective_id());
 	matcher.match_neighbor();
 	matcher.match_me();
-	if(Wizard(player) || Apprentice(player))
-	{
-		matcher.match_player();
-		matcher.match_absolute();
-	}
+	matcher.match_player();
+	matcher.match_absolute();
 
 	if((victim=matcher.noisy_match_result())==NOTHING)
 		RETURN_FAIL;
