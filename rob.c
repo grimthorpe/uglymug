@@ -14,8 +14,8 @@
 
 void
 context::do_give (
-const	char	*recipient,
-const	char	*object_or_amount)
+const	CString& recipient,
+const	CString& object_or_amount)
 
 {
 	dbref	who;
@@ -54,7 +54,7 @@ const	char	*object_or_amount)
 	/* If we didn't find anything, we're giving something illegal or BPs */
 	if (object < 0 || object > db.get_top ())
 	{
-		amount = atoi (value_or_empty (object_or_amount));
+		amount = atoi (object_or_amount.c_str());
 
 		/* Mortals can't give BPs */
 		if ((!Wizard(get_effective_id ())) && (!Apprentice(get_effective_id ())))

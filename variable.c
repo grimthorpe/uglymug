@@ -214,8 +214,8 @@ static	Command_status		full_frig_types			(context &c, enum eval_ops, struct oper
 
 void
 context::do_at_local (
-const	char	*name,
-const	char	*val)
+const	CString& name,
+const	CString& val)
 
 {
 	set_return_string (error_return_string);
@@ -265,8 +265,8 @@ const	char	*val)
 
 void
 context::do_at_global (
-const	char	*name,
-const	char	*val)
+const	CString& name,
+const	CString& val)
 
 {
 	set_return_string (error_return_string);
@@ -305,8 +305,8 @@ const	char	*val)
 
 void
 context::do_test (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 {
 	/* A few things fail, everything else succeeds */
 	set_return_string (ok_return_string);
@@ -317,17 +317,18 @@ const	char	*arg2)
 		return;
 
 	/* Anything with an = in it is clearly neither 0 nor Error */
-	if (arg2 && *arg2)
+	if (arg2)
 		return;
 
 	/* Strip leading spaces */
-	while (isspace (*arg1))
-		arg1++;
+	const char* carg1 = arg1.c_str();
+	while (isspace (*carg1))
+		carg1++;
 
 	/* Check for 0, Unset_return_value or Error */
-	if ((!string_compare ("0", arg1))
-		|| (!string_compare (unset_return_string, arg1))
-		|| (!string_compare (error_return_string, arg1)))
+	if ((!string_compare ("0", carg1))
+		|| (!string_compare (unset_return_string, carg1))
+		|| (!string_compare (error_return_string, carg1)))
 	{
 		set_return_string (error_return_string);
 		return_status = COMMAND_FAIL;
@@ -339,8 +340,8 @@ const	char	*arg2)
 
 const Boolean
 context::variable_substitution (
-const	char	*arg,
-	char	*result,
+const	char* arg,
+	char* result,
 const	unsigned int	max_length)
 {
 	Boolean retval;
@@ -450,7 +451,7 @@ const	int	depth,
 	 */
 
 	const	String_pair	*arg;
-	const	char		*value = 0;
+		CString		value = 0;
 	unsigned int		length;
 
 	/* ... check for $[0123], else match... */
@@ -462,7 +463,7 @@ const	int	depth,
 	else if (!strcmp (name_start, "1"))
 	{
 		/* Copy arg1 onto the result */
-		value = get_innermost_arg1 () ? get_innermost_arg1 () : in_command () ? empty_string : no_such_variable;
+		value = get_innermost_arg1 () ? get_innermost_arg1 () : (in_command () ? empty_string : no_such_variable);
 	}
 	else if (!strcmp (name_start, "2"))
 	{
@@ -477,24 +478,24 @@ const	int	depth,
 		/* Copy the first argument if one exists */
 		if ((value = get_innermost_arg1 ()))
 		{
-			if((length = strlen (value)) > space_left)
+			if((length = value.length()) > space_left)
 			{
 				strcpy (resp, too_big);
 				return True;
 			}
-			strcpy (resp, value);
+			strcpy (resp, value.c_str());
 			resp += length;
 			space_left -= length;
 		}
-		if ((value = get_innermost_arg2 ()) && *value)
+		if ((value = get_innermost_arg2 ()) && value)
 		{
-			if((length = strlen (value)) > space_left)
+			if((length = value.length()) > space_left)
 			{
 				strcpy (dummy, too_big);
 				return True;
 			}
 			strcpy (resp++, "=");
-			strcpy (resp, value);
+			strcpy (resp, value.c_str());
 			resp += length;
 			space_left -= length + 1;
 		}
@@ -527,12 +528,12 @@ const	int	depth,
 		{
 			case TYPE_VARIABLE:
 			case TYPE_PROPERTY:
-				if (db[variable].get_description() != (const String &)NULL)
+				if (db[variable].get_description())
 					value = db[variable].get_description().c_str();
 				break;
 			case TYPE_ARRAY:
-				if(db[variable].exist_element (atoi (value_or_empty (matcher.match_index_result()))))
-					value = db[variable].get_element (atoi (value_or_empty (matcher.match_index_result()))).c_str();
+				if(db[variable].exist_element (atoi (matcher.match_index_result().c_str())))
+					value = db[variable].get_element (atoi (matcher.match_index_result().c_str())).c_str();
 				break;
 			case TYPE_DICTIONARY:
 				if(db[variable].exist_element(matcher.match_index_result()))
@@ -544,13 +545,13 @@ const	int	depth,
 	/* OK, we should have *something* by now... */
 	if (value)
 	{
-		if ((length = strlen(value)) > space_left)
+		if ((length = value.length()) > space_left)
 		{
 			strcpy(resp, too_big);
 			return True;
 		}
 
-		strcpy (resp, value);
+		strcpy (resp, value.c_str());
 		resp += length;
 		space_left -= length;
 
@@ -677,7 +678,7 @@ const	char	*&argp,
 
 {
 	const	char		*command_start;
-	const	char		*result;
+	String			result;
 		Command_status	rs;
 		char		buffer [MAX_COMMAND_LEN];
 
@@ -690,11 +691,10 @@ const	char	*&argp,
 
 	/*** FIX ME!!! ***/
 	result = sneakily_process_basic_command (buffer, rs);
-	if(space_left < strlen(result))
+	if(space_left < result.length())
 		result = too_big;
-	strcpy (resp, result);
-	resp += strlen (result);
-	maybe_free (result);
+	strcpy (resp, result.c_str());
+	resp += result.length();
 
 	/* Skip the close-brace if it exists */
 	if (*argp == '}')
@@ -737,21 +737,21 @@ const	char	right_match)
 
 void
 context::do_full_evaluate (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	char	buffer [BUFFER_LEN];
 	char	scratch_return_string [BUFFER_LEN];
 
 	/* Bombproof if NULL arg1 */
-	if (arg1 == NULL)
+	if (!arg1)
 		*buffer = '\0';
 	else
-		strcpy(buffer, arg1);
+		strcpy(buffer, arg1.c_str());
 
 	/* Now dump arg2 in as well. */
-	if (arg2 && *arg2)
+	if (arg2)
 	{
 		int	len1;
 
@@ -759,11 +759,11 @@ const	char	*arg2)
 		if ((len1 > 0) && (buffer [len1 - 1] != '!') && (buffer [len1 - 1] != '<') && (buffer [len1 - 1] != '>'))
 			buffer [len1++] = ' ';
 		buffer [len1++] = '=';
-		if (*arg2 != '=')
+		if (*arg2.c_str() != '=')
 		{
 			buffer [len1++] = ' ';
 		}
-		strcpy (buffer + len1, arg2);
+		strcpy (buffer + len1, arg2.c_str());
 	}
 	return_status = full_parse_expression (*this, buffer, scratch_return_string, BUFFER_LEN);
 	set_return_string (scratch_return_string);
@@ -1608,7 +1608,7 @@ unsigned int	space_left)
 						strcpy (result_buffer, error_return_string);
 						return (COMMAND_FAIL);
 					}
-					for (i = 1; i <= db [dic].get_number_of_elements (); i++)
+					for (unsigned int i = 1; i <= db [dic].get_number_of_elements (); i++)
 						if (string_match (results[1].string, db [dic].get_index (i).c_str()) != NULL)
 						{
 							if (final.string [0] != '\0')

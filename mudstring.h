@@ -13,22 +13,29 @@ private:
 	const char* buf;
 	unsigned int len;
 
-public:
-	CString()
+		operator int()	const;
+		bool operator==(const CString& str);
+		bool operator==(int);
+	void clear()
 	{
 		buf = 0;
 		len = 0;
 	}
+public:
+	CString()
+	{
+		clear();
+	}
 	CString(const char* str)
 	{
-		buf = str;
-		if(buf)
+		if(str && *str)
 		{
+			buf = str;
 			len = strlen(buf);
 		}
 		else
 		{
-			len = 0;
+			clear();
 		}
 	}
 	CString(const CString& str)
@@ -45,9 +52,25 @@ public:
 		len = str.len;
 		return *this;
 	}
+	CString& operator=(const char* str)
+	{
+		if(str && *str)
+		{
+			buf = str;
+			len = strlen(str);
+		}
+		else
+		{
+			clear();
+		}
+		return *this;
+	}
+	CString& operator=(const String& str);
+
 		operator bool()		const { return len != 0; }
 	const char*	c_str()		const { return buf?buf:""; }
 	unsigned int	length()	const { return len; }
+
 };
 
 class String
@@ -61,13 +84,16 @@ private:
 		buf = 0;
 		len = 0;
 	}
+	operator int() const;
+	bool operator==(const String& str);
+	bool operator==(int);
 protected:
 	void copy(const char* str)
 	{
 		if(str != buf)
 		{
 			clear();
-			if(str)
+			if(str && *str)
 			{
 				buf = strdup(str);
 				len = strlen(buf);
@@ -79,7 +105,7 @@ protected:
 		if(str != buf)
 		{
 			clear();
-			if(str)
+			if(str && *str)
 			{
 				buf = strdup(str);
 				len = slen;
@@ -126,23 +152,38 @@ public:
 
 	String& operator=(const char* str)
 	{
-		copy(str);
+		if(str && *str)
+		{
+			copy(str);
+		}
+		else
+		{
+			clear();
+		}
 		return *this;
 	}
 	String& operator=(const String& str)
 	{
 		if(str)
+		{
 			copy(str.c_str(), str.length());
+		}
 		else
+		{
 			clear();
+		}
 		return *this;
 	}
 	String& operator=(const CString& str)
 	{
 		if(str)
+		{
 			copy(str.c_str(), str.length());
+		}
 		else
+		{
 			clear();
+		}
 		return *this;
 	}
 
@@ -162,16 +203,18 @@ public:
 
 		return *this;
 	}
-	String operator+(const CString& str)
-	{
-		return String(*this)+= str;
-	}
 };
 
 inline CString::CString(const String& str)
 {
 	buf = str.c_str();
 	len = str.length();
+}
+inline CString& CString::operator=(const String& str)
+{
+	buf = str.c_str();
+	len = str.length();
+	return *this;
 }
 
 extern String NULLSTRING;

@@ -35,7 +35,7 @@ const	char	*fit_errlist [] =
 
 int
 match_player_type(
-const	char	*text)
+const	CString& text)
 {
 	if(string_prefix("admin",text))
 		return T_ADMIN;
@@ -204,13 +204,13 @@ int	cost)
 
 Boolean
 ok_name (
-const	char	*name)
+const	CString&name)
 
 {
 	return (name
-		&& *name
-		&& *name != LOOKUP_TOKEN
-		&& *name != NUMBER_TOKEN
+		&& *name.c_str()
+		&& *name.c_str() != LOOKUP_TOKEN
+		&& *name.c_str() != NUMBER_TOKEN
 		&& string_compare(name, "me")
 		&& string_compare(name, "home")
 		&& string_compare(name, "here"));
@@ -219,7 +219,7 @@ const	char	*name)
 
 Boolean
 ok_puppet_name (
-const	char	*name)
+const	CString& name)
 
 {
 	const	char	*scan;
@@ -227,10 +227,10 @@ const	char	*name)
 	if(!ok_name(name))
 		return (False);
 
-	if (strlen (name) > 20)
+	if (name.length() > 20)
 		return (False);
 
-	for(scan = name; *scan; scan++)
+	for(scan = name.c_str(); *scan; scan++)
 		if(!(valid_char(*scan) || isspace(*scan)))
 			return (False);
 
@@ -240,7 +240,7 @@ const	char	*name)
 
 Boolean
 ok_player_name (
-const	char	*name)
+const	CString& name)
 
 {
 	if (!ok_puppet_name (name))
@@ -253,10 +253,10 @@ const	char	*name)
 
 int
 ok_password (
-const	char	*password)
+const	CString& password)
 
 {
-	if (password == NULL || *password == '\0')
+	if (!password || !*password.c_str())
 		return 0;
 	return 1;
 }
@@ -266,15 +266,15 @@ const	char	*password)
 int
 ok_alias_string (
 	dbref	/* player */,
-const	char	*string)
+const	CString& string)
 {
 	const	char	*scan;
 	dbref		test;
 
-	if (string == NULL || (strlen(string) < MIN_ALIAS_LENGTH) || (strlen(string) > MAX_ALIAS_LENGTH))
+	if (!string || (string.length() < MIN_ALIAS_LENGTH) || (string.length() > MAX_ALIAS_LENGTH))
 		return 0;
 
-	for (scan = string; *scan; scan++)
+	for (scan = string.c_str(); *scan; scan++)
 		if ((!isprint (*scan)) || (*scan == '=') || (*scan == '\n') || (isspace(*scan)))
 			return 0;
 
@@ -290,14 +290,14 @@ const	char	*string)
 int
 ok_who_string (
 	dbref	/* player */,
-const	char	*string)
+const	CString& string)
 {
 	const	char	*scan;
 
-	if (strlen(string) > MAX_WHO_STRING)
+	if (string.length() > MAX_WHO_STRING)
 		return 0;
 
-	for (scan = string; *scan; scan++)
+	for (scan = string.c_str(); *scan; scan++)
 		if ((!isprint (*scan)) || (*scan == '\n') )
 			return 0;
 	return 1;

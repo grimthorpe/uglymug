@@ -25,8 +25,8 @@ extern "C"	long	lrand48	();
 
 void
 context::do_attack (
-const	char	*player_name,
-const	char	*)
+const	CString& player_name,
+const	CString& )
 
 {
 	int attack_total=PROBABILITY_TWEAK, level_a, level_v, roll, temp;
@@ -47,7 +47,7 @@ const	char	*)
 		return;
 	}
 
-	if(blank(value_or_empty(player_name))) /* Is anyone really this numb? */
+	if(!player_name) /* Is anyone really this numb? */
 	{
 		notify(player, "You need to specify who you wish to attack!");
 		return;
@@ -227,8 +227,8 @@ const	char	*)
 
 void
 context::do_attributes (
-const	char	*item_name,
-const	char	*)
+const	CString& item_name,
+const	CString& )
 
 {
 	dbref item;
@@ -236,7 +236,7 @@ const	char	*)
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
 
-	if(blank(value_or_empty(item_name)))
+	if(!item_name)
 		item=player;
 	else
 	{
@@ -292,8 +292,8 @@ const	char	*)
 
 void
 context::do_wear (
-const	char	*item_name,
-const	char	*)
+const	CString& item_name,
+const	CString& )
 
 {
 	dbref	item;
@@ -307,7 +307,7 @@ const	char	*)
 		return;
 	}
 
-	if(blank(value_or_empty(item_name)))
+	if(!item_name)
 	{
 		db[player].set_armour(NOTHING);
 		set_return_string (ok_return_string);
@@ -330,8 +330,8 @@ const	char	*)
 
 void
 context::do_wield (
-const	char	*item_name,
-const	char	*)
+const	CString& item_name,
+const	CString& )
 
 {
 	dbref	item;
@@ -345,7 +345,7 @@ const	char	*)
 		return;
 	}
 
-	if(blank(value_or_empty(item_name)))
+	if(!item_name)
 	{
 		db[player].set_weapon(NOTHING);
 		set_return_string (ok_return_string);
@@ -368,8 +368,8 @@ const	char	*)
 
 void
 context::do_load (
-const	char	*item_name,
-const	char	*)
+const	CString& item_name,
+const	CString& )
 
 {
 	dbref	item;
@@ -428,7 +428,7 @@ const	char	*)
 	return_status = COMMAND_SUCC;
 }
 
-void context::do_modify(const char * target_name, const char * settings)
+void context::do_modify(const CString&  target_name, const CString&  settings)
 {
 	dbref	target;
 	char *	field;
@@ -455,13 +455,13 @@ void context::do_modify(const char * target_name, const char * settings)
 		return;
 	}
 
-	if(blank(settings))
+	if(!settings)
 	{
 		notify(player, "You must specify a field and a value.");
 		return;
 	}
 
-	if(((field = strchr(settings, ' ')) == NULL) ||
+	if(((field = strchr(settings.c_str(), ' ')) == NULL) ||
 		(*(field + 1) == '\0'))
 	{
 		notify(player, "You must specify a value after the field.");

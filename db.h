@@ -736,7 +736,7 @@ class	object
 	virtual		void	set_parent_no_check		(const dbref p);
 	virtual	const String& 	get_inherited_element		(const int)	const;
 	virtual	const int	exist_inherited_element		(const int)	const;
-	virtual const int	get_inherited_number_of_elements(void)	const;
+	virtual const unsigned int	get_inherited_number_of_elements(void)	const;
 	/* Old_object */
 	virtual		void	set_destination			(const dbref o);
 	virtual		void	set_destination_no_check	(const dbref o);
@@ -855,10 +855,10 @@ class	object
 		const	dbref	get_inherited_csucc		()			const;
 	virtual	const	dbref	get_cfail			()			const	{ return NOTHING; }
 		const	dbref	get_inherited_cfail		()			const;
-	virtual	const	unsigned short	get_parse_helper	(const int)		const	{ return 0; }
+	virtual	const	unsigned short	get_parse_helper	(const unsigned int)		const	{ return 0; }
 	virtual	const	Boolean	alloc_parse_helper		();
 	virtual		void	flush_parse_helper		();
-	virtual		void	set_parse_helper		(const int index, const unsigned short value);
+	virtual		void	set_parse_helper		(const unsigned int index, const unsigned short value);
 	/* Massy_object */
 	virtual	const	double	get_gravity_factor		()			const	{ return (1.0); }
 	virtual	const	double	get_inherited_gravity_factor	()			const;
@@ -895,7 +895,7 @@ class	object
 	virtual		void	set_last_entry_time		()				{ return; }
 	virtual	const	time_t	get_last_entry_time		()			const	{ return 0; }
 	/* Information */
-    	virtual	const	int	get_number_of_elements		()			const	{ return 0; }
+    	virtual	const	unsigned int	get_number_of_elements		()			const	{ return 0; }
     	virtual	const	String&	get_element			(int)			const	{ return (NULLSTRING); }
     	virtual		void	destroy_element			(int)				{ return; }
     	virtual		void	insert_element			(int, const CString&)		{ return; }
@@ -961,12 +961,7 @@ struct player_cache_struct
 	dbref		player;
 	int		state;
 
-	int compare(const player_cache_struct* other) const
-	{
-		if(other)
-			return strcasecmp(name.c_str(), other->name.c_str());
-		return -1;
-	}
+	int compare(const player_cache_struct* other) const;
 };
 
 

@@ -53,8 +53,8 @@ Variable_stack::~Variable_stack()
 
 String_pair *
 Variable_stack::addarg (
-const	char	*n,
-const	char	*v)
+const	CString& n,
+const	CString& v)
 
 {
 	variable_stack.push (new String_pair (n, v));
@@ -64,8 +64,8 @@ const	char	*v)
 
 String_pair *
 Variable_stack::check_and_add_arg (
-const	char	*n,
-const	char	*v)
+const	CString& n,
+const	CString& v)
 
 {
 	if (locatearg (n))
@@ -77,15 +77,15 @@ const	char	*v)
 
 Boolean
 Variable_stack::updatearg (
-const	char	*name,
-const	char	*val)
+const	CString& name,
+const	CString& val)
 
 {
 	String_pair	*temp;
 
 	if (!(temp = locatearg (name))) /* This shouldn't happen! */
 	{
-		Trace("BUG: Trying to find non-existent argument %s.\n", name);
+		Trace("BUG: Trying to find non-existent argument %s.\n", name.c_str());
 		return False;
 	}
 	temp->set_value (val);
@@ -95,13 +95,13 @@ const	char	*val)
 
 String_pair *
 Variable_stack::locatearg (
-const	char	*name)
+const	CString& name)
 const
 
 {
 	for (String_pair_iterator i (variable_stack); !i.finished (); i.step ())
 	{
-		if (!strcasecmp (i.current ()->get_name().c_str(), name))
+		if (!string_compare (i.current ()->get_name().c_str(), name))
 			return i.current ();
 	}
 
@@ -111,7 +111,7 @@ const
 
 String_pair *
 Scope::locate_stack_arg (
-const char *name)
+const CString& name)
 const
 {
 	String_pair *result;
@@ -323,7 +323,7 @@ dbref	c)
 
 String_pair *
 Compound_command_and_arguments::locate_innermost_arg (
-const	char	*name)
+const	CString& name)
 const
 
 {
@@ -391,7 +391,7 @@ context		*context)
 		current_line = -1;
 	}
 	/* Check for a return from the chain */
-	if ((current_line != -1) && (current_line <= db[command].get_inherited_number_of_elements()))
+	if ((current_line != -1) && (current_line <= (int)db[command].get_inherited_number_of_elements()))
 	{
 		if (action==ACTION_UNSET)
 			action= (scope_stack.is_empty() ? step_once (context) :  scope_stack.top ()->step_once (context));
@@ -748,7 +748,7 @@ const
 
 String_pair *
 context::locate_innermost_arg (
-const	char	*name)
+const	CString& name)
 const
 
 {
@@ -836,50 +836,6 @@ context::step ()
 	return ACTION_CONTINUE;
 }
 
-
-void
-context::maybe_free (
-const	char	*s)
-const
-
-{
-	if (s != 0
-		&& s != empty_string
-		&& s != unset_return_string
-		&& s != ok_return_string
-		&& s != error_return_string)
-		free (const_cast <char *> (s));
-}
-
-
-void
-context::set_return_string (
-const	char	*rs)
-
-{
-	/* Ditch the old one if we don't know what it is */
-	if (return_string != 0
-		&& return_string != empty_string
-		&& return_string != unset_return_string
-		&& return_string != ok_return_string
-		&& return_string != error_return_string)
-	{
-		free (const_cast <char *> (return_string));
-		return_string = 0;
-	}
-
-	/* Assign or copy the new one.  Remember blank strings as empty so strcat et al don't barf in the rest of the code. */
-	if (!rs)
-		return_string = empty_string;
-	else if (rs != unset_return_string
-		&& rs != ok_return_string
-		&& rs != error_return_string)
-		return_string=strdup(rs); 
-	else
-		return_string = rs;
-}
-
-
 /************************************************************************/
 /*									*/
 /*				String_pair				*/
@@ -887,8 +843,8 @@ const	char	*rs)
 /************************************************************************/
 
 String_pair::String_pair (
-const	char	*n,
-const	char	*v)
+const	CString& n,
+const	CString& v)
 : name (n)
 , value (v)
 
@@ -1140,7 +1096,7 @@ With_loop::loopagain ()
 	if (Typeof(dict) == TYPE_FREE)
 		return False;
 
-	if (++counter > db[dict].get_number_of_elements ())
+	if (++counter > (int)db[dict].get_number_of_elements ())
 		return False;
 
 	switch (Typeof(dict))
@@ -1169,7 +1125,7 @@ const	Scope	&os,
 	int	in_start,
 	int	in_end,
 	int	in_step,
-const	char	*name)
+const	CString&name)
 : Loop (os)
 , start (in_start)
 , end (in_end)

@@ -26,12 +26,12 @@ static	char	scratch_return_string [BUFFER_LEN];
 
 void
 context::do_query_numconnected(
-const	char	*argument,
-const	char	*)
+const	CString& argument,
+const	CString& )
 {
 	int	what;
 
-	if(!blank(argument))
+	if(argument)
 	{
 		what = match_player_type(argument);
 		if(what == 0)
@@ -53,13 +53,13 @@ const	char	*)
 static dbref
 find_for_query (
 	context	&c,
-const	char	*const name,
+const	CString& name,
 	int	need_control)
 
 {
 	dbref	result;
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 		return (c.get_player ());
 	Matcher matcher (c.get_player (), name, TYPE_NO_TYPE, c.get_effective_id ());
 	if (c.gagged_command () == True)
@@ -79,13 +79,13 @@ const	char	*const name,
 static dbref
 find_executor_for_query (
 context		&c,
-const	char	*const name,
+const	CString& name,
 int		need_control)
 
 {
 	dbref	thing;
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 		thing = c.get_player ();
 	else
 		thing = find_for_query (c, name, need_control);
@@ -102,13 +102,13 @@ int		need_control)
 static dbref
 find_player_for_query (
 	context	&c,
-const	char	*const name,
+const	CString& name,
 	int	need_control)
 
 {
 	dbref	thing;
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 		thing = c.get_player ();
 	else
 		thing = find_for_query (c, name, need_control);
@@ -126,7 +126,7 @@ const	char	*const name,
 static dbref
 find_thing_for_query (
 	context	&c,
-const	char	*const name,
+const	CString& name,
 	int	need_control)
 
 {
@@ -143,7 +143,7 @@ const	char	*const name,
 static dbref
 find_anything_with_csucc_link_for_query (
 	context	&c,
-const	char	*const name,
+const	CString&  name,
 	int	need_control)
 
 {
@@ -159,8 +159,8 @@ const	char	*const name,
 
 void
 context::do_query_address (
-const	char	*const	name,
-const	char	*const)
+const	CString& name,
+const	CString& )
 
 {
 	dbref loc;
@@ -195,7 +195,7 @@ const	char	*const)
 
 
 void
-context::do_query_area (const char *const name, const char *const the_area)
+context::do_query_area (const CString& name, const CString& the_area)
 {
 	dbref area;
 	dbref thing;
@@ -217,7 +217,7 @@ context::do_query_area (const char *const name, const char *const the_area)
 
 
 void
-context::do_query_article (const char *const name, const char *const type)
+context::do_query_article (const CString& name, const CString& type)
 {
 	dbref   thing = find_for_query (*this, name, 0);
 
@@ -237,7 +237,7 @@ context::do_query_article (const char *const name, const char *const type)
 		return;
 	}
 
-	if ((type==NULL) || (*type=='\0'))
+	if (!type)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You must specify an article type.");
 		return;
@@ -253,7 +253,7 @@ context::do_query_article (const char *const name, const char *const type)
 	        set_return_string (getarticle (thing, ARTICLE_UPPER_DEFINITE));
 	else
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@?article: '%s' is not a valid option.", type);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@?article: '%s' is not a valid option.", type.c_str());
 		return;
 	}
 
@@ -263,7 +263,7 @@ context::do_query_article (const char *const name, const char *const type)
 
 
 void
-context::do_query_cfail (const char *const name, const char *const)
+context::do_query_cfail (const CString& name, const CString&)
 {
 	dbref	thing = find_anything_with_csucc_link_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -275,7 +275,7 @@ context::do_query_cfail (const char *const name, const char *const)
 }
 
 void
-context::do_query_commands (const char *const name, const char *const)
+context::do_query_commands (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -306,8 +306,8 @@ context::do_query_commands (const char *const name, const char *const)
 
 void
 context::do_query_connected (
-const	char	*const name,
-const	char	*const)
+const	CString& name,
+const	CString&)
 
 {
 	dbref victim = find_executor_for_query (*this, name, 0);
@@ -326,7 +326,7 @@ const	char	*const)
 
 
 void
-context::do_query_contents (const char *const name, const char *const)
+context::do_query_contents (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -356,7 +356,7 @@ context::do_query_contents (const char *const name, const char *const)
 
 
 void
-context::do_query_controller (const char *const name, const char *const)
+context::do_query_controller (const CString& name, const CString&)
 {
 	dbref thing = find_executor_for_query (*this, name, 0);
 
@@ -369,7 +369,7 @@ context::do_query_controller (const char *const name, const char *const)
 }
 
 void
-context::do_query_cstring (const char *const name, const char *const)
+context::do_query_cstring (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
@@ -386,7 +386,7 @@ context::do_query_cstring (const char *const name, const char *const)
 }
 
 void
-context::do_query_csucc (const char *const name, const char *const)
+context::do_query_csucc (const CString& name, const CString&)
 {
 	dbref	thing = find_anything_with_csucc_link_for_query (*this, name, 1);
 
@@ -400,7 +400,7 @@ context::do_query_csucc (const char *const name, const char *const)
 
 
 void
-context::do_query_descendantfrom (const char *const first, const char *const parent_str)
+context::do_query_descendantfrom (const CString& first, const CString& parent_str)
 {
 	dbref	thing, parent, temp;
 
@@ -440,7 +440,7 @@ context::do_query_descendantfrom (const char *const first, const char *const par
 
 
 void
-context::do_query_description (const char *const name, const char *const)
+context::do_query_description (const CString& name, const CString&)
 {
 	int	value;
 	dbref	thing;
@@ -463,7 +463,7 @@ context::do_query_description (const char *const name, const char *const)
 				return;
 			if(matcher.match_index_attempt_result())
 			{
-				if((value = db[thing].exist_element (atoi (value_or_empty (matcher.match_index_result())))) > 0)
+				if((value = db[thing].exist_element (atoi (matcher.match_index_result().c_str()))) > 0)
 				{
 					set_return_string (db[thing].get_element(value).c_str());
 					return_status = COMMAND_SUCC;
@@ -492,14 +492,14 @@ context::do_query_description (const char *const name, const char *const)
 				else
 				{
 					if (gagged_command () == False)
-						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", value_or_empty(matcher.match_index_result()));
+						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result().c_str());
 					set_return_string (error_return_string);
 					return_status = COMMAND_FAIL;
 				}
 			else
 			{
 				if (gagged_command () == False)
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", value_or_empty(matcher.match_index_result()));
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result().c_str());
 				set_return_string (error_return_string);
 				return_status = COMMAND_FAIL;
 			}
@@ -508,7 +508,7 @@ context::do_query_description (const char *const name, const char *const)
 		case TYPE_ARRAY:
 			if(matcher.match_index_attempt_result())
 			{
-				if((value = db[thing].exist_element (atoi (value_or_empty (matcher.match_index_result())))) > 0)
+				if((value = db[thing].exist_element (atoi (value_or_empty (matcher.match_index_result().c_str())))) > 0)
 				{
 					set_return_string (db[thing].get_element(value).c_str());
 					return_status = COMMAND_SUCC;
@@ -538,7 +538,7 @@ context::do_query_description (const char *const name, const char *const)
 }
 
 void
-context::do_query_destination(const char *const name, const char *const)
+context::do_query_destination(const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
@@ -558,7 +558,7 @@ context::do_query_destination(const char *const name, const char *const)
 
 
 void
-context::do_query_drop (const char *const name, const char *const)
+context::do_query_drop (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -576,7 +576,7 @@ context::do_query_drop (const char *const name, const char *const)
 
 
 void
-context::do_query_elements (const char *const name, const char *const)
+context::do_query_elements (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -611,7 +611,7 @@ context::do_query_elements (const char *const name, const char *const)
 
 
 void
-context::do_query_email (const char *const name, const char *const)
+context::do_query_email (const CString& name, const CString&)
 {
 	dbref	victim;
 
@@ -634,14 +634,14 @@ context::do_query_email (const char *const name, const char *const)
 
 			
 void
-context::do_query_exist (const char *const name, const char *const owner_string)
+context::do_query_exist (const CString& name, const CString& owner_string)
 {
 	dbref	owner;
 	dbref	result;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
-	if (owner_string == NULL || *owner_string == '\0')
+	if (!owner_string)
 	{
 		Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
 		if (gagged_command () == True)
@@ -670,7 +670,7 @@ context::do_query_exist (const char *const name, const char *const owner_string)
 				case TYPE_ARRAY:
 					if(matcher.match_index_attempt_result())
 					{
-						if(db[result].exist_element (atoi (value_or_empty (matcher.match_index_result()))) > 0)
+						if(db[result].exist_element (atoi (matcher.match_index_result().c_str())) > 0)
 						{
 							set_return_string (ok_return_string);
 							return_status = COMMAND_SUCC;
@@ -726,7 +726,7 @@ context::do_query_exist (const char *const name, const char *const owner_string)
 					case TYPE_ARRAY:
 						if(matcher.match_index_attempt_result())
 						{
-							if(db[result].exist_element (atoi (value_or_empty (matcher.match_index_result()))) > 0)
+							if(db[result].exist_element (atoi (matcher.match_index_result().c_str())) > 0)
 							{
 								set_return_string (ok_return_string);
 								return_status = COMMAND_SUCC;
@@ -752,7 +752,7 @@ context::do_query_exist (const char *const name, const char *const owner_string)
 }
 
 void
-context::do_query_exits (const char *const name, const char *const)
+context::do_query_exits (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -765,7 +765,7 @@ context::do_query_exits (const char *const name, const char *const)
 
 
 void
-context::do_query_fail (const char *const name, const char *const)
+context::do_query_fail (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -782,7 +782,7 @@ context::do_query_fail (const char *const name, const char *const)
 }
 
 void
-context::do_query_first_name (const char *const name, const char *const)
+context::do_query_first_name (const CString& name, const CString&)
 {
 	char	*name_end;
 
@@ -804,7 +804,7 @@ context::do_query_first_name (const char *const name, const char *const)
 }
 
 void
-context::do_query_fuses (const char *const name, const char *const)
+context::do_query_fuses (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -819,7 +819,7 @@ context::do_query_fuses (const char *const name, const char *const)
 }
 
 void
-context::do_query_gravity_factor (const char *const name, const char *const)
+context::do_query_gravity_factor (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -842,7 +842,7 @@ context::do_query_gravity_factor (const char *const name, const char *const)
 }
 
 void
-context::do_query_id (const char *const name, const char *const)
+context::do_query_id (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -855,7 +855,7 @@ context::do_query_id (const char *const name, const char *const)
 
 
 void
-context::do_query_idletime (const char *const name, const char *const)
+context::do_query_idletime (const CString& name, const CString&)
 {
 	time_t	interval;
 	dbref   thing = find_player_for_query (*this, name, 0);
@@ -875,22 +875,22 @@ context::do_query_idletime (const char *const name, const char *const)
 
 
 void
-context::do_query_interval (const char *const name, const char *const)
+context::do_query_interval (const CString& name, const CString&)
 {
 	time_t	interval;
 
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
-	if (blank (name))
+	if (!name)
 		return;
-	interval = atol (name);
+	interval = atol (name.c_str());
 	set_return_string (time_string (interval));
 	return_status = COMMAND_SUCC;
 }
 
 
 void
-context::do_query_key (const char *const name, const char *const)
+context::do_query_key (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -910,7 +910,7 @@ context::do_query_key (const char *const name, const char *const)
 }
 
 void
-context::do_query_last_entry (const char *const name, const char *const)
+context::do_query_last_entry (const CString& name, const CString&)
 {
 	dbref	thing;
 
@@ -931,7 +931,7 @@ context::do_query_last_entry (const char *const name, const char *const)
 }
 
 void
-context::do_query_location (const char *const name, const char *const)
+context::do_query_location (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -945,7 +945,7 @@ context::do_query_location (const char *const name, const char *const)
 }
 
 void
-context::do_query_lock (const char *const name, const char *const)
+context::do_query_lock (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -957,7 +957,7 @@ context::do_query_lock (const char *const name, const char *const)
 }
 
 void
-context::do_query_mass (const char *const name, const char *const)
+context::do_query_mass (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -980,7 +980,7 @@ context::do_query_mass (const char *const name, const char *const)
 }
 
 void
-context::do_query_mass_limit (const char *const name, const char *const)
+context::do_query_mass_limit (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1003,7 +1003,7 @@ context::do_query_mass_limit (const char *const name, const char *const)
 }
 
 void 
-context::do_query_money (const char *const name, const char *const)
+context::do_query_money (const CString& name, const CString&)
 {
 	dbref victim = find_for_query(*this, name, 1);
 
@@ -1026,8 +1026,8 @@ context::do_query_money (const char *const name, const char *const)
 
 void
 context::do_query_myself (
-const	char	*const,
-const	char	*const)
+const	CString&,
+const	CString&)
 
 {
 	if (in_command())
@@ -1044,7 +1044,7 @@ const	char	*const)
 
 
 void
-context::do_query_name (const char *const name, const char *const type)
+context::do_query_name (const CString& name, const CString& type)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 
@@ -1054,7 +1054,7 @@ context::do_query_name (const char *const name, const char *const type)
 	if (thing == NOTHING)
 		return;
 
-	if ((type == NULL) || (*type == '\0'))	/* Do they want an article too? */
+	if (!type)	/* Do they want an article too? */
 	{
 		set_return_string (getname (thing));
 		return_status = COMMAND_SUCC;
@@ -1082,7 +1082,7 @@ context::do_query_name (const char *const name, const char *const type)
 	        strcpy(scratch_return_string, getarticle (thing, ARTICLE_UPPER_DEFINITE));
 	else
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?name: '%s' is not a valid option.", type);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?name: '%s' is not a valid option.", type.c_str());
 		return;
 	}
 
@@ -1094,7 +1094,7 @@ context::do_query_name (const char *const name, const char *const type)
 }
 
 void
-context::do_query_next (const char *const name, const char *const)
+context::do_query_next (const CString& name, const CString&)
 {
 	int	value;
 	dbref	result;
@@ -1103,7 +1103,7 @@ context::do_query_next (const char *const name, const char *const)
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 		thing = get_player ();
 	else
 	{
@@ -1130,7 +1130,7 @@ context::do_query_next (const char *const name, const char *const)
 				{
 					if((value = db[thing].exist_element(matcher.match_index_result())))
 					{
-						if(db[thing].get_number_of_elements() >= value + 1)
+						if((int)db[thing].get_number_of_elements() >= value + 1)
 						{
 							return_status = COMMAND_SUCC;
 							set_return_string (db[thing].get_index (value + 1).c_str());
@@ -1143,7 +1143,7 @@ context::do_query_next (const char *const name, const char *const)
 					}
 					else
 					{
-						notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\".", value_or_empty(matcher.match_index_result()));
+						notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\".", matcher.match_index_result().c_str());
 					}
 					return;
 				}
@@ -1164,9 +1164,9 @@ context::do_query_next (const char *const name, const char *const)
 			case TYPE_ARRAY:
 				if(matcher.match_index_attempt_result())
 				{
-					if((value = db[thing].exist_element(atoi(value_or_empty(matcher.match_index_result())))) > 0)
+					if((value = db[thing].exist_element(atoi(matcher.match_index_result().c_str()))) > 0)
 					{
-						if(db[thing].get_number_of_elements() >= value + 1)
+						if((int)db[thing].get_number_of_elements() >= value + 1)
 						{
 							return_status = COMMAND_SUCC;
 							sprintf(scratch_return_string, "%d", value + 1);
@@ -1234,7 +1234,7 @@ context::do_query_next (const char *const name, const char *const)
 
 
 void
-context::do_query_odrop (const char *const name, const char *const)
+context::do_query_odrop (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1252,7 +1252,7 @@ context::do_query_odrop (const char *const name, const char *const)
 
 
 void
-context::do_query_ofail (const char *const name, const char *const)
+context::do_query_ofail (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1270,7 +1270,7 @@ context::do_query_ofail (const char *const name, const char *const)
 
 
 void
-context::do_query_osuccess (const char *const name, const char *const)
+context::do_query_osuccess (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1288,7 +1288,7 @@ context::do_query_osuccess (const char *const name, const char *const)
 
 
 void
-context::do_query_owner (const char *const name, const char *const)
+context::do_query_owner (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1301,7 +1301,7 @@ context::do_query_owner (const char *const name, const char *const)
 
 
 void
-context::do_query_parent (const char *const name, const char *const)
+context::do_query_parent (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1313,7 +1313,7 @@ context::do_query_parent (const char *const name, const char *const)
 }
 
 void
-context::do_query_bps (const char *const name, const char *const)
+context::do_query_bps (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1352,7 +1352,7 @@ dbref	thing)
 
 
 void
-context::do_query_aliases (const char *const name, const char *const)
+context::do_query_aliases (const CString& name, const CString&)
 {
 	dbref	thing = find_player_for_query (*this, name, 0);
 
@@ -1369,7 +1369,7 @@ context::do_query_aliases (const char *const name, const char *const)
 
 
 void
-context::do_query_race (const char *const name, const char *const)
+context::do_query_race (const CString& name, const CString&)
 {
 	dbref	thing = find_executor_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1382,13 +1382,13 @@ context::do_query_race (const char *const name, const char *const)
 
 
 void
-context::do_query_rand (const char *const value, const char *const)
+context::do_query_rand (const CString& value, const CString&)
 {
 	int	top;
 	
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
-	top = atoi (value_or_empty (value));
+	top = atoi (value.c_str());
 	if (top <= 0)
 		top = db.get_top ();
 
@@ -1399,14 +1399,14 @@ context::do_query_rand (const char *const value, const char *const)
 
 
 void
-context::do_query_realtime (const char *const name, const char *const)
+context::do_query_realtime (const CString& name, const CString&)
 {
 	time_t	now;
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 		time (&now);
 	else
-		now = atol (name);
+		now = atol (name.c_str());
 	strcpy (scratch_return_string, asctime (localtime (&now)));
 	*(scratch_return_string + strlen (scratch_return_string) - 1) = '\0';
 	return_status = COMMAND_SUCC;
@@ -1415,7 +1415,7 @@ context::do_query_realtime (const char *const name, const char *const)
 
 
 void
-context::do_query_score (const char *const name, const char *const)
+context::do_query_score (const CString& name, const CString&)
 {
 	dbref	thing = find_executor_for_query (*this, name, 0);
 
@@ -1430,7 +1430,7 @@ context::do_query_score (const char *const name, const char *const)
 
 
 void
-context::do_query_set (const char *const name, const char *const flag)
+context::do_query_set (const CString& name, const CString& flag)
 {
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
@@ -1453,7 +1453,7 @@ context::do_query_set (const char *const name, const char *const flag)
 }
 
 void
-context::do_query_size (const char *const name, const char *const)
+context::do_query_size (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1482,7 +1482,7 @@ context::do_query_size (const char *const name, const char *const)
 
 
 void
-context::do_query_success (const char *const name, const char *const)
+context::do_query_success (const CString& name, const CString&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
@@ -1502,8 +1502,8 @@ context::do_query_success (const char *const name, const char *const)
 
 void
 context::do_query_time (
-const	char	*const,
-const	char	*const)
+const	CString&,
+const	CString&)
 {
 	time_t	time_now;
 
@@ -1515,7 +1515,7 @@ const	char	*const)
 
 
 void
-context::do_query_typeof (const char *const name, const char *const type)
+context::do_query_typeof (const CString& name, const CString& type)
 {
 	dbref	thing;
 
@@ -1524,8 +1524,9 @@ context::do_query_typeof (const char *const name, const char *const type)
 	thing = find_for_query (*this, name, 0);
 	if (thing == NOTHING)
 		return;
-	if (type == NULL || *type == '\0')
+	if (!type)
 	{
+		return_status = COMMAND_SUCC;
 		switch (Typeof (thing))
 		{
 			case TYPE_ROOM:
@@ -1564,10 +1565,10 @@ context::do_query_typeof (const char *const name, const char *const type)
 			case TYPE_PUPPET:
 				set_return_string ("Puppet");
 				break;
-			/* default: do bugger all */
+			default:
+				return_status = COMMAND_FAIL;
+				break;
 		}
-		if (return_string != error_return_string)
-			return_status = COMMAND_SUCC;
 		return;
 	}	
 	else
@@ -1623,7 +1624,7 @@ context::do_query_typeof (const char *const name, const char *const type)
 
 
 void
-context::do_query_variables (const char *const name, const char *const)
+context::do_query_variables (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1638,7 +1639,7 @@ context::do_query_variables (const char *const name, const char *const)
 }
 
 void
-context::do_query_properties (const char *const name, const char *const)
+context::do_query_properties (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1653,7 +1654,7 @@ context::do_query_properties (const char *const name, const char *const)
 }
 
 void
-context::do_query_arrays (const char *const name, const char *const)
+context::do_query_arrays (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1668,7 +1669,7 @@ context::do_query_arrays (const char *const name, const char *const)
 }
 
 void
-context::do_query_dictionaries (const char *const name, const char *const)
+context::do_query_dictionaries (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1684,7 +1685,7 @@ context::do_query_dictionaries (const char *const name, const char *const)
 
 
 void
-context::do_query_volume (const char *const name, const char *const)
+context::do_query_volume (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1707,7 +1708,7 @@ context::do_query_volume (const char *const name, const char *const)
 }
 
 void
-context::do_query_volume_limit (const char *const name, const char *const)
+context::do_query_volume_limit (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1730,7 +1731,7 @@ context::do_query_volume_limit (const char *const name, const char *const)
 }
 
 void
-context::do_query_weight (const char *const name, const char *const)
+context::do_query_weight (const CString& name, const CString&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1753,7 +1754,7 @@ context::do_query_weight (const char *const name, const char *const)
 }
 
 void
-context::do_query_who (const char *const name, const char *const)
+context::do_query_who (const CString& name, const CString&)
 {
 	dbref victim = find_executor_for_query (*this, name, 0);
 

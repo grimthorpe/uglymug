@@ -74,7 +74,7 @@ extern	const	char*	player_colour		(dbref, dbref, int);
 extern	const	int	find_number_of_players	(const CString&);
 
 /* From create.c */
-extern	dbref		parse_linkable_room	(dbref player, const char *room_name);
+extern	dbref		parse_linkable_room	(dbref player, const CString& room_name);
 
 /* From combat.c */
 extern void remove_combat_stuff(dbref player);
@@ -104,14 +104,14 @@ extern	const	Boolean	could_doit		(const context &c, const dbref thing);
 extern	const	Boolean	can_doit		(const context &c, const dbref thing, const char *default_fail_msg);
 extern	Boolean		can_see			(context &c, dbref thing, Boolean can_see_location);
 extern	int		payfor			(dbref who, int cost);
-extern	Boolean		ok_name			(const char *password);
-extern	Boolean		ok_puppet_name		(const char *password);
-extern	Boolean		ok_player_name		(const char *password);
-extern	int		ok_password		(const char *password);
+extern	Boolean		ok_name			(const CString& name);
+extern	Boolean		ok_puppet_name		(const CString& puppet_name);
+extern	Boolean		ok_player_name		(const CString& player_name);
+extern	int		ok_password		(const CString& password);
 #ifdef ALIASES
-extern	int		ok_alias_string		(dbref player,const char *alias);
+extern	int		ok_alias_string		(dbref player,const CString& alias);
 #endif /* ALIASES */
-extern	int		ok_who_string		(dbref player,const char *string);
+extern	int		ok_who_string		(dbref player,const CString& string);
 extern	int		can_reach		(dbref who, dbref what);
 extern	int		allowable_command	(dbref who, char *command_string);
 extern	enum fit_result	will_fit		(dbref victim, dbref destination);
@@ -142,7 +142,7 @@ extern	Boolean		can_move		(context &c, const char *direction);
 extern	Boolean		moveto			(dbref what, dbref where);
 
 /* From player.c */
-extern	dbref		lookup_player		(dbref player, const char *name);
+extern	dbref		lookup_player		(dbref player, const CString& name);
 
 /* From predicates.c */
 extern	object_flag_type type_to_flag_map	[];
@@ -154,21 +154,21 @@ extern	const	Boolean	can_link		(const context &c, const dbref exit);
 extern	void		notify_except		(dbref first, dbref originator, dbref exception, const char *msg);
 extern	void		notify_except2		(dbref first, dbref originator, dbref exc1, dbref exc2, const char *msg);
 extern	int		blank			(const char *s);
-extern	const	char	*reconstruct_message	(const char *arg1, const char *arg2);
+extern	const	char	*reconstruct_message	(const CString& arg1, const CString& arg2);
 
 /* From stringutil.c */
 extern	Boolean		semicolon_string_match	(const char *, const char *);
 extern	void		init_strings		();
 extern	void		pronoun_substitute	(char *result, unsigned int buffer_length, dbref player, const char *str);
-extern	int		string_compare		(const char *s1, const char *s2);
-extern	int		string_prefix		(const char *string, const char *prefix);
+extern	int		string_compare		(const CString& s1, const CString& s2);
+extern	int		string_prefix		(const CString& string, const CString& prefix);
 extern	const	char	*string_match		(const char *src, const char *sub);
 extern  const	char	*censor			(const char *string);
 extern	int		colour_strlen		(const char *string);
-extern	Boolean		add_rude		(const char *);
-extern	Boolean		add_excluded		(const char *);
-extern	Boolean		un_rude			(const char *);
-extern	Boolean		un_exclude		(const char *);
+extern	Boolean		add_rude		(const CString&);
+extern	Boolean		add_excluded		(const CString&);
+extern	Boolean		un_rude			(const CString&);
+extern	Boolean		un_exclude		(const CString&);
 extern	char		**rude_words;
 extern	char		**excluded_words;
 extern	int		rudes;
@@ -185,7 +185,7 @@ extern	dbref		remove_first		(dbref first, dbref what);
 extern	dbref		reverse			(dbref list);
 
 /* From boolexp.c */
-extern	struct	boolexp	*parse_boolexp		(const dbref player, const char *buf);
+extern	struct	boolexp	*parse_boolexp		(const dbref player, const CString& buf);
 
 /* From unparse.c */
 extern	const	char	*const	unparse_objectandarticle		(const context &c, const dbref object, int articletype);

@@ -4,8 +4,13 @@ Tag file. Lists the tags and the broad changes made.
 Please update everytime a new release goes live on
 the main game. This way we can always pull out the
 correct version. In reverse order.
-Place the latest tag number at the top to ensure
-the version information in the game is correct.
+Leave the Name: tag at the top of the file to get
+the correct release tag embedded in the game when you
+build it.
+
+um1_015 - Grimthorpe
+    A huge change.
+    The next part of the 'convert everything to String/CString'.
 
 um1_014 - Grimthorpe
     The perils of extreme programming. If you find a bug in one piece of code,

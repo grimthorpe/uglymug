@@ -54,17 +54,17 @@ const	char	*src)
 
 const char *
 reconstruct_message (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 {
 	static	char	buf [BUFFER_LEN];
 
 	/* Handle reconstruction */
-	strcpy_with_indent (buf, arg1);
-	if(arg2 && *arg2)
+	strcpy_with_indent (buf, arg1.c_str());
+	if(arg2 && *arg2.c_str())
 	{
 		strcat (buf, " = ");
-		strcat_with_indent (buf, arg2);
+		strcat_with_indent (buf, arg2.c_str());
 	}
 
 	return (buf);
@@ -73,8 +73,8 @@ const	char	*arg2)
 
 void
 context::do_say (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 		dbref	loc;
@@ -153,8 +153,8 @@ const	char	*arg2)
 
 void
 context::do_whisper (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 #ifndef	QUIET_WHISPER
@@ -213,8 +213,8 @@ const	char	*arg2)
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only whisper to players.");
 				return;
 			}
-			notify_public_colour(player, who, COLOUR_WHISPERS, "You whisper \"%s\" to %s.", value_or_empty(arg2), getname_inherited (who));
-			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", value_or_empty(getname_inherited (player)), value_or_empty(arg2));
+			notify_public_colour(player, who, COLOUR_WHISPERS, "You whisper \"%s\" to %s.", arg2.c_str(), getname_inherited (who));
+			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", value_or_empty(getname_inherited (player)), arg2.c_str());
 #ifndef QUIET_WHISPER
 			sprintf(scratch_buffer, "%s whispers something to %s.",
 				value_or_empty(getname_inherited (player)), value_or_empty(getname_inherited (who)));
@@ -232,8 +232,8 @@ const	char	*arg2)
 
 void
 context::do_at_areanotify (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	dbref loc;
@@ -254,7 +254,7 @@ const	char	*arg2)
         }
 
 	/* notify everybody */
-	notify_area(loc, player, "%s", value_or_empty(arg2));
+	notify_area(loc, player, "%s", arg2.c_str());
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -262,8 +262,8 @@ const	char	*arg2)
 
 void
 context::do_notify (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	dbref loc;
@@ -288,8 +288,8 @@ const	char	*arg2)
 
 void
 context::do_pose (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	dbref loc, prop;
@@ -350,8 +350,8 @@ const	char	*arg2)
 
 void
 context::do_wall (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	const char *message;
@@ -379,8 +379,8 @@ const	char	*arg2)
 
 void
 context::do_broadcast (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	const char *message;
@@ -408,8 +408,8 @@ const	char	*arg2)
 
 void
 context::do_at_note (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	const char *message;
@@ -441,8 +441,8 @@ const	char	*arg2)
 
 void
 context::do_gripe (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	dbref loc;
@@ -481,8 +481,8 @@ const	char	*arg2)
 
 void
 context::do_page (
-const	char	*part1,
-const	char	*part2)
+const	CString& part1,
+const	CString& part2)
 
 {
 	Player_list	targets(player);
@@ -491,7 +491,7 @@ const	char	*part2)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (blank(part1))
+	if (!part1)
 	{
 		if (!in_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: page <playerlist> = <message>");
@@ -512,8 +512,8 @@ const	char	*part2)
 		return;
 	}
 
-	char* duparg1=(NULL==part1)?NULL:strdup(part1);
-	char* duparg2=(NULL==part2)?NULL:strdup(part2);
+	char* duparg1=(part1)?strdup(part1.c_str()):NULL;
+	char* duparg2=(part2)?strdup(part2.c_str()):NULL;
 	char *arg1=duparg1;
 	char *arg2=duparg2;
 
@@ -643,8 +643,8 @@ const	char	*part2)
 
 void
 context::do_natter (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 {
 	const char *message;
 
@@ -680,8 +680,8 @@ const	char	*arg2)
 
 void
 context::do_echo (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	
@@ -693,8 +693,8 @@ const	char	*arg2)
 
 void
 context::do_at_oecho (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	return_status = COMMAND_FAIL;
@@ -713,8 +713,8 @@ const	char	*arg2)
 
 void
 context::do_at_oemote (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 
@@ -735,8 +735,8 @@ const	char	*arg2)
 
 void
 context::do_pemote (
-const	char	*name,
-const	char	*what)
+const	CString& name,
+const	CString& what)
 
 {
 	dbref	victim;
@@ -744,7 +744,7 @@ const	char	*what)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (name && *name)
+	if (name)
 	{
 		if ((victim = lookup_player(player, name)) == NOTHING)
 		{
@@ -758,11 +758,10 @@ const	char	*what)
 
 		if (controls_for_read(db[victim].get_location()))
 		{
-			what = value_or_empty(what);
-			if ((*what == '\'') || (*what == '`'))
-				sprintf(scratch_buffer, "%s%s", getname_inherited (player), what);
+			if ((*what.c_str() == '\'') || (*what.c_str() == '`'))
+				sprintf(scratch_buffer, "%s%s", getname_inherited (player), what.c_str());
 			else
-				sprintf(scratch_buffer, "%s %s", getname_inherited (player), what);
+				sprintf(scratch_buffer, "%s %s", getname_inherited (player), what.c_str());
 			notify_censor(victim, player, scratch_buffer);
 			return_status = COMMAND_SUCC;
 			set_return_string (ok_return_string);
@@ -780,14 +779,14 @@ const	char	*what)
 
 void
 context::do_at_notify (
-const	char	*names,
-const	char	*what)
+const	CString& names,
+const	CString& what)
 
 {
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (blank(names) || blank(what))
+	if (!names || !what)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @notify <playerlist> = message");
 		return;
@@ -807,7 +806,7 @@ const	char	*what)
 		if (!controls_for_read(db[victim].get_location()))
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only @notify to someone who is in a room that you own.");
 		else
-			notify_censor(victim, player, "%s", value_or_empty(what));
+			notify_censor(victim, player, "%s", what.c_str());
 		victim=targets.get_next();
 	}
 	if (!in_command())
@@ -816,14 +815,14 @@ const	char	*what)
 
 void
 context::do_fchat (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (blank(arg1))
+	if (!arg1)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to chat to your friends?");
 		return;
@@ -1093,13 +1092,13 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
  *
  */
 
-void context::do_tellemote (const char *part1, const char *part2)
+void context::do_tellemote (const CString& part1, const CString& part2)
 {
 	char *arg1;
 	char *arg2;
 
-	arg1=(part1==NULL)?NULL:strdup(part1);
-	arg2=(part2==NULL)?NULL:strdup(part2);
+	arg1=(part1)?strdup(part1.c_str()):NULL;
+	arg2=(part2)?strdup(part2.c_str()):NULL;
 
 	if (really_do_tell(arg1, arg2, True, *this)==True)
 	{
@@ -1116,13 +1115,13 @@ void context::do_tellemote (const char *part1, const char *part2)
 
 }
 
-void context::do_tell(const char *part1, const char *part2)
+void context::do_tell(const CString& part1, const CString& part2)
 {
 	char *arg1;
 	char *arg2;
 
-	arg1=(part1==NULL)?NULL:strdup(part1);
-	arg2=(part2==NULL)?NULL:strdup(part2);
+	arg1=(!part1)?NULL:strdup(part1.c_str());
+	arg2=(!part2)?NULL:strdup(part2.c_str());
 
 	if (really_do_tell(arg1, arg2, False, *this)==True)
 	{
@@ -1139,7 +1138,7 @@ void context::do_tell(const char *part1, const char *part2)
 	free(arg2);
 }
 
-void context::do_at_censor(const char *arg1, const char *arg2)
+void context::do_at_censor(const CString& arg1, const CString& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1150,13 +1149,13 @@ void context::do_at_censor(const char *arg1, const char *arg2)
 		return;
 	}
 
-	if (blank(arg1))
+	if (!arg1)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @censor <word>");
 		return;
 	}
 
-	const char *p=arg1;
+	const char *p=arg1.c_str();
 	while (*p)
 	{
 		if (!isalnum(*p) || isspace(*p))
@@ -1182,7 +1181,7 @@ void context::do_at_censor(const char *arg1, const char *arg2)
 }
 
 
-void context::do_at_exclude(const char *arg1, const char *arg2)
+void context::do_at_exclude(const CString& arg1, const CString& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1193,13 +1192,13 @@ void context::do_at_exclude(const char *arg1, const char *arg2)
 		return;
 	}
 
-	if (!blank(arg2))
+	if (arg2)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @exclude <word>");
 		return;
 	}
 
-	const char *p=arg1;
+	const char *p=arg1.c_str();
 	while (*p)
 	{
 		if (!isalnum(*p) || isspace(*p))
@@ -1225,7 +1224,7 @@ void context::do_at_exclude(const char *arg1, const char *arg2)
 }
 
 
-void context::do_at_uncensor(const char *arg1, const char *arg2)
+void context::do_at_uncensor(const CString& arg1, const CString& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1236,13 +1235,13 @@ void context::do_at_uncensor(const char *arg1, const char *arg2)
 		return;
 	}
 
-	if (!blank(arg2))
+	if (arg2)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @uncensor <word>");
 		return;
 	}
 
-	const char *p=arg1;
+	const char *p=arg1.c_str();
 	while (*p)
 	{
 		if (!isalnum(*p) || isspace(*p))
@@ -1269,7 +1268,7 @@ void context::do_at_uncensor(const char *arg1, const char *arg2)
 }
 
 
-void context::do_at_unexclude(const char *arg1, const char *arg2)
+void context::do_at_unexclude(const CString& arg1, const CString& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1280,13 +1279,13 @@ void context::do_at_unexclude(const char *arg1, const char *arg2)
 		return;
 	}
 
-	if (!blank(arg2))
+	if (arg2)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: @unexclude <word>");
 		return;
 	}
 
-	const char *p=arg1;
+	const char *p=arg1.c_str();
 	while (*p)
 	{
 		if (!isalnum(*p) || isspace(*p))

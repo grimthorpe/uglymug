@@ -34,8 +34,8 @@ static	Boolean			check_and_destroy_property		(context &c, dbref);
 static	Boolean			check_and_destroy_room			(context &c, dbref);
 static	Boolean			check_and_destroy_thing			(context &c, dbref);
 static	Boolean			check_and_destroy_variable		(context &c, dbref);
-static	Boolean			check_and_destroy_array_element		(context &c, dbref, const char *);
-static	Boolean			check_and_destroy_dictionary_element	(context &c, dbref, const char *);
+static	Boolean			check_and_destroy_array_element		(context &c, dbref, const CString&);
+static	Boolean			check_and_destroy_dictionary_element	(context &c, dbref, const CString&);
 static	void			trash_container				(dbref);
 static	void			check_and_make_sane_lock		(dbref object);
 
@@ -48,8 +48,8 @@ static	void			check_and_make_sane_lock		(dbref object);
 
 void
 context::do_empty(
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	dbref object;
@@ -57,7 +57,7 @@ const	char	*)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 		object=this->get_player();	
 	else
 	{
@@ -99,8 +99,8 @@ const	char	*)
 
 void
 context::do_destroy (
-const	char	*name,
-const	char	*dummy)
+const	CString& name,
+const	CString& dummy)
 
 {
 	dbref	object;
@@ -109,14 +109,14 @@ const	char	*dummy)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 	/* If nothing specified to destroy, give up */
-	if (name == NULL || *name == '\0')
+	if (!name)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "You must specify something to destroy.");
 		return;
 	}
 	/* Warn the player if they've got a second argument - have
 	   they typoed @desc thing=description? */
-        if (dummy!=NULL)
+        if (dummy)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Do you mean @desc? - Command ignored.");
 		return ;
@@ -610,7 +610,7 @@ dbref	zap_thing)
 static void
 remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 {
-	int i;
+	unsigned int i;
 	/* First, the main player list */
 
 	dbref mylist,hislist;
@@ -681,7 +681,7 @@ Trace( "Player list updated\n");
 				continue;
 			}
 			sanity_count=atoi(db[mylist].get_element(i).c_str());
-			int j=1;
+			unsigned int j=1;
 			deadlists=0;
 	/* Now go thru his custom list dictionary, removing me from it */
 			while (j<=db[hislist].get_number_of_elements())
@@ -947,10 +947,10 @@ static Boolean
 check_and_destroy_array_element (
 context		&c,
 dbref		zap_array,
-const	char	*elem)
+const	CString&	elem)
 
 {
-	int	temp = atoi (elem);
+	int	temp = atoi (elem.c_str());
 
 	if(db[zap_array].exist_element(temp) == 0)
 	{
@@ -984,7 +984,7 @@ static Boolean
 check_and_destroy_dictionary_element (
 context		&c,
 dbref		zap_dictionary,
-const	char	*elem)
+const	CString&	elem)
 
 {
 	int temp;
@@ -992,7 +992,7 @@ const	char	*elem)
 	if((temp = db[zap_dictionary].exist_element(elem)) == 0)
 	{
 		if (c.gagged_command() == False)
-			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\"", db[zap_dictionary].get_name().c_str(), elem);
+			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\"", db[zap_dictionary].get_name().c_str(), elem.c_str());
 		return (False);
 	}
 
@@ -1052,8 +1052,8 @@ dbref	zap_alarm)
 
 void
 context::do_garbage_collect (
-const	char	*type,
-const	char	*)
+const	CString& type,
+const	CString& )
 
 {
 	int	kill_players = 0;

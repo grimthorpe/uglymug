@@ -105,8 +105,8 @@ dbref	alarm)
 
 void
 context::do_query_pending (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	int		count = 0;

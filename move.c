@@ -18,8 +18,8 @@ typedef Link_stack <dbref>      Simple_stack;
 
 void
 context::do_enter (
-const   char    *object,
-const   char    *)
+const   CString& object,
+const   CString&)
 
 {
         dbref                   thing;
@@ -61,8 +61,8 @@ const   char    *)
 
 void
 context::do_leave (
-const   char    *,
-const   char    *)
+const   CString& ,
+const   CString&)
 
 {
         dbref                   object;
@@ -549,8 +549,8 @@ const   char    *direction)
 
 void
 context::do_move (
-const   char    *direction,
-const   char    *)
+const   CString& direction,
+const   CString&)
 
 {
         dbref exit;
@@ -648,8 +648,8 @@ const   char    *)
 
 void
 context::do_get (
-const   char    *what,
-const   char    *where)
+const   CString& what,
+const   CString& where)
 
 {
         dbref   thing;
@@ -676,7 +676,7 @@ const   char    *where)
 
         if((thing = what_matcher.noisy_match_result()) != NOTHING)
         {
-                if ((where == NULL || *where == '\0') && (db[thing].get_location() == player))
+                if (!where && (db[thing].get_location() == player))
                 {
                         notify_colour(player, player, COLOUR_MESSAGES, "You already have that!");
                         return;
@@ -693,7 +693,7 @@ const   char    *where)
                                         return;
                                 else
                                 {
-                                        if (where == NULL || *where == '\0')
+                                        if (!where)
                                         {
                                                 /* Not putting thing into a container */
                                                 if (contains (player, thing))
@@ -833,8 +833,8 @@ const   char    *where)
 
 void
 context::do_drop (
-const   char    *name,
-const   char    *where)
+const   CString& name,
+const   CString& where)
 
 {
         dbref                   loc;
@@ -863,7 +863,7 @@ const   char    *where)
         if ((thing = name_matcher.noisy_match_result()) != NOTHING)
         {
                 /* Work out where to drop it */
-                if (where == NULL || *where == '\0')
+                if (!where)
                         container = loc;
                 else
                 {
@@ -1087,8 +1087,8 @@ const   char    *where)
 
 void
 context::do_remote (
-const   char    *loc_string,
-const   char    *command)
+const   CString& loc_string,
+const   CString& command)
 
 {
         dbref   loc;
@@ -1132,7 +1132,7 @@ const   char    *command)
                 remote_context->calling_from_command ();
 //              remote_context->call_stack.push (new Compound_command_and_arguments (get_current_command(), remote_context, get_simple_command(), get_arg1(), get_arg2(), get_effective_id(), 0));
         }
-        remote_context->process_basic_command (command);
+        remote_context->process_basic_command (command.c_str());
         mud_scheduler.push_express_job (remote_context); 
         copy_returns_from (*remote_context);
         delete remote_context;

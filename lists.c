@@ -166,14 +166,14 @@ static const char *playerlist_flags(int value)
 	return buf;
 }
 void		
-context::do_lset(const char *victims, const char *flag)
+context::do_lset(const CString& victims, const CString& flag)
 {
 	return_status= COMMAND_FAIL;	
 	set_return_string(error_return_string);
 	dbref lists=0;
 	int element,i,f;
 
-	if (blank(victims) || (blank(flag)))
+	if (!victims || !flag)
 	{
 		notify_colour(player,player,COLOUR_ERROR_MESSAGES,"Syntax: lset <playerlist>=flag");
 		return;
@@ -181,7 +181,7 @@ context::do_lset(const char *victims, const char *flag)
 
 	// Now figure out what flag we're s'posed to be setting/unsetting
 	const char *p;
-	for (p=flag; p && (*p==NOT_TOKEN || isspace(*p)); p++);
+	for (p=flag.c_str(); p && (*p==NOT_TOKEN || isspace(*p)); p++);
 
 	if ((p==NULL) || (*p=='\0'))
 	{	
@@ -224,7 +224,7 @@ context::do_lset(const char *victims, const char *flag)
 			element=db[lists].exist_element(smallbuf);
 		}
 		int newflags;
-		if (*flag == NOT_TOKEN)
+		if (*flag.c_str() == NOT_TOKEN)
 			newflags=atoi(db[lists].get_element(element).c_str()) & ~f;
 		else
 			newflags=atoi(db[lists].get_element(element).c_str()) | f;
@@ -237,7 +237,7 @@ context::do_lset(const char *victims, const char *flag)
 
 	if (!gagged_command())	
 	{
-		if (*flag == NOT_TOKEN)
+		if (*flag.c_str() == NOT_TOKEN)
 			notify_colour(player, player, COLOUR_MESSAGES, "%s flag reset on %s.", playerlist_flag_list[i].string, targets.generate_courtesy_string(player,player,True));
 		else
 			notify_colour(player, player, COLOUR_MESSAGES, "%s flag set on %s.", playerlist_flag_list[i].string, targets.generate_courtesy_string(player,player,True));
@@ -477,8 +477,8 @@ Player_list::eat_keiths_chips()   // Kills anything still alive
 	filtered_size=0;
 	count=0;
 	list=NULL;
-	while (listcount > 0)
-		free(listnames[--listcount]);
+//	while (listcount > 0)
+//		free(listnames[--listcount]);
 
 }
 
@@ -577,7 +577,7 @@ Player_list::include_from_list(dbref player, int f)
 	if (db[lists].get_number_of_elements() == 0)
 		return filtered_size;
 
-	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
+	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ( (atoi(db[lists].get_element(i).c_str()) & f) &&
 			(!find_player (atoi (db[lists].get_index(i).c_str()))))
 		{
@@ -597,7 +597,7 @@ Player_list::include_from_reverse_list(dbref player, int f)
 	if (db[lists].get_number_of_elements() == 0)
 		return filtered_size;
 
-	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
+	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i).c_str()) & f) && (!find_player (atoi (db[lists].get_index(i).c_str()))))
 		{
 			if(add_player(atoi(db[lists].get_index(i).c_str()), True) == False)
@@ -616,7 +616,7 @@ Player_list::exclude_from_list(dbref player, int f, const char *message=NULL)
 	if (db[lists].get_number_of_elements() == 0)
 		return filtered_size;
 
-	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
+	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i).c_str()) & f) && (temp=find_player (atoi (db[lists].get_index(i).c_str()))))
 			set_included(temp, False, message);
 
@@ -631,7 +631,7 @@ Player_list::exclude_from_reverse_list(dbref player, int f, const char *message=
 	if (db[lists].get_number_of_elements() == 0)
 		return filtered_size;
 
-	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
+	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i).c_str()) & f) && (temp=find_player (atoi (db[lists].get_index(i).c_str()))))
 			set_included(temp, False, message);
 	return filtered_size;
@@ -720,7 +720,7 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 
 		while (thislist < listcount)
 		{
-			sprintf(workspace, "%s", listnames[thislist++]);
+			sprintf(workspace, "%s", listnames[thislist++].c_str());
 			strcat(listbuf, workspace);
 			lists_remaining--;
 			if (lists_remaining > 1)
@@ -839,16 +839,16 @@ Player_list::notify(
 
 void
 Player_list::add_list(
-const char *lname)
+const CString& lname)
 {
 	if ( listcount < (MAX_LIST_TELLS -1))
-		listnames[listcount++]= strdup(lname);
+		listnames[listcount++]= lname;
 }
 
 int	
 Player_list::build_from_text(
 dbref player,
-const char *arg1)
+const CString& arg1)
 {
 	dbref	lists=find_list_dictionary(player, list_dictionary),
 		element,
@@ -858,7 +858,7 @@ const char *arg1)
 	if (list!=NULL)
 		eat_keiths_chips();
 
-	strcpy(scratch_buffer, arg1);	/* strtok() is destructive */
+	strcpy(scratch_buffer, arg1.c_str());	/* strtok() is destructive */
 
 	// Parse the form tell admin, luggage, friends = I love you.
 
@@ -978,9 +978,9 @@ const char *arg1)
  * }
  */
 
-static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const char *str)
+static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const CString& str)
 {
-	char *names=strdup(str), *name;
+	char *names=strdup(str.c_str()), *name;
 
 	for(victim_count=0, name=strtok(names, ";,"); name; name=strtok(NULL, ";,"))
 		if((victims[victim_count]=lookup_player(player, name))==NOTHING)
@@ -1007,7 +1007,7 @@ static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const 
  * ladd <listname> = <playerlist>	- Adds to custom lists
  */
 
-void context::do_ladd(const char *arg1, const char *arg2)
+void context::do_ladd(const CString& arg1, const CString& arg2)
 {
 	dbref	lists;
 	char	buf[32];
@@ -1021,20 +1021,20 @@ void context::do_ladd(const char *arg1, const char *arg2)
 		return;
 	}
 
-	if(blank(arg1))
+	if(!arg1)
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "%%r%%hUsage:  %%wladd %%g<listname> %%r= %%g<playerlist> %%rto create/add to custom lists");
 		notify_colour(player, player, COLOUR_MESSAGES, "%%r%%h -or-:  %%wladd %%g<playerlist> %%rto add to main list");
 		return;
 	}
 
-	if (lookup_players_and_put_their_numbers_in_an_array(player, blank(arg2)?arg1:arg2)==0)
+	if (lookup_players_and_put_their_numbers_in_an_array(player, arg2?arg2:arg1)==0)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You didn't specify any valid player names to add to the list.");
 		return;
 	}
 
-	if (blank(arg2)) 
+	if (!arg2) 
 	{
 		// Add to main list
 		lists=find_list_dictionary(player, playerlist_dictionary);
@@ -1089,7 +1089,7 @@ void context::do_ladd(const char *arg1, const char *arg2)
 				}
 			if(!number)
 			{
-				notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1, ca[COLOUR_MESSAGES]);
+				notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1.c_str(), ca[COLOUR_MESSAGES]);
 				sprintf(buf, "%s%d", *mylist? ";":"", victims[i]);
 				strcat(mylist, buf);
 				add_clist_reference(victims[i], player);
@@ -1103,7 +1103,7 @@ void context::do_ladd(const char *arg1, const char *arg2)
 
 		for(int i=0; i<victim_count; i++)
 		{
-			notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1, ca[COLOUR_MESSAGES]);
+			notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1.c_str(), ca[COLOUR_MESSAGES]);
 			add_clist_reference(victims[i], player);
 			sprintf(buf, "%s%d", i==0? "":";", victims[i]);
 			strcat(scratch_buffer, buf);
@@ -1121,26 +1121,17 @@ void context::do_ladd(const char *arg1, const char *arg2)
  * llist [<listname>]
  */
 
-void context::do_llist(const char *arg1, const char *)
+void context::do_llist(const CString& arg1, const CString& )
 {
 	const colour_at& ca=db[player].get_colour_at();
 	dbref lists;
 	dbref target;
 	int element;
 
-	if(blank(arg1))	/* almost nothing can go wrong */
+	if (!arg1)
 	{
 		return_status=COMMAND_SUCC;
 		set_return_string (ok_return_string);
-	}
-	else
-	{
-		return_status=COMMAND_FAIL;
-		set_return_string (error_return_string);
-	}
-
-	if (blank(arg1))
-	{
 		lists=find_list_dictionary(player, playerlist_dictionary);
 
 		notify_colour(player, player, COLOUR_MESSAGES, "%s", "%w%hYour main player list has the following entries:");
@@ -1150,7 +1141,7 @@ void context::do_llist(const char *arg1, const char *)
 			notify_colour(player, player, COLOUR_MESSAGES, "     ** NO ONE LISTED **");
 		else
 		{
-			for(int i=1; i<=db[lists].get_number_of_elements(); i++)
+			for(unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 			{
 				target=atoi(db[lists].get_index(i).c_str());
 				if (Typeof(target) != TYPE_PLAYER)
@@ -1169,7 +1160,7 @@ void context::do_llist(const char *arg1, const char *)
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "You have the following custom player lists:");
 			*scratch_buffer='\0';
-			for(int i=1; i<=db[lists].get_number_of_elements(); i++)
+			for(unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 			{
 				if (*scratch_buffer)
 					strcat(scratch_buffer,", ");
@@ -1180,6 +1171,11 @@ void context::do_llist(const char *arg1, const char *)
 		}
 		return;
 	}
+	else
+	{
+		return_status=COMMAND_FAIL;
+		set_return_string (error_return_string);
+	}
 
 	lists=find_list_dictionary(player, list_dictionary);
 
@@ -1187,11 +1183,11 @@ void context::do_llist(const char *arg1, const char *)
 
 	if(!(element=db[lists].exist_element(arg1)))
 	{
-	notify_censor(player, player, "You don't have a list called \"%s\".", arg1);
+	notify_censor(player, player, "You don't have a list called \"%s\".", arg1.c_str());
 		return;
 	}
 
-	notify_censor(player, player, "Your list \"%s\" contains:", arg1);
+	notify_censor(player, player, "Your list \"%s\" contains:", arg1.c_str());
 	terminal_underline(player, squiggles);
 	strcpy(scratch_buffer, db[lists].get_element(element).c_str());
 	for(char *c=strtok(scratch_buffer, ";"); c; c=strtok(NULL, ";"))
@@ -1213,7 +1209,7 @@ void context::do_llist(const char *arg1, const char *)
  * lremove <playerlist>
  */
 
-void context::do_lremove(const char *arg1, const char *arg2)
+void context::do_lremove(const CString& arg1, const CString& arg2)
 {
 	dbref lists;
 	int element, delete_count=0;
@@ -1222,18 +1218,18 @@ void context::do_lremove(const char *arg1, const char *arg2)
 	return_status=COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if(blank(arg1))
+	if(!arg1)
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "%%r%%hUsage:  %%wlremove %%g<listname>");
-		notify_colour(player, player, COLOUR_MESSAGES, "%%r%%h -or-   %%wlremove %%g<listname> %%r= %%g<playerlist>");
-		notify_colour(player, player, COLOUR_MESSAGES, "%%r%%h -or-   %%wlremove %%g<playerlist>%%z");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Usage:  lremove <listname>");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, " -or-   lremove <listname> = <playerlist>");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, " -or-   lremove <playerlist>");
 		return;
 	}
 
 	Player_list targets(player);
 	targets.include_unconnected();
 
-	if (blank(arg2))
+	if (!arg2)
 	{
 		// Do they want to remove a clist?
 
@@ -1241,7 +1237,7 @@ void context::do_lremove(const char *arg1, const char *arg2)
 		if ((element=db[lists].exist_element(arg1)))
 		{
 			db[lists].destroy_element(element);
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "List \"%s\" deleted.", arg1);
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "List \"%s\" deleted.", arg1.c_str());
 			return;
 		}
 
@@ -1262,7 +1258,7 @@ void context::do_lremove(const char *arg1, const char *arg2)
 		}
 	}
 
-	if (blank(arg2))
+	if (!arg2)
 	{
 		target=targets.get_first();
 		while (target != NOTHING)
@@ -1288,7 +1284,7 @@ void context::do_lremove(const char *arg1, const char *arg2)
 
 	if(!(element=db[lists].exist_element(arg1)))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You don't have a list called \"%s\".", arg1);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You don't have a list called \"%s\".", arg1.c_str());
 		return;
 	}
 
@@ -1312,7 +1308,7 @@ void context::do_lremove(const char *arg1, const char *arg2)
 		}
 		else
 		{
-			notify_censor(player, player, "%%g%%h%s%%w removed from list \"%s\".%%z", db[target].get_name().c_str(), arg1);
+			notify_censor(player, player, "%%g%%h%s%%w removed from list \"%s\".%%z", db[target].get_name().c_str(), arg1.c_str());
 			remove_clist_reference(target, player);
 			delete_count++;
 		}
@@ -1342,7 +1338,7 @@ void context::do_lremove(const char *arg1, const char *arg2)
 }
 
 void
-context::do_fwho(const char *, const char *)
+context::do_fwho(const CString& , const CString& )
 {
 	return_status=COMMAND_SUCC;
 	set_return_string (ok_return_string);

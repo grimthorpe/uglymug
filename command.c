@@ -488,8 +488,8 @@ const	char	*text)
 
 void
 context::do_at_endif (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	if(in_command())
@@ -510,8 +510,8 @@ const	char	*)
 
 void
 context::do_chpid (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	if (call_stack.is_empty ())
@@ -531,8 +531,8 @@ const	char	*)
 
 void
 context::do_unchpid (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	if (call_stack.is_empty ())
@@ -552,8 +552,8 @@ const	char	*)
 
 void
 context::do_at_false (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	return_status = COMMAND_FAIL;
@@ -563,8 +563,8 @@ const	char	*)
 
 void
 context::do_at_true (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	return_status = COMMAND_SUCC;
@@ -574,8 +574,8 @@ const	char	*)
 
 void
 context::do_return (
-const	char	*arg1,
-const	char	*arg2)
+const	CString&arg1,
+const	CString&arg2)
 
 {
 	set_return_string (error_return_string);
@@ -593,11 +593,11 @@ const	char	*arg2)
 		return;
 	}
 
-	if (!strcasecmp (arg1, "true") || !strcasecmp (arg1, "t"))
+	if ((string_compare(arg1, "true") == 0) || (string_compare(arg1, "t") == 0))
 		return_status = COMMAND_SUCC;
-	else if (!strcasecmp (arg1, "false") || !strcasecmp (arg1, "f"))
+	else if ((string_compare (arg1, "false") == 0) || (string_compare (arg1, "f") == 0))
 		return_status = COMMAND_FAIL;
-	else if (!strcasecmp (arg1, "current") || !strcasecmp (arg1, "c"))
+	else if ((string_compare (arg1, "current") == 0) || (string_compare (arg1, "c") == 0))
 	{
 		if (return_status != COMMAND_SUCC && return_status != COMMAND_FAIL)
 		{
@@ -621,8 +621,8 @@ const	char	*arg2)
 
 void
 context::do_returnchain (
-const	char	*arg1,
-const	char	*arg2)
+const	CString&arg1,
+const	CString&arg2)
 
 {
 	set_return_string (error_return_string);
@@ -635,7 +635,7 @@ const	char	*arg2)
 	}
 
 	/* Syntax check: We must have a first argument, and we must have a second unless the first is "home" */
-	if ((!arg1) || ((!arg2) && (strcasecmp (arg1, "home"))))
+	if ((!arg1) || ((!arg2) && (string_compare (arg1, "home") != 0)))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Usage: @returnchain home | <true | false | current> = <return_string>.");
 		return_status = COMMAND_FAIL;
@@ -650,11 +650,11 @@ const	char	*arg2)
 	else
 	{
 		/* Two arguments */
-		if (!(strcasecmp (arg1, "true")) || !(strcasecmp (arg1, "t")))
+		if (!(string_compare (arg1, "true")) || !(string_compare (arg1, "t")))
 			return_status = COMMAND_SUCC;
-		else if (!strcasecmp (arg1, "false") || !strcasecmp (arg1, "f"))
+		else if (!string_compare (arg1, "false") || !string_compare (arg1, "f"))
 			return_status = COMMAND_FAIL;
-		else if (!strcasecmp (arg1, "current") || !strcasecmp (arg1, "c"))
+		else if (!string_compare (arg1, "current") || !string_compare (arg1, "c"))
 		{
 			/* @returnchain current; fine as long as the current is sensible */
 			if (return_status != COMMAND_SUCC && return_status != COMMAND_FAIL)
@@ -681,8 +681,8 @@ const	char	*arg2)
 
 void
 context::do_at_if (
-const	char	*arg1,
-const	char	*)
+const	CString&arg1,
+const	CString&)
 
 {
 	if ((!in_command()) || (call_stack.is_empty()))
@@ -701,16 +701,17 @@ const	char	*)
 	Boolean	if_ok = True;
 
 	/* Check for the failure cases */
-	if (arg1 && *arg1)
+	const char* carg1 = arg1.c_str();
+	if (arg1 && *carg1)
 	{
 		/* Strip leading spaces */
-		while (isspace (*arg1))
-			arg1++;
+		while (isspace (*carg1))
+			carg1++;
 
 		/* Check for 0, Unset_return_value or Error */
-		if_ok = string_compare ("0", arg1)
-			&& string_compare (unset_return_string, arg1)
-			&& string_compare (error_return_string, arg1);
+		if_ok = string_compare ("0", carg1)
+			&& string_compare (unset_return_string, carg1)
+			&& string_compare (error_return_string, carg1);
 		if (!if_ok)
 		{
 			return_status=COMMAND_FAIL;
@@ -725,8 +726,8 @@ const	char	*)
 
 void
 context::do_at_elseif (
-const char *arg1,
-const char *)
+const CString&arg1,
+const CString&)
 
 {
 	if ((!in_command()) || (call_stack.is_empty()))
@@ -745,16 +746,17 @@ const char *)
 	Boolean	if_ok = True;
 
 	/* Check for the failure cases */
-	if (arg1 && *arg1)
+	const char* carg1 = arg1.c_str();
+	if (arg1 && *carg1)
 	{
 		/* Strip leading spaces */
-		while (isspace (*arg1))
-			arg1++;
+		while (isspace (*carg1))
+			carg1++;
 
 		/* Check for 0, Unset_return_value or Error */
-		if_ok = string_compare ("0", arg1)
-			&& string_compare (unset_return_string, arg1)
-			&& string_compare (error_return_string, arg1);
+		if_ok = string_compare ("0", carg1)
+			&& string_compare (unset_return_string, carg1)
+			&& string_compare (error_return_string, carg1);
 	}
 
 	/* We've decided what to do, so... */
@@ -764,8 +766,8 @@ const char *)
 
 void
 context::do_at_else (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	if ((!in_command()) || (call_stack.is_empty()))
@@ -783,8 +785,8 @@ const	char	*)
 
 void
 context::do_at_end(
-const char *,
-const char *)
+const CString&,
+const CString&)
 
 {
 	return_status= COMMAND_FAIL;
@@ -803,8 +805,8 @@ const char *)
 
 void
 context::do_at_with(
-const char *what,
-const char *args)
+const CString&what,
+const CString&args)
 
 {
 	char		arg1	[MAX_COMMAND_LEN];
@@ -820,7 +822,7 @@ const char *args)
 		return;
 	}
 
-	if (!(what && *what) || !(args && *args))
+	if (!(what && *what.c_str()) || !(args && *args.c_str()))
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "Usage: @with <array|dict> = <varname1>, <varname2>");
 		return;
@@ -839,7 +841,8 @@ const char *args)
 
 	/* Grab the first argument (up to comma or end of string) */
 	p = arg1;
-	while (*args && ((*p++=*args++) != ','))
+	const char* cargs = args.c_str();
+	while (*cargs && ((*p++=*cargs++) != ','))
 		;
 	*--p = '\0';
 	if (!ok_name(arg1))
@@ -848,16 +851,16 @@ const char *args)
 		return;
 	}
 
-	SKIP_SPACES(args)
-	if (!*args)
+	SKIP_SPACES(cargs)
+	if (!*cargs)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with: Missing second argument.");
 		return;
 	}
 
-	if (!ok_name(args))
+	if (!ok_name(cargs))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with: Bad name '%s' for second argument.", args);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with: Bad name '%s' for second argument.", cargs);
 		return;
 	}
 
@@ -867,13 +870,13 @@ const char *args)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with: Variable name %s already in use.", arg1);
 		return;
 	}
-	if (locate_innermost_arg (args))
+	if (locate_innermost_arg (cargs))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with: Variable name %s already in use.", args);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with: Variable name %s already in use.", cargs);
 		return;
 	}
 
-	if (!call_stack.top()->push_scope (new With_loop (call_stack.top ()->innermost_scope (), target, arg1, args)))
+	if (!call_stack.top()->push_scope (new With_loop (call_stack.top ()->innermost_scope (), target, arg1, cargs)))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unable to set up loop - see a wizard.");
 		return;
@@ -885,8 +888,8 @@ const char *args)
 
 void
 context::do_at_for(
-const char *countername,
-const char *args)
+const CString&countername,
+const CString&args)
 
 {
 		int	start;
@@ -909,19 +912,19 @@ const char *args)
 		return;
 	}
 
-	if ((!args) || (!*args))
+	if ((!args) || (!*args.c_str()))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, usage);
 		return;
 	}
 
 	/* If we get to here, we've got a second argument.  Try some different legal parses... */
-	if (sscanf (args, "%d%*[ ]to%*[ ]%d%*[ ]step%*[ ]%d", &start, &end, &step) != 3
-		&& sscanf (args, "%dto%dstep%d", &start, &end, &step) != 3)
+	if (sscanf (args.c_str(), "%d%*[ ]to%*[ ]%d%*[ ]step%*[ ]%d", &start, &end, &step) != 3
+		&& sscanf (args.c_str(), "%dto%dstep%d", &start, &end, &step) != 3)
 	{
 		/* It wasn't the full 3-arg version.  Try 2-arg */
-		if (sscanf (args, "%d%*[ ]to%*[ ]%d", &start, &end) != 2
-			&& sscanf (args, "%dto%d", &start, &end) != 2)
+		if (sscanf (args.c_str(), "%d%*[ ]to%*[ ]%d", &start, &end) != 2
+			&& sscanf (args.c_str(), "%dto%d", &start, &end) != 2)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, usage);
 			return;

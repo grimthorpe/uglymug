@@ -244,8 +244,8 @@ output_array(cplay * array, int size)
 
 void
 context::do_at_listcolours(
-const	char	*target,
-const	char	*type)
+const	CString& target,
+const	CString& type)
 
 {
 	dbref victim; // For Wizards
@@ -255,7 +255,7 @@ const	char	*type)
 	
 	victim = player;	// Default to listing current player
 
-	if((target && *target) && !string_prefix(target, "players"))
+	if((target && *target.c_str()) && !string_prefix(target, "players"))
 	{
 		if((victim = lookup_player(player, target)) == NOTHING)
 		{
@@ -271,16 +271,20 @@ const	char	*type)
 			return_status = COMMAND_FAIL;
 			return;
 		}
+
+		if(type && *type.c_str() && string_prefix(type, "players"))
+			output_player_colours(player, victim);
+		else
+			output_attribute_colours(player, victim);
 	}
 	else
 	{
-		type = target;
+		if(target && *target.c_str() && string_prefix(target, "players"))
+			output_player_colours(player, victim);
+		else
+			output_attribute_colours(player, victim);
 	}
 
-	if(type && *type && string_prefix(type, "players"))
-		output_player_colours(player, victim);
-	else
-		output_attribute_colours(player, victim);
 }
 
 
@@ -423,8 +427,8 @@ const dbref victim
 
 void
 context::do_colour (
-const	char	*cia,
-const	char	*colour_codes)
+const	CString& cia,
+const	CString& colour_codes)
 
 {
 		int	i;
@@ -438,7 +442,7 @@ const	char	*colour_codes)
 	set_return_string (error_return_string);
 	return_status=COMMAND_FAIL;
 
-	if(blank(value_or_empty(cia)))
+	if(!cia)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@colour requires a first argument (type 'help @colour'.)");
 		return;
@@ -456,7 +460,7 @@ const	char	*colour_codes)
 	{
 		if((colour_player = lookup_player(player,cia)) == NOTHING)
 		{
-			notify_colour(player, player, COLOUR_MESSAGES, "There isn't an attribute or player called \"%s\".", cia);
+			notify_colour(player, player, COLOUR_MESSAGES, "There isn't an attribute or player called \"%s\".", cia.c_str());
 			return;
 		}
 		if(colour_player == player)
@@ -477,10 +481,10 @@ const	char	*colour_codes)
 
 	/* The cia we have been passed has been removed now */
 	/* Now we either set it or add it back onto the end */
-	if(!blank(colour_codes))
+	if(colour_codes)
 	{
 		/* Check for the colour code length */
-		if(strlen(colour_codes) > 64)
+		if(colour_codes.length() > 64)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry, there were too many colour settings\n");
 			return;
@@ -492,17 +496,17 @@ const	char	*colour_codes)
 	
 		int x = 0;
 
-		while(colour_codes[x])
+		while(colour_codes.c_str()[x])
 		{
-			if((colour_codes[x] != '%') || (colour_codes[x+1] == '\0'))
+			if((colour_codes.c_str()[x] != '%') || (colour_codes.c_str()[x+1] == '\0'))
 			{
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Colour string incorrectly formatted (type 'help @colour')");
 				return;
 			}
 			x++;
-			if((colour_codes[x] < 'A') || (colour_codes[x] > 'z'))
+			if((colour_codes.c_str()[x] < 'A') || (colour_codes.c_str()[x] > 'z'))
 			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "The colour code '%%%c' is not valid (type 'help @colour')",colour_codes[x]);
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "The colour code '%%%c' is not valid (type 'help @colour')",colour_codes.c_str()[x]);
 				return;
 			}
 			x++;
@@ -530,12 +534,12 @@ const	char	*colour_codes)
 			strcat(new_colour, endptr);
 	}
 
-	if(!blank(colour_codes))
+	if(colour_codes)
 	{
 		if(colour_player == NOTHING)
-			sprintf(new_colour+strlen(new_colour), " %c%s",cia_table[i].code, colour_codes);
+			sprintf(new_colour+strlen(new_colour), " %c%s",cia_table[i].code, colour_codes.c_str());
 		else
-			sprintf(new_colour+strlen(new_colour), " %d%s",colour_player, colour_codes);
+			sprintf(new_colour+strlen(new_colour), " %d%s",colour_player, colour_codes.c_str());
 	}
 	
 
@@ -565,9 +569,9 @@ const	char	*colour_codes)
 	db[player].set_colour_play(make_colour_play(player, new_colour));
 
 	if(colour_player ==NOTHING)
-		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia, blank(colour_codes)? " to default":"");
+		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia, (colour_codes)? " to default":"");
 	else
-		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), blank(colour_codes)? " to default":"");
+		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), (colour_codes)? " to default":"");
 
 	set_return_string (ok_return_string);
 	return_status=COMMAND_SUCC;
@@ -734,8 +738,8 @@ int	colour)
 
 void
 context::do_query_colour(
-const	char	*dummy1,
-const	char	*dummy2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	/* @?colour <player>
@@ -751,22 +755,22 @@ const	char	*dummy2)
 	set_return_string (error_return_string);
 	return_status=COMMAND_FAIL;
 	
-	if(blank(dummy1) == 0)
+	if(!arg1)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must give an attribute or a player. Type 'help @?colour' for help");
 		return;
 	}
 
-	if(blank(dummy2))
+	if(!arg2)
 	{
 		for(i=0; cia_table[i].cia; i++)
-			if(string_prefix(cia_table[i].cia, dummy1)!=0)
+			if(string_prefix(cia_table[i].cia, arg1)!=0)
 				break;
 
 		if(!cia_table[i].cia)
-			if((colour_player = lookup_player(player,dummy1)) == NOTHING)
+			if((colour_player = lookup_player(player,arg1)) == NOTHING)
 			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't an attribute or player called \"%s\".", dummy1);
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't an attribute or player called \"%s\".", arg1.c_str());
 				return;
 			}
 
@@ -777,20 +781,20 @@ const	char	*dummy2)
 	}
 	else
 	{
-		if((victim = lookup_player(player,dummy1)) == NOTHING)
+		if((victim = lookup_player(player,arg1)) == NOTHING)
 		{
-		   notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't a player called \"%s\".", dummy1);
+		   notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't a player called \"%s\".", arg1.c_str());
 			return;
 		}
 
 		for(i=0; cia_table[i].cia; i++)
-			if(string_prefix(cia_table[i].cia, dummy2)!=0)
+			if(string_prefix(cia_table[i].cia, arg2)!=0)
 				break;
 
 		if(!cia_table[i].cia)
-			if((colour_player = lookup_player(player,dummy2)) == NOTHING)
+			if((colour_player = lookup_player(player,arg2)) == NOTHING)
 			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't an attribute or player called \"%s\".", dummy2);
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't an attribute or player called \"%s\".", arg2.c_str());
 				return;
 			}
 

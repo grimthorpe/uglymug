@@ -32,7 +32,7 @@ extern dbref
 parse_linkable_room (
 context			&c,
 dbref			link_src,
-const	char		*link_dest_name)
+const	CString&	link_dest_name)
 
 {
 	dbref	link_dest;
@@ -170,8 +170,8 @@ dbref	room2)
  */
 void
 context::do_at_open (
-const	char	*direction,
-const	char	*linkto)
+const	CString& direction,
+const	CString& linkto)
 
 {
 	dbref loc;
@@ -195,7 +195,7 @@ const	char	*linkto)
 
 	if((loc = getloc(player)) == NOTHING)
 		return;
-	if (!(direction && *direction))
+	if (!direction)
 	{
 		notify_colour(player, player, COLOUR_MESSAGES,  "Open an exit named what?");
 		return;
@@ -238,7 +238,7 @@ const	char	*linkto)
 		set_return_string (scratch_return_string);
 
 		/* check second arg to see if we should do a link */
-		if(linkto != NULL && *linkto != '\0')
+		if(linkto && *linkto.c_str() != '\0')
 		{
 			if (!in_command())
 				notify_colour(player, player, COLOUR_MESSAGES,  "Trying to link...");
@@ -277,8 +277,8 @@ const	char	*linkto)
 
 void
 context::do_link (
-const	char	*name,
-const	char	*room_name)
+const	CString& name,
+const	CString& room_name)
 
 {
 	dbref loc;
@@ -447,8 +447,8 @@ const	char	*room_name)
 /* use this to create a room */
 void
 context::do_dig (
-const	char	*name,
-const	char	*desc)
+const	CString& name,
+const	CString& desc)
 
 {
 	dbref room;
@@ -463,7 +463,7 @@ const	char	*desc)
 		return;
 	}
 #endif /* RESTRICTED_BUILDING */
-	if(name != NULL && *name == '\0')
+	if(!name)
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "Dig what?");
 		return;
@@ -496,7 +496,7 @@ const	char	*desc)
 
 	if (!in_command())
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "%s created with room number #%d", name, room);
+		notify_colour(player, player, COLOUR_MESSAGES, "%s created with room number #%d", name.c_str(), room);
 	}
 	return_status = COMMAND_SUCC;
 	sprintf (scratch_return_string, "#%d", room);
@@ -506,8 +506,8 @@ const	char	*desc)
 
 void
 context::do_create (
-const	char	*name,
-const	char	*desc)
+const	CString& name,
+const	CString& desc)
 
 {
 	dbref			loc;
@@ -522,7 +522,7 @@ const	char	*desc)
 
 	else
 #endif /* RESTRICTED_BUILDING */
-	if(name == NULL || *name == '\0')
+	if(!name || *name.c_str() == '\0')
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create what?");
 	else if(!ok_name(name))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That's a silly name for a thing!");
@@ -581,8 +581,8 @@ const	char	*desc)
 
 void
 context::do_at_command (
-const	char	*name,
-const	char	*commands)
+const	CString& name,
+const	CString& commands)
 
 {
 	dbref			thing;
@@ -599,7 +599,7 @@ const	char	*commands)
 		return;
 	}
 #endif /* RESTRICTED_BUILDING */
-	if(name == NULL || *name == '\0')
+	if(!name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create a command called what?");
 		return;
@@ -661,8 +661,8 @@ const	char	*commands)
 
 void
 context::do_array (
-const	char	*array_name,
-const	char	*)
+const	CString& array_name,
+const	CString& )
 {
 	dbref	thing;
 
@@ -676,7 +676,7 @@ const	char	*)
 		return;
 	}
 #endif /* RESTRICTED_BUILDING */
-	if(array_name == NULL || *array_name == '\0')
+	if(!array_name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create an array called what?");
 		return;
@@ -722,8 +722,8 @@ const	char	*)
 
 void
 context::do_dictionary (
-const	char	*dictionary_name,
-const	char	*)
+const	CString& dictionary_name,
+const	CString& )
 {
 	dbref	thing;
 
@@ -737,7 +737,7 @@ const	char	*)
 		return;
 	}
 #endif /* RESTRICTED_BUILDING */
-	if(dictionary_name == NULL || *dictionary_name == '\0')
+	if(!dictionary_name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create a dictionary called what?");
 		return;
@@ -782,8 +782,8 @@ const	char	*)
 
 void
 context::do_property (
-const	char	*property_name,
-const	char	*value)
+const	CString& property_name,
+const	CString& value)
 {
 	dbref	thing;
 
@@ -797,7 +797,7 @@ const	char	*value)
 		return;
 	}
 #endif /* RESTRICTED_BUILDING */
-	if(property_name == NULL || *property_name == '\0')
+	if(!property_name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create a property called what?");
 		return;
@@ -844,8 +844,8 @@ const	char	*value)
 */
 void
 context::do_variable (
-const	char	*variable_name,
-const	char	*value)
+const	CString& variable_name,
+const	CString& value)
 {
 notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a deprecated command. Please use @property instead.");
 Trace( "BUG: Player %d used @variable in command %d\n", player, get_current_command());
@@ -861,7 +861,7 @@ Trace( "BUG: Player %d used @variable in command %d\n", player, get_current_comm
 		return;
 	}
 #endif /* RESTRICTED_BUILDING */
-	if(variable_name == NULL || *variable_name == '\0')
+	if(!variable_name)
 	{
 		notify(player, "Create a variable called what?");
 		return;
@@ -910,7 +910,7 @@ Trace( "BUG: Player %d used @variable in command %d\n", player, get_current_comm
 dbref
 parse_linkable_command (
 context		&c,
-const	char	*command_name)
+const	CString& command_name)
 
 {
 	dbref	command;
@@ -947,8 +947,8 @@ const	char	*command_name)
 
 void
 context::do_csuccess (
-const	char	*name,
-const	char	*command_name)
+const	CString& name,
+const	CString& command_name)
 
 {
 	dbref thing;
@@ -957,7 +957,7 @@ const	char	*command_name)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!command_name || !(*command_name))
+	if (!command_name)
 		destination = NOTHING;
 	else
 	{
@@ -1016,8 +1016,8 @@ const	char	*command_name)
 
 void
 context::do_cfailure (
-const	char	*name,
-const	char	*command_name)
+const	CString& name,
+const	CString& command_name)
 
 {
 	dbref thing;
@@ -1026,7 +1026,7 @@ const	char	*command_name)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!command_name || !(*command_name))
+	if (!command_name)
 		destination = NOTHING;
 	else
 	{
@@ -1078,7 +1078,7 @@ const	char	*command_name)
 
 
 void
-context::do_fuse (const char *fuse_name, const char *command_name)
+context::do_fuse (const CString& fuse_name, const CString& command_name)
 {
 	dbref	thing;
 	dbref destination;
@@ -1086,7 +1086,7 @@ context::do_fuse (const char *fuse_name, const char *command_name)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if(fuse_name == NULL || *fuse_name == '\0')
+	if(!fuse_name)
 	{
 		notify_colour (player,player, COLOUR_ERROR_MESSAGES, "Fuses? What do you want to blow up, the bank? (Please specify a valid fuse name.)");
 		return;
@@ -1120,7 +1120,7 @@ context::do_fuse (const char *fuse_name, const char *command_name)
 		notify_colour(player, player, COLOUR_MESSAGES,  "Fuse %s created with id #%d", getname (thing), thing);
 
 	/* check to see if we have to link into a command */
-	if (command_name != NULL && *command_name != '\0')
+	if (command_name)
 	{
 		if ((destination = parse_linkable_command (*this, command_name)) == NOTHING)
 			return;
@@ -1137,7 +1137,7 @@ context::do_fuse (const char *fuse_name, const char *command_name)
 
 
 void
-context::do_alarm (const char *alarm_name, const char *time_of_execution)
+context::do_alarm (const CString& alarm_name, const CString& time_of_execution)
 {
 	dbref	thing;
 
@@ -1150,7 +1150,7 @@ context::do_alarm (const char *alarm_name, const char *time_of_execution)
 		return;
 	}
 
-	if(alarm_name != NULL && *alarm_name == '\0')
+	if(!alarm_name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create a alarm called what?");
 		return;
@@ -1198,8 +1198,8 @@ context::do_alarm (const char *alarm_name, const char *time_of_execution)
 
 void
 context::do_puppet (
-const	char	*puppet_name,
-const	char	*)
+const	CString& puppet_name,
+const	CString& )
 
 {
 	dbref	thing,
@@ -1221,7 +1221,7 @@ const	char	*)
 		return;
 	}
 
-	if(puppet_name != NULL && *puppet_name == '\0')
+	if(!puppet_name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Create a puppet called what?");
 		return;
@@ -1269,7 +1269,7 @@ const	char	*)
 	set_return_string (scratch_return_string);
 }
 
-void context::do_weapon(const char *name, const char *parent_name)
+void context::do_weapon(const CString& name, const CString& parent_name)
 {
 	dbref	weapon;
 	dbref	parent;
@@ -1277,7 +1277,7 @@ void context::do_weapon(const char *name, const char *parent_name)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if(!blank(name) && !ok_name(name))
+	if(!name || !ok_name(name))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That doesn't appear to be a suitable name");
 		return;
@@ -1288,7 +1288,7 @@ void context::do_weapon(const char *name, const char *parent_name)
 		return;
 	}
 
-	if(!blank(parent_name))
+	if(parent_name)
 	{
 		Matcher matcher (player, parent_name, TYPE_NO_TYPE, get_effective_id());
 		matcher.match_everything();
@@ -1303,7 +1303,7 @@ void context::do_weapon(const char *name, const char *parent_name)
 	else
 		parent = NOTHING;
 
-	if(blank(name) && (parent == NOTHING))
+	if(!name && (parent == NOTHING))
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "You must supply either a name and/or a parent.");
 		return;
@@ -1311,7 +1311,7 @@ void context::do_weapon(const char *name, const char *parent_name)
 
 	weapon = db.new_object(*new Weapon);
 
-	if(!blank(name))
+	if(name)
 		db[weapon].set_name(name);
 
 	Settypeof(weapon, TYPE_WEAPON);
@@ -1339,7 +1339,7 @@ void context::do_weapon(const char *name, const char *parent_name)
 		
 }
 
-void context::do_armour(const char *name, const char *parent_name)
+void context::do_armour(const CString& name, const CString& parent_name)
 {
 	dbref	armour;
 	dbref	parent;
@@ -1347,7 +1347,7 @@ void context::do_armour(const char *name, const char *parent_name)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if(!blank(name) && !ok_name(name))
+	if(!name || !ok_name(name))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That doesn't appear to be a suitable name");
 		return;
@@ -1358,7 +1358,7 @@ void context::do_armour(const char *name, const char *parent_name)
 		return;
 	}
 
-	if(!blank(parent_name))
+	if(parent_name)
 	{
 		Matcher matcher (player, parent_name, TYPE_NO_TYPE, get_effective_id());
 		matcher.match_everything();
@@ -1373,7 +1373,7 @@ void context::do_armour(const char *name, const char *parent_name)
 	else
 		parent = NOTHING;
 
-	if(blank(name) && (parent == NOTHING))
+	if(!name && (parent == NOTHING))
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "You must supply either a name and/or a parent.");
 		return;
@@ -1381,7 +1381,7 @@ void context::do_armour(const char *name, const char *parent_name)
 
 	armour = db.new_object(*new Armour);
 
-	if(!blank(name))
+	if(name)
 		db[armour].set_name(name);
 
 	Settypeof(armour, TYPE_ARMOUR);
@@ -1404,7 +1404,7 @@ void context::do_armour(const char *name, const char *parent_name)
 		
 }
 
-void context::do_ammunition(const char *name, const char *parent_name)
+void context::do_ammunition(const CString& name, const CString& parent_name)
 {
 	dbref	ammunition;
 	dbref	parent;
@@ -1412,7 +1412,7 @@ void context::do_ammunition(const char *name, const char *parent_name)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if(!blank(name) && !ok_name(name))
+	if(!name || !ok_name(name))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That doesn't appear to be a suitable name");
 		return;
@@ -1423,7 +1423,7 @@ void context::do_ammunition(const char *name, const char *parent_name)
 		return;
 	}
 
-	if(!blank(parent_name))
+	if(parent_name)
 	{
 		Matcher matcher (player, parent_name, TYPE_NO_TYPE, get_effective_id());
 		matcher.match_everything();
@@ -1438,7 +1438,7 @@ void context::do_ammunition(const char *name, const char *parent_name)
 	else
 		parent = NOTHING;
 
-	if(blank(name) && (parent == NOTHING))
+	if(!name && (parent == NOTHING))
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "You must supply either a name and/or a parent.");
 		return;
@@ -1446,7 +1446,7 @@ void context::do_ammunition(const char *name, const char *parent_name)
 
 	ammunition = db.new_object(*new Ammunition);
 
-	if(!blank(name))
+	if(name)
 		db[ammunition].set_name(name);
 
 	Settypeof(ammunition, TYPE_AMMUNITION);

@@ -58,9 +58,9 @@ get_array_elements(
 FILE	*f,
 object	*it)
 {
-	int i;
-	int num_elements;
-	int use_elements;
+	unsigned int i;
+	unsigned int num_elements;
+	unsigned int use_elements;
 
 	num_elements = getint(f);
 
@@ -2765,12 +2765,12 @@ FILE	*f)
 		return(NOTHING);
 	}
 
-	if (strcasecmp(format, "Beta(tagged)") == 0)
+	if (string_compare(format, "Beta(tagged)") == 0)
 	{
 		Trace( "Beta(tagged) Database DUMP format recognised.\n");
 		iformat = 1;
 	}
-	else if (strcasecmp(format, "Alpha") == 0)
+	else if (string_compare(format, "Alpha") == 0)
 	{
 
 		if (version < 9)
@@ -3178,7 +3178,7 @@ const
 	}
 
 	for(struct changed_player_list_struct *current=changed_player_list; current; current=current->next)
-		if(strcasecmp(current->name, name.c_str())==0)
+		if(string_compare(current->name, name)==0)
 			return current->player;
 
 	key.state=CACHE_VALID;
@@ -3219,7 +3219,7 @@ const	CString& name)
 void Database::remove_player_from_cache(const CString& name)
 {
 	for(struct changed_player_list_struct *current=changed_player_list; current; )
-		if(strcasecmp(current->name, name.c_str())==0)
+		if(string_compare(current->name, name.c_str())==0)
 		{
 			struct changed_player_list_struct *old=current;
 
@@ -3245,6 +3245,17 @@ void Database::remove_player_from_cache(const CString& name)
 			current=current->next;
 
 	for(int i=0; i<player_count; i++)
-		if(strcasecmp(player_cache[i].name.c_str(), name.c_str())==0)
+		if(string_compare(player_cache[i].name.c_str(), name.c_str())==0)
 			player_cache[i].state=CACHE_INVALID;
 }
+
+int
+player_cache_struct::compare(const player_cache_struct* other) const
+{
+	if(other)
+	{
+		return string_compare(name, other->name);
+	}
+	return -1;
+}
+

@@ -151,47 +151,55 @@ const	char	*is_this)
 
 int
 string_compare (
-const	char	*s1,
-const	char	*s2)
+const	CString& s1,
+const	CString& s2)
 
 {
 	/* Check for both NULL or both the same string */
-	if (s1 == s2)
+	if(!s1 && !s2)
+		return (0);
+
+	if (s1.c_str() == s2.c_str())
 		return (0);
 
 	/* Check for one NULL */
-	if (s1 == NULL)
+	if (!s1)
 		return (-1);
-	if (s2 == NULL)
+	if (!s2)
 		return (1);
 
 	/* Both non-NULL; find common prefix, if any */
-	while(*s1 && *s2 && DOWNCOMP(*s1,*s2))
-		s1++, s2++;
+	const char* c1 = s1.c_str();
+	const char* c2 = s2.c_str();
+	while(*c1 && *c2 && DOWNCOMP(*c1,*c2))
+		c1++, c2++;
 
-	return(DOWNCASE(*s1) - DOWNCASE(*s2));
+	return(DOWNCASE(*c1) - DOWNCASE(*c2));
 }
 
 
 int
 string_prefix (
-const	char	*string,
-const	char	*prefix)
+const	CString& string,
+const	CString& prefix)
 
 {
 	/* If prefix is NULL, any string matches */
-	if (prefix == NULL)
+	if (!prefix)
 		return (1);
 
 	/* If prefix is non-NULL and string is NULL, fail. */
-	if (string == NULL)
+	if (!string)
 		return (0);
 
-	/* Otherwise, we have to think about it */
-	while (*string && *prefix && DOWNCOMP(*string,*prefix))
-		string++, prefix++;
+	const char* s = string.c_str();
+	const char* p = prefix.c_str();
 
-	return *prefix == '\0';
+	/* Otherwise, we have to think about it */
+	while (*s && *p && DOWNCOMP(*s,*p))
+		s++, p++;
+
+	return *p== '\0';
 }
 
 
@@ -409,26 +417,26 @@ swear_compare(int *skipped, char *s1, char *s2)
 
 Boolean
 add_rude(
-const char *string)
+const CString& string)
 {
 	int		value;
 	int		i;
 
-	if (!(string && *string))
+	if (!string)
 		return False;
 
 	if (rude_words==NULL)
 	{
 		rude_words=(char **)malloc(sizeof(char *));
-		rude_words[0]= strdup(string);
+		rude_words[0]= strdup(string.c_str());
 		rudes=1;
-		rude_letters[tolower(*string)]=1;
+		rude_letters[tolower(*string.c_str())]=1;
 		return True;
 	}
 	i=0;
-	while ((i < rudes) && (strcasecmp(string, rude_words[i]) > 0))
+	while ((i < rudes) && (string_compare(string, rude_words[i]) > 0))
 		i++;
-	if ((i < rudes) && (!strcasecmp(string, rude_words[i])))
+	if ((i < rudes) && (!string_compare(string, rude_words[i])))
 		return True;  // Word already in list
 
 	value=rudes++;
@@ -440,35 +448,35 @@ const char *string)
 		rude_words[value]=rude_words[--value];
 
 
-	rude_words[i]=strdup(string);
-	rude_letters[tolower(*string)]++;
+	rude_words[i]=strdup(string.c_str());
+	rude_letters[tolower(*string.c_str())]++;
 	return True;
 }
 
 
 Boolean
 add_excluded(
-const char *string)
+const CString& string)
 {
 	int		value;
 	int		i;
 
-	if (!(string && *string))
+	if (!string)
 		return False;
 
 	if (excluded_words==NULL)
 	{
 		excluded_words=(char **)malloc(sizeof(char *));
-		excluded_words[0]= strdup(string);
+		excluded_words[0]= strdup(string.c_str());
 		excluded=1;
-		excluded_letters[tolower(*string)]=1;
+		excluded_letters[tolower(*string.c_str())]=1;
 		return True;
 	}
 	i=0;
 
-	while ((i < excluded) && (strcasecmp(string, excluded_words[i]) > 0))
+	while ((i < excluded) && (string_compare(string, excluded_words[i]) > 0))
 		i++;
-	if ((i < excluded) && (!strcasecmp(string, excluded_words[i])))
+	if ((i < excluded) && (!string_compare(string, excluded_words[i])))
 		return True;  // Word already in list
 
 	value=excluded++;
@@ -480,28 +488,29 @@ const char *string)
 		excluded_words[value]=excluded_words[--value];
 
 
-	excluded_words[i]=strdup(string);
-	excluded_letters[tolower(*string)]++;
+	excluded_words[i]=strdup(string.c_str());
+	excluded_letters[tolower(*string.c_str())]++;
 	return True;
 }
 
 Boolean
 un_rude(
-const char *string)
+const CString& string)
 {
 	/* int		value; */
 	int		i;
 
-	if (!(string && *string))
+	if (!string)
 		return True;
 	if (rude_words==NULL)
 		return True;
 	i=0;
-	while ((i < rudes) && (strcasecmp(string, rude_words[i]) > 0))
+	while ((i < rudes) && (string_compare(string, rude_words[i]) > 0))
 		i++;
 	if (i == rudes)
 		return True;  // Word not censored
-	rude_letters[tolower(*string)]--;
+	rude_letters[tolower(*string.c_str())]--;
+	free(rude_words[i]);
 	while (i < rudes)
 		rude_words[i]=rude_words[++i];
 	REALLOC(rude_words, (--rudes*sizeof(char *)));
@@ -512,21 +521,22 @@ const char *string)
 
 Boolean
 un_exclude(
-const char *string)
+const CString& string)
 {
 	/* int		value; */
 	int		i;
 
-	if (!(string && *string))
+	if (!string)
 		return True;
 	if (excluded_words==NULL)
 		return True;
 	i=0;
-	while ((i < excluded) && (strcasecmp(string, excluded_words[i]) > 0))
+	while ((i < excluded) && (string_compare(string, excluded_words[i]) > 0))
 		i++;
 	if (i == excluded)
 		return True;  // Word not censored
-	excluded_letters[tolower(*string)]--;
+	excluded_letters[tolower(*string.c_str())]--;
+	free(excluded_words[i]);
 	while (i < excluded)
 		excluded_words[i]=excluded_words[++i];
 	REALLOC(excluded_words, (--excluded*sizeof(char *)));

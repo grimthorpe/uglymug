@@ -317,10 +317,10 @@ const	dbref	player)
 boolexp *
 parse_boolexp (
 const	dbref	player,
-const	char	*buf)
+const	CString& buf)
 
 {
-	parsebuf = buf;
+	parsebuf = buf.c_str();
 	return (parse_boolexp_E (player));
 }
 

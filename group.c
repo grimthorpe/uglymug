@@ -30,8 +30,8 @@ int	add_up_votes	       (dbref members,
 				char* idtring);
 void
 context::do_group(
-const	char	*group_string,
-const	char	*player_string)
+const	CString& group_string,
+const	CString& player_string)
 
 {
 /*@group was written by The ReaperMan around July 1995.
@@ -44,9 +44,9 @@ const	char	*player_string)
   @group <group> = <player>	: supports player for that group
   @group <group> = !<player>	: withdraws support for that player */
 
-	int	support = 0;
-	int	tmp;
-	int	against = 0; /* Whether they are supporting or withdrawing */
+	unsigned int	support = 0;
+	unsigned int	tmp;
+	unsigned int	against = 0; /* Whether they are supporting or withdrawing */
 
 	dbref	group;
 	dbref	canvasser;
@@ -79,7 +79,7 @@ const	char	*player_string)
 	}
 
 	/* Just @group on its own then */
-	if(group_string == NULL || *group_string == '\0')
+	if(!group_string)
 	{
 		/* Return group status */
 		if(db[player].get_build_id() != player)
@@ -167,17 +167,17 @@ const	char	*player_string)
 	}
 
 	/* Checkout the Canvasser (the second argument) */
-	if(player_string == NULL || *player_string == '\0')
+	if(!player_string)
 	{
 		canvasser = NOTHING;
 	}
 	else
 	{
-		switch (*player_string)
+		switch (*player_string.c_str())
 		{
 			case '!':
 				
-				if((canvasser = lookup_player(player, player_string+1)) == NOTHING)
+				if((canvasser = lookup_player(player, player_string.c_str()+1)) == NOTHING)
 				{
 					notify(player, "No such player.");
 					return;
@@ -305,7 +305,7 @@ const	char	*player_string)
 			return;
 		}
 		/*Check existence of dict*/
-		Matcher matcher (player, db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+		Matcher matcher (player, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 		matcher.match_variable();
 		matcher.match_array_or_dictionary();
 		if((support_list = matcher.match_result()) == NOTHING)
@@ -381,7 +381,7 @@ const	char	*player_string)
 				/* Remove the support list from the player leaving the
 				   group, if they have one which they should bloody well
 				   do by this time */
-				Matcher matcher (canvasser, db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+				Matcher matcher (canvasser, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 				matcher.match_variable();
 				matcher.match_array_or_dictionary();
 				if((support_list = matcher.match_result()) != NOTHING)
@@ -411,7 +411,7 @@ const	char	*player_string)
 					/* Remove the support list from the player leaving the
 					   group, if they have one which they should bloody well
 					   do by this time */
-					Matcher matcher (canvasser, db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+					Matcher matcher (canvasser, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 					matcher.match_variable();
 					matcher.match_array_or_dictionary();
 					if((support_list = matcher.match_result()) != NOTHING)
@@ -432,7 +432,7 @@ dbref	group,
 dbref	members)
 {
 	dbref support_list;
-	int	j;
+	unsigned int	j;
 
 	notify(GOD_ID, "I'm creating a support list on: %d", current_member);
 
@@ -462,7 +462,7 @@ int add_up_votes(dbref	members,
 {
 	dbref	current_member;
 	dbref	support_list;
-	int	i;
+	unsigned int	i;
 	int	tmp;
 	int	support = 0;
 	int	woo;
@@ -481,7 +481,7 @@ int add_up_votes(dbref	members,
 		else
 		{
 				/*Check existence of dict*/
-				Matcher matcher (current_member, db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+				Matcher matcher (current_member, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 				matcher.match_variable();
 				matcher.match_array_or_dictionary();
 				if((support_list = matcher.match_result()) == NOTHING)

@@ -166,7 +166,7 @@ Matcher_state	matcher_state_array [] =
 
 Matcher::Matcher (
 dbref			player,
-const	char		*name,
+const	CString&	name,
 object_flag_type	type,
 dbref			effective_player)
 
@@ -197,7 +197,7 @@ dbref			effective_player)
 	char	*begin = 0;
 	char	*end = 0;
 
-	set_beginning (name);
+	set_beginning (name.c_str());
 	match_name = beginning;
 
 	/* Cache the absolute location, since it's used by so many routines */
@@ -1101,7 +1101,7 @@ Matcher::match_thing_remote(dbref loc)
 }
 
 
-char *
+const CString
 Matcher::match_index_result()
 
 {
@@ -1232,18 +1232,18 @@ dbref	base)
 
 void
 context::do_query_my (
-const	char	*type,
-const	char	*arg)
+const	CString& type,
+const	CString& arg)
 
 {
 	/** For now, assume type == "leaf" **/
 	int			pos;
 	Matcher			*matcher = (Matcher *) NULL;
 
-	if (arg == NULL)
+	if (!arg)
 		pos = 0;
 	else
-		pos = atoi (arg);
+		pos = atoi (arg.c_str());
 	if (pos >= call_stack.depth ())
 	{
 		if (gagged_command () == False)
@@ -1264,7 +1264,7 @@ const	char	*arg)
 		else
 		{
 			if (gagged_command () == False)
-				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: '%s' is not a valid type.", type);
+				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: '%s' is not a valid type.", type.c_str());
 			return_status = COMMAND_FAIL;
 			set_return_string (error_return_string);
 		}

@@ -185,8 +185,8 @@ dbref	player)
 
 void
 context::do_decompile (
-const	char	*name,
-const	char	*args)
+const	CString& name,
+const	CString& args)
 
 {
 	dbref	object;			/* We need to be able to refer to the object */
@@ -199,7 +199,7 @@ const	char	*args)
 	set_return_string (error_return_string);
 
 	/* If nothing specified to decompile, give up */
-	if (name == NULL || *name == '\0')
+	if (!name)
 	{
 		notify (player, "You must specify something to decompile.");
 		return;
@@ -261,17 +261,15 @@ const	char	*args)
 			notify (player,
                                 "@describe %s = %s",
                                 decompiled_name,
-                                decompile_string(
-                                (((db[object].get_description()) == (const String &)NULL) ? empty_string : (db[object].get_description()))
-// value_or_empty( db[object].get_description())
-));
+                                decompile_string(db[object].get_description())
+				);
 			break;
 		case TYPE_DICTIONARY:
 			number= db[object].get_number_of_elements();
 			if (number > 0)
 			{
 				for (temp= 1 ; temp <= number ; temp++)
-					if(db[object].get_element(temp) != (const   String&)NULL)
+					if(db[object].get_element(temp))
 						notify (player, "@describe %s[%s] = %s", decompiled_name, db[object].get_index(temp).c_str(),	decompile_string(db[object].get_element(temp).c_str()));
 					else
 						notify (player, "@describe %s[%s]", decompiled_name, db[object].get_index(temp).c_str());
@@ -282,7 +280,7 @@ const	char	*args)
 			if (number > 0)
 			{
 				for (temp= 1 ; temp <= number ; temp++)
-					if (db[object].get_element(temp) != (const   String&)NULL)
+					if (db[object].get_element(temp))
 						notify (player, "@describe %s[%d] = %s", decompiled_name, temp, decompile_string(db[object].get_element(temp)));
 					else
 						notify (player, "@describe %s[%d]", decompiled_name, temp);
@@ -317,7 +315,7 @@ const	char	*args)
 			notify (player, "@race %s = %s", decompiled_name, decompile_string(db[object].get_race()));
 		case TYPE_ROOM:
 		case TYPE_THING:
-			if (db[object].get_contents_string() != (const String &)NULL)
+			if (db[object].get_contents_string())
 				notify(player, "@cstring %s = %s", decompiled_name, decompile_string(db[object].get_contents_string()));
 			decompile_mass_and_volume (object, player);
 		case TYPE_EXIT:
@@ -328,13 +326,13 @@ const	char	*args)
 				notify (player, "@lock %s = %s", decompiled_name, db[object].get_key()->unparse_for_return(*this));
 		case TYPE_VARIABLE:
 		case TYPE_ALARM:
-			if (db[object].get_odrop() != (const   String&)NULL)
+			if (db[object].get_odrop())
 				notify (player, "@odrop %s = %s", decompiled_name, decompile_string(db[object].get_odrop()));
 		case TYPE_FUSE:
-			if (db[object].get_succ_message() != (const   String&)NULL)
+			if (db[object].get_succ_message())
 				notify (player, "@succ %s = %s", decompiled_name, decompile_string(db[object].get_succ_message()));
 
-			if ((db[object].get_fail_message() != (const   String&)NULL) && !(Typeof(object) == TYPE_PLAYER))
+			if (db[object].get_fail_message())
 				notify (player, "@fail %s = %s", decompiled_name, decompile_string(db[object].get_fail_message()));
 
 			if (db[object].get_csucc() != -1)
@@ -343,10 +341,10 @@ const	char	*args)
 			if (db[object].get_cfail() != -1)
 				notify (player, "@cfail %s = #%d", decompiled_name, db[object].get_cfail());
 
-			if (db[object].get_osuccess() != (const   String&)NULL)
+			if (db[object].get_osuccess())
 				notify (player, "@osucc %s = %s", decompiled_name, decompile_string(db[object].get_osuccess()));
 
-			if ((db[object].get_ofail() != (const   String&)NULL) && !(Typeof(object) == TYPE_PLAYER))
+			if (db[object].get_ofail())
 				notify (player, "@ofail %s = %s", decompiled_name, decompile_string(db[object].get_ofail()));
 			break;
 		case TYPE_PROPERTY:

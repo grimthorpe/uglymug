@@ -159,7 +159,7 @@ int		level)
 			if (!had_contents)
 			{
 				/* Otherwise, output the 'contents' field (if any)... */
-				if (db[object].get_contents_string () != (const String &)NULL)
+				if (db[object].get_contents_string ())
 					strcpy (scratch_buffer + level, db [object].get_contents_string ().c_str());
 				else
 					strcpy (scratch_buffer + level, contents_name);
@@ -223,7 +223,7 @@ int		level)
 	notify(c.get_player (), "%s", scratch_buffer);
 
 	/* Otherwise, output the 'contents' field (if any). Re-use the spaces from last time. */
-	if (db [object].get_contents_string () != (const String &)NULL)
+	if (db [object].get_contents_string())
 	{
 		sprintf(scratch_buffer + level_count, "%sContents string:%s ",
 				ca[COLOUR_CONTENTS],
@@ -611,8 +611,8 @@ dbref	loc)
 
 void
 context::do_look_at (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	dbref		thing;
@@ -623,7 +623,7 @@ const	char	*)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 	{
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
@@ -687,47 +687,48 @@ const	char	*)
 						notify (player, "You can't see into that.");
 					break;
 				case TYPE_ARRAY:
-					int value;
-					if (controls_for_read (thing) || !Opaque (thing))
 					{
-						if (matcher.match_index_attempt_result())
+						unsigned int value;
+						if (controls_for_read (thing) || !Opaque (thing))
 						{
-							if(!blank(matcher.match_index_result()))
+							if (matcher.match_index_attempt_result())
 							{
-								if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
-									if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
-									{
-															notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
-										return;
-									}
+								if(matcher.match_index_result())
+								{
+									if ((value=atoi(matcher.match_index_result().c_str())) > 0)
+										if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
+										{
+																notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
+											return;
+										}
+										else
+										{
+											notify_colour(player, player, COLOUR_ERROR_MESSAGES, "An array can't have more than %d elements.", (Wizard(thing))?MAX_WIZARD_ARRAY_ELEMENTS : MAX_MORTAL_ARRAY_ELEMENTS);
+											return;
+										}
 									else
-									{
-										notify_colour(player, player, COLOUR_ERROR_MESSAGES, "An array can't have more than %d elements.", (Wizard(thing))?MAX_WIZARD_ARRAY_ELEMENTS : MAX_MORTAL_ARRAY_ELEMENTS);
+									{	
+										notify_colour(player, player, COLOUR_ERROR_MESSAGES, "An array can't have negative, zero or non-numeric indeces.");
 										return;
 									}
-								else
-								{	
-									notify_colour(player, player, COLOUR_ERROR_MESSAGES, "An array can't have negative, zero or non-numeric indeces.");
-									return;
 								}
 							}
-						}
-					
-					
-						number = db[thing].get_number_of_elements();
-						notify(player, "%sElement%s:%s %d", ca[COLOUR_TITLES], PLURAL(number), COLOUR_REVERT, number);
-						if(number > 0)
-						{
-							for(temp = 1;temp <= number;temp++)
-								notify_censor(player, player, "  [%d] :%s %s", temp, (temp<10)?"  ":(temp<100)?" ":"", db[thing].get_element(temp).c_str());
+						
+						
+							number = db[thing].get_number_of_elements();
+							notify(player, "%sElement%s:%s %d", ca[COLOUR_TITLES], PLURAL(number), COLOUR_REVERT, number);
+							if(number > 0)
+							{
+								for(temp = 1;temp <= number;temp++)
+									notify_censor(player, player, "  [%d] :%s %s", temp, (temp<10)?"  ":(temp<100)?" ":"", db[thing].get_element(temp).c_str());
+							}
 						}
 					}
 					break;
-
 				case TYPE_DICTIONARY:
 					if (controls_for_read (thing) || !Opaque (thing))
 					{
-						int value;
+						unsigned int value;
 						if (matcher.match_index_attempt_result())
 						{
 							if((value=db[thing].exist_element(matcher.match_index_result())))
@@ -737,10 +738,10 @@ const	char	*)
 							}
 							else
 							{
-								notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result());
+								notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result().c_str());
 								return;
 							}
-								if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
+								if ((value=atoi(matcher.match_index_result().c_str())) > 0)
 									if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 									{
 															notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
@@ -802,15 +803,15 @@ dbref	thing)
 
 void
 context::do_examine (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	const colour_at& ca = db[player].get_colour_at();
 	int	number;
 	int	temp;
 	int	had_title;
-	int	value;
+	unsigned int	value;
 	dbref	thing;
 	dbref	looper;
 	char	stored_owner [BUFFER_LEN];
@@ -819,7 +820,7 @@ const	char	*)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (name == NULL || *name == '\0')
+	if (!name)
 	{
 		if((thing = getloc(player)) == NOTHING)
 			return;
@@ -1355,7 +1356,7 @@ const	char	*)
 			}
 			else
 			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result());
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result().c_str());
 				break;
 			}
 		}
@@ -1378,9 +1379,9 @@ const	char	*)
 	  case TYPE_ARRAY:
 		if (matcher.match_index_attempt_result())
 		{
-			if(!blank(matcher.match_index_result()))
+			if(matcher.match_index_result())
 			{
-				if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
+				if ((value=atoi(matcher.match_index_result().c_str())) > 0)
 					if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 					{
 						notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
@@ -1701,8 +1702,8 @@ const	char	*)
 
 void
 context::do_score (
-const	char	*,
-const	char	*)
+const	CString& ,
+const	CString& )
 
 {
 	notify_colour(player, player, COLOUR_MESSAGES, "You have %d %s.",
@@ -1721,8 +1722,8 @@ const	char	*)
 
 void
 context::do_inventory (
-const	char	*,
-const	char	*)
+const	CString& ,
+const	CString& )
 {
 	dbref thing;
 	const colour_at& ca = db[player].get_colour_at();
@@ -1763,8 +1764,8 @@ const	char	*)
 
 void
 context::do_at_list (
-const	char	*descriptor,
-const	char	*string)
+const	CString& descriptor,
+const	CString& string)
 
 {
 	dbref	i;
@@ -1787,12 +1788,12 @@ const	char	*string)
 	}
 #endif
 
-	if ((string==NULL) || (*string == '\0'))
+	if (!string)
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "What do you want to list?");
 		return;
 	}
-	if ((descriptor==NULL) || (*descriptor == '\0'))
+	if (!descriptor)
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "Who's things do you want to list?");
 		return;
@@ -1803,7 +1804,7 @@ const	char	*string)
 	 * (Since it may reveal 'top secret' information, we restrict its use to admin.)
 	 */
 
-	if (!(strcasecmp(descriptor, "game")))
+	if (string_compare(descriptor, "game") == 0)
 	{
 		if (!Wizard(player) && !Apprentice(player))
 		{
@@ -1939,8 +1940,8 @@ const	char	*string)
 
 void
 context::do_find (
-const	char	*descriptor,
-const	char	*string)
+const	CString& descriptor,
+const	CString& string)
 
 {
 	dbref	i;
@@ -1957,7 +1958,7 @@ const	char	*string)
 		return;
 	}
 
-	if (string == NULL || *string == '\0')
+	if (!string)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "You must specify a string to search for. If you want to list all your objects of a particular type, use @list instead.");
 		return;
@@ -1971,7 +1972,7 @@ const	char	*string)
 		return;
 	}
 
-	compile(string, expbuf, expbuf+BUFFER_LEN, '\0');
+	compile(string.c_str(), expbuf, expbuf+BUFFER_LEN, '\0');
 
 	if (string_prefix("me", descriptor))
 	/* Remind people about the code change */
@@ -1984,9 +1985,9 @@ const	char	*string)
 		for(i = 0; i < db.get_top (); i++)
 			if((Typeof (i) != TYPE_FREE)
 				&& Typeof(i) != TYPE_EXIT
-				&& db[i].get_name() != (const   String&)NULL
+				&& db[i].get_name()
 				&& controls_for_read(i)
-				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("description", descriptor))
@@ -1994,9 +1995,9 @@ const	char	*string)
 		for(i = 0; i < db.get_top (); i++)
 			if((Typeof (i) != TYPE_FREE)
 				&& Typeof(i) != TYPE_EXIT
-				&& db[i].get_description() != (const String &)NULL
+				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("cname", descriptor))
@@ -2005,7 +2006,7 @@ const	char	*string)
 			if(Typeof(i) == TYPE_COMMAND
 				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("cdescription", descriptor))
@@ -2014,7 +2015,7 @@ const	char	*string)
 			if(Typeof(i) == TYPE_COMMAND
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("vname", descriptor))
@@ -2023,7 +2024,7 @@ const	char	*string)
 			if(Typeof(i) == TYPE_VARIABLE
 				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("vdescription", descriptor))
@@ -2032,7 +2033,7 @@ const	char	*string)
 			if(Typeof(i) == TYPE_VARIABLE
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("ename", descriptor))
@@ -2041,7 +2042,7 @@ const	char	*string)
 			if(Typeof(i) == TYPE_EXIT
 				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("edescription", descriptor))
@@ -2050,7 +2051,7 @@ const	char	*string)
 			if(Typeof(i) == TYPE_EXIT
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("edestination", descriptor))
@@ -2114,7 +2115,7 @@ const	char	*string)
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_ALARM
 			&& controls_for_read (i)
-			&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
+			&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("ashcan", descriptor))
@@ -2123,7 +2124,7 @@ const	char	*string)
 			if((Typeof (i) != TYPE_FREE)
 				&& Ashcan(i)
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
 					notify_censor_colour(player,  player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else
@@ -2212,7 +2213,7 @@ char *small_time_string (time_t interval)
 }
 
 void
-context::do_at_censorinfo(const char *,const char *)
+context::do_at_censorinfo(const CString& ,const CString& )
 {
 	return_status= COMMAND_FAIL;
 	set_return_string(error_return_string);

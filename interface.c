@@ -342,14 +342,14 @@ public:
 	void	get_value_from_subnegotiation(unsigned char *, unsigned char, int);
 
 	void	set_echo(int echo);
-	int	set_terminal_type(const char* terminal);
-	Command_status	terminal_set_termtype(const char *, int);
-	Command_status	terminal_set_lftocr(const char *, int);
-	Command_status	terminal_set_pagebell(const char *, int);
-	Command_status	terminal_set_width(const char *, int);
-	Command_status	terminal_set_wrap(const char *, int);
-	Command_status	terminal_set_echo(const char *, int);
-	Command_status	really_do_terminal_set(const char *, const char *, int);
+	int	set_terminal_type(const CString& terminal);
+	Command_status	terminal_set_termtype(const CString& , int);
+	Command_status	terminal_set_lftocr(const CString& , int);
+	Command_status	terminal_set_pagebell(const CString& , int);
+	Command_status	terminal_set_width(const CString& , int);
+	Command_status	terminal_set_wrap(const CString& , int);
+	Command_status	terminal_set_echo(const CString& , int);
+	Command_status	really_do_terminal_set(const CString&, const CString&, int);
 	void	do_write(const char * c, int i)
 	{
 /*
@@ -428,7 +428,7 @@ void				concentrator_disconnect	(void);
 struct terminal_set_command
 {
 	const char	*name;
-	Command_status	(descriptor_data::*set_function) (const char *, int);
+	Command_status	(descriptor_data::*set_function) (const CString&, int);
 } terminal_set_command_table[] =
 {
 	{ "termtype",	&descriptor_data::terminal_set_termtype },
@@ -1837,11 +1837,11 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
  * lots of ifdefs so it was more obviously how things tied up but it made the
  * totally unreadable.  -Abstract
  */
-int descriptor_data::set_terminal_type (const char *const termtype)
+int descriptor_data::set_terminal_type (const CString& termtype)
 {
 	char *terminal;
 
-	terminal = safe_strdup(termtype);
+	terminal = safe_strdup(termtype.c_str());
 
 	for(int i = 0; terminal[i]; i++)
 		terminal[i] = tolower(terminal[i]);
@@ -3123,8 +3123,8 @@ dbref	booter)
 
 void
 context::do_quit (
-const	char	*,
-const	char	*)
+const	CString& ,
+const	CString& )
 
 {
 	return_status = COMMAND_FAIL;
@@ -3279,7 +3279,7 @@ descriptor_data::check_connect (const char *msg)
 		}
 		else
 		{
-			if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!strcasecmp(luser, "guest")))
+			if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!string_compare(luser, "guest")))
 			{
 				queue_string(guest_create_banned);
 				Trace( "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
@@ -3330,7 +3330,7 @@ descriptor_data::check_connect (const char *msg)
 		switch(get_connect_state())
 		{
 			case DESCRIPTOR_NAME:
-				if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!strcasecmp(command, "guest")))
+				if(smd_cantuseguests(ntohl(address.sin_addr.s_addr)) && (!string_compare(command, "guest")))
 				{
 					queue_string(guest_create_banned);
 					Trace( "BANNED GUEST |%s| on descriptor |%d\n", luser, CHANNEL());
@@ -3727,27 +3727,27 @@ int			flags)
 
 	if (victim)
 	{
-		if (!(strcasecmp(victim, "me")))
+		if (!(string_compare(victim, "me")))
 			want_me = 1;
-		if (!(strcasecmp(victim, "wizards")))
+		if (!(string_compare(victim, "wizards")))
 			want_wizards = 1;
-		if (!(strcasecmp(victim, "apprentices")))
+		if (!(string_compare(victim, "apprentices")))
 			want_apprentices = 1;
-		if (!(strcasecmp(victim, "admin")))
+		if (!(string_compare(victim, "admin")))
 			want_wizards = want_apprentices = 1;
-		if (!(strcasecmp(victim, "guests")))
+		if (!(string_compare(victim, "guests")))
 			want_guests = 1;
-		if (!(strcasecmp(victim, "officers")))
+		if (!(string_compare(victim, "officers")))
 			want_officers = 1;
-		if (!(strcasecmp(victim, "builders")))
+		if (!(string_compare(victim, "builders")))
 			want_builders = 1;
-		if (!(strcasecmp(victim, "xbuilders")))
+		if (!(string_compare(victim, "xbuilders")))
 			want_xbuilders = 1;
-		if (!(strcasecmp(victim, "fighters")))
+		if (!(string_compare(victim, "fighters")))
 			want_fighters = 1;
-		if ((!strcasecmp(victim, "welcomers")) || (!strcasecmp(victim, "welcomer")))
+		if ((!string_compare(victim, "welcomers")) || (!string_compare(victim, "welcomer")))
 			want_welcomers = 1;
-		if (!(strcasecmp(victim, "npc")) || (!strcasecmp(victim, "npcs")))
+		if (!(string_compare(victim, "npc")) || (!string_compare(victim, "npcs")))
 			want_npcs=1;
 		if (victim[0] == '#')
 		{
@@ -3773,7 +3773,7 @@ int			flags)
 				(db[d->get_player()].has_alias(victim)))) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_me && (strcasecmp(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
+		    (want_me && (string_compare(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
 			(want_xbuilders && XBuilder(d->get_player())) ||
@@ -3786,7 +3786,7 @@ int			flags)
 			(strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0)) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_me && (strcasecmp(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
+		    (want_me && (string_compare(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
 			(want_xbuilders && XBuilder(d->get_player())) ||
@@ -4046,8 +4046,8 @@ int			flags)
 
 void
 context::do_at_connect(
-const	char	*what,
-const	char	*)
+const	CString& what,
+const	CString& )
 {
 struct  descriptor_data *d;
         dbref   victim;
@@ -4088,8 +4088,8 @@ struct  descriptor_data *d;
 
 void
 context::do_at_disconnect(
-const   char    *what,
-const   char    *)
+const   CString&what,
+const   CString&)
 
 {
 struct  descriptor_data *d;
@@ -4138,8 +4138,8 @@ struct  descriptor_data *d;
 }
 void
 context::do_at_queue (
-const   char    *what,
-const   char    *command)
+const   CString& what,
+const   CString& command)
 
 {
 struct  descriptor_data *d;
@@ -4169,7 +4169,7 @@ struct  descriptor_data *d;
                 return;
         }
 
-	if(!command || !*command)
+	if(!command)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to @queue?");
 		return;
@@ -4178,7 +4178,7 @@ struct  descriptor_data *d;
         for (d = descriptor_list; d; d = d->next)
                 if (d->IS_CONNECTED() && (d->get_player() == victim))
                 {
-                        d->save_command(command);
+                        d->save_command(command.c_str());
                         break;
                 }
         return_status = COMMAND_SUCC;
@@ -4187,15 +4187,15 @@ struct  descriptor_data *d;
 
 void
 context::do_who (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	int matched_location;
 struct	descriptor_data	*d;
 	const	char		*victim;
 
-	if (blank (name))
+	if (!name)
 	{
 /* If no name dump users as usual. */
 		victim = NULL;
@@ -4206,7 +4206,7 @@ struct	descriptor_data	*d;
 	else
 	{
 /* Otherwise find if we are dealing with a localised who */
-		victim = name;
+		victim = name.c_str();
 		if (victim[0] == '#')
 		{
 /* If we are then dump users with real id rather than effective */
@@ -4277,8 +4277,8 @@ descriptor_data::dump_swho()
 
 void
 context::do_swho (
-const	char	*,
-const	char	*)
+const	CString& ,
+const	CString& )
 
 {
 	struct descriptor_data *d;
@@ -4311,13 +4311,13 @@ time_t get_idle_time (dbref player)
 
 
 Command_status
-descriptor_data::terminal_set_echo(const char *toggle, int)
+descriptor_data::terminal_set_echo(const CString& toggle, int)
 {
-	if(toggle && *toggle)
+	if(toggle)
 	{
-		if(strcasecmp(toggle, "on")==0)
+		if(string_compare(toggle, "on")==0)
 			t_echo = 1;
-		else if(strcasecmp(toggle, "off")==0)
+		else if(string_compare(toggle, "off")==0)
 			t_echo = 0;
 		else
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  'set echo=on' or 'set echo=off'.");
@@ -4329,13 +4329,13 @@ descriptor_data::terminal_set_echo(const char *toggle, int)
 }
 
 Command_status
-descriptor_data::terminal_set_pagebell(const char *toggle, int)
+descriptor_data::terminal_set_pagebell(const CString& toggle, int)
 {
-	if(toggle && *toggle)
+	if(toggle)
 	{
-		if(strcasecmp(toggle, "on")==0)
+		if(string_compare(toggle, "on")==0)
 			terminal_pagebell=1;
-		else if(strcasecmp(toggle, "off")==0)
+		else if(string_compare(toggle, "off")==0)
 			terminal_pagebell=0;
 		else
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  'set pagebell=on' or 'set pagebell=off'.");
@@ -4350,11 +4350,11 @@ descriptor_data::terminal_set_pagebell(const char *toggle, int)
 
 
 Command_status
-descriptor_data::terminal_set_termtype (const char *termtype, int)
+descriptor_data::terminal_set_termtype (const CString& termtype, int)
 {
-	if(termtype && *termtype)
+	if(termtype)
 	{
-		if(strcasecmp(termtype, "none")==0)
+		if(string_compare(termtype, "none")==0)
 		{
 			if(terminal_type)
 			{
@@ -4366,9 +4366,9 @@ descriptor_data::terminal_set_termtype (const char *termtype, int)
 		else
 		{
 			if(set_terminal_type(termtype))
-				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is now '%s'.", termtype);
+				notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is now '%s'.", termtype.c_str());
 			else
-				notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal '%s'.", termtype);
+				notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal '%s'.", termtype.c_str());
 		}
 	}
 	else
@@ -4384,13 +4384,13 @@ descriptor_data::terminal_set_termtype (const char *termtype, int)
 
 
 Command_status
-descriptor_data::terminal_set_width(const char *width, int commands_executed)
+descriptor_data::terminal_set_width(const CString& width, int commands_executed)
 {
 	int			i;
 
-	if(width && *width)
+	if(width)
 	{
-		i = atoi (width);
+		i = atoi (width.c_str());
 		if (i<0)
 		{
 			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
@@ -4412,13 +4412,13 @@ descriptor_data::terminal_set_width(const char *width, int commands_executed)
 }
 
 Command_status
-descriptor_data::terminal_set_wrap(const char *width, int commands_executed)
+descriptor_data::terminal_set_wrap(const CString& width, int commands_executed)
 {
 	int			i;
 
-	if(width && *width)
+	if(width)
 	{
-		i = atoi (width);
+		i = atoi (width.c_str());
 		if (i<0)
 		{
 			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Can't have a negative word wrap width");
@@ -4451,15 +4451,15 @@ descriptor_data::terminal_set_wrap(const char *width, int commands_executed)
 
 
 Command_status
-descriptor_data::terminal_set_lftocr(const char *z, int commands_executed)
+descriptor_data::terminal_set_lftocr(const CString& z, int commands_executed)
 {
-	if(z && *z)
+	if(z)
 	{
-		if(!strcasecmp(z, "on"))
+		if(string_compare(z, "on") == 0)
 		{
 			terminal_lftocr = 1;
 		}
-		else if(!strcasecmp(z, "off"))
+		else if(string_compare(z, "off") == 0)
 		{
 			terminal_lftocr = 0;
 		}
@@ -4482,8 +4482,8 @@ descriptor_data::terminal_set_lftocr(const char *z, int commands_executed)
 
 void
 context::do_at_motd (
-const	char	*,
-const	char	*)
+const	CString& ,
+const	CString& )
 
 {
 	struct descriptor_data *d;
@@ -4498,8 +4498,8 @@ const	char	*)
 
 void
 context::do_beep (
-const	char	*,
-const	char	*)
+const	CString& ,
+const	CString& )
 
 {
 	return_status = COMMAND_SUCC;
@@ -4510,13 +4510,13 @@ const	char	*)
 
 void
 context::do_truncate(
-const char *plist,
-const char *string)
+const CString& plist,
+const CString& string)
 {
 	int error_count=0,
 	    ok_count=0;
 
-	if (blank(plist) || blank(string))
+	if (!plist || !string)
 	{
 		return_status = COMMAND_FAIL;
 		set_return_string (error_return_string);
@@ -4526,7 +4526,7 @@ const char *string)
 
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
-	char *mystring=safe_strdup(string); // Discarding the const
+	char *mystring=safe_strdup(string.c_str()); // Discarding the const
 
 	Player_list targets(player);
 	if (targets.build_from_text(player, plist) == 0)
@@ -4556,7 +4556,7 @@ const char *string)
 			notify_colour(player, player, COLOUR_MESSAGES, "(Warning): %d player%s that you do not control so did not get underlined to.", error_count, (error_count==1) ? " is in a room" : "s are in rooms");
 	}
 }
-void context::do_terminal_set(const char *command, const char *arg)
+void context::do_terminal_set(const CString& command, const CString& arg)
 {
 	struct descriptor_data *d;
 
@@ -4573,16 +4573,16 @@ void context::do_terminal_set(const char *command, const char *arg)
 
 
 Command_status
-descriptor_data::really_do_terminal_set(const char *command, const char *arg, int commands_executed)
+descriptor_data::really_do_terminal_set(const CString& command, const CString& arg, int commands_executed)
 {
 	Command_status	return_status=COMMAND_SUCC;
 	int		i;
 
 	for(i=0; terminal_set_command_table[i].name; i++)
 	{
-		if(command && *command)
+		if(command)
 		{
-			if(strcasecmp(command, terminal_set_command_table[i].name)==0)
+			if(string_compare(command, terminal_set_command_table[i].name)==0)
 			{
 				return_status=(this->*(terminal_set_command_table[i].set_function))(arg, commands_executed);
 				
@@ -4593,9 +4593,9 @@ descriptor_data::really_do_terminal_set(const char *command, const char *arg, in
 			(this->*(terminal_set_command_table[i].set_function))(NULL, commands_executed);
 	}
 
-	if(command && *command && !terminal_set_command_table[i].name)
+	if(command && !terminal_set_command_table[i].name)
 	{
-		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal set command '%s'.", command);
+		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal set command '%s'.", command.c_str());
 		return_status=COMMAND_FAIL;
 	}
 

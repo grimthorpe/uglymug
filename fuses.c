@@ -41,7 +41,7 @@ int	tom_fuse)
 			&& (tom_fuse == Tom (fuse))
 			&& could_doit (c, fuse)
 			&& (!Abort (fuse))
-			&& (db[fuse].get_description () != (const String&)NULL))
+			&& (db[fuse].get_description ()))
 		{
 			value = atoi(db[fuse].get_description ().c_str()) - 1;
 			db[fuse].set_description (NULLSTRING);
@@ -119,7 +119,7 @@ dbref	object)
 		if ((!Locked (fuse))
 			&& could_doit (c, fuse)
 			&& (Abort (fuse))
-			&& (db[fuse].get_description () != (const String &)NULL))
+			&& (db[fuse].get_description ()))
 		{
 			value = atoi(db[fuse].get_description ().c_str()) - 1;
 			db[fuse].set_description (NULLSTRING);

@@ -14,8 +14,8 @@
 
 void
 context::do_open (
-const	char	*object,
-const	char	*)
+const	CString& object,
+const	CString& )
 
 {
 	dbref	container;
@@ -68,8 +68,8 @@ const	char	*)
 
 void
 context::do_close (
-const	char	*object,
-const	char	*)
+const	CString& object,
+const	CString& )
 
 {
 	dbref	container;
@@ -122,8 +122,8 @@ const	char	*)
 
 void
 context::do_cstring (
-const	char	*object,
-const	char	*description)
+const	CString& object,
+const	CString& description)
 
 {
 	dbref container;
@@ -148,7 +148,7 @@ const	char	*description)
 		db[container].set_contents_string (description);
 		if (!in_command ())
 		{
-			if (description != NULL && *description != '\0')
+			if (description && *description.c_str() != '\0')
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "Contents string set to '%s'.", db [container].get_contents_string ().c_str());
 			else
 				notify_colour (player, player, COLOUR_MESSAGES, "Contents string reset.");
@@ -161,8 +161,8 @@ const	char	*description)
 
 void
 context::do_lock (
-const	char	*object,
-const	char	*)
+const	CString& object,
+const	CString& )
 
 {
 	dbref	container;
@@ -200,8 +200,8 @@ const	char	*)
 
 void
 context::do_unlock (
-const	char	*object,
-const	char	*)
+const	CString& object,
+const	CString& )
 
 {
 	dbref	container;

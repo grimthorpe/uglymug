@@ -16,50 +16,7 @@
 #include "context.h"
 #include "colour.h"
 
-#if 0
-dbref
-lookup_player (
-dbref		player,
-const	char	*name)
-
-{
-	dbref	i;
-
-	/* If we're handed a NULL player, give up now */
-	if (!(name && *name))
-		return (NOTHING);
-
-	if ((player != NOTHING) && (string_compare ("me", name) == 0))
-		return player;
-
-	if (name[0] == '*')
-	{
-		if (name[1]=='\0')
-			return NOTHING;
-		else
-			name++;
-	}
-	else if (name[0] == '#')			/* Allow referencing by #number */
-	{
-		i = atoi(name+1);					/* If only '#' passed as name then i = 0 */
-		if (i <= db.get_top() && Typeof(i) == TYPE_PLAYER)	/* which isn't a player			 */
-			return i;
-	}
-
-	for(i = 0; i < db.get_top (); i++)
-	{
-#ifdef ALIASES
-		if ((Typeof(i) == TYPE_PLAYER && db[i].get_name()) && ((!string_compare(db[i].get_name (), name)) || ((Typeof(i) == TYPE_PLAYER) && (db[i].has_alias(name)))))
-#else
-		if (Typeof(i) == TYPE_PLAYER && db[i].get_name() && !string_compare(db[i].get_name (), name))
-#endif /* ALIASES */
-				return i;
-	}
-	return NOTHING;
-}
-#else
-
-dbref lookup_player(dbref player, const char *name)
+dbref lookup_player(dbref player, const CString& name)
 {
 	if(string_compare(name, "me")==0)
 		return player;
@@ -67,14 +24,12 @@ dbref lookup_player(dbref player, const char *name)
 	return db.lookup_player(name);
 }
 
-#endif
-
 /* Return NOTHING if the player does not exist, or 0 if incorrect password (but player exists) */
 
 dbref
 connect_player (
-const	char	*name,
-const	char	*password)
+const	CString& name,
+const	CString& password)
 
 {
 	dbref	player;
@@ -82,20 +37,20 @@ const	char	*password)
 	if ((player = lookup_player (NOTHING, name)) == NOTHING)
 		return NOTHING;
 	if(db[player].get_password ()
-		&& string_compare(db[player].get_password ().c_str(), (char *) (crypt(password, password) +2)))
+		&& string_compare(db[player].get_password ().c_str(), (char *) (crypt(password.c_str(), password.c_str()) +2)))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with password '%s'.", password);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with password '%s'.", password.c_str());
 		return 0;
 	}
 	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt successful\n");
 	return player;
 }
 
-dbref create_player(const char *name, const char *password)
+dbref create_player(const CString& name, const CString& password)
 {
 	dbref	player;
 
-	if (!((ok_player_name(name)) && (ok_password(password))))
+	if (!ok_player_name(name) || !ok_password(password))
 		return NOTHING;
 
 	/* else he doesn't already exist, create him */
@@ -115,7 +70,7 @@ dbref create_player(const char *name, const char *password)
 	db[player].set_flag		(FLAG_PRETTYLOOK);
 	db[player].set_flag		(FLAG_FCHAT);
 	Settypeof			(player, TYPE_PLAYER);
-	db[player].set_password		((char *) (crypt(password, password) +2));
+	db[player].set_password		((char *) (crypt(password.c_str(), password.c_str()) +2));
 	db[player].set_score		(0);
 	db[player].set_race		("Human");
 	db[player].set_gravity_factor	(STANDARD_PLAYER_GRAVITY);
@@ -141,8 +96,8 @@ dbref create_player(const char *name, const char *password)
 
 void
 context::do_password (
-const	char	*old,
-const	char	*newpw)
+const	CString& old,
+const	CString& newpw)
 
 {
 	return_status = COMMAND_FAIL;
@@ -153,7 +108,7 @@ const	char	*newpw)
 		notify_colour(player, player, COLOUR_MESSAGES, "Whats your old password?");
 		return;
 	}
-	if(string_compare((char *) (crypt(old, old) + 2), db[player].get_password ().c_str()))
+	if(string_compare((char *) (crypt(old.c_str(), old.c_str()) + 2), db[player].get_password ()))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry");
 		return;
@@ -165,7 +120,7 @@ const	char	*newpw)
 		return;
 	}
 
-	db[player].set_password ((char *) (crypt(newpw, newpw) +2));
+	db[player].set_password ((crypt(newpw.c_str(), newpw.c_str()) +2));
 	notify_colour(player, player, COLOUR_MESSAGES, "Password changed.");
 
 	return_status = COMMAND_SUCC;
@@ -176,8 +131,8 @@ const	char	*newpw)
 #ifdef ALIASES
 void
 context::do_listaliases (
-const	char	*person,
-const	char	*)
+const	CString& person,
+const	CString& )
 
 {
 		int	i;
@@ -192,9 +147,9 @@ const	char	*)
 		notify_colour(player, player, COLOUR_MESSAGES, "List the aliases of whom?");
 		return;
 	}
-	if (!(strcasecmp(person, "me")))
+	if ((string_compare(person, "me") == 0))
 		owner = player;
-	if (person && *person)
+	if (person)
 	{
 		if ((owner = lookup_player(player, person)) == NOTHING)
 		{
@@ -224,8 +179,8 @@ const	char	*)
 
 void
 context::do_alias (
-const	char	*person,
-const	char	*string)
+const	CString& person,
+const	CString& string)
 
 {
 	dbref	victim;
@@ -251,7 +206,7 @@ const	char	*string)
 	}
 
 	test = ok_alias_string(victim, string);
-	if ((string == NULL) || (*string == '\0') || (test != -1))
+	if (!string || (test != -1))
 	{
 		if (gagged_command () == False)
 		{
@@ -295,8 +250,8 @@ const	char	*string)
 
 void
 context::do_unalias (
-const	char	*person,
-const	char	*string)
+const	CString& person,
+const	CString& string)
 
 {
 	dbref	victim;
@@ -319,7 +274,7 @@ const	char	*string)
 		return;
 	}
 
-	if ((string == NULL) || (*string == '\0') || (!ok_alias_string (victim,string)))
+	if (!string || (!ok_alias_string (victim,string)))
 	{
 		if (gagged_command () == False)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That is not a valid alias.");
@@ -349,8 +304,8 @@ const	char	*string)
 
 void
 context::do_at_who (
-const	char	*person,
-const	char	*string)
+const	CString& person,
+const	CString& string)
 
 {
 	dbref	victim;
@@ -378,7 +333,7 @@ const	char	*string)
 		return;
 	}
 
-	if ((string != NULL) && (*string != '\0') && (!ok_who_string (victim,string)))
+	if (string && (!ok_who_string (victim,string)))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That is not a valid WHO string.");
 		return;
@@ -387,7 +342,7 @@ const	char	*string)
 	db[victim].set_who_string (string);
 
 	if (in_command() && !Wizard(get_current_command()))
-		notify_colour (victim, victim, COLOUR_ERROR_MESSAGES, "WARNING: Your who string has been changed to %s.", string);
+		notify_colour (victim, victim, COLOUR_ERROR_MESSAGES, "WARNING: Your who string has been changed to %s.", string.c_str());
 	else if (!in_command())
 		notify_colour (player,  player, COLOUR_MESSAGES,"Set.");
 
@@ -399,8 +354,8 @@ const	char	*string)
 
 void
 context::do_controller (
-const	char	*name,
-const	char	*other)
+const	CString& name,
+const	CString& other)
 
 {
 	dbref victim;

@@ -25,8 +25,8 @@ char	boot_reason[BUFFER_LEN];
 
 void
 context::do_welcome (
-const   char    *arg1,
-const   char    *arg2)
+const   CString& arg1,
+const   CString& arg2)
 {
         const char *message;
 
@@ -56,8 +56,8 @@ const   char    *arg2)
 
 void
 context::do_force (
-const	char	*what,
-const	char	*command)
+const	CString& what,
+const	CString& command)
 
 {
 	dbref	victim;
@@ -96,7 +96,7 @@ const	char	*command)
 		count_down_fuses (*victim_context, db[victim].get_location(), !TOM_FUSE);
 		victim_context->commands_executed = commands_executed;
 		victim_context->step_limit = step_limit;
-		victim_context->process_basic_command (command);
+		victim_context->process_basic_command (command.c_str());
 		mud_scheduler.push_express_job (victim_context);
 		/* Copy context information */
 		copy_returns_from (*victim_context);
@@ -110,8 +110,8 @@ const	char	*command)
 
 void
 context::do_stats (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	int	rooms	= 0;
@@ -141,7 +141,7 @@ const	char	*)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (name && *name)
+	if (name)
 	{
 		if ((owner = lookup_player(player, name)) == NOTHING)
 		{
@@ -159,12 +159,10 @@ const	char	*)
 		owner = player;
 	}
 
-	if (name == NULL && Wizard (player))
+	if (!name && Wizard (player))
 		notify_colour(player, player, COLOUR_TITLES, "The universe contains %d objects:", top);
 	else
 		notify_colour(player, player, COLOUR_TITLES, "The universe contains %d objects, of which %s owns:", top, getname_inherited (owner));
-
-	name = value_or_empty (name);
 
 	for(i = 0; i < top; i++)
 	{
@@ -175,7 +173,7 @@ const	char	*)
 			frees++;
 			continue;
 		}
-		if(owner == NOTHING || owner == db[i].get_owner() || (type == TYPE_PLAYER && Puppet (i)) || (Wizard(player) && (*name == '\0')))
+		if(owner == NOTHING || owner == db[i].get_owner() || (type == TYPE_PLAYER && Puppet (i)) || (Wizard(player) && (!name)))
 		{
 			total++;
 			if(Ashcan(i))
@@ -194,7 +192,7 @@ const	char	*)
 				case TYPE_PLAYER:
 					if (Puppet (i))
 					{
-						if ((db [i].get_controller () == owner) || (owner == NOTHING) || (Wizard(player) && (*name == '\0')))
+						if ((db [i].get_controller () == owner) || (owner == NOTHING) || (Wizard(player) && (!name)))
 							puppets++;
 						else
 							total--;
@@ -245,15 +243,14 @@ const	char	*)
 
 void
 context::do_newpassword (
-const	char	*name,
-const	char	*password)
+const	CString& name,
+const	CString& password)
 
 {
 	dbref	victim;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
-	password = value_or_empty (password);
 
 	if (in_command())
 	{
@@ -267,12 +264,12 @@ const	char	*password)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player.");
 	else if (!controls_for_write (victim))
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
-	else if(*password != '\0' && !ok_password(password))
+	else if(!password || !ok_password(password))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Bad password");
 	else
 	{
 		/* it's ok, do it */
-		db[victim].set_password ((char *) crypt(password,password) + 2);
+		db[victim].set_password ((char *) crypt(password.c_str(),password.c_str()) + 2);
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Password changed.");
 		notify_colour(victim, player, COLOUR_ERROR_MESSAGES, "Your password has been changed by %s.", getname_inherited (player));
 		return_status = COMMAND_SUCC;
@@ -283,8 +280,8 @@ const	char	*password)
     
 void
 context::do_boot (
-const	char	*victim,
-const	char	*reason)
+const	CString& victim,
+const	CString& reason)
 
 {
 	int allow = 0;
@@ -292,7 +289,7 @@ const	char	*reason)
 	strcpy(player_booting, db[player].get_name().c_str());
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
-	if (blank(victim))
+	if (!victim)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "+++ Out of cheese error +++ MELON MELON MELON +++ Redo from start (And please specify a player)");
 		return;
@@ -319,8 +316,8 @@ const	char	*reason)
 	{
 		if (Connected (recipient))
 		{
-			strcpy(boot_reason, value_or_empty(reason));
-			notify_colour(recipient, player, COLOUR_ERROR_MESSAGES, "You got booted by %s%s%s.", getname_inherited (player), blank (reason)?"":" ", value_or_empty (reason));
+			strcpy(boot_reason, reason.c_str());
+			notify_colour(recipient, player, COLOUR_ERROR_MESSAGES, "You got booted by %s%s%s.", getname_inherited (player), (!reason)?"":" ", boot_reason);
 			boot_player (recipient,player);
 			notify_colour(player, player, COLOUR_MESSAGES, "Booted.");
 			return_status = COMMAND_SUCC;
@@ -336,8 +333,8 @@ const	char	*reason)
 
 void
 context::do_from (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	dbref		thing;
@@ -346,7 +343,7 @@ const	char	*)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!name || (*name == '\0'))
+	if (!name)
 		thing = db[player].get_location();
 	else
 	{
@@ -378,15 +375,15 @@ const	char	*)
 
 void
 context::do_at_recursionlimit (
-const	char	*limit_string,
-const	char	*)
+const	CString& limit_string,
+const	CString& )
 {
 	int	limit;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if ((limit = atoi (value_or_empty (limit_string))) <= 0)
+	if ((limit = atoi (limit_string.c_str())) <= 0)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES,"Thats not a valid recursion limit.");
 		return;
@@ -410,8 +407,8 @@ const	char	*)
 
 void
 context::do_email (
-const	char	*name,
-const	char	*email_addr)
+const	CString& name,
+const	CString& email_addr)
 
 {
 	dbref	victim;
@@ -442,13 +439,13 @@ const	char	*email_addr)
 		db[victim].set_email_addr (email_addr);
 
 		/* Only do warning if email is not null */
-		if((email_addr != NULL) && (*email_addr != 0))
+		if(email_addr)
 			for (i = 0; i < db.get_top (); i++)
 			{
 				if (i == victim)
 					continue;
 				if (Typeof (i)==TYPE_PLAYER && db[i].get_email_addr ())
-					if (strncasecmp (email_addr, db[i].get_email_addr ().c_str(), MIN(strlen(email_addr),db[i].get_email_addr ().length()))==0)
+					if (string_compare (email_addr, db[i].get_email_addr ().c_str())==0)
 						notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning:  %s has identical email address (%s).", getname (i), db[i].get_email_addr ().c_str());
 			}
 		if(victim != player)
@@ -480,8 +477,8 @@ const	char	*email_addr)
 
 void
 context::do_pcreate (
-const	char	*name,
-const	char	*password)
+const	CString& name,
+const	CString& password)
 
 {
 	dbref	result;
@@ -497,6 +494,6 @@ const	char	*password)
 		{
 			return_status = COMMAND_SUCC;
 			set_return_string (ok_return_string);
-			if (!in_command()) notify_colour (player, player, COLOUR_MESSAGES, "Player '%s' created with id #%d (location is #%d)", name, result, PLAYER_START);
+			if (!in_command()) notify_colour (player, player, COLOUR_MESSAGES, "Player '%s' created with id #%d (location is #%d)", name.c_str(), result, PLAYER_START);
 		}
 }

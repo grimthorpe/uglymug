@@ -21,10 +21,6 @@
 #include "context.h"
 #include "interface.h"
 
-
-/* Fix up (failings in) Solaris NULL-pointer handling */
-static const char* ValueOrEmpty(const char* value) { return (value)?value:""; }
-
 /* Bits'n'pieces that SunOS appears not to define in any of its header files. PJC 15/4/96. 
 #ifdef	__sun
 extern	int	nice	(int);
@@ -72,7 +68,7 @@ class	command_details
 {
     public:
 	const	char		*name;
-	void			(context::*context_address) (const char *, const char *);
+	void			(context::*context_address) (const CString&, const CString&);
 	command_flags		flags;
 };
 
@@ -407,8 +403,8 @@ const	char	*key)
 
 void
 context::do_version (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	return_status = COMMAND_SUCC;
@@ -420,8 +416,8 @@ const	char	*)
 
 void
 context::do_dump (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString&)
 
 {
 	return_status = COMMAND_FAIL;
@@ -440,8 +436,8 @@ const	char	*)
 
 void
 context::do_shutdown (
-const	char*	arg1,
-const	char*	arg2)
+const	CString& arg1,
+const	CString& arg2)
 
 {
 	return_status = COMMAND_FAIL;
@@ -776,15 +772,15 @@ const	char	*outfile)
 }
 
 
-const char *
+String
 context::sneakily_process_basic_command (
-const	char	*original_command,
+const	CString& original_command,
 Command_status	&sneaky_return_status)
 
 {
 	Command_status	cached_return_status;
-	const	char	*cached_return_string;
-	const	char	*sneaky_return_string;
+	String cached_return_string;
+	String sneaky_return_string;
 
 	int depth = get_sneaky_executed_depth();
 	if(depth > get_depth_limit()) // Give them a chance!
@@ -798,13 +794,12 @@ Command_status	&sneaky_return_status)
 		/* Fill in our caches */
 		cached_return_status = return_status;
 		cached_return_string = return_string;
-		return_string = empty_string; // Stop the return_string from being free'd by the sneakily processed command.
 
 		/* Remember how deeply nested we were before */
 		const	int	old_depth = call_stack.depth ();
 
 		/* Do the command */
-		process_basic_command (original_command);
+		process_basic_command (original_command.c_str());
 
 		/* If the call stack is deeper, we just ran a nested command.  Run it to completion. */
 		while (call_stack.depth () > old_depth)
@@ -1171,36 +1166,36 @@ const	char	*original_command)
 			&& (!Wizard(get_current_command ())))
 			Trace(
 				"HACK: %s(%d) hacked %s(%d) (originally %s) giving %s %s=%s\n",
-				ValueOrEmpty(getname (player)), player,
-				ValueOrEmpty(getname (get_current_command ())), get_current_command (),
-				ValueOrEmpty(original_command),
-				ValueOrEmpty(command),
-				ValueOrEmpty(get_arg1 ()),
-				ValueOrEmpty(get_arg2 ()));
+				value_or_empty(getname (player)), player,
+				value_or_empty(getname (get_current_command ())), get_current_command (),
+				value_or_empty(original_command),
+				value_or_empty(command),
+				value_or_empty(get_arg1 ()),
+				value_or_empty(get_arg2 ()));
 	}
 #endif	/* HACK_HUNTING */
 
 	/* Tracing */
 	if (tracer != NOTHING)
 	{
-
 		notify(tracer, "%s[%s]%s %s%s", 
 		       (return_status == COMMAND_SUCC) ? ca[COLOUR_SUCCESS] : ca[COLOUR_FAILURE],
 		       (return_status == COMMAND_SUCC) ? "succ" : "fail", 
 		       ca[COLOUR_TRACING],
-		       return_string,
+		       return_string.c_str(),
 		       COLOUR_REVERT);
 	}
 
-	if (return_string == NULL)
+/*
+	if (!return_string)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Basic command returned NULL string (wizards have been notified).");
 		notify_wizard ("BUG: Basic command returned NULL. Command was:");
 		notify_wizard ("%s", original_command);
 		Trace("BUG: Command returned NULL return_string: %s (%s).\n", command, original_command);
-		set_return_string (error_return_string);
+		//set_return_string (error_return_string);
 	}
-
+*/
 	/* unblock alarms */
 	alarm_block--;
 
@@ -1363,11 +1358,11 @@ void mud_disconnect_player (dbref player)
 
 		db [player].clear_flag(FLAG_CONNECTED);
 
-		if (db [player].get_ofail() != (const   String&)NULL)
+		if (db [player].get_ofail())
 			total = atol (db [player].get_ofail().c_str());
 		else
 			total = 0;
-		if (db [player].get_fail_message() != (const   String&)NULL)
+		if (db [player].get_fail_message())
 			last = atol (db [player].get_fail_message().c_str());
 		else
 			last = 0;
@@ -1467,8 +1462,8 @@ void mud_time_sync ()
  */
 void
 context::do_at_rem(
-const char*,
-const char*)
+const CString&,
+const CString&)
 {
 	return;		// Do nothing.
 }

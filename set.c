@@ -21,7 +21,7 @@
 static dbref
 match_controlled (
 context		&c,
-const	char	*name)
+const	CString&name)
 {
 	dbref match;
 
@@ -49,8 +49,8 @@ const	char	*name)
 
 void
 context::do_at_insert (
-const	char	*what,
-const	char	*element)
+const	CString& what,
+const	CString& element)
 {
 	/* I'm not catering for Dictionaries because it would need an extra
 	   argument and Ian said 'Just put the code in, please, pretty please
@@ -58,7 +58,7 @@ const	char	*element)
 
 	dbref	thing;
 	int	typething;
-	int	index;
+	unsigned int	index;
 
 	/* First find what we are looking for */
 	Matcher what_matcher (player, what, TYPE_NO_TYPE, get_effective_id());
@@ -119,14 +119,14 @@ const	char	*element)
 	}
 #endif
 
-	char *indexString = what_matcher.match_index_result();
-	if ( indexString == NULL )
+	const CString& indexString = what_matcher.match_index_result();
+	if (!indexString)
 	{
 		notify_colour ( player, player, COLOUR_ERROR_MESSAGES, "@insert requires an index." );
 		RETURN_FAIL;
 	}
 
-	index = atoi( indexString );
+	index = atoi( indexString.c_str() );
 	if(index > (db[thing].get_number_of_elements() + 1))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "The object does not have that many elements.");
@@ -141,7 +141,7 @@ const	char	*element)
 	/* Check that the array/dict/command can take the extra entry */
 	switch(typething)
 	{
-		int limit;
+		unsigned int limit;
 		
 		case TYPE_ARRAY:
 			if(Wizard(thing))
@@ -164,7 +164,7 @@ const	char	*element)
 				limit = MAX_MORTAL_DESC_SIZE;
 			break;
 
-			if((int)(strlen(element) + db[thing].get_size()) > limit)
+			if((element.length() + db[thing].get_size()) > limit)
 			{
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry, that line makes the description too big.");
 				RETURN_FAIL;
@@ -207,8 +207,8 @@ enum directions
 
 void
 context::do_at_sort (
-const	char	*array,
-const	char	*direction)
+const	CString& array,
+const	CString& direction)
 {
 	dbref	thing;
 	int	direct;
@@ -261,17 +261,17 @@ const	char	*direction)
 
 void
 context::do_peak
-(const	char	*number,
-const	char	*)
+(const	CString& number,
+const	CString& )
 {
 	if(!Wizard(player))
 	{
 		notify(player, "Don't be silly.");
 		return;
 	}
-	if(!blank(number))
+	if(number)
 	{
-		peak_users = atoi(number);
+		peak_users = atoi(number.c_str());
 		notify(player, "Peak set to %d.", peak_users);
 	}
 
@@ -280,8 +280,8 @@ const	char	*)
 
 void
 context::do_race (
-const	char	*name,
-const	char	*newrace)
+const	CString& name,
+const	CString& newrace)
 
 {
 	dbref	thing;
@@ -303,7 +303,7 @@ const	char	*newrace)
 		return;
 	}	
 
-	if ((check = strchr(newrace, '\n')))
+	if ((check = strchr(newrace.c_str(), '\n')))
 	{	
 		*check = '\0';
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Race truncated at newline.");
@@ -320,16 +320,14 @@ const	char	*newrace)
 
 void
 context::do_name (
-const	char	*name,
-const	char	*newname)
+const	CString& name,
+const	CString& newname)
 
 {
 	dbref	thing;
 	int	value;
 	time_t	now;
 	int	temp = 0;
-
-	newname = value_or_empty(newname);
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -375,7 +373,7 @@ const	char	*newname)
 				}
 
 					
-				if (!ok_player_name(newname) && (strcasecmp(newname, db[thing].get_name().c_str()))) // Allow the same name, for re-caps
+				if (!ok_player_name(newname) && (string_compare(newname, db[thing].get_name()) != 0)) // Allow the same name, for re-caps
 				{
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't give a player that name.");
 					return;
@@ -411,7 +409,7 @@ const	char	*newname)
 				}
 				else
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\".", db[thing].get_name().c_str(), matcher.match_index_result());
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\".", db[thing].get_name().c_str(), matcher.match_index_result().c_str());
 					return;
 				}
 			else
@@ -440,7 +438,7 @@ const	char	*newname)
 			}
 
 		default:
-			if (newname == NULL || *newname == '\0')
+			if (!newname)
 			{
 				if (db [thing].get_parent () == NOTHING)
 				{
@@ -471,17 +469,17 @@ const	char	*newname)
 
 void
 context::do_describe (
-const	char	*name,
-const	char	*description)
+const	CString& name,
+const	CString& description)
 
 {
-	int	value;
+	unsigned int	value;
 	dbref	thing;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if(!name || (name[0]=='\0'))
+	if(!name)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to describe?");
 		return;
@@ -513,7 +511,7 @@ const	char	*description)
 	switch (Typeof (thing))
 	{
 		case TYPE_FUSE:
-			value = atoi (value_or_empty (description));
+			value = atoi (description.c_str());
 			if (value < 1)
 			{
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Fuses must tick at least once.");
@@ -528,12 +526,12 @@ const	char	*description)
 				db.pend (thing);
 			break;
 		case TYPE_DICTIONARY:
-			if(!blank(matcher.match_index_result()))
+			if(matcher.match_index_result())
 				if((value = db[thing].exist_element(matcher.match_index_result())) > 0)
 					db[thing].set_element(value, matcher.match_index_result(), description);
 				else
 				{
-					if((db[thing].get_number_of_elements() + 1) <= ((Wizard(thing)) ? MAX_WIZARD_DICTIONARY_ELEMENTS : MAX_MORTAL_DICTIONARY_ELEMENTS))
+					if((int)(db[thing].get_number_of_elements() + 1) <= ((Wizard(thing)) ? MAX_WIZARD_DICTIONARY_ELEMENTS : MAX_MORTAL_DICTIONARY_ELEMENTS))
 						db[thing].set_element(value, matcher.match_index_result(), description);
 					else
 					{
@@ -551,9 +549,9 @@ const	char	*description)
 		case TYPE_ARRAY:
 			if(matcher.match_index_attempt_result())
 			{
-				if(!blank(matcher.match_index_result()))
+				if(matcher.match_index_result())
 				{
-					if((value = atoi (value_or_empty (matcher.match_index_result()))) > 0)
+					if((value = atoi (matcher.match_index_result().c_str())) > 0)
 						if(value <= ((Wizard(thing))? MAX_WIZARD_ARRAY_ELEMENTS : MAX_MORTAL_ARRAY_ELEMENTS))
 							db[thing].set_element(value, description);
 						else
@@ -588,9 +586,9 @@ const	char	*description)
 		case TYPE_COMMAND:
 			if(matcher.match_index_attempt_result())
 			{
-				if(!blank(matcher.match_index_result()))
+				if(matcher.match_index_result())
 				{
-					if((value = atoi (value_or_empty (matcher.match_index_result()))) > 0)
+					if((value = atoi (matcher.match_index_result().c_str())) > 0)
 						if(value <= ((Wizard(thing))? MAX_WIZARD_ARRAY_ELEMENTS : MAX_MORTAL_ARRAY_ELEMENTS))
 							db[thing].set_element(value, description);
 						else
@@ -616,7 +614,9 @@ const	char	*description)
 				}
 			}
 			else
+			{
 				db[thing].set_description(description);
+			}
 			db[thing].flush_parse_helper();
 			break;
 
@@ -636,8 +636,8 @@ const	char	*description)
 
 void
 context::do_fail (
-const	char	*name,
-const	char	*message)
+const	CString& name,
+const	CString& message)
 
 {
 	dbref thing;
@@ -677,8 +677,8 @@ const	char	*message)
 
 void
 context::do_success (
-const	char	*name,
-const	char	*message)
+const	CString& name,
+const	CString& message)
 
 {
 	dbref thing;
@@ -723,8 +723,8 @@ const	char	*message)
 
 void
 context::do_at_drop (
-const	char	*name,
-const	char	*message)
+const	CString& name,
+const	CString& message)
 
 {
 	int	value;
@@ -738,11 +738,11 @@ const	char	*message)
 		switch(Typeof(thing))
 		{
 			case TYPE_FUSE:
-				if ((message != NULL) && (*message != '\0'))
+				if (message)
 				{
 					if (Typeof (thing) == TYPE_FUSE)
 					{
-						value = atoi (message);
+						value = atoi (message.c_str());
 						if (value < 1)
 						{
 							notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That's too short a fuse length.");
@@ -775,8 +775,8 @@ const	char	*message)
 
 void
 context::do_osuccess (
-const	char	*name,
-const	char	*message)
+const	CString& name,
+const	CString& message)
 
 {
 	dbref thing;
@@ -819,8 +819,8 @@ const	char	*message)
 
 void
 context::do_ofail (
-const	char	*name,
-const	char	*message)
+const	CString& name,
+const	CString& message)
 
 {
 	dbref thing;
@@ -860,8 +860,8 @@ const	char	*message)
 
 void
 context::do_odrop (
-const	char	*name,
-const	char	*message)
+const	CString& name,
+const	CString& message)
 
 {
 	dbref thing;
@@ -902,8 +902,8 @@ const	char	*message)
 
 void
 context::do_at_lock (
-const	char	*name,
-const	char	*keyname)
+const	CString& name,
+const	CString& keyname)
 
 {
 	dbref	thing;
@@ -953,7 +953,7 @@ const	char	*keyname)
 				Trace("BUG: @lock used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 			default:
 
-				if (keyname == NULL || (key = parse_boolexp (player, keyname)) == TRUE_BOOLEXP)
+				if (!keyname || (key = parse_boolexp (player, keyname)) == TRUE_BOOLEXP)
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "I don't understand that key.");
 				else
 				{
@@ -978,8 +978,8 @@ const	char	*keyname)
 
 void
 context::do_at_unlock (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	dbref	thing;
@@ -1013,8 +1013,8 @@ const	char	*)
 
 void
 context::do_unlink (
-const	char	*name,
-const	char	*)
+const	CString& name,
+const	CString& )
 
 {
 	dbref exit;
@@ -1072,8 +1072,8 @@ const	char	*)
 
 void
 context::do_owner (
-const	char	*name,
-const	char	*newowner)
+const	CString& name,
+const	CString& newowner)
 
 {
 	dbref	thing;
@@ -1083,7 +1083,7 @@ const	char	*newowner)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (name == NULL || !*name)
+	if (!name)
 	{
 		notify_colour(player,  player, COLOUR_MESSAGES, "Change ownership of what?");
 		return;
@@ -1103,7 +1103,7 @@ const	char	*newowner)
 	}
 
 	/* Work out who the owner will be */
-	if(newowner != NULL && *newowner)
+	if(newowner)
 	{
 		Matcher owner_matcher (player, newowner, TYPE_PLAYER, get_effective_id ());
 		if (gagged_command () == True)
@@ -1238,8 +1238,8 @@ const	char	*newowner)
 
 void
 context::do_set (
-const	char	*name,
-const	char	*flag)
+const	CString& name,
+const	CString& flag)
 
 {
 	dbref			thing;
@@ -1260,7 +1260,7 @@ const	char	*flag)
 		return;
 
 	/* move p past NOT_TOKEN if present */
-	for(p = flag; p && *p && (*p == NOT_TOKEN || isspace(*p)); p++)
+	for(p = flag.c_str(); p && *p && (*p == NOT_TOKEN || isspace(*p)); p++)
 		;
 
 	/* identify flag */
@@ -1296,7 +1296,7 @@ const	char	*flag)
 		return;
 	}
 
-	if (*flag != NOT_TOKEN)
+	if (*flag.c_str() != NOT_TOKEN)
 		if (!is_flag_allowed(Typeof(thing), f))
 		{
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can't apply that flag to that type of object.");
@@ -1307,7 +1307,7 @@ const	char	*flag)
 	if ((!(type_to_flag_map [Linear_typeof (thing)] & f)) & (*flag != NOT_TOKEN))
 #endif
 
-	if ((f == FLAG_READONLY) && (*flag == NOT_TOKEN))
+	if ((f == FLAG_READONLY) && (*flag.c_str() == NOT_TOKEN))
 	{
 		db[thing].clear_flag(f);
 		if (!controls_for_write (thing))
@@ -1333,7 +1333,7 @@ const	char	*flag)
 		 return;
 		}
 	}
-	if ((f==FLAG_DONTANNOUNCE) && (*flag != NOT_TOKEN))
+	if ((f==FLAG_DONTANNOUNCE) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if(!Wizard(get_effective_id()))
 		{
@@ -1341,7 +1341,7 @@ const	char	*flag)
 			return;
 		}
 	}
-	if ((f==FLAG_NOHUHLOGS) && (*flag != NOT_TOKEN))
+	if ((f==FLAG_NOHUHLOGS) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if (!Wizard(get_effective_id()))
 		{
@@ -1365,7 +1365,7 @@ const	char	*flag)
 	}
 
 	if((f==FLAG_MALE) || (f==FLAG_FEMALE) || (f==FLAG_NEUTER))
-		if(*flag==NOT_TOKEN)
+		if(*flag.c_str()==NOT_TOKEN)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't unassign gender!");
 			return;
@@ -1432,7 +1432,7 @@ const	char	*flag)
 		if (
 		    (!Wizard (get_effective_id ()) && (thing != player))
 		    ||
-		    (!Wizard (get_effective_id ()) && (thing == player) && (*flag != NOT_TOKEN)))
+		    (!Wizard (get_effective_id ()) && (thing == player) && (*flag.c_str() != NOT_TOKEN)))
 		{
 			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, "Only Wizards may set the 'ashcan' flag.");
 			return;
@@ -1493,7 +1493,7 @@ const	char	*flag)
 
 	if (f == FLAG_FIGHTING)
 	{
-		if (*flag == NOT_TOKEN)
+		if (*flag.c_str() == NOT_TOKEN)
 		{
 			if (!Wizard (get_effective_id ()))
 			{
@@ -1541,12 +1541,12 @@ const	char	*flag)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Cannot set CHOWN_OK on yourself inside a command.");
 			return;
 		}
-		if (*flag != NOT_TOKEN)
+		if (*flag.c_str() != NOT_TOKEN)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "WARNING: Other players can now change ownership of objects to you without your permission!");
 	}
 
 	/* check for stupid wizard */
-	if(f == FLAG_WIZARD && *flag == NOT_TOKEN && thing == player)
+	if(f == FLAG_WIZARD && *flag.c_str() == NOT_TOKEN && thing == player)
 	{
 		notify_colour(player,  player, COLOUR_ERROR_MESSAGES, "You cannot make yourself mortal.");
 		return;
@@ -1582,7 +1582,7 @@ const	char	*flag)
 		return;
 	}
 	/* Check you can't trash a container with things in it */
-	if ((*flag == NOT_TOKEN)
+	if ((*flag.c_str() == NOT_TOKEN)
 		&& (db[thing].get_contents() != NOTHING)
 		&& (Container (thing))
 		&& ((f == FLAG_OPEN) || (f == FLAG_OPENABLE)))
@@ -1595,7 +1595,7 @@ const	char	*flag)
 #ifdef ABORT_FUSES
 	/* Only Wizards can set abort fuses, and we log it. */
 
-	if ((f==FLAG_ABORT) && (*flag != NOT_TOKEN))
+	if ((f==FLAG_ABORT) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if (!Wizard(get_effective_id()))
 		{
@@ -1612,7 +1612,7 @@ const	char	*flag)
 #endif
 
 	/* Log every WIZARD flag set */
-	if ((f == FLAG_WIZARD) && (*flag != NOT_TOKEN))
+	if ((f == FLAG_WIZARD) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if (Typeof(thing) == TYPE_COMMAND)
 			Trace("HACK - <<<WIZARD>>> flag set on %s(%d) by %s(%d)\n",getname(thing),thing,getname(player),player);
@@ -1638,13 +1638,13 @@ const	char	*flag)
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning:  @set READONLY in command.");
 		}
 	}
-	if ((f==FLAG_BACKWARDS) && (*flag != NOT_TOKEN))
+	if ((f==FLAG_BACKWARDS) && (*flag.c_str() != NOT_TOKEN))
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You cannot set the Backwards flag. It is only intended for commands which pre-date multiple-line @if statements. See help Backwards for more information");
 		return;
 	}
 	/* Everything is ok, do the set */
-	if(*flag == NOT_TOKEN)
+	if(*flag.c_str() == NOT_TOKEN)
 	{
 		/* reset the flag */
 		db[thing].clear_flag(f);
@@ -1666,8 +1666,8 @@ const	char	*flag)
 
 void
 context::do_at_score (
-const	char	*victim_string,
-const	char	*value)
+const	CString& victim_string,
+const	CString& value)
 
 {
 	dbref	victim;
@@ -1703,8 +1703,8 @@ const	char	*value)
 		notify_colour (player, player, COLOUR_MESSAGES, "Everyone knows wizards don't care about scores.");
 		return;
 	}
-	if (value && isdigit (*value))
-		score = atoi (value);
+	if (value && isdigit (*value.c_str()))
+		score = atoi (value.c_str());
 	else
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That is not a valid score.");
@@ -1724,8 +1724,8 @@ const	char	*value)
 
 void
 context::do_volume (
-const	char	*object,
-const	char	*volume)
+const	CString& object,
+const	CString& volume)
 {
 	dbref	victim;
 	double	new_volume;
@@ -1733,13 +1733,13 @@ const	char	*volume)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (object == NULL)
+	if (!object)
 	{
 		notify_colour (player,player, COLOUR_MESSAGES, "Set the volume of what?");
 		return;
 	}
 
-	if (volume == NULL)
+	if (!volume)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the volume to what?");
 		return;
@@ -1775,7 +1775,7 @@ const	char	*volume)
 	if (string_prefix ("inherit", volume))
 		new_volume = NUM_INHERIT;
 	else
-		new_volume = strtod (volume, (char **)NULL);
+		new_volume = strtod (volume.c_str(), (char **)NULL);
 
 	if ((new_volume <= 0) && (!Wizard(player)))
 	{
@@ -1805,8 +1805,8 @@ const	char	*volume)
 
 void
 context::do_volume_limit (
-const	char	*object,
-const	char	*volume_limit)
+const	CString& object,
+const	CString& volume_limit)
 {
 	dbref	victim;
 	double	new_volume_limit;
@@ -1814,12 +1814,12 @@ const	char	*volume_limit)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (object == NULL)
+	if (!object)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the volume limit of what?");
 		return;
 	}
-	if (volume_limit == NULL)
+	if (!volume_limit)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the volume limit to what?");
 		return;
@@ -1857,7 +1857,7 @@ const	char	*volume_limit)
 	if (string_prefix ("infinity", volume_limit)
 	|| string_prefix ("infinite", volume_limit)
 	|| string_prefix ("none", volume_limit)
-	|| (atoi (value_or_empty (volume_limit)) >= HUGE_VAL))
+	|| (atoi (volume_limit.c_str()) >= HUGE_VAL))
 	{
 		if (Wizard(player) || (Typeof(victim) == TYPE_ROOM))
 			new_volume_limit = HUGE_VAL;
@@ -1870,7 +1870,7 @@ const	char	*volume_limit)
 	else if (string_prefix ("inherit", volume_limit))
 		new_volume_limit = NUM_INHERIT;
 	else
-		new_volume_limit = strtod (volume_limit, (char **)NULL);
+		new_volume_limit = strtod (volume_limit.c_str(), (char **)NULL);
 
 	if ((Typeof (victim) == TYPE_PLAYER)
 		&& (!Wizard (player))
@@ -1896,8 +1896,8 @@ const	char	*volume_limit)
 
 void
 context::do_mass (
-const	char	*object,
-const	char	*mass)
+const	CString& object,
+const	CString& mass)
 {
 	dbref	victim;
 	double	new_mass;
@@ -1905,12 +1905,12 @@ const	char	*mass)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (object == NULL)
+	if (!object)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the mass of what?");
 		return;
 	}
-	if (mass == NULL)
+	if (!mass)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the mass to what?");
 		return;
@@ -1947,7 +1947,7 @@ const	char	*mass)
 	if (string_prefix ("inherit", mass))
 		new_mass = NUM_INHERIT;
 	else
-		new_mass = strtod (mass, (char **)NULL);
+		new_mass = strtod (mass.c_str(), (char **)NULL);
 
 	if ((new_mass <= 0) && (!Wizard(player)))
 	{
@@ -1976,8 +1976,8 @@ const	char	*mass)
 
 void
 context::do_mass_limit (
-const	char	*object,
-const	char	*mass_limit)
+const	CString& object,
+const	CString& mass_limit)
 {
 	dbref	victim;
 	double	new_mass_limit;
@@ -1985,12 +1985,12 @@ const	char	*mass_limit)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (object == NULL)
+	if (!object)
 	{
 		notify_colour (player,  player, COLOUR_MESSAGES, "Set the mass limit of what?");
 		return;
 	}
-	if (mass_limit == NULL)
+	if (!mass_limit)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the mass limit to what?");
 		return;
@@ -2028,7 +2028,7 @@ const	char	*mass_limit)
 	if (string_prefix ("infinity", mass_limit)
 	|| string_prefix ("infinite", mass_limit)
 	|| string_prefix ("none", mass_limit)
-	|| (atoi (value_or_empty (mass_limit)) >= HUGE_VAL))
+	|| (atoi (mass_limit.c_str()) >= HUGE_VAL))
 	{
 		if (Wizard(player) || (Typeof(victim) == TYPE_ROOM))
 			new_mass_limit = HUGE_VAL;
@@ -2041,7 +2041,7 @@ const	char	*mass_limit)
 	else if (string_prefix ("inherit", mass_limit))
 		new_mass_limit = NUM_INHERIT;
 	else
-		new_mass_limit = strtod (mass_limit, (char **)NULL);
+		new_mass_limit = strtod (mass_limit.c_str(), (char **)NULL);
 
 	if ((Typeof (victim) == TYPE_PLAYER)
 		&& (!Wizard (player))
@@ -2066,7 +2066,7 @@ const	char	*mass_limit)
 }
 
 void
-context::do_gravity_factor (const char *object, const char *gravity_factor)
+context::do_gravity_factor (const CString& object, const CString& gravity_factor)
 {
 	dbref	victim;
 	double	new_gravity_factor;
@@ -2075,12 +2075,12 @@ context::do_gravity_factor (const char *object, const char *gravity_factor)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (object == NULL)
+	if (!object)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the gravity factor of what?");
 		return;
 	}
-	if (gravity_factor == NULL)
+	if (!gravity_factor)
 	{
 		notify_colour (player, player, COLOUR_MESSAGES, "Set the gravity factor to what?");
 		return;
@@ -2117,7 +2117,7 @@ context::do_gravity_factor (const char *object, const char *gravity_factor)
 	if (string_prefix ("inherit", gravity_factor))
 		new_gravity_factor = NUM_INHERIT;
 	else
-		new_gravity_factor = strtod (gravity_factor, (char **)NULL);
+		new_gravity_factor = strtod (gravity_factor.c_str(), (char **)NULL);
 
 	if ((new_gravity_factor < 1) && (!Wizard (player)))
 	{
@@ -2143,8 +2143,8 @@ context::do_gravity_factor (const char *object, const char *gravity_factor)
 
 void
 context::do_location (
-const	char	*victim_string,
-const	char	*new_location_string)
+const	CString& victim_string,
+const	CString& new_location_string)
 
 {
 	dbref			victim;
@@ -2161,7 +2161,7 @@ const	char	*new_location_string)
 	if ((victim = victim_matcher.noisy_match_result ()) == NOTHING)
 		return;
 
-	if (new_location_string == NULL || *new_location_string == '\0')
+	if (!new_location_string)
 	{
 		new_location=victim;
 		victim = player;
@@ -2430,8 +2430,8 @@ const	char	*new_location_string)
 
 void
 context::do_at_key (
-const	char	*object,
-const	char	*keyname)
+const	CString& object,
+const	CString& keyname)
 
 {
 	dbref	container;
@@ -2463,7 +2463,7 @@ const	char	*keyname)
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You cannot give that thing a key.");
 	else
 	{
-		if (keyname == NULL || *keyname == '\0')
+		if (!keyname)
 			key = TRUE_BOOLEXP;
 		else if ((key = parse_boolexp (player, keyname)) == TRUE_BOOLEXP)
 		{
@@ -2473,7 +2473,7 @@ const	char	*keyname)
 		db[container].set_lock_key (key);
 		if (!in_command())
 		{
-			if (keyname == NULL || *keyname == '\0')
+			if (!keyname)
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s can no longer be locked.", unparse_object (*this, container));
 			else
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s can now be locked.", unparse_object (*this, container));
@@ -2485,8 +2485,8 @@ const	char	*keyname)
 
 void
 context::do_ammo_type (
-const	char	*weapon_name,
-const	char	*parent_name)
+const	CString& weapon_name,
+const	CString& parent_name)
 {
 	dbref	thing;
 	dbref	parent;
@@ -2505,7 +2505,7 @@ const	char	*parent_name)
 	}
 
 	/* If the second arg is blank, unparent */
-	if (!(parent_name && *parent_name))
+	if (!parent_name)
 	{
 		db [thing].set_ammo_parent (NOTHING);
 		if (!in_command ())
@@ -2539,8 +2539,8 @@ const	char	*parent_name)
 
 void
 context::do_parent (
-const	char	*name,
-const	char	*parent_name)
+const	CString& name,
+const	CString& parent_name)
 
 {
 	dbref	thing;
@@ -2565,7 +2565,7 @@ const	char	*parent_name)
 		return;
 	}
 	/* If the second arg is blank, unparent */
-	if (!(parent_name && *parent_name))
+	if (!parent_name)
 	{
 		db [thing].set_parent (NOTHING);
 		if (!in_command ())
@@ -2614,7 +2614,7 @@ const	char	*parent_name)
 }
 
 
-void context::do_credit(const char *arg1, const char *arg2)
+void context::do_credit(const CString& arg1, const CString& arg2)
 {
 	dbref victim;
 	int amount;
@@ -2622,7 +2622,7 @@ void context::do_credit(const char *arg1, const char *arg2)
 	char scanned_name[BUFFER_LEN];
 	const char *currency_name=CURRENCY_NAME;
 
-	if(blank(arg1) || blank(arg2))
+	if(!arg1 || !arg2)
 	{
 		notify(player, "Usage:  @credit <player> = <currency type>;<amount to give>");
 		RETURN_FAIL;
@@ -2634,7 +2634,7 @@ void context::do_credit(const char *arg1, const char *arg2)
 		RETURN_FAIL;
 	}
 
-        strcpy(scanned_name, arg2);
+        strcpy(scanned_name, arg2.c_str());
         if ((where=strchr(scanned_name, ';')) == 0)
 	{
 		notify(player, "Usage:  @credit <player> = <currency type>;<amount to give>");
@@ -2647,7 +2647,7 @@ void context::do_credit(const char *arg1, const char *arg2)
 		RETURN_FAIL;
 	}
 
-	if (strcasecmp(scanned_name, currency_name) != 0)
+	if (string_compare(scanned_name, currency_name) != 0)
 	{
 		notify(player, "That is not a valid currency to credit.");
 		RETURN_FAIL;
@@ -2708,7 +2708,7 @@ void context::do_credit(const char *arg1, const char *arg2)
 	RETURN_SUCC;
 }
 
-void context::do_debit(const char *arg1, const char *arg2)
+void context::do_debit(const CString& arg1, const CString& arg2)
 {
 	dbref victim;
 	int amount;
@@ -2716,9 +2716,9 @@ void context::do_debit(const char *arg1, const char *arg2)
 	char scanned_name[BUFFER_LEN];
 	const char *currency_name=CURRENCY_NAME;
 
-	if(blank(arg1) || blank(arg2))
+	if(!arg1 || !arg2)
 	{
-		notify(player, "Usage:  @credit <player> = <currency type>;<amount to give>");
+		notify(player, "Usage:  @debit <player> = <currency type>;<amount to give>");
 		RETURN_FAIL;
 	}
 
@@ -2734,10 +2734,10 @@ void context::do_debit(const char *arg1, const char *arg2)
 		RETURN_FAIL;
 	}
 
-        strcpy(scanned_name, arg2);
+        strcpy(scanned_name, arg2.c_str());
         if ((where=strchr(scanned_name, ';')) == 0)
 	{
-		notify(player, "Usage:  @credit <player> = <currency type>;<amount to give>");
+		notify(player, "Usage:  @debit <player> = <currency type>;<amount to give>");
 		RETURN_FAIL;
 	}
 	*where = '\0';
@@ -2747,7 +2747,7 @@ void context::do_debit(const char *arg1, const char *arg2)
 		RETURN_FAIL;
 	}
 
-	if (strcasecmp(scanned_name, currency_name) != 0)
+	if (string_compare(scanned_name, currency_name) != 0)
 	{
 		notify(player, "That is not a valid currency to debit.");
 		RETURN_FAIL;

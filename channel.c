@@ -414,7 +414,7 @@ bool forced = false;
 }
 
 void
-context::do_chat(const char* arg1, const char* arg2)
+context::do_chat(const CString& arg1, const CString& arg2)
 {
 	if(Typeof(player) != TYPE_PLAYER)
 	{
@@ -422,7 +422,7 @@ context::do_chat(const char* arg1, const char* arg2)
 		RETURN_FAIL;
 	}
 
-	if(blank(arg1))
+	if(!arg1)
 	{
 		if(db[player].get_channel() == 0)
 		{
@@ -446,7 +446,7 @@ context::do_chat(const char* arg1, const char* arg2)
 		RETURN_SUCC;
 	}
 
-	if(arg1[0] == CHANNEL_MAGIC_COOKIE)
+	if(arg1.c_str()[0] == CHANNEL_MAGIC_COOKIE)
 	{
 		bool forced = false;
 		if(Wizard(get_effective_id()) && (string_compare(arg2, "force") == 0))
@@ -476,10 +476,8 @@ context::do_chat(const char* arg1, const char* arg2)
  * Queries on the channnel state.
  */
 void
-context::do_query_channel (const char *const carg1, const char * const carg2)
+context::do_query_channel (const CString& arg1, const CString& arg2)
 {
-const CString arg1((const char*)carg1);
-const CString arg2((const char*)carg2);
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -602,16 +600,14 @@ const CString arg2((const char*)carg2);
 }
 
 void
-context::do_channel (
-const	char	*arg1,
-const	char	*arg2)
+context::do_channel (const CString& arg1, const CString& arg2)
 {
 	if(Typeof(player) != TYPE_PLAYER)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "NPC's can't use channels.");
 		RETURN_FAIL;
 	}
-	if(blank(arg1))
+	if(!arg1)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, 
 			"Usage:  @channel list\n"
@@ -667,7 +663,7 @@ const	char	*arg2)
 
 	if(Unknown == command)
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "'%s' is not a valid @channel command", arg1);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "'%s' is not a valid @channel command", arg1.c_str());
 		RETURN_FAIL;
 	}
 
@@ -702,7 +698,7 @@ const	char	*arg2)
 
 	if (Join == command)
 	{
-		if(blank(arg2))
+		if(!arg2)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Which channel do you want to join?");
 			RETURN_FAIL;
@@ -716,14 +712,14 @@ const	char	*arg2)
 		{
 			RETURN_FAIL;
 		}
-		notify_colour(player, player, COLOUR_MESSAGES, "Channel %s joined.", arg2);
+		notify_colour(player, player, COLOUR_MESSAGES, "Channel %s joined.", arg2.c_str());
 		RETURN_SUCC;
 	}
 
 	if (Leave == command)
 	{
 		Channel* channel = 0;
-		if(blank(arg2))
+		if(!arg2)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Which channel do you want to leave?");
 			RETURN_FAIL;
@@ -841,13 +837,13 @@ const	char	*arg2)
 	 */
 	if (Mode == command)
 	{
-		if(blank(arg2))
+		if(!arg2)
 		{
 			notify(player, "You must specify whether to make the channel public or private.");
 			RETURN_FAIL;
 		}
 
-		if(strncasecmp(arg2, "pub", 3)==0)
+		if(strncasecmp(arg2.c_str(), "pub", 3)==0)
 		{
 			if(!channel->get_private())
 			{
@@ -861,7 +857,7 @@ const	char	*arg2)
 			RETURN_SUCC;
 		}
 
-		if(strncasecmp(arg2, "pri", 3)==0)
+		if(strncasecmp(arg2.c_str(), "pri", 3)==0)
 		{
 			if(channel->get_private())
 			{
@@ -875,7 +871,7 @@ const	char	*arg2)
 			RETURN_SUCC;
 		}
 
-		if(strncasecmp(arg2, "cen", 3)==0)
+		if(strncasecmp(arg2.c_str(), "cen", 3)==0)
 		{
 			if(channel->get_censored())
 			{
@@ -889,7 +885,7 @@ const	char	*arg2)
 			RETURN_SUCC;
 		}
 
-		if(strncasecmp(arg2, "unc", 3)==0)
+		if(strncasecmp(arg2.c_str(), "unc", 3)==0)
 		{
 			if(!channel->get_censored())
 			{
@@ -908,7 +904,7 @@ const	char	*arg2)
 
 	if (Rename == command)
 	{
-		if(blank(arg2))
+		if(!arg2)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must give a new name for the channel.",COLOUR_REVERT);
 			RETURN_FAIL;
@@ -927,7 +923,7 @@ const	char	*arg2)
 			RETURN_FAIL;
 		}
 
-		sprintf(scratch_buffer, "%s has changed the channel name to \"%s\"", db[player].get_name().c_str(), arg2);
+		sprintf(scratch_buffer, "%s has changed the channel name to \"%s\"", db[player].get_name().c_str(), arg2.c_str());
 		channel->send(player, scratch_buffer, 1);
 
 		channel->set_name(arg2);
@@ -937,7 +933,7 @@ const	char	*arg2)
 	/*
 	 * All remaining commands require a player as the 2nd argument.
 	 */
-	if(blank(arg2))
+	if(!arg2)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must specify a player to do that.");
 		RETURN_FAIL;
@@ -947,7 +943,7 @@ const	char	*arg2)
 
 	if((victim=lookup_player(player, arg2))==NOTHING)
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player \"%s\".", arg2);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player \"%s\".", arg2.c_str());
 		RETURN_FAIL;
 	}
 
@@ -1212,11 +1208,7 @@ static char *chop_string(const char *string, int size)
 
 
 void
-context::do_channel_who
-(
- const	char	*name,
- const	char	*
-)
+context::do_channel_who(const CString& name, const CString& arg2)
 {
 	int	channel_count = 0;
 	time_t	interval;

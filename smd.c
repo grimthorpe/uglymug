@@ -136,22 +136,22 @@ get_smd_flags(u_long a)
 }
 
 static u_long   
-addr_numtoint(const char *addr, int inet)
+addr_numtoint(const CString& addr, int inet)
 {
 	if(inet)
-		return (ntohl(inet_addr(addr)));
+		return (ntohl(inet_addr(addr.c_str())));
 
 	/* No JANET support yet... */
 	return 0xffffffff;
 }
 
 static u_long
-addr_nametoint(const char *addr, int inet)
+addr_nametoint(const CString& addr, int inet)
 {
 	struct hostent *a;
 	if(inet)
 	{
-		a = gethostbyname(addr);
+		a = gethostbyname(addr.c_str());
 		if(a!= NULL)
 			return ntohl(((struct in_addr *)a->h_addr_list[0])->s_addr);
 		else
@@ -173,8 +173,8 @@ getmask(char *mask, int inet)
 
 void
 context::do_smdread (
-const	char	*,
-const	char	*)
+const	CString&,
+const	CString& )
 
 {
 	struct smd *a, *b;
@@ -339,8 +339,8 @@ u_long b;
 
 void
 context::do_smd (
-const	char	*arg1,
-const	char	*arg2)
+const	CString& arg1,
+const	CString& arg2)
 {
 	struct smd *a;
 	return_status = COMMAND_FAIL;
@@ -359,7 +359,7 @@ const	char	*arg2)
 		return;
 	}
 
-	if(blank(arg1))
+	if(!arg1)
 	{
 		notify(player, "%sUsage:%s  @smd <function> = <args>",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
 		notify(player, "        @smd check");
@@ -371,7 +371,7 @@ const	char	*arg2)
 		RETURN_FAIL;
 	}
 
-	if(strcasecmp(arg1, "list")==0)
+	if(string_compare(arg1, "list")==0)
 	{
 		matched = True;
 		a = smd_list;
@@ -402,14 +402,14 @@ const	char	*arg2)
 		RETURN_SUCC;
 	}
 
-	if(strcasecmp(arg1, "read")==0)
+	if(string_compare(arg1, "read")==0)
 	{
 		matched = True;
 		do_smdread ((char *)NULL, (char *)NULL);
 		RETURN_SUCC;
 	}
 
-	if(strcasecmp(arg1, "ban")==0)
+	if(string_compare(arg1, "ban")==0)
 	{
 		unsigned	int	i;
 		unsigned	long	host_num;
@@ -421,14 +421,14 @@ const	char	*arg2)
 		/*
 		 * Make sure we are trying to ban something
 		 */
-		if (blank(arg2))
+		if (!arg2)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Usage: @smd ban=aaa.bbb.ccc.ddd/www.xxx.yyy.zzz (host/mask)");
 			RETURN_FAIL;
 		}
 
-		host = strdup(arg2);
-		mask = strdup(arg2);
+		host = strdup(arg2.c_str());
+		mask = strdup(arg2.c_str());
 
 		MALLOC(a, struct smd);
 
@@ -475,7 +475,7 @@ const	char	*arg2)
 		 * If they don't specify a mask, tell them what default is being used.
 		 * Also nullify mask so we know not to use it later.
 		 */
-		if (strlen(host) == strlen(arg2))
+		if (strlen(host) == arg2.length())
 		{
 #ifdef VERBOSE
 			notify_colour(player, player, COLOUR_MESSAGES, "No mask specified. Using default mask of 0x%08x%s",
@@ -486,9 +486,9 @@ const	char	*arg2)
 			mask = NULL;
 		}
 		else
-			for (i = strlen(host) + 1; i < strlen(arg2); i++)
+			for (i = strlen(host) + 1; i < arg2.length(); i++)
 			{
-				mask[i - (strlen(host) + 1)] = arg2[i];
+				mask[i - (strlen(host) + 1)] = arg2.c_str()[i];
 				mask[(i - strlen(host)) + 2] = '\0';
 			}
 
@@ -545,27 +545,27 @@ const	char	*arg2)
 	/*
 	 * Remove an extry from the (run-time) SMD list
 	 */
-	if ((strcasecmp(arg1, "remove")==0) || (strcasecmp(arg1, "unban")==0))
+	if ((string_compare(arg1, "remove")==0) || (string_compare(arg1, "unban")==0))
 	{
 		matched = True;
 
-		if (blank(arg2))
+		if (!arg2)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Usage: @smd unban=aaa.bbb.ccc.ddd");
 			RETURN_FAIL;
 		}
 
 		if (remove_smd_entry(addr_nametoint(arg2, 1)))
-			notify_colour(player, player, COLOUR_MESSAGES, "Ban lifted for %s", arg2);
+			notify_colour(player, player, COLOUR_MESSAGES, "Ban lifted for %s", arg2.c_str());
 		else
-			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Ban not found for %s", arg2);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Ban not found for %s", arg2.c_str());
 	}
 
 	/*
 	 * Like @smdread _except_ it doesn't re-read the smd file
 	 * (we may have done a temporary ban, which would get lost with a re-read of the file)
 	 */
-	if(strcasecmp(arg1, "check")==0)
+	if(string_compare(arg1, "check")==0)
 	{
 		matched = True;
 

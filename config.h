@@ -1,4 +1,6 @@
 #include "copyright.h"
+#ifndef _Config_h_
+#define _Config_h_
 
 /*
  * Things that used to be in the makefile, but aren't any more, because
@@ -146,8 +148,8 @@
 #define SMD_FILE	"smd.list"
 #define EMAIL_FILE	"email.list"
 
-#define MAX_MORTAL_ARRAY_ELEMENTS 100
-#define MAX_WIZARD_ARRAY_ELEMENTS 750
+const unsigned int MAX_MORTAL_ARRAY_ELEMENTS=100;
+const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 
 #define MAX_MORTAL_DICTIONARY_ELEMENTS 100
 /* Increased to make help work as everyone is too lazy to fix it. */
@@ -174,4 +176,6 @@
 
 #define CHANNEL_MAGIC_COOKIE		'#'
 #define CHANNEL_INVITE_FREQUENCY	60
+
+#endif
 

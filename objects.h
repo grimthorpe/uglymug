@@ -19,7 +19,7 @@ class	Information
 		String		*elements;		/* Elements for array */
 	public:
 				Information		();
-	const	int		get_number_of_elements	()			const	{ return number; }
+	const	unsigned int	get_number_of_elements	()			const	{ return number; }
 };
 
 class	Array_storage
@@ -146,7 +146,7 @@ class	Inheritable_object
 	const	dbref		get_parent		()			const	{ return (parent); }
 	const String&		get_inherited_element	(const int)	const;
 	const int		exist_inherited_element	(const int)	const;
-	const int		get_inherited_number_of_elements(void)	const;
+	const unsigned int	get_inherited_number_of_elements(void)	const;
 };
 
 
@@ -241,8 +241,8 @@ class	Command
 		void		set_csucc		(const dbref o);
 		void		set_cfail		(const dbref o);
 		void		set_description		(const CString&);
-	const	unsigned short	get_parse_helper	(const int index)	const;
-		void		set_parse_helper	(const int index, const unsigned short value);
+	const	unsigned short	get_parse_helper	(const unsigned int index)	const;
+		void		set_parse_helper	(const unsigned int index, const unsigned short value);
 	const	Boolean		alloc_parse_helper	();
 		void		flush_parse_helper	();
 		unsigned	inherited_lines_in_cmd_blk(const unsigned) const;

@@ -311,7 +311,7 @@ object::get_inherited_description ()
 const
 
 {
-	if (get_description () != (const String &)NULL)
+	if (get_description ())
 		return get_description ();
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -325,7 +325,7 @@ object::get_inherited_fail_message ()
 const
 
 {
-	if (get_fail_message () != (const   String&)NULL)
+	if (get_fail_message ())
 		return get_fail_message ();
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -339,7 +339,7 @@ object::get_inherited_succ_message ()
 const
 
 {
-	if (get_succ_message () != (const   String&)NULL)
+	if (get_succ_message ())
 		return get_succ_message ();
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -381,7 +381,7 @@ object::get_inherited_drop_message ()
 const
 
 {
-	if (get_drop_message () != (const   String&)NULL)
+	if (get_drop_message ())
 		return (get_drop_message ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -395,7 +395,7 @@ object::get_inherited_ofail ()
 const
 
 {
-	if (get_ofail () != (const   String&)NULL)
+	if (get_ofail ())
 		return (get_ofail ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -409,7 +409,7 @@ object::get_inherited_osuccess ()
 const
 
 {
-	if (get_osuccess () != (const   String&)NULL)
+	if (get_osuccess ())
 		return (get_osuccess ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -423,7 +423,7 @@ object::get_inherited_odrop ()
 const
 
 {
-	if (get_odrop () != (const   String&)NULL)
+	if (get_odrop ())
 		return (get_odrop ());
 	else if (get_parent () == NOTHING)
 		return NULLSTRING;
@@ -596,7 +596,7 @@ const String& object::get_inherited_element(const int) const
 const int object::exist_inherited_element(const int) const
 { IMPLEMENTATION_ERROR ("exist_inherited_element"); return 0; }
 
-const int object::get_inherited_number_of_elements(void) const
+const unsigned int object::get_inherited_number_of_elements(void) const
 { IMPLEMENTATION_ERROR ("get_inherited_number_of_elements"); return 0; }
 
 /* Massy_thing */
@@ -617,7 +617,7 @@ void object::set_volume_limit (const double)
 
 /* Command */
 
-void object::set_parse_helper (const int, const unsigned short)
+void object::set_parse_helper (const unsigned int, const unsigned short)
 { IMPLEMENTATION_ERROR ("parse helper") }
 
 const Boolean object::alloc_parse_helper ()
@@ -984,7 +984,7 @@ const	CString& string)
 // We should really bug this one, but given that our recent problem
 // would have generated ~96000 BUG reports, we can give this a miss for
 // now.
-	if(element > MAX_WIZARD_ARRAY_ELEMENTS) return;
+	if(element > (int)MAX_WIZARD_ARRAY_ELEMENTS) return;
 
 	//NULL pointer is not a zero length string
 	this_size = string.length();
@@ -1314,7 +1314,7 @@ const int Inheritable_object::exist_inherited_element(const int element_to_find)
 		return db[parent].exist_inherited_element(element_to_find);
 }
 
-const int Inheritable_object::get_inherited_number_of_elements(void) const
+const unsigned int Inheritable_object::get_inherited_number_of_elements(void) const
 {
 	if(get_number_of_elements() || (parent==NOTHING))
 		return get_number_of_elements();
@@ -2375,7 +2375,7 @@ Command::~Command ()
 
 /* Return number of lines in a block (elements added together due to \'s on
  * the end). */
-unsigned Command::lines_in_command_block(const unsigned start_line) const
+unsigned int Command::lines_in_command_block(const unsigned start_line) const
 {
 	Boolean backslash_primed=True; 	// Get first line
 	unsigned current_line=start_line;
@@ -2395,7 +2395,7 @@ unsigned Command::lines_in_command_block(const unsigned start_line) const
 	return current_line-start_line;
 }
 
-unsigned Command::inherited_lines_in_cmd_blk(const unsigned start_line) const
+unsigned int Command::inherited_lines_in_cmd_blk(const unsigned start_line) const
 {
 	if(get_number_of_elements() || (get_parent()==NOTHING))	
 		return lines_in_command_block(start_line);
@@ -2457,7 +2457,7 @@ unsigned Command::reconstruct_command_block(char *const command_block, const uns
 	return lines_in_command_block(start_line);
 }
 
-unsigned Command::reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line) const
+unsigned int Command::reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line) const
 {
 	if(get_number_of_elements() || (get_parent()==NOTHING))	
 		return reconstruct_command_block(command_block, max_length, start_line);
@@ -2537,7 +2537,7 @@ Command::flush_parse_helper ()
 
 const unsigned short
 Command::get_parse_helper (
-const	int	index)
+const	unsigned int	index)
 const
 
 {
@@ -2550,7 +2550,7 @@ const
 
 void
 Command::set_parse_helper (
-const	int		index,
+const	unsigned int	index,
 const	unsigned short	value)
 
 {
