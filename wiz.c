@@ -136,12 +136,15 @@ const	String& )
 	int	dictionaries = 0;
 	int	npcs	= 0;
 	int	ashcans	= 0;
+	int	money	= 0;
+	int	bps	= 0;
 
 	int	type;
 	int	top = db.get_top();
 	dbref	i;
 	dbref	owner;
 	char	buf [BUFFER_LEN];
+	const	char	*currency_name = CURRENCY_NAME;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -198,15 +201,25 @@ const	String& )
 					if (Puppet (i))
 					{
 						if ((db [i].get_controller () == owner) || (owner == NOTHING) || (Wizard(player) && (!name)))
+						{
 							puppets++;
+							money+=db[i].get_money();
+							bps+=db[i].get_pennies();
+						}
 						else
 							total--;
 					}
 					else
+					{
 						players++;
+						money+=db[i].get_money();
+						bps+=db[i].get_pennies();
+					}
 					break;
 				case TYPE_PUPPET:
 					npcs++;
+					money+=db[i].get_money();
+					bps+=db[i].get_pennies();
 					break;
 				case TYPE_VARIABLE:
 					variables++;
@@ -236,8 +249,8 @@ const	String& )
 		}
 	}
 	sprintf (buf,
-		"%d objects = %d rooms, %d exits, %d things, %d players, %d puppets, %d NPC's, %d variables, %d properties, %d arrays, %d dictionaries, %d commands, %d fuses, %d alarms, %d free, %d unknowns, %d ashcanned.",
-		total, rooms, exits, things, players, puppets, npcs, variables, properties, arrays, dictionaries, commands, fuses, alarms, frees, unknowns, ashcans);
+		"%d objects = %d rooms, %d exits, %d things, %d players, %d puppets, %d NPC's, %d variables, %d properties, %d arrays, %d dictionaries, %d commands, %d fuses, %d alarms, %d free, %d unknowns, %d ashcanned. %s: %d. BPs: %d.",
+		total, rooms, exits, things, players, puppets, npcs, variables, properties, arrays, dictionaries, commands, fuses, alarms, frees, unknowns, ashcans, currency_name, money, bps);
 	notify_colour (player, player, COLOUR_MESSAGES, buf);
 
 	return_status = COMMAND_SUCC;
