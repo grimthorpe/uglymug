@@ -143,6 +143,7 @@
 #define	SET_COMMAND	"SET"
 #define	PREFIX_COMMAND	"OUTPUTPREFIX"
 #define	SUFFIX_COMMAND	"OUTPUTSUFFIX"
+#define	HALFQUIT_COMMAND	"HALFQUIT"
 
 /* The amount of time that the IDLE command increases your idle to in seconds */
 #define IDLE_TIME_INCREASE 180
