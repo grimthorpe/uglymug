@@ -3129,9 +3129,6 @@ int
 descriptor_data::do_command (const char *command)
 {
 	FILE		*fp;
-#ifdef sun
-	extern	char	*sys_errlist[];
-#endif
 
 	if(strcmp (command, QUIT_COMMAND) == 0)
 	{

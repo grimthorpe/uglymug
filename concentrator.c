@@ -10,8 +10,6 @@
 #include "concentrator.h"
 #include "config.h"
 
-#define	BUFFER_LEN	512
-
 const char *concentrator_connect_message = "\nConnecting to UglyMug via Flup's Concentrator (tm)...\n\n";
 
 struct user
