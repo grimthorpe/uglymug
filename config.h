@@ -1,3 +1,7 @@
+/*
+ * Local configuration file.  All of these parameters are modifiable
+ *	per-site.  However, some of them probably shouldn't be.
+ */
 // vi:ts=4:sw=4:ai:
 #include "copyright.h"
 #include "command.h"
@@ -13,7 +17,7 @@
 
 #define	STARTUP					/* Look for .startup and .shutdown in #4 */
 #define	LOG_FAILED_COMMANDS		/* Log all instances of failed commands */
-#define	RESTRICTED_BUILDING		/* Only BUILDERs may... well, build */
+#define	RESTRICTED_BUILDING		/* Need a BUILDER flag to build */
 #define	HACK_HUNTING			/* Log use of wizard @chpids not set W */
 #define	LOG_RECURSION			/* Log recursion overruns */
 #define	QUIET_WHISPER			/* Other people's whispers are not shown */
@@ -35,17 +39,6 @@
 
 /* Name change time in seconds */
 #define NAME_TIME		300
-
-/* Ability maxima */
-#define	MAX_STRENGTH		2500
-#define	MAX_CONSTITUTION	2500
-#define	MAX_DEXTERITY		2500
-#define	MAX_PERCEPTION		2500
-#define	MAX_INTELLIGENCE	2500
-#define	MAX_ARMOURCLASS		10
-#define	MIN_ARMOURCLASS		0
-#define	MAX_LEVEL		30
-#define	XP_PER_LEVEL		2000
 
 #define STANDARD_ROOM_MASS		0
 #define STANDARD_ROOM_VOLUME		0
@@ -176,7 +169,7 @@ const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 
 /* The termcap compat libraries on linux are becoming increasingly unsupported.
  * I recommend using this so you don't have to link with two versions of libc
- * which seems rather dodgey.  -Abs
+ * which seems rather dodgy.  -Abs
  */
 #define	USE_TERMINFO 
 
@@ -186,4 +179,3 @@ const unsigned int MAX_WIZARD_ARRAY_ELEMENTS=750;
 #define CHANNEL_INVITE_FREQUENCY	60
 
 #endif
-
