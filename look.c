@@ -433,7 +433,7 @@ dbref	thing)
 			if (Visible(looper))
 				notify_censor(c.get_player(), c.get_player(), "%s%s: %s%s%s", 
 				colour_at[COLOUR_TITLES], db[looper].get_name(), 
-				colour_at[COLOUR_PROPERTIES],db[looper].get_description(), COLOUR_REVERT);
+				colour_at[COLOUR_PROPERTIES],value_or_empty(db[looper].get_description()), COLOUR_REVERT);
 		}
 		if (Container(thing) && (db[thing].get_contents() != NOTHING))
 			look_container (c, thing, "Contents:", 1);
