@@ -327,7 +327,9 @@ const char* censored = 0;
 		}
 		else if(emote)
 		{
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s %s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), docensor?(censored+1):(msgstart+1), COLOUR_REVERT);
+			const char *emotemsg = docensor?(censored+1):(msgstart+1);
+
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s%s%s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), (*emotemsg=='\'' || *emotemsg=='`')? "":" ", emotemsg, COLOUR_REVERT);
 		}
 		else
 		{
