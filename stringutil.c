@@ -9,20 +9,14 @@
 #include "externs.h"
 #include "colour.h"
 
+#include <set>
+
 //#include <stdio.h>
 //#include <string.h>
 
-char	downcase_table[128];
-char	downcase_compare[128*128];
-char	rude_letters[128];
-char	excluded_letters[128];
-char	**rude_words=NULL;
-char	**excluded_words=NULL;
-int	rudes=0;
-int	excluded=0;
+std::set<String>	rude_words;
+std::set<String>	excluded_words;
 
-#define DOWNCASE(x) (downcase_table[x])
-#define DOWNCOMP(x,y) (downcase_compare[(x)+((y)*128)])
 #define REALLOC(p,s)	{ ((p)) ? ((p) = (char **)realloc((p),(s))) : ((p) = (char **) malloc((s)));}
 
 /*Values for use in indexing the substitution tables*/
@@ -70,21 +64,6 @@ int colour_strlen(const String& string)
 
 void init_strings (void)
 {
-	int	x;
-	int	y;
-
-	for (x = 0; x < 128; x++)
-	{
-		rude_letters[x]=0;
-		if (isupper (x))
-			downcase_table[x] = tolower (x);
-		else
-			downcase_table[x] = x;
-	}
-	for (x = 0; x < 128; x ++)
-		for (y = 0; y < 128; y ++)
-			downcase_compare[x+y*128] = (DOWNCASE(x) == DOWNCASE(y));
-
 /* Now some reasonable default exclusions.
    I had to ask someone what these words mean because I'm so innocent. - Luggs */
 
@@ -126,7 +105,7 @@ const	String& is_this)
 	{
 		/* check out this one */
 		
-		while(*m && *p && (DOWNCASE(*p) == DOWNCASE(*m)))
+		while(*m && *p && (tolower(*p) == tolower(*m)))
 			p++, m++;
 
 		if((*m == '\0' && *p == '\0') || (*m == EXIT_DELIMITER && *p == '\0'))
@@ -182,10 +161,10 @@ const	String& s2)
 	/* Both non-NULL; find common prefix, if any */
 	const char* c1 = s1.c_str();
 	const char* c2 = s2.c_str();
-	while(*c1 && *c2 && DOWNCOMP(*c1,*c2))
+	while(*c1 && *c2 && (tolower(*c1) == tolower(*c2)))
 		c1++, c2++;
 
-	return(DOWNCASE(*c1) - DOWNCASE(*c2));
+	return(tolower(*c1) - tolower(*c2));
 }
 
 
@@ -207,7 +186,7 @@ const	String& prefix)
 	const char* p = prefix.c_str();
 
 	/* Otherwise, we have to think about it */
-	while (*s && *p && DOWNCOMP(*s,*p))
+	while (*s && *p && (tolower(*s) == tolower(*p)))
 		s++, p++;
 
 	return *p== '\0';
@@ -407,7 +386,7 @@ const	String& cstr)
 } 
 
 static int
-swear_compare(int &skipped, char *s1, char *s2)
+swear_compare(int &skipped, const char *s1, const char *s2)
 {
         /* This could be a rude word.. Is it? */
         /* We must disregard all non-alphanumerics, etc in s1*/
@@ -420,10 +399,10 @@ swear_compare(int &skipped, char *s1, char *s2)
 			if(*s1)
 				s1++, skipped++;
 		}
-		if (ispunct(*s1))
+		if (ispunct(*s1) || isspace(*s1))
 			s1++, skipped++;
-		else if (DOWNCOMP(*s1, *s2) == 0)
-			return (DOWNCASE(*s1) - DOWNCASE(*s2));
+		else if (tolower(*s1) != tolower(*s2))
+			return (tolower(*s1) - tolower(*s2));
 		else
 			s1++, s2++, skipped++;
         }
@@ -437,80 +416,17 @@ bool
 add_rude(
 const String& string)
 {
-	int		value;
-	int		i;
-
-	if (!string)
-		return false;
-
-	if (rude_words==NULL)
-	{
-		rude_words=(char **)malloc(sizeof(char *));
-		rude_words[0]= strdup(string.c_str());
-		rudes=1;
-		rude_letters[tolower(*string.c_str())]=1;
-		return true;
-	}
-	i=0;
-	while ((i < rudes) && (string_compare(string, rude_words[i]) > 0))
-		i++;
-	if ((i < rudes) && (!string_compare(string, rude_words[i])))
-		return true;  // Word already in list
-
-	value=rudes++;
-	REALLOC(rude_words, (rudes*sizeof(char *)));
-
-	// i tells us where to put the new word 
-
-	while (value > i)
-	{
-		rude_words[value]=rude_words[value - 1];
-		value--;
-	}
-
-
-	rude_words[i]=strdup(string.c_str());
-	rude_letters[tolower(*string.c_str())]++;
+	excluded_words.erase(string);
+	rude_words.insert(string);
 	return true;
 }
-
 
 bool
 add_excluded(
 const String& string)
 {
-	int		value;
-	int		i;
-
-	if (!string)
-		return false;
-
-	if (excluded_words==NULL)
-	{
-		excluded_words=(char **)malloc(sizeof(char *));
-		excluded_words[0]= strdup(string.c_str());
-		excluded=1;
-		excluded_letters[tolower(*string.c_str())]=1;
-		return true;
-	}
-	i=0;
-
-	while ((i < excluded) && (string_compare(string, excluded_words[i]) > 0))
-		i++;
-	if ((i < excluded) && (!string_compare(string, excluded_words[i])))
-		return true;  // Word already in list
-
-	value=excluded++;
-	REALLOC(excluded_words, (excluded*sizeof(char *)));
-
-	// i tells us where to put the new word 
-
-	while (value > i)
-		excluded_words[value]=excluded_words[--value];
-
-
-	excluded_words[i]=strdup(string.c_str());
-	excluded_letters[tolower(*string.c_str())]++;
+	rude_words.erase(string);
+	excluded_words.insert(string);
 	return true;
 }
 
@@ -518,25 +434,7 @@ bool
 un_rude(
 const String& string)
 {
-	/* int		value; */
-	int		i;
-
-	if (!string)
-		return true;
-	if (rude_words==NULL)
-		return true;
-	i=0;
-	while ((i < rudes) && (string_compare(string, rude_words[i]) > 0))
-		i++;
-	if (i == rudes)
-		return true;  // Word not censored
-	rude_letters[tolower(*string.c_str())]--;
-	free(rude_words[i]);
-	while (i < rudes)
-		rude_words[i]=rude_words[++i];
-	REALLOC(rude_words, (--rudes*sizeof(char *)));
-	if (rudes==0)
-		rude_words= NULL;
+	rude_words.erase(string);
 	return true;
 }
 
@@ -544,25 +442,7 @@ bool
 un_exclude(
 const String& string)
 {
-	/* int		value; */
-	int		i;
-
-	if (!string)
-		return true;
-	if (excluded_words==NULL)
-		return true;
-	i=0;
-	while ((i < excluded) && (string_compare(string, excluded_words[i]) > 0))
-		i++;
-	if (i == excluded)
-		return true;  // Word not censored
-	excluded_letters[tolower(*string.c_str())]--;
-	free(excluded_words[i]);
-	while (i < excluded)
-		excluded_words[i]=excluded_words[++i];
-	REALLOC(excluded_words, (--excluded*sizeof(char *)));
-	if (excluded==0)
-		excluded_words=NULL;
+	excluded_words.erase(string);
 	return true;
 }
 
@@ -570,13 +450,6 @@ int
 rude_count (
 char *string)
 {
-        int             bottom = 0;
-        int             top;
-        int             mid;
-        int             value;
-        int             counter;
-        int             i;
-
         /* Check for NULL */
         if (string == NULL)
                 return (1);
@@ -586,60 +459,46 @@ char *string)
 
 /* First, check if this is a word that shouldn't be censored - EG 'scunthorpe' */
 
-	if (excluded_letters[tolower(*string)])
+	std::set<String>::const_iterator it;
+	char c = string[0];
+	for(it = excluded_words.begin(); it != excluded_words.end(); it++)
 	{
-		top= excluded-1;
-		while (bottom <= top)
+		if((*it).c_str()[0] == c) // Speed up match.
 		{
-			mid = (top + bottom) / 2;
-			counter=0;
-			value = strncasecmp(string, excluded_words [mid], strlen(excluded_words[mid]));
-
-			if (value < 0)
-				top = mid - 1;
-			else if (value == 0)
-				return (strlen(excluded_words[mid]));
-			else /* value > 0 */
-				bottom = mid + 1;
-                }
+			// Do we have a prefix match? If so, we've got a winner.
+			if(string_prefix(string, (*it)))
+			{
+				return (*it).length();
+			}
+		}
 	}
+
 	// Not an excluded word - so is it a naughty?
 
-        if (!(rude_letters[tolower(*string)])) // Speeds up checking
-                return 1;
+	for(it = rude_words.begin(); it != rude_words.end(); it++)
+	{
+		if((*it).c_str()[0] == c) // Speed up match.
+		{
+			int skipped = 0;
+			if(swear_compare (skipped, string, (*it).c_str()) == 0)
+			{
+				if(skipped > 0)
+				{
+					for(int i=0; i < skipped; i++)
+					{
+						if(*string == '%')
+							string++, i++;	// Skip over colour controls
+						if (!ispunct(*string))
+							*string='*';
+						string++;
+					}
+					return skipped; // counter is exactly the number of characters to '*'
+				}
+				return 1;
+			}
+		}
+	}
 
-        top = rudes-1;
-        while (bottom <= top)
-        {
-                mid = (top + bottom) / 2;
-                counter=0;
-                value = swear_compare (counter, string, rude_words [mid]);
-
-                if (value < 0)
-                        top = mid - 1;
-                else
-                {
-                    if (value == 0)
-                    {
-                        if (counter>0)
-                        {
-                            for(i=0; i < counter; i++)
-                            {
-				if(*string == '%')
-					string++, i++;	// Skip over colour controls
-                                if (!ispunct(*string))
-                                     *string='*';
-                                string++;
-                            }
-				return counter; // counter is exactly the number of characters to '*'
-                        }
-			else
-				return 1; // Make sure we move on
-                    }
-                    else /* value > 0 */
-                        bottom = mid + 1;
-                }
-        }
         /* We get here if the word's not rude */
         return (1);
 }
@@ -668,5 +527,3 @@ const char *censor(const String& string)
     *letter='\0';
     return censored;
 }
-
-

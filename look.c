@@ -2163,36 +2163,27 @@ context::do_at_censorinfo(const String& ,const String& )
 	}
 	return_status= COMMAND_SUCC;
 	set_return_string(ok_return_string);
-	if (rudes==0)
-	{
-		notify(player, "%%w%%hNo words are censored.%%z");
-		return;
-	}
 
 	notify_colour(player, player, COLOUR_TITLES, "The censor list contains the following:");
 
 	*scratch_buffer='\0';
-	for (int i=0; i<rudes;i++)
+	std::set<String>::const_iterator it;
+	for (it = rude_words.begin(); it != rude_words.end(); it++)
 	{
 		if (*scratch_buffer)
 			strcat(scratch_buffer,", ");
-		strcat(scratch_buffer, rude_words[i]);
+		strcat(scratch_buffer, (*it).c_str());
 	}
 	notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
 
-	if (excluded==0)
-	{
-		notify(player, "%%w%%hNo words are excluded.%%z");
-		return;
-	}
 	*scratch_buffer='\0';
 	notify(player,"");
 	notify_colour(player, player, COLOUR_TITLES, "The exclude list contains the following:");
-	for (int i=0; i<excluded;i++)
+	for (it = excluded_words.begin(); it != excluded_words.end(); it++)
 	{
 		if (*scratch_buffer)
 			strcat(scratch_buffer,", ");
-		strcat(scratch_buffer, excluded_words[i]);
+		strcat(scratch_buffer, (*it).c_str());
 	}
 	notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
 }
