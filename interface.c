@@ -369,18 +369,16 @@ public:
 
 	void	set_echo(bool echo);
 	int	set_terminal_type(const CString& terminal);
-	Command_status	terminal_set_termtype(const CString& , int);
+	Command_status	terminal_set_termtype(const CString& , bool);
 	String	terminal_get_termtype();
-	Command_status	terminal_set_lftocr(const CString& , int);
-	Command_status	terminal_set_pagebell(const CString& , int);
-	Command_status	terminal_set_width(const CString& , int);
-	Command_status	terminal_set_wrap(const CString& , int);
-	Command_status	terminal_set_echo(const CString& , int);
-	Command_status	terminal_set_recall(const CString& , int);
-	Command_status	terminal_set_effects(const CString& , int);
-	Command_status	terminal_set_halfquit(const CString& , int);
-	Command_status	really_do_terminal_set(const CString&, const CString&, int);
-	String		really_do_terminal_query(const CString&, const CString&, bool);
+	Command_status	terminal_set_lftocr(const CString& , bool);
+	Command_status	terminal_set_pagebell(const CString& , bool);
+	Command_status	terminal_set_width(const CString& , bool);
+	Command_status	terminal_set_wrap(const CString& , bool);
+	Command_status	terminal_set_echo(const CString& , bool);
+	Command_status	terminal_set_recall(const CString& , bool);
+	Command_status	terminal_set_effects(const CString& , bool);
+	Command_status	terminal_set_halfquit(const CString& , bool);
 	void	do_write(const char * c, int i)
 	{
 /*
@@ -462,7 +460,7 @@ void				concentrator_disconnect	(void);
 struct terminal_set_command
 {
 	const char	*name;
-	Command_status	(descriptor_data::*set_function) (const CString&, int);
+	Command_status	(descriptor_data::*set_function) (const CString&, bool);
 	String		(descriptor_data::*query_function) ();
 	bool		deprecated;
 } terminal_set_command_table[] =
@@ -2182,14 +2180,13 @@ void
 set_cached_addr(u_long addr, const CString& name)
 {
 int i;
-u_long mintime = 0xffffffff;
+time_t mintime = 0x7fffffff;
 u_long mincount = 0xffffffff;
 u_long bestindex = 0;
 	for(i = 0; i < CACHE_ADDR_SIZE; i++)
 	{
 		if(cached_addresses[i].addr == 0)
 		{
-fprintf(stderr, "New cache in location %d\n", i);
 			cached_addresses[i].addr = addr;
 			cached_addresses[i].name = name;
 			cached_addresses[i].count = 1;
@@ -2432,8 +2429,8 @@ int			channel)
 	termcap.underscore_on	= NULL;
 	termcap.underscore_off	= NULL;
 // Naive assumption of terminal capabilities, which will probably work.
-	termcap.backspace	= safe_strdup("\010 \010");
-	termcap.clearline	= safe_strdup("^R\r\n");
+	termcap.backspace	= "\010 \010";
+	termcap.clearline	= "\r\n";
 
 	backslash_pending	= 0;
 	cr_pending		= 0;
@@ -3205,7 +3202,8 @@ descriptor_data::process_input (int len)
 				}
 				break;
 			case '\022':	// ^R
-				do_write((const char *)termcap.clearline.c_str(), termcap.clearline.length());
+				do_write("^R", 2);
+				do_write(termcap.clearline.c_str(), termcap.clearline.length());
 				x = p;
 				*p = '\0';
 				while(x > raw_input && (*x != '\n'))
@@ -3246,6 +3244,14 @@ descriptor_data::process_input (int len)
 				p = x;
 				*p = '\0';
 				break;
+			}
+			case '\025':	// ^U
+			{
+				do_write("^U", 2);
+				do_write(termcap.clearline.c_str(), termcap.clearline.length());
+				p = raw_input;
+				*p = 0;
+				backslash_pending = 0;
 			}
 			default:
 				if (p < pend && isascii (*q) && isprint (*q))
@@ -3431,55 +3437,6 @@ descriptor_data::do_command (const char *command)
 				queue_string (scratch);
 		}
 		fclose(fp);
-	}
-	else if(strcmp (command, SET_COMMAND) == 0)
-	{
-		/* Ensure we don't trash a constant string - PJC 23/12/96 */
-		char	*copied_command = safe_strdup (command);
-		char	*a1;
-		char	*a2;
-		char	*q;
-		char	*endarg;
-
-		endarg=copied_command+strlen(SET_COMMAND);
-
-		/* This is nicked from game.c */
-
-                /* move over command word */
-                for(a1 = copied_command; *a1 && !isspace(*a1); a1++)
-                        ;
-
-                /* NUL-terminate command word */
-                if(*a1)
-                        *a1++ = '\0';
-
-                /* Make sure arg2 points to NULL if there isn't a 2nd argument */
-                if(a1 <= endarg)
-                {
-                        /* move over spaces */
-                        while(*a1 && isspace(*a1))
-                                a1++;
-                        if(a1 <= endarg)
-                        {
-                                /* find end of arg1, start of arg2 */
-                                for(a2 = a1; *a2 && *a2 != '='; a2++)
-					;
-
-                                /* NUL-fill between end of arg1 and arg2 */
-                                for(q = a2 - 1; q >= a1 && isspace(*q); q--)
-                                        *q = '\0';
-
-                                /* go past '=' and leading whitespace if present */
-                                if (*a2)
-                                        *a2++ = '\0';
-
-                                while(*a2 && isspace(*a2))
-                                        a2++;
-                        }
-                }
-
-		really_do_terminal_set(a1, a2, 0);
-		free (copied_command);
 	}
 	else if (strncmp (command, PREFIX_COMMAND, strlen (PREFIX_COMMAND)) == 0)
 		set_output_prefix(command+strlen(PREFIX_COMMAND));
@@ -4694,7 +4651,7 @@ time_t get_idle_time (dbref player)
 }
 
 Command_status
-descriptor_data::terminal_set_halfquit(const CString& toggle, int commands_executed)
+descriptor_data::terminal_set_halfquit(const CString& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4712,7 +4669,7 @@ descriptor_data::terminal_set_halfquit(const CString& toggle, int commands_execu
 			return COMMAND_FAIL;
 		}
 	}
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Auto-HALFQUIT is %s", terminal_halfquit?"on":"off");
 	}
@@ -4720,7 +4677,7 @@ descriptor_data::terminal_set_halfquit(const CString& toggle, int commands_execu
 }
 
 Command_status
-descriptor_data::terminal_set_effects(const CString& toggle, int commands_executed)
+descriptor_data::terminal_set_effects(const CString& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4738,7 +4695,7 @@ descriptor_data::terminal_set_effects(const CString& toggle, int commands_execut
 			return COMMAND_FAIL;
 		}
 	}
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Effects are %s", terminal_effects?"on":"off");
 	}
@@ -4746,7 +4703,7 @@ descriptor_data::terminal_set_effects(const CString& toggle, int commands_execut
 }
 
 Command_status
-descriptor_data::terminal_set_recall(const CString& toggle, int commands_executed)
+descriptor_data::terminal_set_recall(const CString& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4764,7 +4721,7 @@ descriptor_data::terminal_set_recall(const CString& toggle, int commands_execute
 			return COMMAND_FAIL;
 		}
 	}
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Recall is %s", terminal_recall?"on":"off");
 	}
@@ -4772,7 +4729,7 @@ descriptor_data::terminal_set_recall(const CString& toggle, int commands_execute
 }
 
 Command_status
-descriptor_data::terminal_set_echo(const CString& toggle, int commands_executed)
+descriptor_data::terminal_set_echo(const CString& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4787,7 +4744,7 @@ descriptor_data::terminal_set_echo(const CString& toggle, int commands_executed)
 		}
 	}
 
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Echo is %s", t_echo?"on":"off");
 	}
@@ -4796,7 +4753,7 @@ descriptor_data::terminal_set_echo(const CString& toggle, int commands_executed)
 }
 
 Command_status
-descriptor_data::terminal_set_pagebell(const CString& toggle, int commands_executed)
+descriptor_data::terminal_set_pagebell(const CString& toggle, bool gagged)
 {
 	if(toggle)
 	{
@@ -4808,7 +4765,7 @@ descriptor_data::terminal_set_pagebell(const CString& toggle, int commands_execu
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal pagebell=on' or '@terminal pagebell=off'.");
 	}
 
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Pagebell is %s", terminal_pagebell?"on":"off");
 	}
@@ -4825,7 +4782,7 @@ descriptor_data::terminal_get_termtype()
 }
 
 Command_status
-descriptor_data::terminal_set_termtype (const CString& termtype, int commands_executed)
+descriptor_data::terminal_set_termtype (const CString& termtype, bool gagged)
 {
 	if(termtype)
 	{
@@ -4855,7 +4812,7 @@ descriptor_data::terminal_set_termtype (const CString& termtype, int commands_ex
 
 
 Command_status
-descriptor_data::terminal_set_width(const CString& width, int commands_executed)
+descriptor_data::terminal_set_width(const CString& width, bool gagged)
 {
 	int			i;
 
@@ -4869,7 +4826,7 @@ descriptor_data::terminal_set_width(const CString& width, int commands_executed)
 		}
 		terminal_width = i;
 	}
-	if(!commands_executed)
+	if(!gagged)
 	{
 		if(terminal_width == 0)
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal width is unset");
@@ -4881,7 +4838,7 @@ descriptor_data::terminal_set_width(const CString& width, int commands_executed)
 }
 
 Command_status
-descriptor_data::terminal_set_wrap(const CString& width, int commands_executed)
+descriptor_data::terminal_set_wrap(const CString& width, bool gagged)
 {
 	int			i;
 
@@ -4927,7 +4884,7 @@ descriptor_data::terminal_set_wrap(const CString& width, int commands_executed)
 			}
 		}
 	}
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Word wrap is %s", terminal_wrap?"on":"off");
 	}
@@ -4936,7 +4893,7 @@ descriptor_data::terminal_set_wrap(const CString& width, int commands_executed)
 
 
 Command_status
-descriptor_data::terminal_set_lftocr(const CString& z, int commands_executed)
+descriptor_data::terminal_set_lftocr(const CString& z, bool gagged)
 {
 	if(z)
 	{
@@ -4954,7 +4911,7 @@ descriptor_data::terminal_set_lftocr(const CString& z, int commands_executed)
 			return COMMAND_FAIL;
 		}
 	}
-	if(!commands_executed)
+	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"lftocr is %s", terminal_lftocr?"on":"off");
 	}
@@ -5048,10 +5005,39 @@ void context::do_terminal_set(const CString& command, const CString& arg)
 
 	if(!d)
 	{
-		return;
+		RETURN_FAIL;
 	}
 
-	return_status = d->really_do_terminal_set (command, arg, commands_executed);
+	int		i;
+	bool		gag = arg?in_command():false;
+
+	for(i=0; terminal_set_command_table[i].name; i++)
+	{
+		if(command)
+		{
+			if(string_compare(command, terminal_set_command_table[i].name)==0)
+			{
+				return_status=(d->*(terminal_set_command_table[i].set_function))(arg, gag);
+				
+				break;
+			}
+		}
+		// If @terminal is run with no parameter then ignore the in_command bit
+		else if(!terminal_set_command_table[i].deprecated)
+			(d->*(terminal_set_command_table[i].set_function))(NULL, false);
+	}
+
+	if(command && !terminal_set_command_table[i].name)
+	{
+		if(!gagged_command())
+			notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal set command '%s'.", command.c_str());
+		RETURN_FAIL;
+	}
+	else if(!command)
+	{
+		RETURN_SUCC;
+	}
+
 	set_return_string ((return_status==COMMAND_SUCC) ? ok_return_string : error_return_string);
 }
 
@@ -5067,23 +5053,19 @@ context::do_query_terminal(const CString& command, const CString& arg)
 	if(!d)
 		return;
 
-	set_return_string(d->really_do_terminal_query(command, arg, gagged_command()));
-}
-
-String
-descriptor_data::really_do_terminal_query(const CString& command, const CString& arg, bool gagged)
-{
-static char retbuf[4096];
-	retbuf[0] = 0;
 	if(string_compare(command, "commands") == 0)
 	{
+		static char retbuf[4096];
+		retbuf[0] = 0;
 		for(int i=0; terminal_set_command_table[i].name; i++)
 		{
 			if((i != 0) && (!terminal_set_command_table[i].deprecated))
 				strcat(retbuf, ";");
 			strcat(retbuf, terminal_set_command_table[i].name);
 		}
-		return retbuf;
+		set_return_string(retbuf);
+		return_status = COMMAND_SUCC;
+		return;
 	}
 	int i;
 	for(i=0; terminal_set_command_table[i].name; i++)
@@ -5095,46 +5077,17 @@ static char retbuf[4096];
 	{
 		if(terminal_set_command_table[i].query_function)
 		{
-			return (this->*(terminal_set_command_table[i].query_function))();
+			set_return_string((d->*(terminal_set_command_table[i].query_function))());
+			return_status = COMMAND_SUCC;
+			return;
 		}
 		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "@?terminal %s not implemented yet", command.c_str());
-		return "Error";
+		RETURN_FAIL;
 	}
-	if(!gagged)
+	if(!gagged_command())
 		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown @?terminal option: %s. Use @?terminal commands to list available commands.", command.c_str());
-	return "Error";
+	RETURN_FAIL;
 }
-
-Command_status
-descriptor_data::really_do_terminal_set(const CString& command, const CString& arg, int commands_executed)
-{
-	Command_status	return_status=COMMAND_SUCC;
-	int		i;
-
-	for(i=0; terminal_set_command_table[i].name; i++)
-	{
-		if(command)
-		{
-			if(string_compare(command, terminal_set_command_table[i].name)==0)
-			{
-				return_status=(this->*(terminal_set_command_table[i].set_function))(arg, commands_executed);
-				
-				break;
-			}
-		}
-		else if(!terminal_set_command_table[i].deprecated)
-			(this->*(terminal_set_command_table[i].set_function))(NULL, commands_executed);
-	}
-
-	if(command && !terminal_set_command_table[i].name)
-	{
-		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown terminal set command '%s'.", command.c_str());
-		return_status=COMMAND_FAIL;
-	}
-
-	return return_status;
-}
-
 
 void
 smd_updated()

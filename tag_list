@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Cleaned up @terminal, removed the never-working 'SET' command
 	Cleaned up checks for gagged_command()
 	Made the Player recall buffer only be created when its used.
 	Fix csucc/cfail Silent commands to be silent again.
