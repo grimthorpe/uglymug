@@ -1,0 +1,5 @@
+This is UglyMUG, a driver for a rather ugly multi-user game.
+
+The following files may help you:
+  COMPILING: How to compile the driver.
+  PORTING: How to port the driver to a new platform.

@@ -1,0 +1,25 @@
+How to compile UglyMUG
+======================
+
+0. Prepare your preferred beverage.  Call it $beverage.
+
+1. Ensure you are using gmake.  Our Makefile probably won't work with
+   any other flavour of make.
+
+2. Check whether we support your build environment.  Run:
+     make checkenvironment
+   and see what it thinks your environment is.  If your environment is
+   unsupported, read the PORTING file.  If your environment is supported,
+   this will tell you a platform type.  Call this $platform.
+
+3. Run:
+     make
+   or:
+     make all
+
+4. Drink $beverage, while watching the screen warily for errors.
+
+5. Your compiled output should be builds/$platform/netmud, possibly with a
+   suffix such as netmud.exe if your platform requires this.
+
+6. Start at doc/index.html to find out how to use UglyMUG.
