@@ -1253,7 +1253,7 @@ void mud_main_loop(int port)
 				{
 					if (errno != EINTR && errno != EMFILE && errno != ECONNREFUSED && errno != EWOULDBLOCK && errno != ENFILE)
 					{
-sprintf(stderr, "new_connection returned %d, errno=%d\nThe old code would have ABORTED here, but we're continuing.", newd, errno);
+fprintf(stderr, "new_connection returned %d, errno=%d\nThe old code would have ABORTED here, but we're continuing.", newd, errno);
 						//perror ("new_connection");
 						//abort();
 					}
