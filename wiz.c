@@ -508,12 +508,15 @@ context::dump_email_addresses ()
 					fprintf (fp, "%s|", db [i].get_alias (j).c_str());
 				}
 				fprintf (fp,
-					"%d|%s|%s\n",
+					"%d|%s|%s|%s\n",
 					i,
 					(db [i].get_email_addr ())
 						? db [i].get_email_addr ().c_str()
 						: "NO_MAIL_ADDRESS",
-					(NoHuhLogs(i) ? "NOHUH" : "HUH")	/* HUH logs? */
+					(NoHuhLogs(i) ? "NOHUH" : "HUH"),	/* HUH logs? */
+					(NoForwardEmail(db [i]))		/* Forward email? */
+						? "NO_FORWARD_EMAIL"
+						: "FORWARD_EMAIL"
 				);
 			}
 		fclose(fp);

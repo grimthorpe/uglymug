@@ -155,6 +155,7 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define FLAG_NATTER			52
 #define	FLAG_RETIRED			53
 #define	FLAG_LITERALINPUT		54
+#define FLAG_NO_EMAIL_FORWARD		55
 
 /* Used inside the code and not stored in the db */
 /* Lee says so and I belive him! */
@@ -233,6 +234,7 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define Welcomer(x)	(db[(x)].get_flag(FLAG_WELCOMER))
 #define Wizard(x)	(db[(x)].get_flag(FLAG_WIZARD))
 #define XBuilder(x)	(db[(x)].get_flag(FLAG_XBUILDER))
+#define NoForwardEmail(x)	(db[(x)].get_flag(FLAG_NO_FORWARD_EMAIL))
 
 
 #define PLAYER_PID_STACK_SIZE 16
