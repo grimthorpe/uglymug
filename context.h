@@ -576,7 +576,8 @@ class	context
 	void				do_at_volume		(const CString&, const CString&);
 	void				do_at_volume_limit	(const CString&, const CString&);
 	void				do_at_wall		(const CString&, const CString&);
-	void				do_at_warn		(const CString&, const CString&);
+	void				do_at_warn		(const CString&, const CString& = NULLCSTRING);
+	void				do_at_error		(const CString&, const CString& = NULLCSTRING);
 	void				do_at_welcome		(const CString&, const CString&);
 	void				do_whisper		(const CString&, const CString&);
 	void				do_who			(const CString&, const CString&);

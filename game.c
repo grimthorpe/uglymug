@@ -188,6 +188,7 @@ command_details			command_table [] =
 	{"@empty",		&context::do_at_empty,		NO_COMMAND_FLAGS},
 	{"@end",		&context::do_at_end,		NO_COMMAND_FLAGS},
 	{"@endif",		&context::do_at_endif,		NO_COMMAND_FLAGS},
+	{"@error",		&context::do_at_error,		FULL_COMPARE},
 	{"@evaluate",		&context::do_at_evaluate,	LEGAL_COMMAND},
 #if 0	/* PJC 24/1/97 */
 	{"@event",		&context::do_at_event,		NO_COMMAND_FLAGS},
@@ -1471,6 +1472,18 @@ const CString&)
 }
 
 /*
+ * Print an error.
+ */
+void
+context::do_at_error(
+const CString& arg1,
+const CString& arg2)
+{
+	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", reconstruct_message(arg1, arg2));
+	// No RETURN_SUCC or RETURN_FAIL, because we don't want to change the return value.
+}
+
+/*
  * Print a warning, unless the context is gagged.
  */
 void
@@ -1480,8 +1493,8 @@ const CString& arg2)
 {
 	if(!gagged_command())
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", reconstruct_message(arg1, arg2));
+		do_at_error(arg1, arg2); // Reuse @error.
 	}
-	RETURN_SUCC;
+	// No RETURN_SUCC or RETURN_FAIL, because we don't want to change the return value.
 }
 
