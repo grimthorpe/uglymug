@@ -1423,12 +1423,26 @@ const	CString& flag)
 	}
 	if ((f==FLAG_NATTER) && (Typeof(thing)==TYPE_PLAYER))
 	{
-		if(!Wizard(get_effective_id()))
+		if (in_command())
+		{
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "WARNING: Tried to set Natter flag on player %s(#%d).", getname (thing), thing);
+			return;
+		}
+
+		if (
+		    (!Wizard (get_effective_id ()) && (thing != player))
+		    ||
+		    (!Wizard (get_effective_id ()) && (thing == player) && (*flag.c_str() != NOT_TOKEN)))
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set the Natter flag on players.");
 			return;
 		}
+		if ((thing != player) && (*flag.c_str() != NOT_TOKEN))
+		{
+			notify_colour (thing, player, COLOUR_ERROR_MESSAGES, "WARNING: %s has set you Natter, in order to escape type '@set me = !natter'", getname(player));
+		}
 	}
+
 	if ((f==FLAG_DONTANNOUNCE) && (*flag.c_str() != NOT_TOKEN))
 	{
 		if(!Wizard(get_effective_id()))
