@@ -1140,7 +1140,7 @@ const	char	*element_name)
 		}
 		break;
 	case TYPE_ARRAY:
-		for(i = 1; i <total; i++)
+		for(i = 1; i <= total; i++)
 		{
 			char number[20];
 			sprintf(number, "%d", i);
