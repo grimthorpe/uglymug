@@ -156,7 +156,7 @@ char	**argv)
 		exit (2);
 	}
 	set_signals ();
-	mud_main_loop (argc-optind==3 ? atoi (argv[optind + 2]) : TINYPORT);
+	mud_main_loop (argc-optind-2, argv+optind+2);
 	close_sockets ();
 	dump_database ();
 	exit (0);

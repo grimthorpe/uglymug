@@ -401,7 +401,10 @@ private:
 
 struct	descriptor_data		*descriptor_list = NULL;
 
-static	int			sock;
+static	int*			ListenPorts;
+static	int			NumberListenPorts;
+
+//static	int			sock;
 #ifdef CONCENTRATOR
 static	int			conc_listensock, conc_sock, conc_connected;
 #endif
@@ -1169,7 +1172,7 @@ struct timeval update_quotas(struct timeval last, struct timeval current)
    - Check for player timeouts and issue appropriate warnings
    - Keep going until shutdown (or crash :-) ). */
 
-void mud_main_loop(int port)
+void mud_main_loop(int argc, char** argv)
 {
 	fd_set			input_set, output_set;
 	time_t			now;
@@ -1189,8 +1192,26 @@ void mud_main_loop(int port)
 #ifdef CONCENTRATOR
 	conc_listensock = make_socket (CONC_PORT, INADDR_ANY);
 #endif
-	sock = make_socket (port, INADDR_ANY);
-	maxd = sock+1;
+	maxd = 0;
+	if(argc > 0)
+	{
+		NumberListenPorts = argc;
+		ListenPorts = new int[NumberListenPorts];
+		for(int i = 0; i < argc; i++)
+		{
+			ListenPorts[i] = make_socket(atoi(argv[i]), INADDR_ANY);
+			maxd = MAX(maxd, ListenPorts[i]);
+		}
+	}
+	else
+	{
+		NumberListenPorts = 1;
+		ListenPorts = new int[1];
+		ListenPorts[0] = make_socket(TINYPORT, INADDR_ANY);
+		maxd = ListenPorts[0];
+	}
+	maxd++;
+
 	gettimeofday(&last_slice, (struct timezone *) NULL);
 
 	avail_descriptors = getdtablesize() - 5;
@@ -1246,7 +1267,10 @@ void mud_main_loop(int port)
 			else
 				FD_SET (conc_listensock, &input_set);
 #endif
-			FD_SET (sock, &input_set);
+			for(int i = 0; i < NumberListenPorts; i++)
+			{
+				FD_SET (ListenPorts[i], &input_set);
+			}
 		}
 		(void) time (&now);
 		for (d = descriptor_list; d; d=d->next)
@@ -1288,25 +1312,26 @@ void mud_main_loop(int port)
 		else
 		{
 			/* Check for new direct connection */
-			if (FD_ISSET (sock, &input_set))
+			for(int i = 0; i < NumberListenPorts; i++)
 			{
-				if (!(newd = new_connection (sock)))
+				if (FD_ISSET (ListenPorts[i], &input_set))
 				{
-					if (errno != EINTR && errno != EMFILE && errno != ECONNREFUSED && errno != EWOULDBLOCK && errno != ENFILE)
+					if (!(newd = new_connection (ListenPorts[i])))
 					{
-Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED here, but we're continuing.", newd, errno);
-						//perror ("new_connection");
-						//abort();
+						if (errno != EINTR && errno != EMFILE && errno != ECONNREFUSED && errno != EWOULDBLOCK && errno != ENFILE)
+						{
+							perror ("new_connection");
+							//abort();
+						}
+					}
+					else
+					{
+						if (newd->get_descriptor() >= maxd)
+							maxd = newd->get_descriptor() + 1;
+						newd->initial_telnet_options();
 					}
 				}
-				else
-				{
-					if (newd->get_descriptor() >= maxd)
-						maxd = newd->get_descriptor() + 1;
-					newd->initial_telnet_options();
-				}
 			}
-
 #ifdef CONCENTRATOR
 			/* Check for concentrator connect */
 			if(!conc_connected)
@@ -3580,7 +3605,10 @@ void close_sockets()
 		shutdown (conc_sock, 2);
 #endif
 
-	close (sock);
+	for(int i = 0; i < NumberListenPorts; i++)
+	{
+		close (ListenPorts[i]);
+	}
 }
 
 void emergency_shutdown()

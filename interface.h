@@ -50,6 +50,6 @@ extern	dbref	match_connected_player	(const char * given);
 
 extern	void	close_sockets		();
 extern	void	set_signals		();
-extern	void	mud_main_loop		(int port);
+extern	void	mud_main_loop		(int argc, char** argv);
 
 extern	void	smd_updated		();
