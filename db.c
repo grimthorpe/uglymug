@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
 #include "db.h"
 #include "objects.h"
 #include "interface.h"
