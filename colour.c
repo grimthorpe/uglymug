@@ -33,6 +33,7 @@
 	so that people can see what is actually in the fields.
 */
 
+#include <ctype.h>
 #include "db.h"
 #include "colour.h"
 #include "context.h"
