@@ -511,7 +511,7 @@ context::do_query_description (const CString& name, const CString&)
 		case TYPE_ARRAY:
 			if(matcher.match_index_attempt_result())
 			{
-				if((value = db[thing].exist_element (atoi (value_or_empty (matcher.match_index_result().c_str())))) > 0)
+				if((value = db[thing].exist_element (atoi (matcher.match_index_result().c_str()))) > 0)
 				{
 					set_return_string (db[thing].get_element(value).c_str());
 					return_status = COMMAND_SUCC;
