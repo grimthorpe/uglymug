@@ -373,7 +373,7 @@ context		*context)
 		// First nuke the scope stack
 		while (!scope_stack.is_empty())
 			delete scope_stack.pop();
-		log_recursion(player, db[player].get_name(), -1, unparse_object (GOD_ID, command), reconstruct_message(get_arg1(), get_arg2()));
+		log_recursion(player, db[player].get_name(), -1, unparse_object ((class context)GOD_ID, command), reconstruct_message(get_arg1(), get_arg2()));
 		return ACTION_HALT;
 	}
 
@@ -634,6 +634,7 @@ context &your_maker)
 
 {
 	set_effective_id(new_player);
+fprintf(stderr, "context created, id is %d, eid is %d\n", player, new_player);
 }
 
 

@@ -286,6 +286,8 @@ class	context
     friend Scheduler;
     friend Dependency;
     private:
+	context(const context&); // Dummy constructor.
+
 		dbref			player;
 		dbref			trace_command;
 		dbref			unchpid_id;
