@@ -120,7 +120,8 @@ public:
 				bool	halfquit;
 				bool	noflush;
 				char	sevenbit;
-				Terminal() : width(0), height(0), type(), xpos(0), wrap(true), lftocr(true), pagebell(true), recall(true), effects(false), halfquit(false), noflush(false), sevenbit('\0') {}
+				bool	colour_terminal;
+				Terminal() : width(0), height(0), type(), xpos(0), wrap(true), lftocr(true), pagebell(true), recall(true), effects(false), halfquit(false), noflush(false), sevenbit('\0'), colour_terminal(true) {}
 			}	terminal;
 	int			channel;
 
@@ -229,6 +230,8 @@ public:
 	String	terminal_get_halfquit();
 	Command_status	terminal_set_noflush(const String& , bool);
 	String	terminal_get_noflush();
+	Command_status	terminal_set_colour_terminal(const String& , bool);
+	String	terminal_get_colour_terminal();
 	Command_status	terminal_set_sevenbit(const String& , bool);
 	String	terminal_get_sevenbit();
 	void	do_write(const char * c, int i);

@@ -327,6 +327,7 @@ struct terminal_set_command
 	{ "halfquit",	&descriptor_data::terminal_set_halfquit, &descriptor_data::terminal_get_halfquit },
 	{ "noflush",	&descriptor_data::terminal_set_noflush, &descriptor_data::terminal_get_noflush },
 	{ "sevenbit",	&descriptor_data::terminal_set_sevenbit, &descriptor_data::terminal_get_sevenbit },
+	{ "colour_terminal",	&descriptor_data::terminal_set_colour_terminal, &descriptor_data::terminal_get_colour_terminal },
 
 	{ NULL, NULL }
 };
@@ -2142,7 +2143,7 @@ int			chanl)
 	hostname(),
 	address(0),
 	service(),
-        next(descriptor_list),
+	next(descriptor_list),
 	prev(&descriptor_list),
 	termcap(),
 	terminal(),
@@ -2198,6 +2199,10 @@ int			chanl)
 				break;
 			case 8080:
 				service="WebGW";
+				break;
+			case 8181:
+				service="JavaWeb";
+				terminal.colour_terminal=false;
 				break;
 			default:
 				sprintf(tmpstring,"%d",htons(local_port));
@@ -2535,7 +2540,7 @@ char *a,*a1,*b;
 				if(percent_loaded)
 				{
 					percent_loaded = 0;
-					if(colour || terminal.effects)
+					if((colour || terminal.effects) && terminal.colour_terminal)
 					{
 						/* They want the colour codes transfered*/
 
@@ -4432,6 +4437,42 @@ descriptor_data::terminal_set_noflush(const String& toggle, bool gagged)
 	if(!gagged)
 	{
 		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"noflush is %s", terminal.noflush?"on":"off");
+	}
+	return COMMAND_SUCC;
+}
+
+
+String
+descriptor_data::terminal_get_colour_terminal()
+{
+	if(terminal.colour_terminal)
+		return str_on;
+	else
+		return str_off;
+}
+
+Command_status
+descriptor_data::terminal_set_colour_terminal(const String& toggle, bool gagged)
+{
+	if(toggle)
+	{
+		if(string_compare(toggle, "on") == 0)
+		{
+			terminal.colour_terminal = true;
+		}
+		else if(string_compare(toggle, "off") == 0)
+		{
+			terminal.colour_terminal = false;
+		}
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal colour_terminal=on' or '@terminal colour_terminal=off'.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!gagged)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"colour_terminal is %s", terminal.colour_terminal?"on":"off");
 	}
 	return COMMAND_SUCC;
 }
