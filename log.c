@@ -1,5 +1,7 @@
 /* static char SCCSid[] = "@(#)log.c	1.5\t7/19/94"; */
 
+#include "os.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>

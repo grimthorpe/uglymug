@@ -7,6 +7,7 @@
  * This time, we'll make it object-oriented.
  */
 
+#include "os.h"
 #include "config.h"
 
 #include <string.h>

@@ -14,6 +14,8 @@
  *	on everything except the Scheduler.
  */
 
+#include "os.h"
+
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
