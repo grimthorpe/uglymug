@@ -1,0 +1,11 @@
+Tag file. Lists the tags and the broad changes made.
+Please update everytime a new release goes live on
+the main game. This way we can always pull out the
+correct version.
+
+release_001 - Reaps
+    Removed all the words from the idle and connect
+	times except for Muddict which happens
+	between 8 and 9 hours connect.
+    Made all times cope with weeks of connect/idle
+	including the idle message from pages.
