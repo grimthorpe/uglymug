@@ -14,8 +14,8 @@
 
 void
 context::do_give (
-const	CString& recipient,
-const	CString& object_or_amount)
+const	String& recipient,
+const	String& object_or_amount)
 
 {
 	dbref	who;
@@ -59,7 +59,7 @@ const	CString& object_or_amount)
 		/* Mortals can't give BPs */
 		if ((!Wizard(get_effective_id ())) && (!Apprentice(get_effective_id ())))
 		{
-			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			return;
 		}
 
@@ -72,7 +72,7 @@ const	CString& object_or_amount)
 		if (player != GOD_ID)
 			if ((Wizard(who)) || (Apprentice(who) && Apprentice(player) && !Wizard(player)))
 			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 				return;
 			}
 

@@ -33,21 +33,21 @@
 #define SKIP_DIGITS(x)		while (*(x) && isdigit(*(x))) (x)++;
 
 
-const	char	empty_string		[]	= "";
-const	char	ok_return_string	[]	= "OK";
-const	char	error_return_string	[]	= "Error";
-const	char	recursion_return_string	[]	= "Recursion.";
-const	char	unset_return_string	[]	= "Unset_return_value.";
-const	char	permission_denied	[]	= "Permission denied.";
+const	String	empty_string;
+const	String	ok_return_string		= "OK";
+const	String	error_return_string		= "Error";
+const	String	recursion_return_string		= "Recursion.";
+const	String	unset_return_string		= "Unset_return_value.";
+const	String	permission_denied		= "Permission denied.";
 	char	scratch_return_string	[BUFFER_LEN];
 	char	scratch_buffer		[2 * BUFFER_LEN];
 
 
 bool
 context::can_do_compound_command (
-const	CString& command_string,
-const	CString& arg1,
-const	CString& arg2)
+const	String& command_string,
+const	String& arg1,
+const	String& arg2)
 
 {
 	dbref	command;
@@ -121,9 +121,9 @@ const	CString& arg2)
 
 bool
 context::can_override_command (
-const	CString& command_string,
-const	CString& arg1,
-const	CString& arg2)
+const	String& command_string,
+const	String& arg1,
+const	String& arg2)
 {
 	dbref command;
 
@@ -169,9 +169,9 @@ const	CString& arg2)
 Command_action
 context::do_compound_command (
 dbref		command,
-const	CString& sc,
-const	CString& a1,
-const	CString& a2,
+const	String& sc,
+const	String& a1,
+const	String& a2,
 dbref		eid,
 Matcher		&matcher)
 {
@@ -505,8 +505,8 @@ const	char	*text)
 
 void
 context::do_at_endif (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	if(in_command())
@@ -527,8 +527,8 @@ const	CString&)
 
 void
 context::do_at_chpid (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	if (call_stack.is_empty ())
@@ -548,8 +548,8 @@ const	CString&)
 
 void
 context::do_at_unchpid (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	if (call_stack.is_empty ())
@@ -569,8 +569,8 @@ const	CString&)
 
 void
 context::do_at_false (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	return_status = COMMAND_FAIL;
@@ -580,8 +580,8 @@ const	CString&)
 
 void
 context::do_at_true (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	return_status = COMMAND_SUCC;
@@ -591,8 +591,8 @@ const	CString&)
 
 void
 context::do_at_return (
-const	CString&arg1,
-const	CString&arg2)
+const	String&arg1,
+const	String&arg2)
 
 {
 	set_return_string (error_return_string);
@@ -639,8 +639,8 @@ const	CString&arg2)
 
 void
 context::do_at_returnchain (
-const	CString&arg1,
-const	CString&arg2)
+const	String&arg1,
+const	String&arg2)
 
 {
 	set_return_string (error_return_string);
@@ -699,8 +699,8 @@ const	CString&arg2)
 
 void
 context::do_at_if (
-const	CString&arg1,
-const	CString&)
+const	String&arg1,
+const	String&)
 
 {
 	if ((!in_command()) || (call_stack.is_empty()))
@@ -744,8 +744,8 @@ const	CString&)
 
 void
 context::do_at_elseif (
-const CString&arg1,
-const CString&)
+const String&arg1,
+const String&)
 
 {
 	if ((!in_command()) || (call_stack.is_empty()))
@@ -784,8 +784,8 @@ const CString&)
 
 void
 context::do_at_else (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	if ((!in_command()) || (call_stack.is_empty()))
@@ -803,8 +803,8 @@ const	CString&)
 
 void
 context::do_at_end(
-const CString&,
-const CString&)
+const String&,
+const String&)
 
 {
 	return_status= COMMAND_FAIL;
@@ -826,8 +826,8 @@ const CString&)
 
 void
 context::do_at_with(
-const CString&what,
-const CString&args)
+const String&what,
+const String&args)
 
 {
 	char		arg1	[MAX_COMMAND_LEN];
@@ -909,8 +909,8 @@ const CString&args)
 
 void
 context::do_at_for(
-const CString&countername,
-const CString&args)
+const String&countername,
+const String&args)
 
 {
 		int	start;

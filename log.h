@@ -19,27 +19,27 @@
 	/* use log_message for 'generic' messages */
 	void		log_message			(const char *, ...);
 
-	void		log_accept			(int, int, const CString&);
-	void		log_boot			(dbref, const CString&, dbref, const CString&, const CString&);
+	void		log_accept			(int, int, const String&);
+	void		log_boot			(dbref, const String&, dbref, const String&, const String&);
 	void		log_bug				(const char *, ...);
-	void		log_checkpointing	(const CString&, int);
-	void		log_command			(dbref, const CString&, dbref, const CString&, dbref, const CString&, const CString&);
-	void		log_connect			(bool, int, dbref, const CString&);
-	void		log_created			(int, dbref, const CString&);
+	void		log_checkpointing	(const String&, int);
+	void		log_command			(dbref, const String&, dbref, const String&, dbref, const String&, const String&);
+	void		log_connect			(bool, int, dbref, const String&);
+	void		log_created			(int, dbref, const String&);
 	void		log_debug			(const char *, ...);
-	void		log_disconnect		(dbref, const CString&, int, int, const CString&, bool);
+	void		log_disconnect		(dbref, const String&, int, int, const String&, bool);
 	void		log_dumping			(bool, const char *, ...);
-	void		log_gripe			(dbref, const CString&, dbref, const CString&, const CString&);
+	void		log_gripe			(dbref, const String&, dbref, const String&, const String&);
 	void		log_hack			(dbref, const char *, ...);
-	void		log_halfquit		(dbref, const CString&, int, int);
-	void		log_huh				(dbref, const CString&, dbref, const CString&, dbref, dbref, const CString&, const CString&);
-	void		log_loading			(const CString&, bool);
-	void		log_note			(dbref, const CString&, dbref, const CString&, dbref, bool, const CString&);
+	void		log_halfquit		(dbref, const String&, int, int);
+	void		log_huh				(dbref, const String&, dbref, const String&, dbref, dbref, const String&, const String&);
+	void		log_loading			(const String&, bool);
+	void		log_note			(dbref, const String&, dbref, const String&, dbref, bool, const String&);
 	void		log_panic			(const char *, ...);
-	void		log_reconnect		(dbref, const CString&);
-	void		log_reconnect		(dbref, const CString&, int);
-	void		log_recursion		(dbref, const CString&, int, const CString&, const CString&);
-	void		log_shutdown		(dbref, const CString&, const CString&);
-	void		log_wall			(dbref, const CString&, const CString&);
+	void		log_reconnect		(dbref, const String&);
+	void		log_reconnect		(dbref, const String&, int);
+	void		log_recursion		(dbref, const String&, int, const String&, const String&);
+	void		log_shutdown		(dbref, const String&, const String&);
+	void		log_wall			(dbref, const String&, const String&);
 
 #endif /* _LOG_H */

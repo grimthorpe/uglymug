@@ -33,7 +33,7 @@ int	excluded=0;
 #define ConvertGender(x)	(Male((x))?MALE : Neuter((x))?NEUTER : Female((x))?FEMALE : UNASSIGNED)
 
 
-int colour_strlen(const CString& string)
+int colour_strlen(const String& string)
 {
 	int size=0;
 	const char *p=string.c_str();
@@ -106,8 +106,8 @@ void init_strings (void)
 
 bool
 semicolon_string_match (
-const	CString& in_this,
-const	CString& is_this)
+const	String& in_this,
+const	String& is_this)
 
 {
 	const	char	*p = is_this.c_str();
@@ -149,8 +149,8 @@ const	CString& is_this)
 
 int
 string_compare (
-const	CString& s1,
-const	CString& s2)
+const	String& s1,
+const	String& s2)
 
 {
 	/* Check for both NULL or both the same string */
@@ -178,8 +178,8 @@ const	CString& s2)
 
 int
 string_prefix (
-const	CString& string,
-const	CString& prefix)
+const	String& string,
+const	String& prefix)
 
 {
 	/* If prefix is NULL, any string matches */
@@ -207,8 +207,8 @@ const	CString& prefix)
 
 const char *
 string_match (
-const	CString& csrc,
-const	CString& csub)
+const	String& csrc,
+const	String& csub)
 
 {
 const char* sub = csub.c_str();
@@ -253,7 +253,7 @@ pronoun_substitute (
 char		*result,
 unsigned int	buffer_length,
 dbref		player,
-const	CString& cstr)
+const	String& cstr)
 
 {
 	char c;
@@ -422,7 +422,7 @@ swear_compare(int &skipped, char *s1, char *s2)
 
 bool
 add_rude(
-const CString& string)
+const String& string)
 {
 	int		value;
 	int		i;
@@ -461,7 +461,7 @@ const CString& string)
 
 bool
 add_excluded(
-const CString& string)
+const String& string)
 {
 	int		value;
 	int		i;
@@ -500,7 +500,7 @@ const CString& string)
 
 bool
 un_rude(
-const CString& string)
+const String& string)
 {
 	/* int		value; */
 	int		i;
@@ -526,7 +526,7 @@ const CString& string)
 
 bool
 un_exclude(
-const CString& string)
+const String& string)
 {
 	/* int		value; */
 	int		i;
@@ -628,7 +628,7 @@ char *string)
         return (1);
 }
 
-const char *censor(const CString& string)
+const char *censor(const String& string)
 {
 	/* This is horribly inefficient. Infact, it can't get more inefficient.
 	   Some sort of Boyer-Moore algorithm might be better, but that is

@@ -22,7 +22,7 @@
 static dbref
 match_controlled (
 context		&c,
-const	CString&name)
+const	String&name)
 {
 	dbref match;
 
@@ -38,7 +38,7 @@ const	CString&name)
 		if(Readonly(match))
 			notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "You cannot modify an object with the ReadOnly flag set.");
 		else
-			notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return NOTHING;
 	}
 
@@ -47,8 +47,8 @@ const	CString&name)
 
 void
 context::do_at_insert (
-const	CString& what,
-const	CString& element)
+const	String& what,
+const	String& element)
 {
 	/* I'm not catering for Dictionaries because it would need an extra
 	   argument and Ian said 'Just put the code in, please, pretty please
@@ -95,7 +95,7 @@ const	CString& element)
 	/* Do we need to check if we own it */
 	if(!controls_for_write(thing))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		RETURN_FAIL;
 	}
 
@@ -117,7 +117,7 @@ const	CString& element)
 	}
 #endif
 
-	const CString& indexString = what_matcher.match_index_result();
+	const String& indexString = what_matcher.match_index_result();
 	if (!indexString)
 	{
 		notify_colour ( player, player, COLOUR_ERROR_MESSAGES, "@insert requires an index." );
@@ -205,8 +205,8 @@ enum directions
 
 void
 context::do_at_sort (
-const	CString& array,
-const	CString& direction)
+const	String& array,
+const	String& direction)
 {
 	dbref	thing;
 	int	direct;
@@ -238,7 +238,7 @@ const	CString& direction)
 	/* Do we need to check if we own it */
 	if(!controls_for_write(thing))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		RETURN_FAIL;
 	}
 
@@ -259,8 +259,8 @@ const	CString& direction)
 
 void
 context::do_at_peak
-(const	CString& number,
-const	CString& )
+(const	String& number,
+const	String& )
 {
 	if(!Wizard(player))
 	{
@@ -278,8 +278,8 @@ const	CString& )
 
 void
 context::do_at_race (
-const	CString& name,
-const	CString& newrace)
+const	String& name,
+const	String& newrace)
 
 {
 	dbref	thing;
@@ -318,8 +318,8 @@ const	CString& newrace)
 
 void
 context::do_at_name (
-const	CString& name,
-const	CString& newname)
+const	String& name,
+const	String& newname)
 
 {
 	dbref	thing;
@@ -472,8 +472,8 @@ const	CString& newname)
 
 void
 context::do_at_describe (
-const	CString& name,
-const	CString& description)
+const	String& name,
+const	String& description)
 
 {
 	unsigned int	value;
@@ -639,8 +639,8 @@ const	CString& description)
 
 void
 context::do_at_fail (
-const	CString& name,
-const	CString& message)
+const	String& name,
+const	String& message)
 
 {
 	dbref thing;
@@ -690,8 +690,8 @@ const	CString& message)
 
 void
 context::do_at_success (
-const	CString& name,
-const	CString& message)
+const	String& name,
+const	String& message)
 
 {
 	dbref thing;
@@ -746,8 +746,8 @@ const	CString& message)
 
 void
 context::do_at_drop (
-const	CString& name,
-const	CString& message)
+const	String& name,
+const	String& message)
 
 {
 	int	value;
@@ -808,8 +808,8 @@ const	CString& message)
 
 void
 context::do_at_osuccess (
-const	CString& name,
-const	CString& message)
+const	String& name,
+const	String& message)
 
 {
 	dbref thing;
@@ -862,8 +862,8 @@ const	CString& message)
 
 void
 context::do_at_ofail (
-const	CString& name,
-const	CString& message)
+const	String& name,
+const	String& message)
 
 {
 	dbref thing;
@@ -913,8 +913,8 @@ const	CString& message)
 
 void
 context::do_at_odrop (
-const	CString& name,
-const	CString& message)
+const	String& name,
+const	String& message)
 
 {
 	dbref thing;
@@ -965,8 +965,8 @@ const	CString& message)
 
 void
 context::do_at_lock (
-const	CString& name,
-const	CString& keyname)
+const	String& name,
+const	String& keyname)
 
 {
 	dbref	thing;
@@ -1051,8 +1051,8 @@ const	CString& keyname)
 
 void
 context::do_at_unlock (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	dbref	thing;
@@ -1096,8 +1096,8 @@ const	CString& )
 
 void
 context::do_at_unlink (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	dbref exit;
@@ -1155,8 +1155,8 @@ const	CString& )
 
 void
 context::do_at_owner (
-const	CString& name,
-const	CString& newowner)
+const	String& name,
+const	String& newowner)
 
 {
 	dbref	thing;
@@ -1224,7 +1224,7 @@ const	CString& newowner)
 				/* Check a non-wizard isn't trying a Wizard-style chown */
 				if ((thing != get_effective_id ()) && (owner != get_effective_id ()))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES,  permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES,  permission_denied.c_str());
 					return;
 				}
 				/* Check CHOWN_OK for non-Wizards */
@@ -1241,7 +1241,7 @@ const	CString& newowner)
 			&& ((Wizard (owner) && owner != player)
 				|| (Wizard (thing) && (thing != player))))
 		{
-			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			return;
 		}
 	} /* end of group if */
@@ -1321,8 +1321,8 @@ const	CString& newowner)
 
 void
 context::do_set (
-const	CString& name,
-const	CString& flag)
+const	String& name,
+const	String& flag)
 
 {
 	dbref			thing;
@@ -1400,7 +1400,7 @@ const	CString& flag)
 		/* check permissions */
 		if (!controls_for_write (thing))
 		{
-			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			db[thing].set_flag(f);	/* reset the flag */
 			return;
 		}
@@ -1478,7 +1478,7 @@ const	CString& flag)
 
 	if (!controls_for_write (thing))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -1767,8 +1767,8 @@ const	CString& flag)
 
 void
 context::do_at_score (
-const	CString& victim_string,
-const	CString& value)
+const	String& victim_string,
+const	String& value)
 
 {
 	dbref	victim;
@@ -1825,8 +1825,8 @@ const	CString& value)
 
 void
 context::do_at_volume (
-const	CString& object,
-const	CString& volume)
+const	String& object,
+const	String& volume)
 {
 	dbref	victim;
 	double	new_volume;
@@ -1906,8 +1906,8 @@ const	CString& volume)
 
 void
 context::do_at_volume_limit (
-const	CString& object,
-const	CString& volume_limit)
+const	String& object,
+const	String& volume_limit)
 {
 	dbref	victim;
 	double	new_volume_limit;
@@ -1997,8 +1997,8 @@ const	CString& volume_limit)
 
 void
 context::do_at_mass (
-const	CString& object,
-const	CString& mass)
+const	String& object,
+const	String& mass)
 {
 	dbref	victim;
 	double	new_mass;
@@ -2052,7 +2052,7 @@ const	CString& mass)
 
 	if ((new_mass <= 0) && (!Wizard(player)))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -2077,8 +2077,8 @@ const	CString& mass)
 
 void
 context::do_at_mass_limit (
-const	CString& object,
-const	CString& mass_limit)
+const	String& object,
+const	String& mass_limit)
 {
 	dbref	victim;
 	double	new_mass_limit;
@@ -2115,7 +2115,7 @@ const	CString& mass_limit)
 		&& (db[victim].get_inherited_mass_limit () != STANDARD_PLAYER_MASS_LIMIT)
 		&& (!Wizard (player))))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -2148,7 +2148,7 @@ const	CString& mass_limit)
 		&& (!Wizard (player))
 		&& (new_mass_limit > STANDARD_PLAYER_MASS_LIMIT))
 		{
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			return;
 		}
 
@@ -2167,7 +2167,7 @@ const	CString& mass_limit)
 }
 
 void
-context::do_at_gravity_factor (const CString& object, const CString& gravity_factor)
+context::do_at_gravity_factor (const String& object, const String& gravity_factor)
 {
 	dbref	victim;
 	double	new_gravity_factor;
@@ -2205,7 +2205,7 @@ context::do_at_gravity_factor (const CString& object, const CString& gravity_fac
 			&& (db[victim].get_inherited_gravity_factor () != STANDARD_PLAYER_GRAVITY)
 			&& (!Wizard (player))))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -2222,7 +2222,7 @@ context::do_at_gravity_factor (const CString& object, const CString& gravity_fac
 
 	if ((new_gravity_factor < 1) && (!Wizard (player)))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -2244,8 +2244,8 @@ context::do_at_gravity_factor (const CString& object, const CString& gravity_fac
 
 void
 context::do_at_location (
-const	CString& victim_string,
-const	CString& new_location_string)
+const	String& victim_string,
+const	String& new_location_string)
 
 {
 	dbref			victim;
@@ -2315,7 +2315,7 @@ const	CString& new_location_string)
 				break;
 			if ((victim!=player) && !Wizard(get_effective_id()) && !Apprentice(get_effective_id()))
 			{
-				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 				return;
 			}
 			if ((!controls_for_read (new_location)
@@ -2332,7 +2332,7 @@ const	CString& new_location_string)
 
 				|| ((Typeof (new_location) == TYPE_THING) && !(controls_for_write (db[new_location].get_location()))))
 			{
-				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 				return;
 			}
 			break;
@@ -2344,7 +2344,7 @@ const	CString& new_location_string)
 			if (!controls_for_write (new_location)
 				|| !controls_for_write (victim))
 			{
-				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+				notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 				return;
 			}
 			break;
@@ -2528,8 +2528,8 @@ const	CString& new_location_string)
 
 void
 context::do_at_key (
-const	CString& object,
-const	CString& keyname)
+const	String& object,
+const	String& keyname)
 
 {
 	dbref	container;
@@ -2583,8 +2583,8 @@ const	CString& keyname)
 
 void
 context::do_at_parent (
-const	CString& name,
-const	CString& parent_name)
+const	String& name,
+const	String& parent_name)
 
 {
 	dbref	thing;
@@ -2658,7 +2658,7 @@ const	CString& parent_name)
 }
 
 
-void context::do_at_credit(const CString& arg1, const CString& arg2)
+void context::do_at_credit(const String& arg1, const String& arg2)
 {
 	dbref victim;
 	int amount;
@@ -2674,7 +2674,7 @@ void context::do_at_credit(const CString& arg1, const CString& arg2)
 
 	if(in_command() && !Wizard(get_current_command()))
 	{
-		notify(player, permission_denied);
+		notify(player, permission_denied.c_str());
 		RETURN_FAIL;
 	}
 
@@ -2752,7 +2752,7 @@ void context::do_at_credit(const CString& arg1, const CString& arg2)
 	RETURN_SUCC;
 }
 
-void context::do_at_debit(const CString& arg1, const CString& arg2)
+void context::do_at_debit(const String& arg1, const String& arg2)
 {
 	dbref victim;
 	int amount;
@@ -2768,13 +2768,13 @@ void context::do_at_debit(const CString& arg1, const CString& arg2)
 
 	if(!Apprentice(player) && !Wizard(get_effective_id()))
 	{
-		notify(player, permission_denied);
+		notify(player, permission_denied.c_str());
                 RETURN_FAIL;
 	}
 
 	if(in_command() && !Wizard(get_current_command()))
 	{
-		notify(player, permission_denied);
+		notify(player, permission_denied.c_str());
 		RETURN_FAIL;
 	}
 

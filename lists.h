@@ -38,7 +38,7 @@ class	Player_list
 		Player_list(int a) :	_include_unconnected(false), listcount(0), count (0), filtered_size (0), originator (a), current (NULL), list (NULL) {}
 		~Player_list();
 		void		include_unconnected()	{ _include_unconnected= true; }
-		void		add_list(const CString&);
+		void		add_list(const String&);
 		void		eat_keiths_chips();
 		int		get_realsize()		{ return count;}
 		int		get_filtered_size()	{ return filtered_size;}
@@ -47,7 +47,7 @@ class	Player_list
 		bool		add_player(int	p, bool fromlist=false);
 		PLE		*find_player(int p);
 		PLE		*get_list() { return list; }
-		int		build_from_text(int player, const CString& text);
+		int		build_from_text(int player, const String& text);
 		const char	*generate_courtesy_string(int source, int dest, bool myself=false);
 		void		notify(int player, const char *prefix, const char *suffix, const char *string);
 		void		beep();

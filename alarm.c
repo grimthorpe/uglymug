@@ -46,7 +46,7 @@ db_patch_alarms ()
 			char tmpnum[20];
 			sprintf(tmpnum, "#%d", i);
 			db[i].clear_flag(FLAG_CONNECTED);
-			c->do_at_connect(tmpnum, NULLCSTRING);
+			c->do_at_connect(tmpnum, NULLSTRING);
 			delete mud_scheduler.push_express_job (c);
 		}
 
@@ -116,7 +116,7 @@ const	char	**ptr)
 
 static long
 time_of_next_cron (
-const	CString& string)
+const	String& string)
 
 {
 	struct	tm	*rtime;
@@ -208,8 +208,8 @@ dbref	alarm)
 
 void
 context::do_query_pending (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	int		count = 0;

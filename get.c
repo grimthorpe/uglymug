@@ -29,8 +29,8 @@ static	char	scratch_return_string [BUFFER_LEN];
 
 void
 context::do_query_numconnected(
-const	CString& argument,
-const	CString& )
+const	String& argument,
+const	String& )
 {
 	int	what;
 
@@ -56,7 +56,7 @@ const	CString& )
 static dbref
 find_for_query (
 	context	&c,
-const	CString& name,
+const	String& name,
 	int	need_control)
 
 {
@@ -71,7 +71,7 @@ const	CString& name,
 	result = matcher.match_result ();
 	if ((result != NOTHING) && (result != AMBIGUOUS) && need_control && !c.controls_for_read (result))
 	{
-		notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return (NOTHING);
 	}
 	else
@@ -82,7 +82,7 @@ const	CString& name,
 static dbref
 find_executor_for_query (
 context		&c,
-const	CString& name,
+const	String& name,
 int		need_control)
 
 {
@@ -105,7 +105,7 @@ int		need_control)
 static dbref
 find_player_for_query (
 	context	&c,
-const	CString& name,
+const	String& name,
 	int	need_control)
 
 {
@@ -129,7 +129,7 @@ const	CString& name,
 static dbref
 find_thing_for_query (
 	context	&c,
-const	CString& name,
+const	String& name,
 	int	need_control)
 
 {
@@ -146,7 +146,7 @@ const	CString& name,
 static dbref
 find_anything_with_csucc_link_for_query (
 	context	&c,
-const	CString&  name,
+const	String&  name,
 	int	need_control)
 
 {
@@ -162,8 +162,8 @@ const	CString&  name,
 
 void
 context::do_query_address (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	dbref loc;
@@ -198,7 +198,7 @@ const	CString& )
 
 
 void
-context::do_query_area (const CString& name, const CString& the_area)
+context::do_query_area (const String& name, const String& the_area)
 {
 	dbref area;
 	dbref thing;
@@ -220,7 +220,7 @@ context::do_query_area (const CString& name, const CString& the_area)
 
 
 void
-context::do_query_article (const CString& name, const CString& type)
+context::do_query_article (const String& name, const String& type)
 {
 	dbref   thing = find_for_query (*this, name, 0);
 
@@ -266,7 +266,7 @@ context::do_query_article (const CString& name, const CString& type)
 
 
 void
-context::do_query_cfail (const CString& name, const CString&)
+context::do_query_cfail (const String& name, const String&)
 {
 	dbref	thing = find_anything_with_csucc_link_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -278,7 +278,7 @@ context::do_query_cfail (const CString& name, const CString&)
 }
 
 void
-context::do_query_commands (const CString& name, const CString&)
+context::do_query_commands (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -309,8 +309,8 @@ context::do_query_commands (const CString& name, const CString&)
 
 void
 context::do_query_connected (
-const	CString& name,
-const	CString&)
+const	String& name,
+const	String&)
 
 {
 	dbref victim = find_executor_for_query (*this, name, 0);
@@ -329,7 +329,7 @@ const	CString&)
 
 
 void
-context::do_query_contents (const CString& name, const CString&)
+context::do_query_contents (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -359,7 +359,7 @@ context::do_query_contents (const CString& name, const CString&)
 
 
 void
-context::do_query_controller (const CString& name, const CString&)
+context::do_query_controller (const String& name, const String&)
 {
 	dbref thing = find_executor_for_query (*this, name, 0);
 
@@ -372,7 +372,7 @@ context::do_query_controller (const CString& name, const CString&)
 }
 
 void
-context::do_query_cstring (const CString& name, const CString&)
+context::do_query_cstring (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
@@ -389,7 +389,7 @@ context::do_query_cstring (const CString& name, const CString&)
 }
 
 void
-context::do_query_csucc (const CString& name, const CString&)
+context::do_query_csucc (const String& name, const String&)
 {
 	dbref	thing = find_anything_with_csucc_link_for_query (*this, name, 1);
 
@@ -403,7 +403,7 @@ context::do_query_csucc (const CString& name, const CString&)
 
 
 void
-context::do_query_descendantfrom (const CString& first, const CString& parent_str)
+context::do_query_descendantfrom (const String& first, const String& parent_str)
 {
 	dbref	thing, parent, temp;
 
@@ -443,7 +443,7 @@ context::do_query_descendantfrom (const CString& first, const CString& parent_st
 
 
 void
-context::do_query_description (const CString& name, const CString&)
+context::do_query_description (const String& name, const String&)
 {
 	int	value;
 	dbref	thing;
@@ -541,7 +541,7 @@ context::do_query_description (const CString& name, const CString&)
 }
 
 void
-context::do_query_destination(const CString& name, const CString&)
+context::do_query_destination(const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
@@ -561,7 +561,7 @@ context::do_query_destination(const CString& name, const CString&)
 
 
 void
-context::do_query_drop (const CString& name, const CString&)
+context::do_query_drop (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -589,7 +589,7 @@ context::do_query_drop (const CString& name, const CString&)
 
 
 void
-context::do_query_elements (const CString& name, const CString&)
+context::do_query_elements (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -624,7 +624,7 @@ context::do_query_elements (const CString& name, const CString&)
 
 
 void
-context::do_query_email (const CString& name, const CString&)
+context::do_query_email (const String& name, const String&)
 {
 	dbref	victim;
 
@@ -636,7 +636,7 @@ context::do_query_email (const CString& name, const CString&)
 	else
 	{
 		if (!Wizard (player))
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		else
 		{
 			return_status = COMMAND_SUCC;
@@ -647,7 +647,7 @@ context::do_query_email (const CString& name, const CString&)
 
 			
 void
-context::do_query_exist (const CString& name, const CString& owner_string)
+context::do_query_exist (const String& name, const String& owner_string)
 {
 	dbref	owner;
 	dbref	result;
@@ -765,7 +765,7 @@ context::do_query_exist (const CString& name, const CString& owner_string)
 }
 
 void
-context::do_query_exits (const CString& name, const CString&)
+context::do_query_exits (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -778,7 +778,7 @@ context::do_query_exits (const CString& name, const CString&)
 
 
 void
-context::do_query_fail (const CString& name, const CString&)
+context::do_query_fail (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -805,7 +805,7 @@ context::do_query_fail (const CString& name, const CString&)
 }
 
 void
-context::do_query_first_name (const CString& name, const CString&)
+context::do_query_first_name (const String& name, const String&)
 {
 	char	*name_end;
 
@@ -827,7 +827,7 @@ context::do_query_first_name (const CString& name, const CString&)
 }
 
 void
-context::do_query_fuses (const CString& name, const CString&)
+context::do_query_fuses (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -842,7 +842,7 @@ context::do_query_fuses (const CString& name, const CString&)
 }
 
 void
-context::do_query_gravity_factor (const CString& name, const CString&)
+context::do_query_gravity_factor (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -865,7 +865,7 @@ context::do_query_gravity_factor (const CString& name, const CString&)
 }
 
 void
-context::do_query_id (const CString& name, const CString&)
+context::do_query_id (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -878,7 +878,7 @@ context::do_query_id (const CString& name, const CString&)
 
 
 void
-context::do_query_idletime (const CString& name, const CString&)
+context::do_query_idletime (const String& name, const String&)
 {
 	time_t	interval;
 	dbref   thing = find_player_for_query (*this, name, 0);
@@ -898,7 +898,7 @@ context::do_query_idletime (const CString& name, const CString&)
 
 
 void
-context::do_query_interval (const CString& name, const CString&)
+context::do_query_interval (const String& name, const String&)
 {
 	time_t	interval;
 
@@ -913,7 +913,7 @@ context::do_query_interval (const CString& name, const CString&)
 
 
 void
-context::do_query_key (const CString& name, const CString&)
+context::do_query_key (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -933,7 +933,7 @@ context::do_query_key (const CString& name, const CString&)
 }
 
 void
-context::do_query_last_entry (const CString& name, const CString&)
+context::do_query_last_entry (const String& name, const String&)
 {
 	dbref	thing;
 
@@ -954,7 +954,7 @@ context::do_query_last_entry (const CString& name, const CString&)
 }
 
 void
-context::do_query_location (const CString& name, const CString&)
+context::do_query_location (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -968,7 +968,7 @@ context::do_query_location (const CString& name, const CString&)
 }
 
 void
-context::do_query_lock (const CString& name, const CString&)
+context::do_query_lock (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -980,7 +980,7 @@ context::do_query_lock (const CString& name, const CString&)
 }
 
 void
-context::do_query_mass (const CString& name, const CString&)
+context::do_query_mass (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1003,7 +1003,7 @@ context::do_query_mass (const CString& name, const CString&)
 }
 
 void
-context::do_query_mass_limit (const CString& name, const CString&)
+context::do_query_mass_limit (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1026,7 +1026,7 @@ context::do_query_mass_limit (const CString& name, const CString&)
 }
 
 void 
-context::do_query_money (const CString& name, const CString&)
+context::do_query_money (const String& name, const String&)
 {
 	dbref victim = find_for_query(*this, name, 1);
 
@@ -1049,8 +1049,8 @@ context::do_query_money (const CString& name, const CString&)
 
 void
 context::do_query_myself (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	if (in_command())
@@ -1067,7 +1067,7 @@ const	CString&)
 
 
 void
-context::do_query_name (const CString& name, const CString& type)
+context::do_query_name (const String& name, const String& type)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 
@@ -1117,7 +1117,7 @@ context::do_query_name (const CString& name, const CString& type)
 }
 
 void
-context::do_query_next (const CString& name, const CString&)
+context::do_query_next (const String& name, const String&)
 {
 	int	value;
 	dbref	result;
@@ -1137,7 +1137,7 @@ context::do_query_next (const CString& name, const CString&)
 		result = matcher.match_result ();
 		if ((result != NOTHING) && (result != AMBIGUOUS) && matcher.match_index_attempt_result() && !controls_for_read (result))
 		{
-			notify_colour (get_player (), get_player(), COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (get_player (), get_player(), COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			thing = NOTHING;
 		}
 		else
@@ -1257,7 +1257,7 @@ context::do_query_next (const CString& name, const CString&)
 
 
 void
-context::do_query_odrop (const CString& name, const CString&)
+context::do_query_odrop (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1285,7 +1285,7 @@ context::do_query_odrop (const CString& name, const CString&)
 
 
 void
-context::do_query_ofail (const CString& name, const CString&)
+context::do_query_ofail (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1313,7 +1313,7 @@ context::do_query_ofail (const CString& name, const CString&)
 
 
 void
-context::do_query_osuccess (const CString& name, const CString&)
+context::do_query_osuccess (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1341,7 +1341,7 @@ context::do_query_osuccess (const CString& name, const CString&)
 
 
 void
-context::do_query_owner (const CString& name, const CString&)
+context::do_query_owner (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1354,7 +1354,7 @@ context::do_query_owner (const CString& name, const CString&)
 
 
 void
-context::do_query_parent (const CString& name, const CString&)
+context::do_query_parent (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1366,7 +1366,7 @@ context::do_query_parent (const CString& name, const CString&)
 }
 
 void
-context::do_query_bps (const CString& name, const CString&)
+context::do_query_bps (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1405,7 +1405,7 @@ dbref	thing)
 
 
 void
-context::do_query_aliases (const CString& name, const CString&)
+context::do_query_aliases (const String& name, const String&)
 {
 	dbref	thing = find_player_for_query (*this, name, 0);
 
@@ -1422,7 +1422,7 @@ context::do_query_aliases (const CString& name, const CString&)
 
 
 void
-context::do_query_race (const CString& name, const CString&)
+context::do_query_race (const String& name, const String&)
 {
 	dbref	thing = find_executor_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1435,7 +1435,7 @@ context::do_query_race (const CString& name, const CString&)
 
 
 void
-context::do_query_rand (const CString& value, const CString&)
+context::do_query_rand (const String& value, const String&)
 {
 	int	top;
 	
@@ -1452,7 +1452,7 @@ context::do_query_rand (const CString& value, const CString&)
 
 
 void
-context::do_query_realtime (const CString& name, const CString&)
+context::do_query_realtime (const String& name, const String&)
 {
 	time_t	now;
 
@@ -1468,7 +1468,7 @@ context::do_query_realtime (const CString& name, const CString&)
 
 
 void
-context::do_query_score (const CString& name, const CString&)
+context::do_query_score (const String& name, const String&)
 {
 	dbref	thing = find_executor_for_query (*this, name, 0);
 
@@ -1483,7 +1483,7 @@ context::do_query_score (const CString& name, const CString&)
 
 
 void
-context::do_query_set (const CString& name, const CString& flag)
+context::do_query_set (const String& name, const String& flag)
 {
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
@@ -1506,7 +1506,7 @@ context::do_query_set (const CString& name, const CString& flag)
 }
 
 void
-context::do_query_size (const CString& name, const CString&)
+context::do_query_size (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
@@ -1535,7 +1535,7 @@ context::do_query_size (const CString& name, const CString&)
 
 
 void
-context::do_query_success (const CString& name, const CString&)
+context::do_query_success (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
@@ -1565,8 +1565,8 @@ context::do_query_success (const CString& name, const CString&)
 
 void
 context::do_query_time (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 {
 	time_t	time_now;
 
@@ -1578,7 +1578,7 @@ const	CString&)
 
 
 void
-context::do_query_typeof (const CString& name, const CString& type)
+context::do_query_typeof (const String& name, const String& type)
 {
 	dbref	thing;
 
@@ -1687,7 +1687,7 @@ context::do_query_typeof (const CString& name, const CString& type)
 
 
 void
-context::do_query_variables (const CString& name, const CString&)
+context::do_query_variables (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1702,7 +1702,7 @@ context::do_query_variables (const CString& name, const CString&)
 }
 
 void
-context::do_query_properties (const CString& name, const CString&)
+context::do_query_properties (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1717,7 +1717,7 @@ context::do_query_properties (const CString& name, const CString&)
 }
 
 void
-context::do_query_arrays (const CString& name, const CString&)
+context::do_query_arrays (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1732,7 +1732,7 @@ context::do_query_arrays (const CString& name, const CString&)
 }
 
 void
-context::do_query_dictionaries (const CString& name, const CString&)
+context::do_query_dictionaries (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 	set_return_string (error_return_string);
@@ -1748,7 +1748,7 @@ context::do_query_dictionaries (const CString& name, const CString&)
 
 
 void
-context::do_query_volume (const CString& name, const CString&)
+context::do_query_volume (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1771,7 +1771,7 @@ context::do_query_volume (const CString& name, const CString&)
 }
 
 void
-context::do_query_volume_limit (const CString& name, const CString&)
+context::do_query_volume_limit (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1794,7 +1794,7 @@ context::do_query_volume_limit (const CString& name, const CString&)
 }
 
 void
-context::do_query_weight (const CString& name, const CString&)
+context::do_query_weight (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
 
@@ -1817,7 +1817,7 @@ context::do_query_weight (const CString& name, const CString&)
 }
 
 void
-context::do_query_who (const CString& name, const CString&)
+context::do_query_who (const String& name, const String&)
 {
 	dbref victim = find_executor_for_query (*this, name, 0);
 

@@ -41,7 +41,7 @@
 void log_accept (
 	int					descriptor,
 	int					port,
-	const CString&		ip
+	const String&		ip
 ) {
 	/*
 	 * Trace( "ACCEPT from |%s|%d| on descriptor |%d\n", convert_addr (&(addr.sin_addr)), ntohs (addr.sin_port), newsock);
@@ -61,10 +61,10 @@ void log_accept (
 
 void log_boot (
 			dbref		targetid,
-	const	CString&	targetname,
+	const	String&	targetname,
 			dbref		booterid,
-	const	CString&	bootername,
-	const	CString&	message
+	const	String&	bootername,
+	const	String&	message
 ) {
 	/* e.g. BOOT|timestamp|targetid|targetname|booterid|bootername|message */
 	Trace(	"%cBOOT%c%d%c%d%c%s%c%d%c%s%c%s%c\n",
@@ -102,7 +102,7 @@ void log_bug (
 }
 
 void log_checkpointing (
-	const CString&		dumpfile,
+	const String&		dumpfile,
 	int					epoch
 ) {
 	/*
@@ -121,13 +121,13 @@ void log_checkpointing (
 
 void log_command (
 			dbref			playerid,
-	const	CString&		playername,
+	const	String&		playername,
 			dbref			effectiveid,
-	const	CString&		effectivename,
+	const	String&		effectivename,
 			dbref			locationid,
-	const	CString&		locationname,
+	const	String&		locationname,
 			//bool			compound,
-	const	CString&		original_command
+	const	String&		original_command
 ) {
 	/*
 	 * e.g. COMMAND|timestamp|playerid|playername|effectiveid|effectivename|locationid|locationname|command
@@ -150,7 +150,7 @@ void log_connect (
 			bool		success,
 			int			descriptor,
 			dbref		playerid,
-	const	CString&	playername
+	const	String&	playername
 ) {
 	/*
 	 * e.g. CONNECT|timestamp|(SUCCESS|FAILURE)|descriptor|playerid|playername
@@ -169,7 +169,7 @@ void log_connect (
 void log_created (
 			int			descriptor,
 			dbref		player,
-	const	CString&	playername
+	const	String&	playername
 ) {
 	/*
 	 *	CREATED|timestamp|descriptor|playerid|playername
@@ -209,10 +209,10 @@ void log_debug (
 
 void log_disconnect (
 			dbref		playerid,
-	const	CString&	playername,
+	const	String&	playername,
 			int			descriptor,
 			int			channel,
-	const	CString&	message,
+	const	String&	message,
 			bool		has_connected
 ) {
 	/*
@@ -281,10 +281,10 @@ void log_dumping (
 
 void log_gripe (
 			dbref		playerid,
-	const CString& playername,
+	const String& playername,
 			dbref		locationid,
-	const CString& locationname,
-	const CString& message
+	const String& locationname,
+	const String& message
 ) {
 	/*
 	 * GRIPE|timestamp|playerid|playername|locationid|locationname|message
@@ -328,7 +328,7 @@ void log_hack (
 
 void log_halfquit (
 			dbref			playerid,
-	const	CString&		playername,
+	const	String&		playername,
 			int				descriptor,
 			int				channel
 ) {
@@ -344,13 +344,13 @@ void log_halfquit (
 
 void log_huh (
 			dbref		playerid,
-	const	CString&	playername,
+	const	String&	playername,
 			dbref		locationid,
-	const	CString&	locationname,
+	const	String&	locationname,
 			dbref		locationownerid,
 			dbref		npcownerid,
-	const	CString&	command,
-	const	CString&	message
+	const	String&	command,
+	const	String&	message
 ) {
 	/*
 	 * HUH|timestamp|playerid|playername|locationid|locationname|locationownerid|npcownerid|command|message
@@ -370,7 +370,7 @@ void log_huh (
 }
 
 void log_loading (
-	const	CString&		filename,
+	const	String&		filename,
 			bool			finished
 ) {	
 	/*
@@ -410,12 +410,12 @@ void log_message (
 
 void log_note (
 			dbref		playerid,
-	const	CString&	playername,
+	const	String&	playername,
 			dbref		locationid,
-	const	CString&	locationname,
+	const	String&	locationname,
 			dbref		npcownerid,
 			bool		showroomid,
-	const	CString&	message
+	const	String&	message
 ) {
 	/*
 	 * NOTE|timestamp|playerid|playername|locationid|locationname|npcownerid|showroomid|message
@@ -458,7 +458,7 @@ void log_panic (
 
 void log_reconnect (
 			dbref			playerid,
-	const	CString&		playername,
+	const	String&		playername,
 			int				descriptor
 ) {
 	/*
@@ -475,10 +475,10 @@ void log_reconnect (
 
 void log_recursion (
 			dbref		playerid,
-	const	CString&	playername,
+	const	String&	playername,
 			int			step_limit,
-	const	CString&	command,
-	const	CString&	argument
+	const	String&	command,
+	const	String&	argument
 ) {
 	/*
 	 * RECURSION|timestamp|playerid|playername|step_limit|command|argument
@@ -497,8 +497,8 @@ void log_recursion (
 
 void log_shutdown (
 			dbref			playerid,
-	const	CString&		playername,
-	const	CString&		reason
+	const	String&		playername,
+	const	String&		reason
 ) {
 	/*
 	 * SHUTDOWN|timestamp|playerid|playername|reason
@@ -515,8 +515,8 @@ void log_shutdown (
 
 void log_wall (
 			dbref			playerid,
-	const CString& playername,
-	const CString& message
+	const String& playername,
+	const String& message
 ) {
 	/*
 	 * WALL|timestamp|playerid|playername|message

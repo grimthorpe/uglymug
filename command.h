@@ -10,15 +10,16 @@
 #ifndef	__DB_H
 #include "db.h"
 #endif	/* __DB_H */
+#include "mudstring.h"
 
-extern	const	char	empty_string [];
-extern	const	char	error_return_string [];
-extern	const	char	ok_return_string [];
-extern	const	char	recursion_return_string [];
-extern	const	char	unset_return_string [];
-extern	const	char	permission_denied [];
+
+extern	const	String	empty_string;
+extern	const	String	error_return_string;
+extern	const	String	ok_return_string;
+extern	const	String	recursion_return_string;
+extern	const	String	unset_return_string;
+extern	const	String	permission_denied;
 extern		char	scratch_buffer [];
-extern		int	command_depth;
 
 
 /*  static const unsigned int MAX_COMMAND_LEN=2048; */
@@ -26,7 +27,7 @@ extern		int	command_depth;
 #define	MAX_COMMAND_DEPTH	16
 #define MAX_NESTING		10
 
-#define	value_or_empty(str)	(((str) == NULL) ? empty_string : (str))
+#define	value_or_empty(str)	(((str) == NULL) ? empty_string.c_str() : (str))
 
 
 enum	Command_next

@@ -51,7 +51,7 @@ void context::do_at_event(const char *name, const char *event)
 
 	if(!controls_for_write(npc))
 	{
-		notify(player, permission_denied);
+		notify(player, permission_denied.c_str());
 		return;
 	}
 

@@ -33,7 +33,7 @@ extern dbref
 parse_linkable_room (
 context			&c,
 dbref			link_src,
-const	CString&	link_dest_name)
+const	String&	link_dest_name)
 
 {
 	dbref	link_dest;
@@ -171,8 +171,8 @@ dbref	room2)
  */
 void
 context::do_at_open (
-const	CString& direction,
-const	CString& linkto)
+const	String& direction,
+const	String& linkto)
 
 {
 	dbref loc;
@@ -208,7 +208,7 @@ const	CString& linkto)
 	}
 	if(!controls_for_write (loc))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 	if(!payfor(ID, EXIT_COST))
@@ -278,8 +278,8 @@ const	CString& linkto)
 
 void
 context::do_at_link (
-const	CString& name,
-const	CString& room_name)
+const	String& name,
+const	String& room_name)
 
 {
 	dbref loc;
@@ -315,7 +315,7 @@ const	CString& room_name)
 					if(controls_for_read (thing))
 						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That exit is already linked.");
 					else
-						notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+						notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 
@@ -389,7 +389,7 @@ const	CString& room_name)
 			case TYPE_THING:
 				if(!controls_for_write(thing))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 				if(room == HOME)
@@ -412,7 +412,7 @@ const	CString& room_name)
 			case TYPE_ROOM:
 				if(!controls_for_write (thing))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 				if(room != HOME)
@@ -448,8 +448,8 @@ const	CString& room_name)
 /* use this to create a room */
 void
 context::do_at_dig (
-const	CString& name,
-const	CString& desc)
+const	String& name,
+const	String& desc)
 
 {
 	dbref room;
@@ -507,8 +507,8 @@ const	CString& desc)
 
 void
 context::do_at_create (
-const	CString& name,
-const	CString& desc)
+const	String& name,
+const	String& desc)
 
 {
 	dbref			loc;
@@ -547,7 +547,7 @@ const	CString& desc)
 		db[thing].set_destination (NOTHING);
 		db[thing].set_owner (ID);
 		Settypeof(thing, TYPE_THING);
-		db[thing].set_contents_string (NULLCSTRING);
+		db[thing].set_contents_string (NULLSTRING);
 		db[thing].set_gravity_factor (STANDARD_THING_GRAVITY);
 		db[thing].set_mass (0);
 		db[thing].set_volume (0);
@@ -582,8 +582,8 @@ const	CString& desc)
 
 void
 context::do_at_command (
-const	CString& name,
-const	CString& commands)
+const	String& name,
+const	String& commands)
 
 {
 	dbref			thing;
@@ -662,8 +662,8 @@ const	CString& commands)
 
 void
 context::do_at_array (
-const	CString& array_name,
-const	CString& )
+const	String& array_name,
+const	String& )
 {
 	dbref	thing;
 
@@ -723,8 +723,8 @@ const	CString& )
 
 void
 context::do_at_dictionary (
-const	CString& dictionary_name,
-const	CString& )
+const	String& dictionary_name,
+const	String& )
 {
 	dbref	thing;
 
@@ -783,8 +783,8 @@ const	CString& )
 
 void
 context::do_at_property (
-const	CString& property_name,
-const	CString& value)
+const	String& property_name,
+const	String& value)
 {
 	dbref	thing;
 
@@ -845,8 +845,8 @@ const	CString& value)
 */
 void
 context::do_at_variable (
-const	CString& variable_name,
-const	CString& value)
+const	String& variable_name,
+const	String& value)
 {
 notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a deprecated command. Please use @property instead.");
 	/* if we are in a command, dump command information */
@@ -920,7 +920,7 @@ notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a d
 dbref
 parse_linkable_command (
 context		&c,
-const	CString& command_name)
+const	String& command_name)
 
 {
 	dbref	command;
@@ -957,8 +957,8 @@ const	CString& command_name)
 
 void
 context::do_at_csuccess (
-const	CString& name,
-const	CString& command_name)
+const	String& name,
+const	String& command_name)
 
 {
 	dbref thing;
@@ -1026,8 +1026,8 @@ const	CString& command_name)
 
 void
 context::do_at_cfailure (
-const	CString& name,
-const	CString& command_name)
+const	String& name,
+const	String& command_name)
 
 {
 	dbref thing;
@@ -1088,7 +1088,7 @@ const	CString& command_name)
 
 
 void
-context::do_at_fuse (const CString& fuse_name, const CString& command_name)
+context::do_at_fuse (const String& fuse_name, const String& command_name)
 {
 	dbref	thing;
 	dbref destination;
@@ -1116,7 +1116,7 @@ context::do_at_fuse (const CString& fuse_name, const CString& command_name)
 
 	/* initialize everything */
 	db[thing].set_name (fuse_name);
-	db[thing].set_description (NULLCSTRING);
+	db[thing].set_description (NULLSTRING);
 	db[thing].set_location (player);
 	db[thing].set_destination (NOTHING);
 	db[thing].set_owner (ID);
@@ -1147,7 +1147,7 @@ context::do_at_fuse (const CString& fuse_name, const CString& command_name)
 
 
 void
-context::do_at_alarm (const CString& alarm_name, const CString& time_of_execution)
+context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
 {
 	dbref	thing;
 
@@ -1156,7 +1156,7 @@ context::do_at_alarm (const CString& alarm_name, const CString& time_of_executio
 
 	if (!Wizard (get_effective_id ()))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -1208,8 +1208,8 @@ context::do_at_alarm (const CString& alarm_name, const CString& time_of_executio
 
 void
 context::do_at_puppet (
-const	CString& puppet_name,
-const	CString& )
+const	String& puppet_name,
+const	String& )
 
 {
 	dbref	thing,
@@ -1221,7 +1221,7 @@ const	CString& )
 	/* We're allowing them, Reaper 08/09/95
 	if (!Wizard (get_effective_id ()))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 	*/
@@ -1258,7 +1258,7 @@ const	CString& )
 
 	/* initialize everything */
 	db[thing].set_name (puppet_name);
-	db[thing].set_description (NULLCSTRING);
+	db[thing].set_description (NULLSTRING);
 	db[thing].set_location (db[player].get_location());
 	if(controls_for_write(db[db[player].get_location()].get_owner()))
 		db[thing].set_destination (db[player].get_location());

@@ -94,10 +94,10 @@ class Channel
 
 	bool	remove_player_fromlist(dbref p, ChannelPlayer* list);
 public:
-	Channel(const CString& n);
+	Channel(const String& n);
 	~Channel();
 	static Channel*	head() { return Head; }
-	static bool	ok_name(const CString& n)
+	static bool	ok_name(const String& n)
 	{
 		if((n.length() < 2) || (n.length() > 14))
 			return false;
@@ -105,7 +105,7 @@ public:
 			return false;
 		return true;
 	}
-	static Channel* find(const CString& n)
+	static Channel* find(const String& n)
 	{
 		if(!ok_name(n))
 		{
@@ -122,7 +122,7 @@ public:
 	}
 		
 	const String&	name() { return Name; }
-	void		set_name(const CString& n) { Name = n; }
+	void		set_name(const String& n) { Name = n; }
 	bool	get_private() { return Private; }
 	void	set_private(bool s) { Private = s; }
 	bool	get_censored() { return Censored; }
@@ -134,7 +134,7 @@ public:
 	bool	remove_ban(dbref p);
 	bool	add_player(dbref p);
 	bool	remove_player(dbref p);
-	bool	remove_player_and_send(dbref p, dbref op, const CString& msg)
+	bool	remove_player_and_send(dbref p, dbref op, const String& msg)
 	{
 		if(!find_player(p))
 		{
@@ -160,15 +160,15 @@ public:
 	ChannelPlayer*	bans() { return Bans; }
 	Channel*	next() { return Next; }
 
-	void	send(dbref player, const CString& msg, bool system = false);
+	void	send(dbref player, const String& msg, bool system = false);
 
-	static Channel*	find_and_join_player(dbref player, const CString& cname, bool can_force);
+	static Channel*	find_and_join_player(dbref player, const String& cname, bool can_force);
 	bool		join(dbref player, bool can_force);
 };
 
 Channel* Channel::Head = 0;
 
-Channel::Channel(const CString& n)
+Channel::Channel(const String& n)
 {
 	Name = n;
 	Censored = false;
@@ -313,7 +313,7 @@ Channel::player_banned(dbref p)
 }
 
 void
-Channel::send(dbref player, const CString& msg, bool system)
+Channel::send(dbref player, const String& msg, bool system)
 {
 ChannelPlayer* iter;
 bool emote = false;
@@ -345,7 +345,7 @@ const char* censored = 0;
 }
 
 Channel*
-Channel::find_and_join_player(dbref player, const CString& cname, bool can_force)
+Channel::find_and_join_player(dbref player, const String& cname, bool can_force)
 {
 	Channel* channel = 0;
 	bool created = false;
@@ -415,7 +415,7 @@ bool forced = false;
 }
 
 void
-context::do_chat(const CString& arg1, const CString& arg2)
+context::do_chat(const String& arg1, const String& arg2)
 {
 	if(Typeof(player) != TYPE_PLAYER)
 	{
@@ -477,7 +477,7 @@ context::do_chat(const CString& arg1, const CString& arg2)
  * Queries on the channnel state.
  */
 void
-context::do_query_channel (const CString& arg1, const CString& arg2)
+context::do_query_channel (const String& arg1, const String& arg2)
 {
 
 	return_status = COMMAND_FAIL;
@@ -601,7 +601,7 @@ context::do_query_channel (const CString& arg1, const CString& arg2)
 }
 
 void
-context::do_at_channel (const CString& arg1, const CString& arg2)
+context::do_at_channel (const String& arg1, const String& arg2)
 {
 	if(Typeof(player) != TYPE_PLAYER)
 	{
@@ -1242,7 +1242,7 @@ static char *chop_string(const char *string, int size)
 
 
 void
-context::do_channel_who(const CString& name, const CString& arg2)
+context::do_channel_who(const String& name, const String& arg2)
 {
 	int	channel_count = 0;
 	time_t	interval;

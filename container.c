@@ -14,8 +14,8 @@
 
 void
 context::do_open (
-const	CString& object,
-const	CString& )
+const	String& object,
+const	String& )
 
 {
 	dbref	container;
@@ -68,8 +68,8 @@ const	CString& )
 
 void
 context::do_close (
-const	CString& object,
-const	CString& )
+const	String& object,
+const	String& )
 
 {
 	dbref	container;
@@ -122,8 +122,8 @@ const	CString& )
 
 void
 context::do_at_cstring (
-const	CString& object,
-const	CString& description)
+const	String& object,
+const	String& description)
 
 {
 	dbref container;
@@ -140,7 +140,7 @@ const	CString& description)
 	if ((container = matcher.noisy_match_result()) == NOTHING)
 		return;
 	if (!controls_for_write (container))
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 	else if (!((Typeof(container) == TYPE_ROOM) || (Container (container))))
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can't change the contents string for that.");
 	else
@@ -161,8 +161,8 @@ const	CString& description)
 
 void
 context::do_lock (
-const	CString& object,
-const	CString& )
+const	String& object,
+const	String& )
 
 {
 	dbref	container;
@@ -200,8 +200,8 @@ const	CString& )
 
 void
 context::do_unlock (
-const	CString& object,
-const	CString& )
+const	String& object,
+const	String& )
 
 {
 	dbref	container;

@@ -536,8 +536,8 @@ dbref	loc)
 
 void
 context::do_look_at (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	dbref		thing;
@@ -719,8 +719,8 @@ dbref	thing)
 
 void
 context::do_examine (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	const colour_at& ca = db[player].get_colour_at();
@@ -1563,8 +1563,8 @@ const	CString& )
 
 void
 context::do_score (
-const	CString& ,
-const	CString& )
+const	String& ,
+const	String& )
 
 {
 	notify_colour(player, player, COLOUR_MESSAGES, "You have %d %s.",
@@ -1583,8 +1583,8 @@ const	CString& )
 
 void
 context::do_inventory (
-const	CString& ,
-const	CString& )
+const	String& ,
+const	String& )
 {
 	dbref thing;
 	const colour_at& ca = db[player].get_colour_at();
@@ -1608,7 +1608,7 @@ const	CString& )
 		}
 	}
 
-	do_score(NULLCSTRING, NULLCSTRING);
+	do_score(NULLSTRING, NULLSTRING);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -1616,8 +1616,8 @@ const	CString& )
 
 void
 context::do_at_list (
-const	CString& descriptor,
-const	CString& string)
+const	String& descriptor,
+const	String& string)
 
 {
 	dbref	i;
@@ -1697,7 +1697,7 @@ const	CString& string)
 			
 				if (!controls_for_read(victim))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 			}
@@ -1706,7 +1706,7 @@ const	CString& string)
 
 	if(!controls_for_read (victim))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -1792,8 +1792,8 @@ const	CString& string)
 
 void
 context::do_at_find (
-const	CString& descriptor,
-const	CString& string)
+const	String& descriptor,
+const	String& string)
 
 {
 	dbref	i;
@@ -2065,7 +2065,7 @@ char *small_time_string (time_t interval)
 }
 
 void
-context::do_at_censorinfo(const CString& ,const CString& )
+context::do_at_censorinfo(const String& ,const String& )
 {
 	return_status= COMMAND_FAIL;
 	set_return_string(error_return_string);

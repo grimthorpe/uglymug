@@ -55,8 +55,8 @@ const	char	*src)
 
 const char *
 reconstruct_message (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 {
 	static	char	buf [BUFFER_LEN];
 
@@ -74,8 +74,8 @@ const	CString& arg2)
 
 void
 context::do_say (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 		dbref	loc;
@@ -154,8 +154,8 @@ const	CString& arg2)
 
 void
 context::do_whisper (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 #ifndef	QUIET_WHISPER
@@ -233,8 +233,8 @@ const	CString& arg2)
 
 void
 context::do_at_areanotify (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	dbref loc;
@@ -250,7 +250,7 @@ const	CString& arg2)
 //                || ((Typeof (loc) != TYPE_ROOM) && !Container (loc)) // Should we restrict it to rooms or containers?
                 || !controls_for_read (loc))
         {
-                notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+                notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
                 return;
         }
 
@@ -263,8 +263,8 @@ const	CString& arg2)
 
 void
 context::do_notify (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	dbref loc;
@@ -276,7 +276,7 @@ const	CString& arg2)
 
 	if (!controls_for_read (loc))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -289,8 +289,8 @@ const	CString& arg2)
 
 void
 context::do_pose (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	dbref loc, prop;
@@ -351,8 +351,8 @@ const	CString& arg2)
 
 void
 context::do_at_wall (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	const char *message;
@@ -380,8 +380,8 @@ const	CString& arg2)
 
 void
 context::do_at_note (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	const char *message;
@@ -423,8 +423,8 @@ const	CString& arg2)
 
 void
 context::do_gripe (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	dbref loc;
@@ -465,8 +465,8 @@ const	CString& arg2)
 
 void
 context::do_page (
-const	CString& part1,
-const	CString& part2)
+const	String& part1,
+const	String& part2)
 
 {
 	Player_list	targets(player);
@@ -627,8 +627,8 @@ const	CString& part2)
 
 void
 context::do_at_natter (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 {
 	const char *message;
 
@@ -664,8 +664,8 @@ const	CString& arg2)
 
 void
 context::do_at_echo (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	
@@ -677,8 +677,8 @@ const	CString& arg2)
 
 void
 context::do_at_oecho (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	return_status = COMMAND_FAIL;
@@ -697,8 +697,8 @@ const	CString& arg2)
 
 void
 context::do_at_oemote (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 
@@ -719,8 +719,8 @@ const	CString& arg2)
 
 void
 context::do_at_pemote (
-const	CString& name,
-const	CString& what)
+const	String& name,
+const	String& what)
 
 {
 	dbref	victim;
@@ -763,8 +763,8 @@ const	CString& what)
 
 void
 context::do_at_notify (
-const	CString& names,
-const	CString& what)
+const	String& names,
+const	String& what)
 
 {
 	return_status = COMMAND_FAIL;
@@ -799,8 +799,8 @@ const	CString& what)
 
 void
 context::do_fchat (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	return_status = COMMAND_FAIL;
@@ -1076,7 +1076,7 @@ really_do_tell(char *arg1, char *arg2, bool force_emote, context &c)
  *
  */
 
-void context::do_tellemote (const CString& part1, const CString& part2)
+void context::do_tellemote (const String& part1, const String& part2)
 {
 	char *arg1;
 	char *arg2;
@@ -1099,7 +1099,7 @@ void context::do_tellemote (const CString& part1, const CString& part2)
 
 }
 
-void context::do_tell(const CString& part1, const CString& part2)
+void context::do_tell(const String& part1, const String& part2)
 {
 	char *arg1;
 	char *arg2;
@@ -1122,7 +1122,7 @@ void context::do_tell(const CString& part1, const CString& part2)
 	free(arg2);
 }
 
-void context::do_at_censor(const CString& arg1, const CString& arg2)
+void context::do_at_censor(const String& arg1, const String& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1165,7 +1165,7 @@ void context::do_at_censor(const CString& arg1, const CString& arg2)
 }
 
 
-void context::do_at_exclude(const CString& arg1, const CString& arg2)
+void context::do_at_exclude(const String& arg1, const String& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1208,7 +1208,7 @@ void context::do_at_exclude(const CString& arg1, const CString& arg2)
 }
 
 
-void context::do_at_uncensor(const CString& arg1, const CString& arg2)
+void context::do_at_uncensor(const String& arg1, const String& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);
@@ -1252,7 +1252,7 @@ void context::do_at_uncensor(const CString& arg1, const CString& arg2)
 }
 
 
-void context::do_at_unexclude(const CString& arg1, const CString& arg2)
+void context::do_at_unexclude(const String& arg1, const String& arg2)
 {
 	return_status=COMMAND_FAIL;
 	set_return_string(error_return_string);

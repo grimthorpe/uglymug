@@ -31,7 +31,7 @@ int	tom_fuse)
 	char		buf [15];
 	dbref		fuse;
 
-	const	CString& command_arg1 = c.get_simple_command ();
+	const	String& command_arg1 = c.get_simple_command ();
 	const	String command_arg2 = reconstruct_message (c.get_arg1(), c.get_arg2 ());
 	Matcher		matcher		(c.get_player (), object, TYPE_FUSE, c.get_effective_id ());
 
@@ -110,7 +110,7 @@ dbref	object)
 	char		buf [15];
 	dbref		fuse;
 
-	const	CString& command_arg1 = c.get_simple_command ();
+	const	String& command_arg1 = c.get_simple_command ();
 	const	String command_arg2 = reconstruct_message (c.get_arg1(), c.get_arg2());
 	Matcher		matcher		(c.get_player (), object, TYPE_FUSE, c.get_effective_id ());
 
@@ -180,9 +180,9 @@ dbref	object)
 Pending_fuse::Pending_fuse (
 dbref		f,
 bool		succ,
-const	CString& sc,
-const	CString& a1,
-const	CString& a2,
+const	String& sc,
+const	String& a1,
+const	String& a2,
 const	Matcher	&m)
 
 : Pending (f)

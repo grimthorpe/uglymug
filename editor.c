@@ -61,7 +61,7 @@ const	char	*options)
 
 	if (!controls_for_write(object))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 	 

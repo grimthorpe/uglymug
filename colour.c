@@ -253,8 +253,8 @@ output_array(cplay * array, int size)
 
 void
 context::do_at_listcolours(
-const	CString& target,
-const	CString& type)
+const	String& target,
+const	String& type)
 
 {
 	dbref victim; // For Wizards
@@ -275,7 +275,7 @@ const	CString& type)
 		}
 		if (!controls_for_read(victim))
 		{
-			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			set_return_string(error_return_string);
 			return_status = COMMAND_FAIL;
 			return;
@@ -303,7 +303,7 @@ const	dbref	player,
 const	dbref	victim)
 
 {
-	CString		colour_string;
+	String		colour_string;
 	char	search_buf[3];
 	char	colour_store[BUFFER_LEN];
 	char	*cia_store;
@@ -436,8 +436,8 @@ const dbref victim
 
 void
 context::do_at_colour (
-const	CString& cia,
-const	CString& colour_codes)
+const	String& cia,
+const	String& colour_codes)
 
 {
 		int	i;
@@ -467,7 +467,7 @@ const	CString& colour_codes)
 	
 	if(!cia_table[i].cia)
 	{
-		CString target = cia;
+		String target = cia;
 		if(target.c_str()[0] == '*')
 		{
 			target=cia.c_str()+1;
@@ -593,7 +593,7 @@ const	CString& colour_codes)
 
 const int
 find_number_of_players (
-const CString& cs)
+const String& cs)
 
 {
 	int 	count = 0;
@@ -615,7 +615,7 @@ const CString& cs)
 
 
 colour_at::colour_at (
-const CString&	colour_string)
+const String&	colour_string)
 
 {
 	int	x = 0;
@@ -664,7 +664,7 @@ const	void	*b)
 cplay *
 make_colour_play (
 const	dbref		player,
-const CString&	cs)
+const String&	cs)
 
 {
 	if((!cs) || (cs.c_str()[0] == '\0'))
@@ -752,8 +752,8 @@ int	colour)
 
 void
 context::do_query_colour(
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	/* @?colour <player>

@@ -318,7 +318,7 @@ const	dbref	player)
 boolexp *
 parse_boolexp (
 const	dbref	player,
-const	CString& buf)
+const	String& buf)
 
 {
 	parsebuf = buf.c_str();

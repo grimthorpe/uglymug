@@ -30,8 +30,8 @@ int	add_up_votes	       (dbref members,
 				char* idtring);
 void
 context::do_at_group(
-const	CString& group_string,
-const	CString& player_string)
+const	String& group_string,
+const	String& player_string)
 
 {
 /*@group was written by The ReaperMan around July 1995.
@@ -305,7 +305,7 @@ const	CString& player_string)
 			return;
 		}
 		/*Check existence of dict*/
-		Matcher matcher (player, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+		Matcher matcher (player, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 		matcher.match_variable();
 		matcher.match_array_or_dictionary();
 		if((support_list = matcher.match_result()) == NOTHING)
@@ -381,7 +381,7 @@ const	CString& player_string)
 				/* Remove the support list from the player leaving the
 				   group, if they have one which they should bloody well
 				   do by this time */
-				Matcher matcher (canvasser, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+				Matcher matcher (canvasser, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 				matcher.match_variable();
 				matcher.match_array_or_dictionary();
 				if((support_list = matcher.match_result()) != NOTHING)
@@ -411,7 +411,7 @@ const	CString& player_string)
 					/* Remove the support list from the player leaving the
 					   group, if they have one which they should bloody well
 					   do by this time */
-					Matcher matcher (canvasser, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+					Matcher matcher (canvasser, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 					matcher.match_variable();
 					matcher.match_array_or_dictionary();
 					if((support_list = matcher.match_result()) != NOTHING)
@@ -481,7 +481,7 @@ int add_up_votes(dbref	members,
 		else
 		{
 				/*Check existence of dict*/
-				Matcher matcher (current_member, (CString)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
+				Matcher matcher (current_member, (String)db[group].get_name(), TYPE_DICTIONARY, GOD_ID);
 				matcher.match_variable();
 				matcher.match_array_or_dictionary();
 				if((support_list = matcher.match_result()) == NOTHING)

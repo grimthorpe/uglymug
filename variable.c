@@ -173,7 +173,6 @@ static	Command_status		full_frig_types			(context &c, enum eval_ops, struct oper
 
 
 /* Here is a description of how local and globals work:
-   (NB) If a command is set backwards, @local acts as if it was @global
 
 	@global variables can be created anywhere within a chain and persist
 	until the end of the whole chain/nesting of compound commands.
@@ -215,8 +214,8 @@ static	Command_status		full_frig_types			(context &c, enum eval_ops, struct oper
 
 void
 context::do_at_local (
-const	CString& name,
-const	CString& val)
+const	String& name,
+const	String& val)
 
 {
 	set_return_string (error_return_string);
@@ -269,8 +268,8 @@ const	CString& val)
 
 void
 context::do_at_global (
-const	CString& name,
-const	CString& val)
+const	String& name,
+const	String& val)
 
 {
 	set_return_string (error_return_string);
@@ -309,8 +308,8 @@ const	CString& val)
 
 void
 context::do_at_test (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 {
 	/* A few things fail, everything else succeeds */
 	set_return_string (ok_return_string);
@@ -455,7 +454,7 @@ const	int	depth,
 	 */
 
 	const	String_pair	*arg;
-		CString		value = NULLCSTRING;
+		String		value = NULLSTRING;
 	unsigned int		length;
 
 	/* ... check for $[0123], else match... */
@@ -585,7 +584,7 @@ const	int	depth,
 	if (depth > MAX_NESTED_SUBSTITUTIONS)
 	{
 		/** Match close-braces with *argp to allow higher levels to continue **/
-		strcpy (resp, recursion_return_string);
+		strcpy (resp, recursion_return_string.c_str());
 		return true;
 	}
 
@@ -741,8 +740,8 @@ const	char	right_match)
 
 void
 context::do_at_evaluate (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	char	buffer [BUFFER_LEN];
@@ -848,7 +847,7 @@ unsigned int	space_left)
 			return_status = full_frig_types (c, op, &results [frig_count], ops[op].type_of_operation[frig_count]);
 			if (results [frig_count].type == EVAL_TYPE_NONE)
 			{
-				strcpy (result_buffer, error_return_string);
+				strcpy (result_buffer, error_return_string.c_str());
 				return (return_status);
 			}
 		}
@@ -1106,7 +1105,7 @@ unsigned int	space_left)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Division by zero.");
 					final.type = EVAL_TYPE_STRING;
-					strcpy (final.string, error_return_string);
+					strcpy (final.string, error_return_string.c_str());
 					return_status = COMMAND_FAIL;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
@@ -1136,7 +1135,7 @@ unsigned int	space_left)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Modulus of zero.");
 					final.type = EVAL_TYPE_STRING;
-					strcpy (final.string, error_return_string);
+					strcpy (final.string, error_return_string.c_str());
 					return_status = COMMAND_FAIL;
 				}
 				else
@@ -1235,7 +1234,7 @@ unsigned int	space_left)
 					else
 					{
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Outside sqr domain");
-						strcpy (result_buffer, error_return_string);
+						strcpy (result_buffer, error_return_string.c_str());
 						return (COMMAND_FAIL);
 					}
 				}
@@ -1330,7 +1329,7 @@ unsigned int	space_left)
 					if (!c.gagged_command())
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
 
-					strcpy (result_buffer, error_return_string);
+					strcpy (result_buffer, error_return_string.c_str());
 					return (COMMAND_FAIL);
 				}
 				else
@@ -1370,7 +1369,7 @@ unsigned int	space_left)
 					if (!c.gagged_command())
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"Argument past end of string in nchar");
 
-					strcpy (result_buffer, error_return_string);
+					strcpy (result_buffer, error_return_string.c_str());
 					return (COMMAND_FAIL);
 				}
 				else
@@ -1385,7 +1384,7 @@ unsigned int	space_left)
 				if (results[0].integer == 0)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Zero argument to nitem");
-					strcpy (result_buffer, error_return_string);
+					strcpy (result_buffer, error_return_string.c_str());
 					return (COMMAND_FAIL);
 				}
 
@@ -1402,13 +1401,13 @@ unsigned int	space_left)
 				if (results[0].string[0] == 0)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "No arguments passed to numitems.");
-					strcpy (result_buffer, error_return_string);
+					strcpy (result_buffer, error_return_string.c_str());
 					return (COMMAND_FAIL);
 				}
 				if (results[1].string[0] == 0)
 				{
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Missing second argument to numitems.");
-					strcpy (result_buffer, error_return_string);
+					strcpy (result_buffer, error_return_string.c_str());
 					return (COMMAND_FAIL);
 				}
 
@@ -1422,7 +1421,7 @@ unsigned int	space_left)
 				if ((results[0].integer < 1) || ((size_t)(results[0].integer) > strlen(results[2].string)))
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Substr position out of range");
-					strcpy (result_buffer, error_return_string);
+					strcpy (result_buffer, error_return_string.c_str());
 					return (COMMAND_FAIL);
 				}
 
@@ -1449,7 +1448,7 @@ unsigned int	space_left)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Division by zero.");
 					final.type = EVAL_TYPE_STRING;
-					strcpy (final.string, error_return_string);
+					strcpy (final.string, error_return_string.c_str());
 					return_status = COMMAND_FAIL;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
@@ -1563,7 +1562,7 @@ unsigned int	space_left)
 					{
 						notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Bad number of replaces for @eval replace function - %s", results[0].string);
 						final.type = EVAL_TYPE_NONE;
-						strcpy (result_buffer, error_return_string);
+						strcpy (result_buffer, error_return_string.c_str());
 						return (COMMAND_FAIL);
 					}
 				}
@@ -1603,13 +1602,13 @@ unsigned int	space_left)
 					matcher.match_absolute ();
 					if ((dic = matcher.noisy_match_result ()) == NOTHING)
 					{
-						strcpy (result_buffer, error_return_string);
+						strcpy (result_buffer, error_return_string.c_str());
 						return (COMMAND_FAIL);
 					}
 					if (Typeof (dic) != TYPE_DICTIONARY)
 					{
 						notify_colour (c.get_player (),c.get_player(), COLOUR_ERROR_MESSAGES, "%s is not a dictionary.", results[0].string);
-						strcpy (result_buffer, error_return_string);
+						strcpy (result_buffer, error_return_string.c_str());
 						return (COMMAND_FAIL);
 					}
 					for (unsigned int i = 1; i <= db [dic].get_number_of_elements (); i++)
@@ -1624,7 +1623,7 @@ unsigned int	space_left)
 
 			default:
 				notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Unknown op.");
-				strcpy (result_buffer, error_return_string);
+				strcpy (result_buffer, error_return_string.c_str());
 				return (COMMAND_FAIL);
 		}
 

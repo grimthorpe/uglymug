@@ -56,7 +56,7 @@ class	Pending_fuse
 	Matcher			matcher;	/* Copied */
 	bool			operator<	(Pending &)	{ return (true); }
     public:
-				Pending_fuse	(dbref object, bool success, const CString& cmd, const CString& a1, const CString& a2, const Matcher &matcher);
+				Pending_fuse	(dbref object, bool success, const String& cmd, const String& a1, const String& a2, const Matcher &matcher);
 	virtual			~Pending_fuse	();
 	void			fire		(context &c);
 };

@@ -44,9 +44,6 @@ const	char*	fakeversion = "@(#)" VERSION;
 const	char	*version=fakeversion + 4;
 const	char*	release=RELEASE;
 
-//String NULLSTRING;
-//CString NULLCSTRING;
-
 int
 main (
 int	argc,

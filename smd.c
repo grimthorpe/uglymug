@@ -134,13 +134,13 @@ get_smd_flags(u_long a)
 }
 
 static u_long   
-addr_numtoint(const CString& addr)
+addr_numtoint(const String& addr)
 {
 	return (ntohl(inet_addr(addr.c_str())));
 }
 
 static u_long
-addr_nametoint(const CString& addr)
+addr_nametoint(const String& addr)
 {
 	struct hostent *a;
 	a = gethostbyname(addr.c_str());
@@ -157,8 +157,8 @@ getmask(char *mask)
 
 void
 context::do_at_smdread (
-const	CString&,
-const	CString& )
+const	String&,
+const	String& )
 
 {
 	struct smd *a, *b;
@@ -304,8 +304,8 @@ u_long b;
 
 void
 context::do_at_smd (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 {
 	struct smd *a;
 	return_status = COMMAND_FAIL;

@@ -504,7 +504,7 @@ const
 
 void
 object::set_name (
-const CString& str)
+const String& str)
 {
 	name = str;
 }
@@ -520,7 +520,7 @@ const	dbref	o)
 		db [o].set_referenced ();
 }
 
-void object::set_index(const int, const CString&)
+void object::set_index(const int, const String&)
 { IMPLEMENTATION_ERROR("index"); }
 
 void object::set_size (const int)
@@ -529,7 +529,7 @@ void object::set_size (const int)
 const bool object::destroy (const dbref)
 { IMPLEMENTATION_ERROR ("destroy"); return (true); }
 
-void object::set_description (const CString&)
+void object::set_description (const String&)
 { IMPLEMENTATION_ERROR ("description") }
 
 void object::set_destination (const dbref)
@@ -544,22 +544,22 @@ void object::set_contents (const dbref)
 void object::set_exits (const dbref)
 { IMPLEMENTATION_ERROR ("exits") }
 
-void object::set_fail_message (const CString&)
+void object::set_fail_message (const String&)
 { IMPLEMENTATION_ERROR ("fail_message") }
 
-void object::set_drop_message (const CString&)
+void object::set_drop_message (const String&)
 { IMPLEMENTATION_ERROR ("drop_message") }
 
-void object::set_succ_message (const CString&)
+void object::set_succ_message (const String&)
 { IMPLEMENTATION_ERROR ("succ_message") }
 
-void object::set_ofail (const CString&)
+void object::set_ofail (const String&)
 { IMPLEMENTATION_ERROR ("ofail") }
 
-void object::set_osuccess (const CString&)
+void object::set_osuccess (const String&)
 { IMPLEMENTATION_ERROR ("osuccess") }
 
-void object::set_odrop (const CString&)
+void object::set_odrop (const String&)
 { IMPLEMENTATION_ERROR ("odrop") }
 
 void object::set_pennies (const int)
@@ -663,15 +663,15 @@ void object::set_build_id (const dbref)
 void object::reset_build_id (const dbref)
 { IMPLEMENTATION_ERROR ("build_id") }
 
-void object::set_email_addr (const CString&)
+void object::set_email_addr (const String&)
 { IMPLEMENTATION_ERROR ("email_addr") }
 
 #ifdef ALIASES
-void object::set_alias (const int, const CString&)
+void object::set_alias (const int, const String&)
 { IMPLEMENTATION_ERROR ("alias") }
 #endif /* ALIASES */
 
-void object::add_recall_line (const CString&)
+void object::add_recall_line (const String&)
 { IMPLEMENTATION_ERROR ("add_recall_line") }
 
 void object::output_recall (const int lines, const context * con)
@@ -680,10 +680,10 @@ void object::output_recall (const int lines, const context * con)
 void object::ditch_recall ()
 { IMPLEMENTATION_ERROR ("ditch_recall") }
 
-void object::set_password (const CString&)
+void object::set_password (const String&)
 { IMPLEMENTATION_ERROR ("password") }
 
-void object::set_race (const CString&)
+void object::set_race (const String&)
 { IMPLEMENTATION_ERROR ("race") }
 
 void object::set_score (const long)
@@ -692,7 +692,7 @@ void object::set_score (const long)
 void object::set_last_name_change (const long)
 { IMPLEMENTATION_ERROR ("last_name_change") }
 
-void object::set_who_string (const CString&)
+void object::set_who_string (const String&)
 { IMPLEMENTATION_ERROR ("who_string") }
 
 #if 0	/* PJC 24/1/97 */
@@ -701,7 +701,7 @@ void object::event (const dbref, const dbref, const char *)
 #endif
 
 /* Thing */
-void object::set_contents_string (const CString&)
+void object::set_contents_string (const String&)
 { IMPLEMENTATION_ERROR ("contents_string") }
 
 void object::set_lock_key (struct boolexp *)
@@ -796,8 +796,8 @@ Dictionary::resize(const int newsize)
 void
 Dictionary::set_element (
 const	int	element,
-const	CString&	index,
-const	CString&	string)
+const	String&	index,
+const	String&	string)
 
 {
 	if(element)
@@ -826,7 +826,7 @@ const
 void
 Dictionary::set_index (
 const	int	index,
-const	CString& value)
+const	String& value)
 
 {
 	indices[index-1] = value;
@@ -844,7 +844,7 @@ const
 
 const int
 Dictionary::exist_element (
-const	CString& element)
+const	String& element)
 const
 
 {
@@ -933,7 +933,7 @@ const int newsize)
 void
 Array_storage::set_element (
 const	int	element,
-const	CString& string)
+const	String& string)
 
 {
 	int this_size;
@@ -1002,7 +1002,7 @@ const
 void
 Array_storage::insert_element (
 const	int	index,
-const	CString& element)
+const	String& element)
 {
 	resize(number+1);
 
@@ -1065,7 +1065,7 @@ Describable_object::~Describable_object ()
 
 void
 Describable_object::set_description (
-const	CString& new_text)
+const	String& new_text)
 {
 	char	*copy=NULL;
 	char	*begin=NULL;
@@ -1187,7 +1187,7 @@ struct	boolexp	*k)
 
 void
 Lockable_object::set_fail_message (
-const	CString& str)
+const	String& str)
 
 {
 	fail_message = str;
@@ -1196,7 +1196,7 @@ const	CString& str)
 
 void
 Lockable_object::set_drop_message (
-const	CString& str)
+const	String& str)
 
 {
 	drop_message = str;
@@ -1205,7 +1205,7 @@ const	CString& str)
 
 void
 Lockable_object::set_succ_message (
-const	CString& str)
+const	String& str)
 
 {
 	succ_message = str;
@@ -1214,7 +1214,7 @@ const	CString& str)
 
 void
 Lockable_object::set_ofail (
-const	CString& str)
+const	String& str)
 
 {
 	ofail = str;
@@ -1223,7 +1223,7 @@ const	CString& str)
 
 void
 Lockable_object::set_osuccess (
-const	CString& str)
+const	String& str)
 
 {
 	osuccess = str;
@@ -1232,7 +1232,7 @@ const	CString& str)
 
 void
 Lockable_object::set_odrop (
-const	CString& str)
+const	String& str)
 
 {
 	odrop = str;
@@ -1381,7 +1381,7 @@ Room::~Room()
 
 void
 Room::set_contents_string (
-const	CString& c)
+const	String& c)
 
 {
 	contents_string = c;
@@ -1439,7 +1439,7 @@ puppet::~puppet ()
 
 void
 puppet::set_email_addr (
-const	CString& addr)
+const	String& addr)
 {
 	email_addr = addr;
 }
@@ -1447,7 +1447,7 @@ const	CString& addr)
 
 void
 puppet::set_race (
-const	CString& r)
+const	String& r)
 
 {
 	race = r;
@@ -1456,7 +1456,7 @@ const	CString& r)
 
 void
 puppet::set_who_string (
-const	CString& s)
+const	String& s)
 
 {
 	who_string = s;
@@ -1511,7 +1511,7 @@ Player::~Player ()
 void
 Player::set_alias(
 const	int	which,
-const	CString& what)
+const	String& what)
 
 {
 	alias[which] = what;
@@ -1520,7 +1520,7 @@ const	CString& what)
 
 void
 Player::add_recall_line (
-const CString& strung)
+const String& strung)
 {
 	if(!recall)
 	{
@@ -1667,7 +1667,7 @@ const	dbref	o)
 
 void
 Player::set_password (
-const	CString& p)
+const	String& p)
 {
 	password = p;
 }
@@ -1676,7 +1676,7 @@ const	CString& p)
 #ifdef ALIASES
 const int
 Player::look_at_aliases (
-const	CString& string)
+const	String& string)
 const
 
 {
@@ -1712,7 +1712,7 @@ const
 
 const int
 Player::remove_alias (
-const	CString& string)
+const	String& string)
 
 {
 	int	test;
@@ -1728,7 +1728,7 @@ const	CString& string)
 
 const int
 Player::add_alias (
-const	CString& string)
+const	String& string)
 
 {
 	int	test;
@@ -1747,7 +1747,7 @@ const	CString& string)
 
 const int
 Player::has_alias(
-const	CString& string)
+const	String& string)
 const
 
 {
@@ -1759,7 +1759,7 @@ const
 
 const int
 Player::has_partial_alias(
-const	CString& string)
+const	String& string)
 const
 
 {
@@ -1885,7 +1885,7 @@ Thing::~Thing ()
 
 void
 Thing::set_contents_string (
-const	CString& c)
+const	String& c)
 
 {
 	contents_string = c;
@@ -2503,7 +2503,7 @@ const	unsigned short	value)
 
 void
 Command::set_description (
-const	CString& desc)
+const	String& desc)
 
 {
 	if (parse_helper)

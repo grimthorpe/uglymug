@@ -32,8 +32,8 @@ static	bool			check_and_destroy_property		(context &c, dbref);
 static	bool			check_and_destroy_room			(context &c, dbref);
 static	bool			check_and_destroy_thing			(context &c, dbref);
 static	bool			check_and_destroy_variable		(context &c, dbref);
-static	bool			check_and_destroy_array_element		(context &c, dbref, const CString&);
-static	bool			check_and_destroy_dictionary_element	(context &c, dbref, const CString&);
+static	bool			check_and_destroy_array_element		(context &c, dbref, const String&);
+static	bool			check_and_destroy_dictionary_element	(context &c, dbref, const String&);
 static	void			trash_container				(dbref);
 static	void			check_and_make_sane_lock		(dbref object);
 
@@ -46,8 +46,8 @@ static	void			check_and_make_sane_lock		(dbref object);
 
 void
 context::do_at_empty(
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	dbref object;
@@ -68,7 +68,7 @@ const	CString& )
 			return;
 		if((object!=NOTHING) && (object!=AMBIGUOUS) && (!this->controls_for_write(object)))
 		{
-			notify_colour(this->get_player(), this->get_player(), COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour(this->get_player(), this->get_player(), COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			return;
 		}
 	}	
@@ -97,8 +97,8 @@ const	CString& )
 
 void
 context::do_at_destroy (
-const	CString& name,
-const	CString& dummy)
+const	String& name,
+const	String& dummy)
 
 {
 	dbref	object;
@@ -139,7 +139,7 @@ const	CString& dummy)
 	/* If the player doesn't control it, give up */
 	if (!controls_for_write (object))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -571,7 +571,7 @@ log_message("Player list updated");
 				if (*newlist)
 				{
 					newlist[strlen(newlist)-1]='\0';
-					db[hislist].set_element(j, NULLCSTRING, newlist);
+					db[hislist].set_element(j, NULLSTRING, newlist);
 					j++;
 log_message("Custom list updated");
 				}
@@ -813,7 +813,7 @@ static bool
 check_and_destroy_array_element (
 context		&c,
 dbref		zap_array,
-const	CString&	elem)
+const	String&	elem)
 
 {
 	int	temp = atoi (elem.c_str());
@@ -850,7 +850,7 @@ static bool
 check_and_destroy_dictionary_element (
 context		&c,
 dbref		zap_dictionary,
-const	CString&	elem)
+const	String&	elem)
 
 {
 	int temp;
@@ -918,8 +918,8 @@ dbref	zap_alarm)
 
 void
 context::do_at_garbage_collect (
-const	CString& type,
-const	CString& )
+const	String& type,
+const	String& )
 
 {
 	int	kill_players = 0;
@@ -933,7 +933,7 @@ const	CString& )
 
 	if (!Wizard (player))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 	if (in_command())

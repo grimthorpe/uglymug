@@ -14,6 +14,9 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Finally implemented all of @?terminal
+	Converted all of the standard strings in the game to be Strings.
+	Changed all CString to String, since we don't have a CString any more.
 	Added @error for completeness in the hardcode
 	The chat channels now act as a public place, so if you are set CensorPublic they get censored, unless the channel is set private. If a channel is set censored, then everything on it is censored.
 	Allowed @pcreate to create players without a password, for the guest system.

@@ -167,7 +167,7 @@ Matcher_state	matcher_state_array [] =
 
 Matcher::Matcher (
 dbref			player,
-const	CString&	name,
+const	String&	name,
 object_flag_type	type,
 dbref			effective_player)
 
@@ -1087,7 +1087,7 @@ Matcher::match_thing_remote(dbref loc)
 }
 
 
-const CString
+const String
 Matcher::match_index_result()
 
 {
@@ -1218,8 +1218,8 @@ dbref	base)
 
 void
 context::do_query_my (
-const	CString& type,
-const	CString& arg)
+const	String& type,
+const	String& arg)
 
 {
 	/** For now, assume type == "leaf" **/

@@ -19,8 +19,8 @@ typedef Link_stack <dbref>	Simple_stack;
 
 void
 context::do_enter (
-const	CString& object,
-const	CString&)
+const	String& object,
+const	String&)
 
 {
 	dbref			thing;
@@ -62,8 +62,8 @@ const	CString&)
 
 void
 context::do_leave (
-const	CString& ,
-const	CString&)
+const	String& ,
+const	String&)
 
 {
 	dbref			object;
@@ -537,7 +537,7 @@ dbref	thing)
 bool
 can_move (
 context&	c,
-const CString&	direction)
+const String&	direction)
 
 {
 	if(!string_compare(direction, "home"))
@@ -551,8 +551,8 @@ const CString&	direction)
 
 void
 context::do_move (
-const	CString& direction,
-const	CString&)
+const	String& direction,
+const	String&)
 
 {
 	dbref exit;
@@ -650,8 +650,8 @@ const	CString&)
 
 void
 context::do_get (
-const	CString& what,
-const	CString& where)
+const	String& what,
+const	String& where)
 
 {
 	dbref	thing;
@@ -835,8 +835,8 @@ const	CString& where)
 
 void
 context::do_drop (
-const	CString& name,
-const	CString& where)
+const	String& name,
+const	String& where)
 
 {
 	dbref			loc;
@@ -882,7 +882,7 @@ const	CString& where)
 				/* special behavior for exits */
 				if (!controls_for_write (container))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 				if ((Typeof(container) != TYPE_ROOM) && (Typeof (container) != TYPE_THING))
@@ -995,7 +995,7 @@ const	CString& where)
 			case TYPE_COMMAND:
 				if (!controls_for_write (thing))
 				{
-					notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 				switch (Typeof (container))
@@ -1007,7 +1007,7 @@ const	CString& where)
 					case TYPE_EXIT:
 						if (!controls_for_write (container))
 						{
-							notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+							notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 							return;
 						}
 						moveto (thing, container);
@@ -1023,7 +1023,7 @@ const	CString& where)
 			case TYPE_VARIABLE:
 				if (!controls_for_write (thing))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 				switch (Typeof (container))
@@ -1047,7 +1047,7 @@ const	CString& where)
 			case TYPE_FUSE:
 				if (!controls_for_write (thing))
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 					return;
 				}
 				switch (Typeof (container))
@@ -1059,7 +1059,7 @@ const	CString& where)
 					case TYPE_EXIT:
 						if (!controls_for_write (container))
 						{
-							notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+							notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 							return;
 						}
 						moveto (thing, container);
@@ -1086,8 +1086,8 @@ const	CString& where)
 
 void
 context::do_remote (
-const	CString& loc_string,
-const	CString& command)
+const	String& loc_string,
+const	String& command)
 
 {
 	dbref	loc;

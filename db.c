@@ -2122,7 +2122,7 @@ void Database::build_player_cache(int player_count)
 
 const dbref
 Database::lookup_player (
-const	CString&	name)
+const	String&	name)
 const
 
 {
@@ -2180,7 +2180,7 @@ const
 void
 Database::add_player_to_cache (
 	dbref	player,
-const	CString& name)
+const	String& name)
 {
 	if(Typeof(player)!=TYPE_PLAYER)
 		return;
@@ -2197,7 +2197,7 @@ const	CString& name)
 }
 
 
-void Database::remove_player_from_cache(const CString& name)
+void Database::remove_player_from_cache(const String& name)
 {
 	for(struct changed_player_list_struct *current=changed_player_list; current; )
 		if(string_compare(current->name, name)==0)

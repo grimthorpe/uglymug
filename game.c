@@ -69,7 +69,7 @@ class	command_details
 {
     public:
 	const	char		*name;
-	void			(context::*context_address) (const CString&, const CString&);
+	void			(context::*context_address) (const String&, const String&);
 	command_flags		flags;
 };
 
@@ -401,8 +401,8 @@ const	char	*key)
 
 void
 context::do_at_version (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	return_status = COMMAND_SUCC;
@@ -413,8 +413,8 @@ const	CString&)
 
 void
 context::do_query_version (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 {
 	return_status = COMMAND_SUCC;
 	set_return_string(release);
@@ -423,8 +423,8 @@ const	CString&)
 
 void
 context::do_at_dump (
-const	CString&,
-const	CString&)
+const	String&,
+const	String&)
 
 {
 	return_status = COMMAND_FAIL;
@@ -437,14 +437,14 @@ const	CString&)
 		set_return_string(ok_return_string);
 	}
 	else
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 }
 
 
 void
 context::do_at_shutdown (
-const	CString& arg1,
-const	CString& arg2)
+const	String& arg1,
+const	String& arg2)
 
 {
 	return_status = COMMAND_FAIL;
@@ -452,7 +452,7 @@ const	CString& arg2)
 
 	if (!Wizard (player))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -788,7 +788,7 @@ const	char	*outfile)
 
 String
 context::sneakily_process_basic_command (
-const	CString& original_command,
+const	String& original_command,
 Command_status	&sneaky_return_status)
 
 {
@@ -956,8 +956,8 @@ const	char	*original_command)
 	if (!in_command())
 	{
 		set_simple_command (smashed_original);
-		set_arg1 (NULLCSTRING);
-		set_arg2 (NULLCSTRING);
+		set_arg1 (NULLSTRING);
+		set_arg2 (NULLSTRING);
 		abort_from_fuse = 0;
 		count_down_abort_fuses (*this, player);
 		count_down_abort_fuses (*this, db[player].get_location());
@@ -1025,13 +1025,13 @@ const	char	*original_command)
 	{
 		set_simple_command ("say");
 		set_arg1 (command + 1);
-		set_arg2 (NULLCSTRING);
+		set_arg2 (NULLSTRING);
 	}
 	else if (*command == POSE_TOKEN)
 	{
 		set_simple_command ("pose");
 		set_arg1 (command + 1);
-		set_arg2 (NULLCSTRING);
+		set_arg2 (NULLSTRING);
 		legal_command = 1;
 	}
 	else if (*command == NOTIFY_TOKEN)
@@ -1045,7 +1045,7 @@ const	char	*original_command)
 		/* command is an exact match for an exit */
 		set_simple_command ("go");
 		set_arg1 (command);
-		set_arg2 (NULLCSTRING);
+		set_arg2 (NULLSTRING);
 		legal_command = 1;
 	}
 	else
@@ -1286,7 +1286,7 @@ const	char	*command)
 }
 
 
-void mud_run_dotcommand(dbref player, const CString& command)
+void mud_run_dotcommand(dbref player, const String& command)
 {
 	dbref the_command;
 	/** Needs to call can_do_compound_command **/
@@ -1465,8 +1465,8 @@ void mud_time_sync ()
  */
 void
 context::do_at_rem(
-const CString&,
-const CString&)
+const String&,
+const String&)
 {
 	return;		// Do nothing.
 }
@@ -1476,8 +1476,8 @@ const CString&)
  */
 void
 context::do_at_error(
-const CString& arg1,
-const CString& arg2)
+const String& arg1,
+const String& arg2)
 {
 	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", reconstruct_message(arg1, arg2));
 	// No RETURN_SUCC or RETURN_FAIL, because we don't want to change the return value.
@@ -1488,8 +1488,8 @@ const CString& arg2)
  */
 void
 context::do_at_warn(
-const CString& arg1,
-const CString& arg2)
+const String& arg1,
+const String& arg2)
 {
 	if(!gagged_command())
 	{

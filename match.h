@@ -119,7 +119,7 @@ class	Matcher
 	void			match_variable_list		(dbref base);
     public:
 				Matcher				(const Matcher &src);
-				Matcher				(dbref player, const CString& name, object_flag_type type, dbref effective_player);
+				Matcher				(dbref player, const String& name, object_flag_type type, dbref effective_player);
 				Matcher				(dbref player, dbref object, object_flag_type type, dbref effective_player);
 				~Matcher			();
 	void			set_beginning			(const char *str);
@@ -148,7 +148,7 @@ class	Matcher
 	dbref			match_result			();
 	dbref			last_match_result		();
 	dbref			noisy_match_result		();
-	const CString		match_index_result		();
+	const String		match_index_result		();
 	bool			match_index_attempt_result	();
 	dbref			choose_thing			(dbref, dbref);
 	dbref			get_leaf			()			{ return (thing); }

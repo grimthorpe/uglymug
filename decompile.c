@@ -185,8 +185,8 @@ dbref	player)
 
 void
 context::do_at_decompile (
-const	CString& name,
-const	CString& args)
+const	String& name,
+const	String& args)
 
 {
 	dbref	object;			/* We need to be able to refer to the object */
@@ -217,7 +217,7 @@ const	CString& args)
 
 	/* allow players to decompile objects they have controls_for_read on */
 	if (! controls_for_read(object)) {
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 	

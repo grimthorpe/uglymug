@@ -34,12 +34,12 @@ class	Array_storage
 	virtual			~Array_storage		();
 		void		empty_object		();
 		void		resize			(const int newsize);
-		void		set_element		(const int element, const CString& string);
+		void		set_element		(const int element, const String& string);
 	const	String&		get_element		(const int element)	const;
 
 		void		destroy_element		(const int element);
 	const	int		exist_element		(const int)		const;
-		void		insert_element		(const int, const CString&);
+		void		insert_element		(const int, const String&);
 	const	bool		destroy			(const dbref);
     		void		set_size		(const int value)	{ size = value; }
 		int		get_size		()			{ return size; }
@@ -59,12 +59,12 @@ class	Dictionary
 		void		empty_object		();
 		void		resize			(const int newsize);
 	const	String&		get_element		(const int element)	const;
-		void		set_element		(const int element, const CString& index, const CString& string);
+		void		set_element		(const int element, const String& index, const String& string);
 		void		destroy_element		(const int element);
-	const	int		exist_element		(const CString& )		const;
+	const	int		exist_element		(const String& )		const;
 	const	bool		destroy			(const dbref);
 	const	String&		get_index		(const int)		const;
-		void		set_index		(const int, const CString& );
+		void		set_index		(const int, const String& );
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
 	const	dbref		get_next		()			const;
@@ -94,7 +94,7 @@ class	Describable_object
 	virtual			~Describable_object	();
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
-		void		set_description		(const CString&);
+		void		set_description		(const String&);
 	const	String&		get_description	()			const;
 };
 
@@ -117,12 +117,12 @@ class	Lockable_object
 	const	bool		read			(FILE* f);
 		void		set_key			(boolexp *);
 		void		set_key_no_free		(boolexp *k)			{ key = k; }
-		void		set_fail_message	(const CString& str);
-		void		set_drop_message	(const CString& str);
-		void		set_succ_message	(const CString& str);
-		void		set_ofail		(const CString& str);
-		void		set_osuccess		(const CString& str);
-		void		set_odrop		(const CString& str);
+		void		set_fail_message	(const String& str);
+		void		set_drop_message	(const String& str);
+		void		set_succ_message	(const String& str);
+		void		set_ofail		(const String& str);
+		void		set_osuccess		(const String& str);
+		void		set_odrop		(const String& str);
 	const	boolexp		*get_key		()			const	{ return key; }
 		boolexp		*get_key_for_edit	()			const	{ return key; }
 	const	String&		get_fail_message	()			const	{ return fail_message; }
@@ -241,7 +241,7 @@ class	Command
 	const	dbref		get_cfail		()			const	{ return (get_exits ()); }
 		void		set_csucc		(const dbref o);
 		void		set_cfail		(const dbref o);
-		void		set_description		(const CString&);
+		void		set_description		(const String&);
 	const	unsigned short	get_parse_helper	(const unsigned int index)	const;
 		void		set_parse_helper	(const unsigned int index, const unsigned short value);
 	const	bool		alloc_parse_helper	();
@@ -309,11 +309,11 @@ class	puppet
 	const	dbref		get_build_id		()			const	{ return build_id; }
 		void		set_build_id		(dbref c);
 		void		reset_build_id		(dbref c);
-		void		set_email_addr		(const CString& addr);
+		void		set_email_addr		(const String& addr);
 		void		set_score		(const long v)			{ score = v; }
 		void		set_last_name_change	(const long v)			{ last_name_change = v; }
-		void		set_race		(const CString& r);
-		void		set_who_string		(const CString& s);
+		void		set_race		(const String& r);
+		void		set_who_string		(const String& s);
 		void		set_money		(const int i)			{ money=i; }
 
 	const	colour_at&	get_colour_at		()			const	{ return default_colour_at; }
@@ -354,8 +354,8 @@ class	Player
 	String			password;
 	dbref			controller;
 #ifdef ALIASES
-		void		set_alias		(const int which, const CString& what);
-	const	int		look_at_aliases		(const CString& string)	const;
+		void		set_alias		(const int which, const String& what);
+	const	int		look_at_aliases		(const String& string)	const;
 #endif /* ALIASES */
 
 	/* Combat stats */
@@ -384,12 +384,12 @@ class	Player
 	const	bool		read			(FILE* f);
 
 
-		void		add_recall_line		(const CString& strung);
+		void		add_recall_line		(const String& strung);
 		void		output_recall		(const int lines, const context * con);
 		void		ditch_recall		();
 
 		void		set_colour		(const char *new_colour);
-		CString		get_colour		()			const	{return colour;}
+		String		get_colour		()			const	{return colour;}
 		void		set_colour_at		(colour_at* c)		{ if(c != col_at) delete col_at; col_at = c; }
 	const	colour_at&	get_colour_at		()  	   		const	{ return col_at?(*col_at):default_colour_at; }
 		void		set_colour_play		(cplay *c)  			{if(colour_play) delete[] colour_play; colour_play = c;}
@@ -397,16 +397,16 @@ class	Player
 		void		set_colour_play_size	(int c)				{colour_play_size=c;}
 	const	int		get_colour_play_size	()			const	{return colour_play_size;}
 		void		set_controller		(dbref c);
-		void		set_password		(const CString& p);
+		void		set_password		(const String& p);
 		void		set_channel		(Channel *c)		{channel = c;}
 		Channel *	get_channel		()			const	{return channel;}
 
 #ifdef ALIASES
 	const	String&		get_alias		(const int which)	const	{ return (alias[which]); }
-	const	int		remove_alias		(const CString& string);
-	const	int		add_alias		(const CString& string);
-	const	int		has_alias		(const CString& string)	const;
-	const	int		has_partial_alias	(const CString& string)	const;
+	const	int		remove_alias		(const String& string);
+	const	int		add_alias		(const String& string);
+	const	int		has_alias		(const String& string)	const;
+	const	int		has_partial_alias	(const String& string)	const;
 #endif /* ALIASES */
 
 	const	dbref		get_controller		()			const	{ return (controller); }
@@ -433,7 +433,7 @@ class	Room
 	const	bool		read			(FILE* f);
 	const	bool		destroy			(const dbref);
 		void		set_last_entry_time	()				{ time (&last_entry_time); }
-		void		set_contents_string	(const CString& c);
+		void		set_contents_string	(const String& c);
 	const	String&		get_contents_string	()			const	{ return (contents_string); }
 	const	time_t		get_last_entry_time	()			const	{ return last_entry_time; }
 	const	double		get_inherited_mass	()			const;
@@ -457,7 +457,7 @@ class	Thing
 	virtual			~Thing			();
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
-		void		set_contents_string	(const CString& c);
+		void		set_contents_string	(const String& c);
 		void		set_lock_key		(boolexp *k);
 		void		set_lock_key_no_free	(boolexp *k)			{ lock_key=k; }
 	const	String&		get_contents_string	()			const	{ return (contents_string); }

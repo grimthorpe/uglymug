@@ -169,7 +169,7 @@ static const char *playerlist_flags(int value)
 	return buf;
 }
 void		
-context::do_lset(const CString& victims, const CString& flag)
+context::do_lset(const String& victims, const String& flag)
 {
 	return_status= COMMAND_FAIL;	
 	set_return_string(error_return_string);
@@ -233,7 +233,7 @@ context::do_lset(const CString& victims, const CString& flag)
 			newflags=atoi(db[lists].get_element(element).c_str()) | f;
 
 		sprintf(smallbuf,"%d", newflags);
-		db[lists].set_element(element, NULLCSTRING, smallbuf);
+		db[lists].set_element(element, NULLSTRING, smallbuf);
 		set_reverse_map(target, player, newflags);
 		target=targets.get_next();
 	}
@@ -842,7 +842,7 @@ Player_list::notify(
 
 void
 Player_list::add_list(
-const CString& lname)
+const String& lname)
 {
 	if ( listcount < (MAX_LIST_TELLS -1))
 		listnames[listcount++]= lname;
@@ -851,7 +851,7 @@ const CString& lname)
 int	
 Player_list::build_from_text(
 dbref player,
-const CString& arg1)
+const String& arg1)
 {
 	dbref	lists=find_list_dictionary(player, list_dictionary),
 		element,
@@ -981,7 +981,7 @@ const CString& arg1)
  * }
  */
 
-static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const CString& str)
+static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const String& str)
 {
 	char *names=strdup(str.c_str()), *name;
 
@@ -1010,7 +1010,7 @@ static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const 
  * ladd <listname> = <playerlist>	- Adds to custom lists
  */
 
-void context::do_ladd(const CString& arg1, const CString& arg2)
+void context::do_ladd(const String& arg1, const String& arg2)
 {
 	dbref	lists;
 	char	buf[32];
@@ -1124,7 +1124,7 @@ void context::do_ladd(const CString& arg1, const CString& arg2)
  * llist [<listname>]
  */
 
-void context::do_llist(const CString& arg1, const CString& )
+void context::do_llist(const String& arg1, const String& )
 {
 	const colour_at& ca=db[player].get_colour_at();
 	dbref lists;
@@ -1212,7 +1212,7 @@ void context::do_llist(const CString& arg1, const CString& )
  * lremove <playerlist>
  */
 
-void context::do_lremove(const CString& arg1, const CString& arg2)
+void context::do_lremove(const String& arg1, const String& arg2)
 {
 	dbref lists;
 	int element, delete_count=0;
@@ -1341,7 +1341,7 @@ void context::do_lremove(const CString& arg1, const CString& arg2)
 }
 
 void
-context::do_fwho(const CString& , const CString& )
+context::do_fwho(const String& , const String& )
 {
 	return_status=COMMAND_SUCC;
 	set_return_string (ok_return_string);

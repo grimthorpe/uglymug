@@ -1,15 +1,16 @@
 #include "mudstring.h"
 #include <time.h>
-#ifndef OLD_STRING
-
-StringBuffer StringBuffer::EMPTYBUFFER;
 
 StringBuffer*
 StringBuffer::NewBuffer(const char* ptr, unsigned int len = 0)
 {
+// Have a static data member; When NULLSTRING is destroyed, the 
+// reference count on it should go to 0, and it will go too.
+static StringBuffer* EmptyBuffer = new StringBuffer();
+
 	if(!ptr || !*ptr)
 	{
-		return &EMPTYBUFFER;
+		return EmptyBuffer;
 	}
 
 	if(!len)
@@ -20,93 +21,6 @@ StringBuffer::NewBuffer(const char* ptr, unsigned int len = 0)
 }
 
 String NULLSTRING;
-CString NULLCSTRING;
-
-#ifdef CSTRING
-void CString::empty()
-{
-	buf = 0;
-	len = 0;
-}
-CString::CString()
-{
-	empty();
-}
-CString::CString(const char* str)
-{
-	if(str && *str)
-	{
-		buf = str;
-		len = strlen(buf);
-	}
-	else
-	{
-		empty();
-	}
-}
-CString::CString(const CString& str)
-{
-	buf = str.buf;
-	len = str.len;
-}
-CString::~CString() {}
-
-CString& CString::operator=(const CString& str)
-{
-	buf = str.buf;
-	len = str.len;
-	return *this;
-}
-CString& CString::operator=(const char* str)
-{
-	if(str && *str)
-	{
-		buf = str;
-		len = strlen(str);
-	}
-	else
-	{
-		empty();
-	}
-	return *this;
-}
-
-// Strict equivalence
-bool CString::operator==(const CString& str) const
-{
-	if(str.buf == buf)
-	{
-		return true;
-	}
-	return false;
-}
-CString::CString(const String& str)
-{
-	if(str)
-	{
-		buf = str.c_str();
-		len = str.length();
-	}
-	else
-	{
-		empty();
-	}
-}
-CString& CString::operator=(const String& str)
-{
-	if(str)
-	{
-		buf = str.c_str();
-		len = str.length();
-	}
-	else
-	{
-		empty();
-	}
-	return *this;
-}
-
-#endif //CSTRING
 
 #define STRINGBUFFER_GROWSIZE	64
 
@@ -124,7 +38,7 @@ void StringBuffer::resize(unsigned int newsize, bool copy=true)
 	_capacity = newsize;
 	//while(newsize > _capacity)
 	//	_capacity += STRINGBUFFER_GROWSIZE;
-	char* tmp = (char*)malloc(_capacity+2); // Allow for slight overrun (JIC)
+	char* tmp = new char[_capacity+2]; // Allow for slight overrun (JIC)
 	if(_buf && copy)
 	{
 		// We use memcpy because the regions will not overlap.
@@ -132,13 +46,13 @@ void StringBuffer::resize(unsigned int newsize, bool copy=true)
 		tmp[_len] = 0;
 	}
 	if(_buf)
-		free(_buf);
+		delete[] _buf;
 	_buf = tmp;
 }
 StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the reference counting!
 {
 	if(_buf)
-		free(_buf);
+		delete[] _buf;
 }
 
 StringBuffer::StringBuffer(unsigned int capacity = 0)
@@ -187,7 +101,7 @@ void StringBuffer::unref()
 {
 	if((this) && ((--_ref) == 0))
 	{
-		if(this != &EMPTYBUFFER)
+		//if(this != &EMPTYBUFFER)
 			delete const_cast<StringBuffer*>(this);
 	}
 }
@@ -221,25 +135,6 @@ String& String::operator=(const String& cstr)
 	}
 	return *this;
 }
-#ifdef CSTRING
-String::String(const CString& str)
-{
-	_buffer = StringBuffer::NewBuffer(str.c_str(), str.length());
-	_buffer->ref();
-}
-String& String::operator=(const CString& cstr)
-{
-	if(_buffer->refcount () != 1)
-	{
-		_buffer->unref();
-		_buffer = StringBuffer::NewBuffer(cstr.c_str(), cstr.length());
-		_buffer->ref();
-	}
-	else
-		_buffer->assign(cstr.c_str(), cstr.length());
-	return *this;
-}
-#endif
 String& String::operator=(const char* cstr)
 {
 	if(_buffer->refcount () != 1)
@@ -259,4 +154,3 @@ String& String::operator=(const char* cstr)
 	return *this;
 }
 
-#endif

@@ -36,7 +36,7 @@ const	char	*fit_errlist [] =
 
 int
 match_player_type(
-const	CString& text)
+const	String& text)
 {
 	if(string_prefix("admin",text))
 		return T_ADMIN;
@@ -205,7 +205,7 @@ int	cost)
 
 bool
 ok_name (
-const	CString&name)
+const	String&name)
 
 {
 	return (name
@@ -220,7 +220,7 @@ const	CString&name)
 
 bool
 ok_puppet_name (
-const	CString& name)
+const	String& name)
 
 {
 	const	char	*scan;
@@ -241,7 +241,7 @@ const	CString& name)
 
 bool
 ok_player_name (
-const	CString& name)
+const	String& name)
 
 {
 	if (!ok_puppet_name (name))
@@ -254,7 +254,7 @@ const	CString& name)
 
 bool
 ok_password (
-const	CString& password, bool effective_wizard)
+const	String& password, bool effective_wizard)
 
 {
 // Wizards are allowed to set a NULL password, but mortals aren't.
@@ -268,7 +268,7 @@ const	CString& password, bool effective_wizard)
 int
 ok_alias_string (
 	dbref	/* player */,
-const	CString& string)
+const	String& string)
 {
 	const	char	*scan;
 	dbref		test;
@@ -293,7 +293,7 @@ const	CString& string)
 int
 ok_who_string (
 	dbref	/* player */,
-const	CString& string)
+const	String& string)
 {
 	const	char	*scan;
 
@@ -621,7 +621,7 @@ dbref player)
  */
 
 void
-context::do_query_can(const CString& object, const CString& type)
+context::do_query_can(const String& object, const String& type)
 {
 	Matcher matcher(player, object, TYPE_NO_TYPE, get_effective_id());
 	matcher.match_everything();

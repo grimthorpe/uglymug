@@ -546,14 +546,14 @@ class	object
 //	typeof_type		type;		/*Type of object*/
 	dbref			owner;		/* who controls this object */
 #ifdef ALIASES
-			void	set_alias			(const int which, const CString& what);
-			int	look_at_aliases			(const CString&)	const	{ return 0; }
+			void	set_alias			(const int which, const String& what);
+			int	look_at_aliases			(const String&)	const	{ return 0; }
 #endif /* ALIASES */
     public:
 				object				();
 	virtual			~object				();
 
-	virtual		void	add_recall_line			(const CString& string);
+	virtual		void	add_recall_line			(const String& string);
 	virtual		void	output_recall			(const int lines, const context * con);
 	virtual		void	ditch_recall			();
 //	virtual	const	bool	write_array_elements		(FILE *)		const;
@@ -572,23 +572,23 @@ class	object
 
 
 			void	set_referenced			()				{ set_flag(FLAG_REFERENCED); }
-			void	set_name			(const CString& str);
+			void	set_name			(const String& str);
 			void	set_location			(const dbref o)			{ location = o; }
 			void	set_next			(const dbref o)			{ next = o; }
 			void	set_owner_no_check		(const dbref o)			{ owner = o; }
 			void	set_owner			(const dbref o);
 	virtual		void	empty_object			()				{ return;}
 	/* Describable_object */
-	virtual		void	set_description			(const CString& str);
+	virtual		void	set_description			(const String& str);
 	/* Lockable_object */
 	virtual		void	set_key				(boolexp *);
 	virtual		void	set_key_no_free			(boolexp *k);
-	virtual		void	set_fail_message		(const CString& str);
-	virtual		void	set_drop_message		(const CString& str);
-	virtual		void	set_succ_message		(const CString& str);
-	virtual		void	set_ofail			(const CString& str);
-	virtual		void	set_osuccess			(const CString& str);
-	virtual		void	set_odrop			(const CString& str);
+	virtual		void	set_fail_message		(const String& str);
+	virtual		void	set_drop_message		(const String& str);
+	virtual		void	set_succ_message		(const String& str);
+	virtual		void	set_ofail			(const String& str);
+	virtual		void	set_osuccess			(const String& str);
+	virtual		void	set_odrop			(const String& str);
 	/* Inheritable_object */
 	virtual		void	set_parent			(const dbref p);
 	virtual		void	set_parent_no_check		(const dbref p);
@@ -622,7 +622,7 @@ class	object
 	virtual	const	int	get_money			()			const	{return 0;}
 	virtual		void	set_money			(const int);
 	virtual		void	set_colour			(const char *);
-	virtual		CString	get_colour			()			const	{return NULLCSTRING;}
+	virtual		String	get_colour			()			const	{return NULLSTRING;}
 	virtual		void	set_colour_at			(colour_at*);
 	virtual	const	colour_at&	get_colour_at	()			const	{return default_colour_at;}
 	virtual		void	set_colour_play			(cplay *);
@@ -634,18 +634,18 @@ class	object
 	virtual		void	set_build_id			(const dbref c);
 	virtual		void	reset_build_id			(const dbref c);
 	virtual		void	set_controller			(const dbref c);
-	virtual		void	set_email_addr			(const CString&);
-	virtual		void	set_password			(const CString&);
-	virtual		void	set_race			(const CString&);
+	virtual		void	set_email_addr			(const String&);
+	virtual		void	set_password			(const String&);
+	virtual		void	set_race			(const String&);
 	virtual		void	set_score			(const long v);
 	virtual		void	set_last_name_change		(const long v);
-	virtual		void	set_who_string			(const CString&);
+	virtual		void	set_who_string			(const String&);
 #if 0	/* PJC 24/1/97 */
 	virtual		void	event				(const dbref player, const dbref npc, const char *e);
 #endif
 
 	/* Thing */
-	virtual		void	set_contents_string		(const CString&);
+	virtual		void	set_contents_string		(const String&);
 	virtual		void	set_lock_key			(boolexp *k);
 	virtual		void	set_lock_key_no_free		(boolexp *k);
 
@@ -710,10 +710,10 @@ class	object
 	/* Player */
 #ifdef ALIASES
 	virtual	const	String&	get_alias			(int)			const	{ return NULLSTRING; }
-	virtual	const	int	remove_alias			(const CString&	)		{ return 0; }
-	virtual	const	int	add_alias			(const CString&	)		{ return 0; }
-	virtual	const	int	has_alias			(const CString&	)		const	{ return 0; }
-	virtual	const	int	has_partial_alias		(const CString&	)		const	{ return 0; }
+	virtual	const	int	remove_alias			(const String&	)		{ return 0; }
+	virtual	const	int	add_alias			(const String&	)		{ return 0; }
+	virtual	const	int	has_alias			(const String&	)		const	{ return 0; }
+	virtual	const	int	has_partial_alias		(const String&	)		const	{ return 0; }
 #endif /* ALIASES */
 	virtual	const	int	get_pennies			()			const	{ return (0); }
 	virtual	const	dbref	get_controller			()			const	{ return (NOTHING); }
@@ -735,16 +735,16 @@ class	object
     	virtual	const	unsigned int	get_number_of_elements		()			const	{ return 0; }
     	virtual	const	String&	get_element			(int)			const	{ return (NULLSTRING); }
     	virtual		void	destroy_element			(int)				{ return; }
-    	virtual		void	insert_element			(int, const CString&)		{ return; }
+    	virtual		void	insert_element			(int, const String&)		{ return; }
     	/* Array_storage */
     	virtual		void	sort_elements			(int);
 	/* Array */
-    	virtual		void	set_element			(int, const CString&)	{ return; }
+    	virtual		void	set_element			(int, const String&)	{ return; }
     	virtual	const	int	exist_element			(int)			const	{ return 0; }
     	/* Dictionary */
-    	virtual		void	set_element			(int, const CString&, const CString&){ return; }
-    	virtual	const	int	exist_element			(const CString&)		const	{ return false; }
-    	virtual		void	set_index			(const int, const CString&);
+    	virtual		void	set_element			(int, const String&, const String&){ return; }
+    	virtual	const	int	exist_element			(const String&)		const	{ return false; }
+    	virtual		void	set_index			(const int, const String&);
     	virtual	const	String&	get_index			(int)			const	{ return (NULLSTRING); }
 };
 
@@ -820,9 +820,9 @@ class	Database
 		void		unpend		(dbref i);
 		dbref		alarm_pending	(time_t now);
 		Pending_alarm	*get_alarms	()			const	{ return (alarms); }
-	const	dbref		lookup_player	(const CString&)	const;
-		void		add_player_to_cache(const dbref, const CString&);
-		void		remove_player_from_cache(const CString&);
+	const	dbref		lookup_player	(const String&)	const;
+		void		add_player_to_cache(const dbref, const String&);
+		void		remove_player_from_cache(const String&);
 };
 
 extern	Database		db;

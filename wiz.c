@@ -26,8 +26,8 @@ char	boot_reason[BUFFER_LEN];
 
 void
 context::do_at_welcome (
-const   CString& arg1,
-const   CString& arg2)
+const   String& arg1,
+const   String& arg2)
 {
         const char *message;
 
@@ -35,7 +35,7 @@ const   CString& arg2)
         set_return_string (error_return_string);
 
         if (!Welcomer(player) && !(Welcomer(get_effective_id ())))
-                notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+                notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
         else
         {
                 message = reconstruct_message (arg1, arg2);
@@ -57,8 +57,8 @@ const   CString& arg2)
 
 void
 context::do_at_force (
-const	CString& what,
-const	CString& command)
+const	String& what,
+const	String& command)
 
 {
 	dbref	victim;
@@ -83,7 +83,7 @@ const	CString& command)
 	if ((!controls_for_write (victim))
 		|| (Wizard (victim) && !Wizard (player)))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -111,8 +111,8 @@ const	CString& command)
 
 void
 context::do_at_stats (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	int	rooms	= 0;
@@ -151,7 +151,7 @@ const	CString& )
 		}
 		if (!controls_for_read (owner))
 		{
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 			return;
 		}
 	}
@@ -244,8 +244,8 @@ const	CString& )
 
 void
 context::do_at_newpassword (
-const	CString& name,
-const	CString& password)
+const	String& name,
+const	String& password)
 
 {
 	dbref	victim;
@@ -260,11 +260,11 @@ const	CString& password)
 	}
 
 	if (!Wizard (player))
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 	else if((victim = lookup_player(player, name)) == NOTHING)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player.");
 	else if (!controls_for_write (victim))
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 	else if(password && !ok_password(password))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Bad password");
 	else
@@ -276,7 +276,7 @@ const	CString& password)
 		}
 		else
 		{
-			db[victim].set_password(NULLCSTRING);
+			db[victim].set_password(NULLSTRING);
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Password set to NOTHING. The game will not prompt for a password");
 		}
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Password changed.");
@@ -289,8 +289,8 @@ const	CString& password)
     
 void
 context::do_at_boot (
-const	CString& victim,
-const	CString& reason)
+const	String& victim,
+const	String& reason)
 
 {
 	int allow = 0;
@@ -343,8 +343,8 @@ const	CString& reason)
 
 void
 context::do_at_from (
-const	CString& name,
-const	CString& )
+const	String& name,
+const	String& )
 
 {
 	dbref		thing;
@@ -365,7 +365,7 @@ const	CString& )
 
 	if (!controls_for_read (thing))
 	{
-		notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player,  player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -385,8 +385,8 @@ const	CString& )
 
 void
 context::do_at_recursionlimit (
-const	CString& limit_string,
-const	CString& )
+const	String& limit_string,
+const	String& )
 {
 	int	limit;
 
@@ -417,8 +417,8 @@ const	CString& )
 
 void
 context::do_at_email (
-const	CString& name,
-const	CString& email_addr)
+const	String& name,
+const	String& email_addr)
 
 {
 	dbref	victim;
@@ -438,7 +438,7 @@ const	CString& email_addr)
 	else if((victim = lookup_player(player, name)) == NOTHING)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player.");
 	else if (!controls_for_write (victim))
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 	else
 	{
 		/* it's ok, do it */
@@ -506,8 +506,8 @@ context::dump_email_addresses ()
 
 void
 context::do_at_pcreate (
-const	CString& name,
-const	CString& password)
+const	String& name,
+const	String& password)
 
 {
 	dbref	result;

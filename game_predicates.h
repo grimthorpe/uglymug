@@ -1,4 +1,4 @@
-extern	int	match_player_type(const CString&);
+extern	int	match_player_type(const String&);
 
 #define	T_NONE		0
 #define	T_MORTAL	1

@@ -16,7 +16,7 @@
 #include "context.h"
 #include "colour.h"
 
-dbref lookup_player(dbref player, const CString& name)
+dbref lookup_player(dbref player, const String& name)
 {
 	if(string_compare(name, "me")==0)
 		return player;
@@ -28,8 +28,8 @@ dbref lookup_player(dbref player, const CString& name)
 
 dbref
 connect_player (
-const	CString& name,
-const	CString& password)
+const	String& name,
+const	String& password)
 
 {
 	dbref	player;
@@ -46,7 +46,7 @@ const	CString& password)
 	return player;
 }
 
-dbref create_player(const CString& name, const CString& password, bool effective_wizard)
+dbref create_player(const String& name, const String& password, bool effective_wizard)
 {
 	dbref	player;
 
@@ -80,8 +80,8 @@ dbref create_player(const CString& name, const CString& password, bool effective
 	db[player].set_volume_limit	(STANDARD_PLAYER_VOLUME_LIMIT);
 	db[player].set_controller	(player);
 	db[player].set_build_id		(player);
-	db[player].set_who_string	(NULLCSTRING);
-	db[player].set_email_addr	(NULLCSTRING);
+	db[player].set_who_string	(NULLSTRING);
+	db[player].set_email_addr	(NULLSTRING);
 
 	db[player].clear_flag		(FLAG_REFERENCED);
 	
@@ -109,8 +109,8 @@ dbref create_player(const CString& name, const CString& password, bool effective
 
 void
 context::do_at_password (
-const	CString& old,
-const	CString& newpw)
+const	String& old,
+const	String& newpw)
 
 {
 	return_status = COMMAND_FAIL;
@@ -144,8 +144,8 @@ const	CString& newpw)
 #ifdef ALIASES
 void
 context::do_at_listaliases (
-const	CString& person,
-const	CString& )
+const	String& person,
+const	String& )
 
 {
 		int	i;
@@ -195,8 +195,8 @@ const	CString& )
 
 void
 context::do_at_recall (
-const	CString& lines,
-const	CString& dummy)
+const	String& lines,
+const	String& dummy)
 
 {
 	if(string_compare(lines, "clear") == 0)
@@ -235,8 +235,8 @@ const	CString& dummy)
 
 void
 context::do_at_alias (
-const	CString& person,
-const	CString& string)
+const	String& person,
+const	String& string)
 
 {
 	dbref	victim;
@@ -257,7 +257,7 @@ const	CString& string)
 	if (!controls_for_write (victim))
 	{
 		if (!gagged_command())
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -315,8 +315,8 @@ const	CString& string)
 
 void
 context::do_at_unalias (
-const	CString& person,
-const	CString& string)
+const	String& person,
+const	String& string)
 
 {
 	dbref	victim;
@@ -335,7 +335,7 @@ const	CString& string)
 	if (!controls_for_write (victim))
 	{
 		if (!gagged_command())
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -364,8 +364,8 @@ const	CString& string)
 
 void
 context::do_at_who (
-const	CString& person,
-const	CString& string)
+const	String& person,
+const	String& string)
 
 {
 	dbref	victim;
@@ -389,7 +389,7 @@ const	CString& string)
 
 	if (!controls_for_write (victim))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -414,8 +414,8 @@ const	CString& string)
 
 void
 context::do_at_controller (
-const	CString& name,
-const	CString& other)
+const	String& name,
+const	String& other)
 
 {
 	dbref victim;

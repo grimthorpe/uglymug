@@ -55,8 +55,8 @@ Variable_stack::~Variable_stack()
 
 String_pair *
 Variable_stack::addarg (
-const	CString& n,
-const	CString& v)
+const	String& n,
+const	String& v)
 
 {
 	variable_stack.push (new String_pair (n, v));
@@ -66,8 +66,8 @@ const	CString& v)
 
 String_pair *
 Variable_stack::check_and_add_arg (
-const	CString& n,
-const	CString& v)
+const	String& n,
+const	String& v)
 
 {
 	if (locatearg (n))
@@ -79,8 +79,8 @@ const	CString& v)
 
 bool
 Variable_stack::updatearg (
-const	CString& name,
-const	CString& val)
+const	String& name,
+const	String& val)
 
 {
 	String_pair	*temp;
@@ -97,7 +97,7 @@ const	CString& val)
 
 String_pair *
 Variable_stack::locatearg (
-const	CString& name)
+const	String& name)
 const
 
 {
@@ -113,7 +113,7 @@ const
 
 String_pair *
 Scope::locate_stack_arg (
-const CString& name)
+const String& name)
 const
 {
 	String_pair *result;
@@ -160,9 +160,9 @@ const	bool	ok)
 /************************************************************************/
 
 Command_and_arguments::Command_and_arguments (
-const	CString&sc,
-const	CString&a1,
-const	CString&a2,
+const	String&sc,
+const	String&a1,
+const	String&a2,
 	Matcher	*m)
 : matcher ((Matcher *)NULL)
 , sticky_fuses (0)
@@ -195,7 +195,7 @@ void Command_and_arguments::set_matcher(const Matcher *use_this_one)
 
 void
 Command_and_arguments::set_simple_command (
-const	CString& s)
+const	String& s)
 {
 	simple_command = s;
 }
@@ -203,7 +203,7 @@ const	CString& s)
 
 void
 Command_and_arguments::set_arg1 (
-const	CString& s)
+const	String& s)
 {
 	arg1 = s;
 }
@@ -211,7 +211,7 @@ const	CString& s)
 
 void
 Command_and_arguments::set_arg2 (
-const	CString& s)
+const	String& s)
 {
 	arg2 = s;
 }
@@ -221,9 +221,9 @@ void
 Command_and_arguments::pend_fuse (
 dbref		fuse,
 bool		success,
-const	CString& simple_command,
-const	CString& arg1,
-const	CString& arg2,
+const	String& simple_command,
+const	String& arg1,
+const	String& arg2,
 const	Matcher	&matcher)
 
 {
@@ -243,9 +243,9 @@ const	Matcher	&matcher)
 Compound_command_and_arguments::Compound_command_and_arguments (
 	dbref	cmd,
 	context *c,
-const	CString& sc,
-const	CString& a1,
-const	CString& a2,
+const	String& sc,
+const	String& a1,
+const	String& a2,
 const	dbref	eid,
 	Matcher	*m,
 	bool	silent)
@@ -324,7 +324,7 @@ dbref	c)
 
 String_pair *
 Compound_command_and_arguments::locate_innermost_arg (
-const	CString& name)
+const	String& name)
 const
 
 {
@@ -615,7 +615,7 @@ context	&c)
 context::context (
 dbref	new_player,
 context &your_maker)
-: Command_and_arguments (NULLCSTRING, NULLCSTRING, NULLCSTRING, 0)
+: Command_and_arguments (NULLSTRING, NULLSTRING, NULLSTRING, 0)
 , player (new_player)
 , trace_command (NOTHING)
 , unchpid_id (new_player)
@@ -753,7 +753,7 @@ const
 
 String_pair *
 context::locate_innermost_arg (
-const	CString& name)
+const	String& name)
 const
 
 {
@@ -848,8 +848,8 @@ context::step ()
 /************************************************************************/
 
 String_pair::String_pair (
-const	CString& n,
-const	CString& v)
+const	String& n,
+const	String& v)
 : name (n)
 , value (v)
 
@@ -1064,8 +1064,8 @@ const	char	*element_name)
 : Loop (os)
 , counter (1)
 , dict (d)
-, index (addarg (index_name, NULLCSTRING))
-, element (addarg (element_name, NULLCSTRING))
+, index (addarg (index_name, NULLSTRING))
+, element (addarg (element_name, NULLSTRING))
 
 {
 	/* Make safe for immediate return if the collection is empty */
@@ -1130,7 +1130,7 @@ const	Scope	&os,
 	int	in_start,
 	int	in_end,
 	int	in_step,
-const	CString&name)
+const	String&name)
 : Loop (os)
 , start (in_start)
 , end (in_end)

@@ -121,7 +121,7 @@ class colour_at
 	colour_at& operator=(const colour_at& c);
 public:
 	colour_at() {}
-	colour_at(const CString&);
+	colour_at(const String&);
 
 	const char* operator[](unsigned int i) const
 	{
