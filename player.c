@@ -205,19 +205,26 @@ const	CString& string)
 		return;
 	}
 
-	test = ok_alias_string(victim, string);
-	if (!string || (test != -1))
+	if(db.lookup_player(string) == victim)
 	{
-		if (gagged_command () == False)
+		// We're changing an alias/name to ourselves
+	}
+	else
+	{
+		test = ok_alias_string(victim, string);
+		if (!string || (test != -1))
 		{
-			if (test == 0)
+			if (gagged_command () == False)
 			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Invalid alias string");
-				return;
+				if (test == 0)
+				{
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Invalid alias string");
+					return;
+				}
+				notify_censor_colour(player, player, COLOUR_ERROR_MESSAGES, "That name/alias is already in use by %s", db[test].get_name().c_str());
 			}
-			notify_censor_colour(player, player, COLOUR_ERROR_MESSAGES, "That name/alias is already in use by %s", db[test].get_name().c_str());
+			return;
 		}
-		return;
 	}
 
 	/*

@@ -366,18 +366,23 @@ const	CString& newname)
 			}
 			else
 			{
-				if(!Wizard(get_effective_id ()) && !Wizard(player) && !Apprentice(player) && ((temp = now - db[thing].get_last_name_change()) < NAME_TIME))
+				// Allow the same name, for re-caps, or for using the same name as an alias.
+				if(db.lookup_player(newname) == thing)
+				{
+					// This refers to us already...
+					// This is here so we've got a fall-through for the other tests
+				}
+				else if (!ok_player_name(newname)) // Allow the same name, for re-caps
+				{
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't give a player that name.");
+					return;
+				} 
+				else if(!Wizard(get_effective_id ()) && !Wizard(player) && !Apprentice(player) && ((temp = now - db[thing].get_last_name_change()) < NAME_TIME))
 				{
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry, you can't change your name for another %d minute%s.", (NAME_TIME - temp)/60 + 1, PLURAL((NAME_TIME - temp)/60 + 1));
 					return;
 				}
 
-					
-				if (!ok_player_name(newname) && (string_compare(newname, db[thing].get_name()) != 0)) // Allow the same name, for re-caps
-				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't give a player that name.");
-					return;
-				}
 				db[thing].set_last_name_change(now);
 #ifdef LOG_NAME_CHANGES
 				Trace( "NAME CHANGE: %s to %s\n", db[thing].get_name(), newname);
