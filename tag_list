@@ -18,7 +18,9 @@ information doesn't get lost.
     Added @recall clear to clear all entries in the recall buffer.
     @return can now return an empty value.
     @colour *player works.
-    Added @terminal effects option; Does the effects but not the colour.
+    Added @terminal effects option; Does the effects but not the colour. (Set yourself !colour)
+    Added @terminal halfquit option; Automatically does HALFQUIT if you do a client-side disconnect without a 'QUIT'.
+    Added @?terminal (but no real implementation yet).
 
 um1_030 - Chisel; fixed showstopper with HALFQUIT
     Fixed the Trace() call for HALFQUIT so that it doesn't try to use

@@ -278,6 +278,7 @@ public:
 	bool			terminal_pagebell;
 	bool			terminal_recall;
 	bool			terminal_effects;
+	bool			terminal_halfquit;
 	int			channel;
 
 	int			myoutput;
@@ -325,6 +326,11 @@ public:
 		}
 		check_descriptors = 1;
 	}
+	void	HALFQUIT()
+	{
+		NUKE_DESCRIPTOR();
+		_connect_state = DESCRIPTOR_HALFQUIT;
+	}
 	void	output_prefix();
 	void	output_suffix();
 	void	set_output_prefix(const CString& s) { _output_prefix = s; }
@@ -366,7 +372,9 @@ public:
 	Command_status	terminal_set_echo(const CString& , int);
 	Command_status	terminal_set_recall(const CString& , int);
 	Command_status	terminal_set_effects(const CString& , int);
+	Command_status	terminal_set_halfquit(const CString& , int);
 	Command_status	really_do_terminal_set(const CString&, const CString&, int);
+	CString		really_do_terminal_query(const CString&, const CString&, bool);
 	void	do_write(const char * c, int i)
 	{
 /*
@@ -449,6 +457,7 @@ struct terminal_set_command
 {
 	const char	*name;
 	Command_status	(descriptor_data::*set_function) (const CString&, int);
+	CString		(descriptor_data::*query_function) (const CString&, const CString&);
 } terminal_set_command_table[] =
 {
 	{ "termtype",	&descriptor_data::terminal_set_termtype },
@@ -459,6 +468,7 @@ struct terminal_set_command
 	{ "echo",	&descriptor_data::terminal_set_echo },
 	{ "recall",	&descriptor_data::terminal_set_recall },
 	{ "effects",	&descriptor_data::terminal_set_effects },
+	{ "halfquit",	&descriptor_data::terminal_set_halfquit },
 
 	{ NULL, NULL }
 };
@@ -1355,9 +1365,16 @@ void mud_main_loop(int argc, char** argv)
 						d->warning_level = 0;
 						if (!d->process_input ())
 						{
-							if(d->get_player())
-								d->announce_player(ANNOUNCE_DISCONNECTED);
-							d->NUKE_DESCRIPTOR ();
+							if(d->terminal_halfquit)
+							{
+								d->HALFQUIT();
+							}
+							else
+							{
+								if(d->get_player())
+									d->announce_player(ANNOUNCE_DISCONNECTED);
+								d->NUKE_DESCRIPTOR ();
+							}
 							continue;
 						}
 					}
@@ -2204,6 +2221,7 @@ int			channel)
 	terminal_wrap		= true;
 	terminal_recall		= true;
 	terminal_effects	= false;
+	terminal_halfquit	= false;
 	termcap.bold_on		= NULL;
 	termcap.bold_off	= NULL;
 	termcap.underscore_on	= NULL;
@@ -3161,8 +3179,7 @@ descriptor_data::do_command (const char *command)
 		if (get_descriptor())
 		{
 			write (get_descriptor(), HALFQUIT_MESSAGE, strlen(HALFQUIT_MESSAGE));
-			NUKE_DESCRIPTOR();
-			_connect_state = DESCRIPTOR_HALFQUIT;
+			HALFQUIT();
 			return 1;
 		}
 		write(get_descriptor(), HALFQUIT_FAIL_MESSAGE, strlen(HALFQUIT_FAIL_MESSAGE));
@@ -4391,6 +4408,32 @@ time_t get_idle_time (dbref player)
 }
 
 Command_status
+descriptor_data::terminal_set_halfquit(const CString& toggle, int commands_executed)
+{
+	if(toggle)
+	{
+		if(string_compare(toggle, "on") == 0)
+		{
+			terminal_halfquit = true;
+		}
+		else if(string_compare(toggle, "off") == 0)
+		{
+			terminal_halfquit = false;
+		}
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal halfquit=on' or '@terminal halfquit=off'.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!commands_executed)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Auto-HALFQUIT is %s", terminal_halfquit?"on":"off");
+	}
+	return COMMAND_SUCC;
+}
+
+Command_status
 descriptor_data::terminal_set_effects(const CString& toggle, int commands_executed)
 {
 	if(toggle)
@@ -4734,6 +4777,43 @@ context::do_query_terminal(const CString& command, const CString& arg)
 
 	if(!d)
 		return;
+
+	set_return_string(d->really_do_terminal_query(command, arg, gagged_command()));
+}
+
+CString
+descriptor_data::really_do_terminal_query(const CString& command, const CString& arg, bool gagged)
+{
+static char retbuf[4096];
+	retbuf[0] = 0;
+	if(string_compare(command, "commands") == 0)
+	{
+		for(int i=0; terminal_set_command_table[i].name; i++)
+		{
+			if(i != 0)
+				strcat(retbuf, ";");
+			strcat(retbuf, terminal_set_command_table[i].name);
+		}
+		return retbuf;
+	}
+	int i;
+	for(i=0; terminal_set_command_table[i].name; i++)
+	{
+		if(string_compare(command, terminal_set_command_table[i].name) == 0)
+			break;
+	}
+	if(terminal_set_command_table[i].name)
+	{
+		if(terminal_set_command_table[i].query_function)
+		{
+			return (this->*(terminal_set_command_table[i].query_function))(command, arg);
+		}
+		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "@?terminal %s not implemented yet", command.c_str());
+		return "Error";
+	}
+	if(!gagged)
+		notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Unknown @?terminal option: %s. Use @?terminal commands to list available commands.", command.c_str());
+	return "Error";
 }
 
 Command_status
