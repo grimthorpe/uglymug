@@ -852,7 +852,7 @@ const	char	*)
 					flag_description(thing));
 			break;
 		default:
-/*			if((db[thing].get_key() == TRUE_BOOLEXP) && (db[thing].get_parent != NOTHING))
+			if((db[thing].get_key() == TRUE_BOOLEXP) && (db[thing].get_parent() != NOTHING) && (db[thing].get_inherited_key() != TRUE_BOOLEXP))
 			{
 				notify(player, "%sOwner:%s %s; %sKey [INHERITED]:%s %s; %sFlags:%s%s",
 					colour_at[COLOUR_TITLES],
@@ -865,7 +865,7 @@ const	char	*)
 					COLOUR_REVERT,
 					flag_description(thing));
 			}
-			else*/
+			else
 			{
 				notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
 					colour_at[COLOUR_TITLES],
