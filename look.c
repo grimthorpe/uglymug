@@ -689,7 +689,7 @@ const	char	*)
 								if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
 									if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 									{
-															notify(player, "[%d] : %s", value, db[thing].get_element(value));
+															notify(player, "[%d] : %s", value, value_or_empty(db[thing].get_element(value)));
 										return;
 									}
 									else
@@ -711,7 +711,7 @@ const	char	*)
 						if(number > 0)
 						{
 							for(temp = 1;temp <= number;temp++)
-								notify_censor(player, player, "  [%d] :%s %s", temp, (temp<10)?"  ":(temp<100)?" ":"", db[thing].get_element(temp));
+								notify_censor(player, player, "  [%d] :%s %s", temp, (temp<10)?"  ":(temp<100)?" ":"", value_or_empty(db[thing].get_element(temp)));
 						}
 					}
 					break;
@@ -724,7 +724,7 @@ const	char	*)
 						{
 							if((value=db[thing].exist_element(matcher.match_index_result())))
 							{
-								notify(player, "[%s] : %s", db[thing].get_index(value) , db[thing].get_element(value));
+								notify(player, "[%s] : %s", db[thing].get_index(value) , value_or_empty(db[thing].get_element(value)));
 								return;
 							}
 							else
@@ -735,7 +735,7 @@ const	char	*)
 								if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
 									if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 									{
-															notify(player, "[%d] : %s", value, db[thing].get_element(value));
+															notify(player, "[%d] : %s", value, value_or_empty(db[thing].get_element(value)));
 										return;
 									}
 						}
@@ -748,7 +748,7 @@ const	char	*)
 									notify_censor(player, player, "  [%s]", db[thing].get_index(temp));
 							else
 								for(temp = 1;temp <= number;temp++)
-									notify_censor(player, player, "  [%s] : %s", db[thing].get_index(temp), db[thing].get_element(temp));
+									notify_censor(player, player, "  [%s] : %s", db[thing].get_index(temp), value_or_empty(db[thing].get_element(temp)));
 						}
 					}
 					break;
@@ -1342,7 +1342,7 @@ const	char	*)
 		{
 			if((value=db[thing].exist_element(matcher.match_index_result())))
 			{
-				notify(player, "[%s] : %s", db[thing].get_index(value) , db[thing].get_element(value));
+				notify(player, "[%s] : %s", db[thing].get_index(value) , value_or_empty(db[thing].get_element(value)));
 				break;
 			}
 			else
