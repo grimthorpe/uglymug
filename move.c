@@ -127,8 +127,13 @@ moveto (
 dbref	what,
 dbref	where)
 {
-	dbref	loc = db[what].get_location();
+	/* Make sure the type of the target exists */
+	if((where >= 0) && (Typeof(where) == TYPE_FREE))
+	{
+		return false;	// Location doesn't exist
+	}
 
+	dbref	loc = db[what].get_location();
 	/* If room moving to itself, move to nothing */
 	if ((Typeof (what) == TYPE_ROOM) && (what == where))
 	{

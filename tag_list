@@ -20,6 +20,9 @@ information doesn't get lost.
 	Major changes to the make procedure, plus documentation in README, COMPILING, PORTING. (PJC)
 	Some alterations to start getting documentation into Doxygen (www.doxygen.org). (PJC)
 	Removed stack.[ch], memory.[ch] - necessitating some fixes to pushing jobs. (PJC)
+	Made the string maps (player names, command names) compare strings with a hash function before using a string compare, which should be significantly faster. (Grimthorpe)
+	Stopped the compound command code from going stupidly recursive. (Grimthorpe)
+	Stopped destroying the room an alarm's owner is in from crashing the game
 
 um1_044 - Time to roll in some more fixes
 	Added log_credit() function. (CCW)
