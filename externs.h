@@ -208,4 +208,5 @@ extern	int		smd_cantuseguests	(unsigned long addr);
 /* From netmud.c */
 extern	int		dump_interval;
 extern	const	char	*version;
+extern	const	char	*release;
 

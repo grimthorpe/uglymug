@@ -547,6 +547,7 @@ class	context
 	void				do_query_time		(const CString&, const CString&);
 	void				do_query_typeof		(const CString&, const CString&);
 	void				do_query_variables	(const CString&, const CString&);
+	void				do_query_version	(const CString&, const CString&);
 	void				do_query_volume		(const CString&, const CString&);
 	void				do_query_volume_limit	(const CString&, const CString&);
 	void				do_query_weight		(const CString&, const CString&);

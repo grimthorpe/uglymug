@@ -12,6 +12,7 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    Added @?version which returns the Release string (eg um1_026)
     Made WelcomerTitles modifiable; Don't know exactly how, don't know why
     it didn't work before.
     Modified String::clear to be String::empty because of a macro definition

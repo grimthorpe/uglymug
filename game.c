@@ -143,6 +143,7 @@ command_details			command_table [] =
 	{"@?time",		&context::do_query_time,		LEGAL_COMMAND},
 	{"@?typeof",		&context::do_query_typeof,		LEGAL_COMMAND},
 	{"@?variables",		&context::do_query_variables,		LEGAL_COMMAND},
+	{"@?version",		&context::do_query_version,		LEGAL_COMMAND},
 	{"@?volume",		&context::do_query_volume,		LEGAL_COMMAND},
 	{"@?volumelimit",	&context::do_query_volume_limit,	LEGAL_COMMAND},
 	{"@?weight",		&context::do_query_weight,		LEGAL_COMMAND},
@@ -412,6 +413,15 @@ const	CString&)
 	set_return_string (ok_return_string);
 
 	notify_colour (player, player, COLOUR_MESSAGES, version);
+}
+
+void
+context::do_query_version (
+const	CString&,
+const	CString&)
+{
+	return_status = COMMAND_SUCC;
+	set_return_string(release);
 }
 
 
