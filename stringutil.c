@@ -416,8 +416,16 @@ bool
 add_rude(
 const String& string)
 {
-	excluded_words.erase(string);
-	rude_words.insert(string);
+	String lowerstring;
+
+	const char* s = string.c_str();
+	while(*s)
+	{
+		lowerstring += (char)(tolower(*(s++)));
+	}
+
+	excluded_words.erase(lowerstring);
+	rude_words.insert(lowerstring);
 	return true;
 }
 
@@ -425,8 +433,16 @@ bool
 add_excluded(
 const String& string)
 {
-	rude_words.erase(string);
-	excluded_words.insert(string);
+	String lowerstring;
+
+	const char* s = string.c_str();
+	while(*s)
+	{
+		lowerstring += (char)(tolower(*(s++)));
+	}
+
+	rude_words.erase(lowerstring);
+	excluded_words.insert(lowerstring);
 	return true;
 }
 
@@ -460,7 +476,7 @@ char *string)
 /* First, check if this is a word that shouldn't be censored - EG 'scunthorpe' */
 
 	std::set<String>::const_iterator it;
-	char c = string[0];
+	char c = tolower(string[0]);
 	for(it = excluded_words.begin(); it != excluded_words.end(); it++)
 	{
 		if((*it).c_str()[0] == c) // Speed up match.

@@ -214,6 +214,16 @@ String::operator+=(const String& other)
 	return *this;
 }
 
+String&
+String::operator+=(char c)
+{
+	char tmp[2];
+	tmp[0] = c;
+	tmp[1] = 0;
+
+	return (*this)+=String(tmp);
+}
+
 bool
 String::operator<(const String& other) const
 {

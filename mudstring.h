@@ -119,6 +119,7 @@ public:
 	String& operator=(const char* cstr);
 
 	String& operator+=(const String& other);
+	String& operator+=(char c);
 // Useful methods
 // c_str - Return a pointer to the underlying character buffer.
 //		Same guarantee as StringBuffer::c_str

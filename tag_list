@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Re-fix the censorship code so that it is case-insensitive again.
+
 um1_054
 	Fix the censorship code.
 	Forward all the NOTHING logs to EMAIL_GODS.
