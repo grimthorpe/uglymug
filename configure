@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$1" == "" ]; then
+if [ "$1" = "" ]; then
 	echo "Usage: $0 <target file>"
 	exit -1
 fi
@@ -12,14 +12,14 @@ LD_LIBPCRE=""
 CC_LIBPCRE=""
 
 for i in /usr /usr/local /opt/pcre; do
-  if [ "$LD_LIBPCRE" == "" ]; then
-    if [ -e $i/lib/libpcre.a ]; then
+  if [ "$LD_LIBPCRE" = "" ]; then
+    if [ -f $i/lib/libpcre.a ]; then
       LD_LIBPCRE="-R$i/lib -lpcre"
       echo libpcre found in $i/lib
     fi
   fi
-  if [ "$CC_LIBPCRE" == "" ]; then
-    if [ -e $i/include/pcre.h ]; then
+  if [ "$CC_LIBPCRE" = "" ]; then
+    if [ -f $i/include/pcre.h ]; then
       CC_LIBPCRE="-I$i/include -DREGEXP_PCRE"
       echo pcre.h found in $i/include
     fi
