@@ -3918,23 +3918,30 @@ int			flags)
 					strcat (flag_buf, "G");
 					wizard++;
 				}
-				else if (Wizard(d->get_player()))
+				else
 				{
-					strcat (flag_buf, "W");
-					wizard++;
-				}
-				else if (Apprentice(d->get_player()))
-				{
-					strcat (flag_buf, "A");
-				}
-				else if (XBuilder(d->get_player()))
-				{
-					strcat (flag_buf, "X");
-				}
-				else if (Builder(d->get_player()))
-				{
-					strcat (flag_buf, "B");
-					builder++;
+					if (Retired(d->get_player()))
+					{
+						strcat (flag_buf, "R");
+					}
+					else if (Wizard(d->get_player()))
+					{
+						strcat (flag_buf, "W");
+						wizard++;
+					}
+					else if (Apprentice(d->get_player()))
+					{
+						strcat (flag_buf, "A");
+					}
+					if (XBuilder(d->get_player()))
+					{
+						strcat (flag_buf, "X");
+					}
+					else if (Builder(d->get_player()))
+					{
+						strcat (flag_buf, "B");
+						builder++;
+					}
 				}
 				if (Welcomer(d->get_player()))
 				{
