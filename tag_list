@@ -22,6 +22,7 @@ information doesn't get lost.
 	connections are labelled to be set host.
 
 	Changed victin from char* to String in dump_users. Probable cause of crashes in 040
+	Grimthorpe: Changed it back and fixed class WhoToShow instead.
 	Modified interface to fic a small bug where we used NULL instead of \0
 
 um1_040 - New characters are important to us!

@@ -3701,7 +3701,7 @@ const	char	*given)
 
 struct WhoToShow
 {
-	const String&		wanted;
+	const String		wanted;
 	dbref			player;
 	bool			want_everyone;
 	bool			want_unconnected;
@@ -3816,8 +3816,7 @@ int			flags)
 
 	(void) time (&now);
 
-	const String vict = victim;
-	WhoToShow who(vict, get_player(), true);
+	WhoToShow who(victim, get_player(), true);
 	
 	//Find size of current descriptor list
 	//Make new array
