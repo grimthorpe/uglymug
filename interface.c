@@ -1371,6 +1371,12 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 				outgoing_conc_data_waiting=0;
 #endif
 		}
+/*
+ * Check for IDLE connections.
+ *
+ * Since our current host has problems with timing out connections, we
+ * send <space><backspace> if a player is idle every 15 minutes.
+ */
 		for (d = descriptor_list; d; d = dnext)
 		{
 			dnext = d->next;
@@ -1380,10 +1386,6 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 			diff = now - d->last_time;
 			switch (d->warning_level)
 			{
-//*prev = next;
-//	if (next)
-//		next->prev = prev;
-
 				case 0: /* 5 mins */
 					if (diff > 300)
 					{
@@ -1395,6 +1397,14 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 						}
 						else
 							d->warning_level ++;
+					}
+					break;
+				default: /* 15 mins * warning_level */
+					if(((diff/900) > d->warning_level) && !d->IS_FAKED())
+					{
+						d->warning_level++;
+						d->queue_string(" \b");
+						d->process_output();
 					}
 					break;
 			}
