@@ -22,7 +22,7 @@ static char SCCSid[] = "@(#)scat.c	1.5\t6/9/95";
 
 #define	CHOPSIG		SIGUSR1		/* Signal caught by command */
 #define	usage()		fprintf(stderr,"Usage: %s <output file> <cut file>\n",argv[0])
-#define PIDFILE		"/home/wyvern/users/uglymug/tinylog/scat.pid"
+#define PIDFILE         "/usr/home/uglymug/ugly/logs/scat.pid"
 
 char *outputfile;
 char *cutfile;
