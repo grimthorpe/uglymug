@@ -26,6 +26,8 @@
 	void		log_command			(dbref, const String&, dbref, const String&, dbref, const String&, const String&);
 	void		log_connect			(bool, int, dbref, const String&);
 	void		log_created			(int, dbref, const String&);
+	//void		log_credit			(dbref, dbref, int, const char*);
+	void		log_credit			(dbref, const String&, dbref, const String&, int, const char*);
 	void		log_debug			(const char *, ...);
 	void		log_disconnect		(dbref, const String&, int, int, const String&, bool);
 	void		log_dumping			(bool, const char *, ...);
@@ -38,7 +40,6 @@
 	void		log_panic			(const char *, ...);
 	void		log_reconnect		(dbref, const String&);
 	void		log_reconnect		(dbref, const String&, int);
-	// recursion: playerid, playername, commandid, commandname, arguments
 	void		log_recursion		(dbref, const String&, dbref, const String&, const String&);
 	void		log_shutdown		(dbref, const String&, const String&);
 	void		log_wall			(dbref, const String&, const String&);

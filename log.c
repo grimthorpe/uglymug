@@ -169,18 +169,43 @@ void log_connect (
 void log_created (
 			int			descriptor,
 			dbref		player,
-	const	String&	playername
+	const	String&		playername
 ) {
 	/*
 	 *	CREATED|timestamp|descriptor|playerid|playername
 	 */
 
-	Trace(	"%cCREATED%c%d%c%d%c#%d%c%s%c\n",
+	Trace(	"%cCREATED%c%d%c%d%c%d%c%s%c\n",
 			RECORD_START,						FIELD_SEPARATOR,
 			time(NULL),							FIELD_SEPARATOR,
 			descriptor,							FIELD_SEPARATOR,
 			player,								FIELD_SEPARATOR,
 			playername.c_str(),					RECORD_END
+	);
+}
+
+
+void log_credit (
+			dbref		giver,
+	const	String&		givername,
+			dbref		taker,
+	const	String&		takername,
+			int			amount,
+	const	char*		currency_name
+) {
+    /*
+     * e.g. CREDIT|timestamp|giver|taker|amount|currency
+     */
+
+    Trace(	"%cCREDIT%c%d%c%d%c%s%c%d%c%s%c%d%c%s%c\n",
+			RECORD_START,						FIELD_SEPARATOR,
+			time(NULL),							FIELD_SEPARATOR,
+			giver,								FIELD_SEPARATOR,
+			givername.c_str(),					FIELD_SEPARATOR,
+			taker,								FIELD_SEPARATOR,
+			takername.c_str(),					FIELD_SEPARATOR,
+			amount,								FIELD_SEPARATOR,
+			currency_name,						RECORD_END
 	);
 }
 

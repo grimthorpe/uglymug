@@ -3702,6 +3702,7 @@ struct WhoToShow
 	bool			want_welcomers;
 	bool			want_npcs;
 	bool			want_area_who;
+	bool			want_here;
 	dbref 			wanted_location;
 
 	WhoToShow(const String& who, dbref p, bool unconnectedtoo) :
@@ -3723,11 +3724,16 @@ struct WhoToShow
 		want_npcs		((string_compare("npc", who) == 0)
 					 || (string_compare("npcs", who) == 0)),
 		want_area_who		('#' == (who.c_str()[0])),
+		want_here		(string_compare("here", who) == 0),
 		wanted_location		(0)
 	{
 		if(want_area_who)
 		{
 			wanted_location = atoi(who.c_str() + 1);
+		}
+		else if(want_here)
+		{
+			wanted_location = db[player].get_location();
 		}
 		else if((want_natter) || (string_compare("admin", who) == 0))
 		{
@@ -3762,6 +3768,7 @@ struct WhoToShow
 		if(want_fighters && Fighting(target))				return true;
 		if(want_welcomers && Welcomer(target))				return true;
 		if(want_area_who && in_area(target, wanted_location))		return true;
+		if(want_here && in_area(target, wanted_location))		return true;
 
 		// We've run out of standard tests, go for the names...
 #ifdef ALIASES

@@ -13,7 +13,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
-
+um1_044 - Time to roll in some more fixes
+	Added log_credit() function. (CCW)
+	Removed extra # from log_create() output. (CCW)
+	Added 'who here' as one of the available who special keywords. (CCW)
 	Stopped players from attempting to move to 'NOTHING' (Grimthorpe)
 	Fixed can_move so that it checks that the object is an exit (Grimthorpe)
 	Changed @force to use the 'new style' context nesting (Grimthorpe)

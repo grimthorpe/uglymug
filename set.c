@@ -2770,7 +2770,7 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 		notify(player, "You give %d %s to %s.", amount, currency_name, db[victim].get_name().c_str());
 		notify(victim, "%s gives you %d %s.", db[player].get_name().c_str(), amount, currency_name);
 	}
-	log_message("CREDIT: %s(#%d) gives %d %s to %s(#%d)", db[player].get_name().c_str(), player, amount, currency_name, db[victim].get_name().c_str(), victim);
+	log_credit(get_effective_id(), db[get_effective_id()].get_name().c_str(), victim, db[victim].get_name().c_str(), amount, currency_name);
 
 	RETURN_SUCC;
 }
@@ -2864,7 +2864,7 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name().c_str());
 		notify(victim, "%s takes %d %s from you.", db[player].get_name().c_str(), amount, currency_name);
 	}
-	log_message("CREDIT: %s(#%d) gives -%d %s to %s(#%d)", db[player].get_name().c_str(), player, amount, currency_name, db[victim].get_name().c_str(), victim);
+	log_credit(get_effective_id(), db[get_effective_id()].get_name().c_str(), victim, db[victim].get_name().c_str(), amount, currency_name);
 
 	RETURN_SUCC;
 }
