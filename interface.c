@@ -244,6 +244,7 @@ public:
 	unsigned char		*raw_input_at;
 	long			start_time;
 	long			last_time;
+        long                    time_since_idle;
 	int			warning_level;
 	int			quota;
 	int			backslash_pending;
@@ -1318,6 +1319,10 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 					if (FD_ISSET (d->get_descriptor(), &input_set))
 					{
 						d->last_time = now;
+						if(d->warning_level > 1)
+						{
+							d->time_since_idle=now;
+						}
 						d->warning_level = 0;
 						if (!d->process_input ())
 						{
@@ -1349,6 +1354,10 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 					if(FD_ISSET (conc_sock, &output_set))
 					{
 						d->last_time=now;
+						if(d->warning_level > 1)
+						{
+							d->time_since_idle=now;
+						}
 						d->warning_level=0;
 						if(!d->process_output ())
 							Trace( "Wank dick, channel %d.\n", d->channel);
@@ -1365,14 +1374,18 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 		for (d = descriptor_list; d; d = dnext)
 		{
 			dnext = d->next;
-			if (d->IS_CONNECTED() && (Wizard (d->get_player()) || (d->IS_FAKED())))
+			if (d->IS_CONNECTED() && (d->IS_FAKED()))
 				continue;
 
 			diff = now - d->last_time;
 			switch (d->warning_level)
 			{
+//*prev = next;
+//	if (next)
+//		next->prev = prev;
+
 				case 0: /* 5 mins */
-					if (diff > 5*60)
+					if (diff > 30)
 					{
 						if (!d->IS_CONNECTED())
 						{
@@ -1384,52 +1397,37 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 							d->warning_level ++;
 					}
 					break;
-				case 1:	/* 15 mins */
-					if (diff > 15*60)
+				case 1:	/* 30 mins */
+					if (diff > 30 * 60)
 					{
-						d->queue_string ("15 minutes to automatic booting.\n\n");
-						d->warning_level ++;
+						d->queue_string ("You are now officially idle.\n\n");
+
+						*(d->prev) = d->next;
+						if (d->next)
+							d->next->prev = d->prev;
+
+						d->warning_level++;
+
+						if (descriptor_list)
+							descriptor_list->prev = &(d->next);
+						d->next	= descriptor_list;
+						d->prev	= &descriptor_list;
+						descriptor_list = d;
 					}
+
 					break;
-				case 2: /* 20 mins */
-					if (diff > 20*60)
+				case 2:	/* every 30 mins */
+					if (diff % (30 * 60) == 0)
 					{
-						d->queue_string ("10 minutes to automatic booting.\n\n");
-						d->warning_level ++;
-					}
-					break;
-				case 3:	/* 25 mins & beep */
-					if (diff > 25*60)
-					{
-						beep(d);
-						d->queue_string ("Automatic BOOTING - FIVE minutes left.\n");
-						d->warning_level ++;
-					}
-					break;
-				case 4: /* 28 mins & beep */
-					if (diff > 28*60)
-					{
-						beep(d);
-						d->queue_string ("Automatic BOOTING - TWO minutes left.\n");
-						d->warning_level ++;
-					}
-					break;
-				case 5: /* 29 mins & beep */
-					if (diff > 29*60)
-					{
-						beep(d);
-						d->queue_string ("Automatic BOOTING - ONE minute left.\n");
-						d->warning_level ++;
-					}
-					break;
-				case 6: /* 30 mins & beep */
-					if (diff > 30*60)
-					{
-						beep(d);
-						d->queue_string ("Automatic BOOTING - You have timed out.\n");
-						d->process_output ();
-						d->announce_player (ANNOUNCE_TIMEOUT);
-						d->NUKE_DESCRIPTOR ();
+						*(d->prev) = d->next;
+						if (d->next)
+							d->next->prev = d->prev;
+
+						if (descriptor_list)
+							descriptor_list->prev = &(d->next);
+						d->next	= descriptor_list;
+						d->prev	= &descriptor_list;
+						descriptor_list = d;
 					}
 					break;
 			}
@@ -3736,6 +3734,10 @@ int			flags)
 /* Set up the location for area who */
 		}
 	}
+	//Find size of current descriptor list
+	//Make new array
+	//Copy in
+	//Sort
 
 	for (d = descriptor_list; d; d = d->next)
 	{
