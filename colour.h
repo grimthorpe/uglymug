@@ -7,7 +7,8 @@
  * the cia_table. Remember that arrays start at index 0!
  */
 #define NUMBER_OF_COLOUR_ATTRIBUTES	70 /* Make room for expansion */
-#define COLOUR_REVERT			"\033[0m"
+//#define COLOUR_REVERT			"\033[0m"
+#define COLOUR_REVERT			"%z"
 
 /*
  * These #defines _MUST_ be kept in track with the cia_table
@@ -108,7 +109,7 @@ struct colour_table_type
 extern struct colour_table_type	colour_table[];
 
 
-typedef struct cplay
+struct cplay
 {
 		int		player;
 		String		output_string;
