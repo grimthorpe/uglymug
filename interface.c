@@ -4244,7 +4244,7 @@ struct	descriptor_data	*d;
 void
 descriptor_data::dump_swho()
 {
-	static	char		linebuf [80];
+	static	char		linebuf [4096];
 	struct	descriptor_data	*d;
 	int			num = 0;
 	int			numperline = terminal_width / 25;
@@ -4269,7 +4269,7 @@ descriptor_data::dump_swho()
 				colour= COLOUR_WIZARDS;
 			if (thing==GOD_ID)
 				colour= COLOUR_GOD;
-			sprintf(linebuf, " %c%s%-23s%s", 
+			snprintf(linebuf, sizeof(linebuf), " %c%s%-23s%s", 
 				(Wizard(d->get_player())?'*':(Apprentice(d->get_player())?'~':' ')),
 				player_colour (get_player(), get_player(), colour),
 				value_or_empty (db[d->get_player()].get_name()),
