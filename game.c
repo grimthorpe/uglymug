@@ -252,11 +252,11 @@ command_details			command_table [] =
 	{"@returnchain",	&context::do_at_returnchain,	NO_COMMAND_FLAGS},
 	{"@score",		&context::do_at_score,		NO_COMMAND_FLAGS},
 	{"@set",		&context::do_set,		NO_COMMAND_FLAGS},
-	{"@shutdown",		&context::do_shutdown,		FULL_COMPARE},
-	{"@smd",		&context::do_smd,		NO_COMMAND_FLAGS},
+	{"@shutdown",		&context::do_at_shutdown,	FULL_COMPARE},
+	{"@smd",		&context::do_at_smd,		NO_COMMAND_FLAGS},
 	{"@sort",		&context::do_at_sort,		NO_COMMAND_FLAGS},
-	{"@stats",		&context::do_stats,		NO_COMMAND_FLAGS},
-	{"@success",		&context::do_success,		NO_COMMAND_FLAGS},
+	{"@stats",		&context::do_at_stats,		NO_COMMAND_FLAGS},
+	{"@success",		&context::do_at_success,	NO_COMMAND_FLAGS},
 	{"@teleport",		&context::do_at_location,	LEGAL_COMMAND},
 	{"@terminal",		&context::do_terminal_set,	NO_COMMAND_FLAGS},
 	{"@test",		&context::do_test,		LEGAL_COMMAND},
@@ -441,7 +441,7 @@ const	CString&)
 
 
 void
-context::do_shutdown (
+context::do_at_shutdown (
 const	CString& arg1,
 const	CString& arg2)
 
@@ -775,7 +775,7 @@ const	char	*outfile)
 	
 	/* read smd file */
 	context	*read_context = new context (GOD_ID);
-	read_context->do_smd("read", (char *)NULL); /* Read the SMD list */
+	read_context->do_at_smd("read", (char *)NULL); /* Read the SMD list */
 	delete mud_scheduler.push_express_job (read_context);
 
 	/* Do startup comands */

@@ -689,7 +689,7 @@ const	CString& message)
 }
 
 void
-context::do_success (
+context::do_at_success (
 const	CString& name,
 const	CString& message)
 

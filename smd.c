@@ -156,7 +156,7 @@ getmask(char *mask)
 }
 
 void
-context::do_smdread (
+context::do_at_smdread (
 const	CString&,
 const	CString& )
 
@@ -303,7 +303,7 @@ u_long b;
 }
 
 void
-context::do_smd (
+context::do_at_smd (
 const	CString& arg1,
 const	CString& arg2)
 {
@@ -371,7 +371,7 @@ const	CString& arg2)
 	if(string_compare(arg1, "read")==0)
 	{
 		matched = true;
-		do_smdread ((char *)NULL, (char *)NULL);
+		do_at_smdread ((char *)NULL, (char *)NULL);
 		RETURN_SUCC;
 	}
 

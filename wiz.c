@@ -110,7 +110,7 @@ const	CString& command)
 
 
 void
-context::do_stats (
+context::do_at_stats (
 const	CString& name,
 const	CString& )
 

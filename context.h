@@ -557,12 +557,12 @@ class	context
 	void				do_say			(const CString&, const CString&);
 	void				do_score		(const CString&, const CString&);
 	void				do_set			(const CString&, const CString&);
-	void				do_shutdown		(const CString&, const CString&);
-	void				do_smd			(const CString&, const CString&);
-	void				do_smdread		(const CString&, const CString&);
-	void				do_stats		(const CString&, const CString&);
+	void				do_at_shutdown		(const CString&, const CString&);
+	void				do_at_smd		(const CString&, const CString&);
+	void				do_at_smdread		(const CString&, const CString&);
+	void				do_at_stats		(const CString&, const CString&);
 	void				do_swho			(const CString&, const CString&);
-	void				do_success		(const CString&, const CString&);
+	void				do_at_success		(const CString&, const CString&);
 	void				do_tell			(const CString&, const CString&);
 	void				do_tellemote		(const CString&, const CString&);
 	void				do_terminal_set		(const CString&, const CString&);
