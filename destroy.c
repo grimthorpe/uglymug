@@ -64,7 +64,7 @@ const	CString& )
 	else
 	{
 		Matcher matcher(this->get_player(), name, TYPE_NO_TYPE, this->get_effective_id());
-		if(this->gagged_command() == true)
+		if(this->gagged_command())
 			matcher.work_silent();
 		matcher.match_everything();
 		object=matcher.match_result();
@@ -125,7 +125,7 @@ const	CString& dummy)
 	}
 	/* Otherwise, find its dbref */
 	Matcher victim_matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command() == true)
+	if (gagged_command())
 		victim_matcher.work_silent();	
 	victim_matcher.match_everything ();
 
@@ -223,7 +223,7 @@ const	CString& dummy)
 			return;
 	}
 
-	if (!ok && (gagged_command() == false))
+	if (!ok && (!gagged_command()))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That object was not destroyed.");
 	else
 	{
@@ -886,7 +886,7 @@ const	CString&	elem)
 
 	if((temp = db[zap_dictionary].exist_element(elem)) == 0)
 	{
-		if (c.gagged_command() == false)
+		if (!c.gagged_command())
 			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\"", db[zap_dictionary].get_name().c_str(), elem.c_str());
 		return (false);
 	}

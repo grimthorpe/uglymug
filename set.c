@@ -27,7 +27,7 @@ const	CString&name)
 	dbref match;
 
 	Matcher matcher (c.get_player (), name, TYPE_NO_TYPE, c.get_effective_id ());
-	if (c.gagged_command () == true)
+	if (c.gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 
@@ -334,7 +334,7 @@ const	CString& newname)
 	set_return_string (error_return_string);
 
 	Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 
@@ -496,7 +496,7 @@ const	CString& description)
 	}
 		
 	Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 
@@ -1007,7 +1007,7 @@ const	CString& keyname)
 	set_return_string (error_return_string);
 
 	Matcher name_matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		name_matcher.work_silent ();
 	name_matcher.match_everything();
 
@@ -1145,7 +1145,7 @@ const	CString& )
 	set_return_string (error_return_string);
 
 	Matcher matcher (player, name, TYPE_EXIT, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_exit();
 	matcher.match_here();
@@ -1212,7 +1212,7 @@ const	CString& newowner)
 	}
 
 	Matcher name_matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		name_matcher.work_silent ();
 	name_matcher.match_everything();
 	if((thing = name_matcher.noisy_match_result()) == NOTHING)
@@ -1228,7 +1228,7 @@ const	CString& newowner)
 	if(newowner)
 	{
 		Matcher owner_matcher (player, newowner, TYPE_PLAYER, get_effective_id ());
-		if (gagged_command () == true)
+		if (gagged_command ())
 			owner_matcher.work_silent ();
 		owner_matcher.match_neighbor ();
 		owner_matcher.match_player ();
@@ -1374,7 +1374,7 @@ const	CString& flag)
 
 	/* find thing - don't use match_controlled so we can unset an (r) flag! */
 	Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything ();
 
@@ -1802,7 +1802,7 @@ const	CString& value)
 	}
 
 	Matcher matcher (player, victim_string, TYPE_PLAYER, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_neighbor ();
 	matcher.match_player ();
@@ -1865,7 +1865,7 @@ const	CString& volume)
 	}
 	
 	Matcher	matcher (player, object, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 	if ((victim = matcher.noisy_match_result()) == NOTHING)
@@ -1906,7 +1906,7 @@ const	CString& volume)
 	   ((new_volume - find_volume_of_object(victim)
 		+ find_volume_of_contents(getloc(victim))) > find_volume_limit_of_object(getloc(victim))))
 	{
-		if (gagged_command () == false)
+		if (gagged_command ())
 		{
 			sprintf (scratch_buffer, "You can't make %s that large in", unparse_object (*this, victim));
 			notify_censor_colour (player,player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)));
@@ -1945,7 +1945,7 @@ const	CString& volume_limit)
 	}
 
 	Matcher	matcher (player, object, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 	if ((victim = matcher.noisy_match_result()) == NOTHING)
@@ -2036,7 +2036,7 @@ const	CString& mass)
 	}
 
 	Matcher	matcher (player, object, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 	if ((victim = matcher.noisy_match_result()) == NOTHING)
@@ -2077,7 +2077,7 @@ const	CString& mass)
 	if ((getloc (victim) != NOTHING)
 	&& ((new_mass + find_mass_of_contents_except (getloc (victim), victim)) > find_mass_limit_of_object (getloc (victim))))
 	{
-		if (gagged_command () == false)
+		if (!gagged_command ())
 		{
 			sprintf (scratch_buffer, "You can't make %s that heavy in", unparse_object (*this, victim));
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)));
@@ -2116,7 +2116,7 @@ const	CString& mass_limit)
 	}
 
 	Matcher	matcher (player, object, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 	if ((victim = matcher.noisy_match_result()) == NOTHING)
@@ -2206,7 +2206,7 @@ context::do_gravity_factor (const CString& object, const CString& gravity_factor
 	}
 
 	Matcher	matcher (player, object, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything();
 	if ((victim = matcher.noisy_match_result()) == NOTHING)
@@ -2274,7 +2274,7 @@ const	CString& new_location_string)
 	set_return_string (error_return_string);
 
 	Matcher victim_matcher (player, victim_string, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		victim_matcher.work_silent ();
 	victim_matcher.match_everything ();
 	if ((victim = victim_matcher.noisy_match_result ()) == NOTHING)
@@ -2288,7 +2288,7 @@ const	CString& new_location_string)
 	else
 	{
 		Matcher loc_matcher (player, new_location_string, TYPE_NO_TYPE, get_effective_id ());
-		if (gagged_command () == true)
+		if (gagged_command ())
 			loc_matcher.work_silent ();
 		loc_matcher.match_everything ();
 		if ((new_location = loc_matcher.noisy_match_result ()) == NOTHING)
@@ -2557,7 +2557,7 @@ const	CString& keyname)
 	set_return_string (error_return_string);
 
 	Matcher container_matcher (player, object, TYPE_THING, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		container_matcher.work_silent ();
 	container_matcher.match_possession ();
 	container_matcher.match_neighbor ();
@@ -2638,7 +2638,7 @@ const	CString& parent_name)
 	}
 
 	Matcher	parent_matcher (player, parent_name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		parent_matcher.work_silent ();
 	parent_matcher.match_everything ();
 	if ((parent = parent_matcher.noisy_match_result ()) == NOTHING)

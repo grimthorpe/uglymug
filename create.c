@@ -44,7 +44,7 @@ const	CString&	link_dest_name)
 
 	/* The full monty */
 	Matcher link_matcher (c.get_player (), link_dest_name, TYPE_NO_TYPE, c.get_effective_id ());
-	if (c.gagged_command () == true)
+	if (c.gagged_command ())
 		link_matcher.work_silent ();
 	link_matcher.match_everything ();
 	if ((link_dest = link_matcher.noisy_match_result()) == NOTHING)
@@ -293,7 +293,7 @@ const	CString& room_name)
 		return;
 
 	Matcher thing_matcher (player, name, TYPE_EXIT, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		thing_matcher.work_silent ();
 	thing_matcher.match_everything ();
 	if((thing = thing_matcher.noisy_match_result()) != NOTHING)
@@ -936,7 +936,7 @@ const	CString& command_name)
 	if (!string_compare (command_name, "home"))
 		return (HOME);
 	Matcher matcher (c.get_player (), command_name, TYPE_COMMAND, c.get_effective_id ());
-	if (c.gagged_command () == true)
+	if (c.gagged_command ())
 		matcher.work_silent ();
 	matcher.match_absolute ();
 	matcher.match_command ();
@@ -984,7 +984,7 @@ const	CString& command_name)
 	}
 
 	Matcher thing_matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		thing_matcher.work_silent ();
 	thing_matcher.match_command ();
 	thing_matcher.match_fuse_or_alarm ();
@@ -1053,7 +1053,7 @@ const	CString& command_name)
 	}
 
 	Matcher thing_matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		thing_matcher.work_silent ();
 	thing_matcher.match_command ();
 	thing_matcher.match_fuse_or_alarm ();

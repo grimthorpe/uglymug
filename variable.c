@@ -1343,7 +1343,7 @@ unsigned int	space_left)
 			case EVAL_OP_MIDSTRING:
 				if (strlen(results[2].string) < (size_t)results[1].integer)
 				{
-					if (c.gagged_command()==false)
+					if (!c.gagged_command())
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
 
 					strcpy (result_buffer, error_return_string);
@@ -1383,7 +1383,7 @@ unsigned int	space_left)
 			case EVAL_OP_NCHAR:
 				if (strlen(results[1].string) < (size_t)results[0].integer)
 				{
-					if (c.gagged_command()==false)
+					if (!c.gagged_command())
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"Argument past end of string in nchar");
 
 					strcpy (result_buffer, error_return_string);

@@ -559,7 +559,7 @@ const	CString& )
 	{
 		/* look at a thing here */
 		Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-		if (gagged_command () == true)
+		if (gagged_command ())
 			matcher.work_silent ();
 		matcher.match_everything ();
 		if((thing = matcher.noisy_match_result()) != NOTHING)

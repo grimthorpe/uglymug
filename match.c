@@ -1255,7 +1255,7 @@ const	CString& arg)
 		pos = atoi (arg.c_str());
 	if (pos >= call_stack.depth ())
 	{
-		if (gagged_command () == false)
+		if (!gagged_command())
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: Not that many levels on stack");
 		return_status = COMMAND_FAIL;
 		set_return_string (error_return_string);
@@ -1272,7 +1272,7 @@ const	CString& arg)
 			set_return_string (unparse_for_return (*this, matcher->get_leaf ()));
 		else
 		{
-			if (gagged_command () == false)
+			if (!gagged_command())
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: '%s' is not a valid type.", type.c_str());
 			return_status = COMMAND_FAIL;
 			set_return_string (error_return_string);

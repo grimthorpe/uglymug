@@ -65,7 +65,7 @@ const	CString& name,
 	if (!name)
 		return (c.get_player ());
 	Matcher matcher (c.get_player (), name, TYPE_NO_TYPE, c.get_effective_id ());
-	if (c.gagged_command () == true)
+	if (c.gagged_command())
 		matcher.work_silent ();
 	matcher.match_everything ();
 	result = matcher.match_result ();
@@ -412,7 +412,7 @@ context::do_query_descendantfrom (const CString& first, const CString& parent_st
 
 	Matcher	thing_matcher (player, first, TYPE_NO_TYPE, get_effective_id ());
 	Matcher	parent_matcher (player, parent_str, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 	{
 		thing_matcher.work_silent ();
 		parent_matcher.work_silent ();
@@ -452,7 +452,7 @@ context::do_query_description (const CString& name, const CString&)
 	return_status = COMMAND_FAIL;
 
 	Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command () == true)
+	if (gagged_command ())
 		matcher.work_silent ();
 	matcher.match_everything ();
 	if ((thing = matcher.noisy_match_result ()) == NOTHING)
@@ -473,7 +473,7 @@ context::do_query_description (const CString& name, const CString&)
 				}
 				else
 				{
-					if (gagged_command () == false)
+					if (!gagged_command())
 						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Command only has %d lines", db[thing].get_number_of_elements());
 					set_return_string (error_return_string);
 					return_status = COMMAND_FAIL;
@@ -494,14 +494,14 @@ context::do_query_description (const CString& name, const CString&)
 				}
 				else
 				{
-					if (gagged_command () == false)
+					if (!gagged_command())
 						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result().c_str());
 					set_return_string (error_return_string);
 					return_status = COMMAND_FAIL;
 				}
 			else
 			{
-				if (gagged_command () == false)
+				if (!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result().c_str());
 				set_return_string (error_return_string);
 				return_status = COMMAND_FAIL;
@@ -518,7 +518,7 @@ context::do_query_description (const CString& name, const CString&)
 				}
 				else
 				{
-					if (gagged_command () == false)
+					if (!gagged_command())
 						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Array only has %d elements", db[thing].get_number_of_elements());
 					set_return_string (error_return_string);
 					return_status = COMMAND_FAIL;
@@ -526,7 +526,7 @@ context::do_query_description (const CString& name, const CString&)
 			}
 			else
 			{
-				if (gagged_command () == false)
+				if (!gagged_command())
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Array only has %d elements", db[thing].get_number_of_elements());
 				set_return_string (error_return_string);
 				return_status = COMMAND_FAIL;
@@ -661,7 +661,7 @@ context::do_query_exist (const CString& name, const CString& owner_string)
 	if (!owner_string)
 	{
 		Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-		if (gagged_command () == true)
+		if (gagged_command ())
 			matcher.work_silent ();
 		matcher.match_everything ();
 		if (((result = matcher.match_result ()) != NOTHING) && (result != AMBIGUOUS))
@@ -716,7 +716,7 @@ context::do_query_exist (const CString& name, const CString& owner_string)
 		else
 		{
 			Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-			if (gagged_command () == true)
+			if (gagged_command ())
 				matcher.work_silent ();
 			matcher.match_everything ();
 			result = matcher.match_result ();
@@ -1139,7 +1139,7 @@ context::do_query_next (const CString& name, const CString&)
 	else
 	{
 		Matcher matcher (get_player (), name, TYPE_NO_TYPE, get_effective_id ());
-		if (gagged_command () == true)
+		if (gagged_command ())
 			matcher.work_silent ();
 		matcher.match_everything ();
 		result = matcher.match_result ();
