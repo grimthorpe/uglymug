@@ -20,6 +20,7 @@
 	void		log_message			(const char *, ...);
 
 	void		log_accept			(int, int, const CString&);
+	void		log_boot			(dbref, const CString&, dbref, const CString&, const CString&);
 	void		log_bug				(const char *, ...);
 	void		log_checkpointing	(const CString&, int);
 	void		log_command			(dbref, const CString&, dbref, const CString&, dbref, const CString&, const CString&);

@@ -58,6 +58,26 @@ void log_accept (
 	);
 }
 
+
+void log_boot (
+			dbref		targetid,
+	const	CString&	targetname,
+			dbref		booterid,
+	const	CString&	bootername,
+	const	CString&	message
+) {
+	/* e.g. BOOT|timestamp|targetid|targetname|booterid|bootername|message */
+	Trace(	"%cBOOT%c%d%c%d%c%s%c%d%c%s%c%s%c\n",
+			RECORD_START,						FIELD_SEPARATOR,
+			time(NULL),							FIELD_SEPARATOR,
+			targetid,							FIELD_SEPARATOR,
+			targetname.c_str(),					FIELD_SEPARATOR,
+			booterid,							FIELD_SEPARATOR,
+			bootername.c_str(),					FIELD_SEPARATOR,
+			message.c_str(),					RECORD_END
+	 );
+}
+
 void log_bug (
 	const	char		*fmt,
 						...

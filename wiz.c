@@ -331,7 +331,7 @@ const	CString& reason)
 			notify_colour(player, player, COLOUR_MESSAGES, "Booted.");
 			return_status = COMMAND_SUCC;
 			set_return_string (ok_return_string);
-			Trace("BOOT|%s(%d)|booted by |%s(%d)|:%s\n", db[recipient].get_name().c_str(), recipient, db[player].get_name().c_str(), player, (reason)?boot_reason:"for no apparant reason");
+			log_boot(recipient, db[recipient].get_name().c_str(), player, db[player].get_name().c_str(), (reason) ? boot_reason : "for no apparent reason");
 		}
 		else
 			notify_colour(player, player, COLOUR_MESSAGES,"That player is not connected.");
