@@ -14,6 +14,8 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Improved the Natter flag setting process; checks controls_for_write, and if the target is a Wizard or Apprentice.
+
 um1_035 - Not very well tested.
 	Finally implemented all of @?terminal
 	Converted all of the standard strings in the game to be Strings.

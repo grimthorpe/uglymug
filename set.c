@@ -1437,6 +1437,16 @@ const	String& flag)
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only wizards can set the Natter flag on players.");
 			return;
 		}
+		if(!controls_for_write(thing))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
+			return;
+		}
+		if(Wizard(thing) || Apprentice(thing))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Wizards and Apprentices can't leave or join Natter.");
+			return;
+		}
 		if ((thing != player) && (*flag.c_str() != NOT_TOKEN))
 		{
 			notify_colour (thing, player, COLOUR_ERROR_MESSAGES, "WARNING: %s has set you Natter, in order to escape type '@set me = !natter'", getname(player));
