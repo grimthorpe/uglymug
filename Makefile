@@ -2,6 +2,8 @@ MAKEFLAGS=-k -B
 
 by_default_just_make: netmud
 
+include Makefile.$(HOSTTYPE)
+
 # Whatever you put in for $(CC) must be able to grok ANSI C.
 CC=gcc
 CPLUSPLUS=g++
@@ -20,16 +22,12 @@ CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 ####################################
 #              Linux
 ####################################
-#WHOAMI=whoami
-#LIBS= -lm -ldl -lcurses -lcrypt
+WHOAMI.i386-linux=whoami
+LIBS.i386-linux= -lm -ldl -lcurses -lcrypt
 # Normal
-#CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+CFLAGS.i386-linux= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
-
-###############
-# Old comment
-# Linux + USE_TERMINFO in config.h
 
 ####################################
 #            FreeBSD
@@ -41,6 +39,9 @@ CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
+WHOAMI=$(WHOAMI.$(HOSTTYPE))
+CFLAGS=$(CFLAGS.$(HOSTTYPE))
+LIBS=$(LIBS.$(HOSTTYPE))
 
 VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 
