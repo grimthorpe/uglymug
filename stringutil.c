@@ -243,7 +243,7 @@ const	char	*sub)
 void
 pronoun_substitute (
 char		*result,
-int		buffer_length,
+unsigned int	buffer_length,
 dbref		player,
 const	char	*str)
 
@@ -254,7 +254,14 @@ const	char	*str)
 	static const char *objective[4] = { "", "it", "her", "him" };
 
 	strcpy(result, db[player].get_name());
-	buffer_length -= strlen(result);
+	if (buffer_length > strlen(result))
+	{
+		buffer_length -= strlen(result);
+	}
+  else
+	{
+		buffer_length = 0;
+	}
 	result += strlen(result);
 	*result++ = ' ';
 	while (*str && buffer_length > 0)
@@ -279,23 +286,29 @@ const	char	*str)
 						}
 						else
 						{
-							buffer_length = -1;
+							buffer_length = 0;
 						}
 						break;
 					case 'p':
 					case 'P':
-						if (buffer_length > strlen(db[player].get_name())) 
+						if (buffer_length > (strlen(db[player].get_name())+2)) 
 						{
 							strcat(result, db[player].get_name());
 							strcat(result, "'s");
 						}
-						else buffer_length = -1;
+						else
+						{
+							buffer_length = 0;
+						}
 						break;
 					default:
 						*result++ = *str;
 						break;
 				}
 				str++;
+/* We know this is safe, since we tested buffer_length > strlen(result)
+ * at each stage JPK
+ */
 				buffer_length -= strlen(result);
 				result += strlen(result);
 			}
@@ -305,23 +318,47 @@ const	char	*str)
 				{
 					case 's':
 					case 'S':
-						if (buffer_length > strlen(subjective[ConvertGender(player)])) strcat(result, subjective[ConvertGender(player)]);
-						else buffer_length = -1;
+						if (buffer_length > strlen(subjective[ConvertGender(player)]))
+						{
+							strcat(result, subjective[ConvertGender(player)]);
+						}
+						else
+						{
+							buffer_length = 0;
+						}
 						break;
 					case 'p':
 					case 'P':
-						if (buffer_length > strlen(possessive[ConvertGender(player)])) strcat(result, possessive[ConvertGender(player)]);
-						else buffer_length = -1;
+						if (buffer_length > strlen(possessive[ConvertGender(player)]))
+						{
+							strcat(result, possessive[ConvertGender(player)]);
+						}
+						else
+						{
+							buffer_length = 0;
+						}
 						break;
 					case 'o':
 					case 'O':
-						if (buffer_length > strlen(objective[ConvertGender(player)])) strcat(result, objective[ConvertGender(player)]);
-						else buffer_length = -1;
+						if (buffer_length > strlen(objective[ConvertGender(player)]))
+						{
+							strcat(result, objective[ConvertGender(player)]);
+						}
+						else
+						{
+							buffer_length = 0;
+						}
 						break;
 					case 'n':
 					case 'N':
-						if (buffer_length > strlen(db[player].get_name())) strcat(result, db[player].get_name());
-						else buffer_length = -1;
+						if (buffer_length > strlen(db[player].get_name()))
+						{
+							strcat(result, db[player].get_name());
+						}
+						else
+						{
+							buffer_length = 0;
+						}
 						break;
 					default:
 						*result = *str;
@@ -329,7 +366,9 @@ const	char	*str)
 						break;
 				} 
 				if(isupper(c) && islower(*result))
+				{
 					*result = toupper(*result);
+				}
 				buffer_length -= strlen(result);
 				result += strlen(result);
 				str++;
@@ -338,7 +377,7 @@ const	char	*str)
 		else
 			*result++ = *str++;
 	}
-	if (buffer_length <= 0)
+	if (buffer_length == 0)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "WARNING: Buffer overflow doing a pronoun substitution.");
 	}
