@@ -986,18 +986,6 @@ void Database::sanity_check ()
 		member_with_sanity (NOTHING, db [i].get_fuses(), i);
 	}
 
-	/* Chase free list */
-	for (i = free_start; i != NOTHING; i = array[i].get_free())
-	{
-		if (Typeof (i) != TYPE_FREE)
-			violate (i, "FREE LIST RULES: NON-FREE OBJECT ON FREE LIST", 0);
-		else
-		{
-			sanity_array [i].flags |= SANITY_IN_A_CONTENTS_LIST;
-			sanity_array [i].first_list = -1;
-		}
-	}
-
 	/* Check everything's referenced */
 	for (i = 0; i < db.get_top(); i++)
 	{

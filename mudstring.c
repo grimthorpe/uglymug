@@ -12,6 +12,7 @@
 
 #include "mudstring.h"
 #include "copyright.h"
+#include "externs.h"
 #include <time.h>
 #include <string.h>
 
@@ -207,3 +208,20 @@ String::operator+=(const String& other)
 	return *this;
 }
 
+bool
+String::operator<(const String& other) const
+{
+	return string_compare(*this, other) < 0;
+}
+
+bool
+String::operator>(const String& other) const
+{
+	return string_compare(*this, other) > 0;
+}
+
+bool
+String::operator==(const String& other) const
+{
+	return string_compare(*this, other) == 0;
+}

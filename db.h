@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <map>
 
 #include "mudstring.h"
 #include "config.h"
@@ -792,20 +793,19 @@ class	object_and_flags
 
 	int			type;
 	object			*obj;
-	dbref			freelist;
     public:
     	typeof_type		get_type	()			const	{ return (type); }
 	void			set_type	(const typeof_type i)		{ type = i; }
-				object_and_flags () : type(TYPE_FREE), obj(NULL), freelist(NOTHING)				{}
+				object_and_flags () : type(TYPE_FREE), obj(NULL){}
 	bool			is_free		()			const	{ return (type == TYPE_FREE); }
-	dbref			get_free	()			const	{ return (freelist); }
 	object			*get_obj	()			const	{ return (type == TYPE_FREE ? (object*)NULL : obj); }
-	void			init_free	(const dbref next)		{ type = TYPE_FREE; freelist = next; }
-	void			set_free	(const dbref next)		{ if (type != TYPE_FREE) delete (obj); type = TYPE_FREE; freelist = next; }
+	void			init_free	()				{ type = TYPE_FREE; }
+	void			set_free	()				{ if (type != TYPE_FREE) delete (obj); type = TYPE_FREE; }
 	void			set_obj		(object &new_obj)		{ type = TYPE_NO_TYPE; obj = &new_obj; }
 };
 
 
+#ifdef GRIMTHORPE_CANT_CODE
 #define	CACHE_INVALID	0
 #define	CACHE_VALID	1
 
@@ -818,7 +818,7 @@ struct player_cache_struct
 
 	int compare(const player_cache_struct* other) const;
 };
-
+#endif
 
 class	Database
 {
@@ -828,9 +828,9 @@ class	Database
 	object_and_flags	*array;
 	dbref			top;
 	dbref			free_start;
-	dbref			free_end;
 	Pending_alarm		*alarms;
 	int			player_count;
+#ifdef GRIMTHORPE_CANT_CODE
 	struct player_cache_struct *player_cache;
 	struct changed_player_list_struct
 	{
@@ -839,6 +839,9 @@ class	Database
 		struct	changed_player_list_struct	*next;
 		struct	changed_player_list_struct	*prev;
 	} *changed_player_list;
+#else
+	std::map<String, dbref> player_cache;
+#endif
 	void			grow		(dbref newsize);
 	void			build_player_cache	(int player_count);
     public:
@@ -851,7 +854,6 @@ class	Database
 	const	bool		delete_object	(const dbref oldobj);
 	const	bool		write		(FILE *f)		const;
 	const	dbref		read		(FILE *f);
-		void		set_free_between (dbref, dbref);
 
 	void			set_typeof	(dbref i, typeof_type j)	{ array[i].set_type(j); }
 	typeof_type		get_typeof	(dbref i)		const	{ return (array[i].get_type()); }

@@ -19,6 +19,8 @@
 #endif
 #define			PLURAL(i)		(((i)==1)?(""):("s"))
 
+class String;
+
 struct flag_stuff
 {
 	const	char	*string;

@@ -1875,9 +1875,6 @@ FILE	*f)
 					continue;
 				}
 
-				if (i > last_entry+1)
-					set_free_between (last_entry + 1, i - 1);
-
 				/* read it in */
 				type = getint(f);
 
@@ -1949,7 +1946,6 @@ FILE	*f)
 				}
 				else
 				{
-					set_free_between (last_entry + 1, top - 1);
 					build_player_cache (player_count);
 					return (top);
 				}
@@ -2079,6 +2075,7 @@ FILE *f)
 }
 
 
+#ifdef GRIMTHORPE_CANT_CODE
 static int compare_player_cache_entries(const void *p1, const void *p2)
 {
 	const struct player_cache_struct *s1=(const struct player_cache_struct *) p1;
@@ -2086,10 +2083,12 @@ static int compare_player_cache_entries(const void *p1, const void *p2)
 
 	return s1->compare(s2);
 }
+#endif
 
 
 void Database::build_player_cache(int player_count)
 {
+#ifdef GRIMTHORPE_CANT_CODE
 	int cache_entry=0;
 
 	player_cache = new player_cache_struct[player_count];
@@ -2119,6 +2118,29 @@ void Database::build_player_cache(int player_count)
 		}
 	}
 	qsort(player_cache, player_count, sizeof(struct player_cache_struct), compare_player_cache_entries);
+#else
+	// Clear out any existing entries
+	player_cache.erase(player_cache.begin(), player_cache.end());
+	for(dbref i = 0; i < top; i++)
+	{
+		if(Typeof(i)==TYPE_PLAYER)
+		{
+			player_cache[db[i].get_name()] = i;
+#ifdef ALIASES
+			for(int alias=0; alias<MAX_ALIASES; alias++)
+			{
+				String alias_name;
+
+				alias_name = db[i].get_alias(alias);
+				if(alias_name)
+				{
+					player_cache[alias_name] = i;
+				}
+			}
+#endif
+		}
+	}
+#endif
 }
 
 
@@ -2129,7 +2151,9 @@ const
 
 {
 //	struct player_cache_struct *pc, key;
+#ifdef GRIMTHORPE_CANT_CODE
 	struct player_cache_struct key;
+#endif
 
 	if(!name)
 		return NOTHING;
@@ -2145,6 +2169,7 @@ const
 		else
 			return NOTHING;
 	}
+#ifdef GRIMTHORPE_CANT_CODE
 // Quick hack, cos I screwed this up.
 	for(dbref i = 0; i < db.get_top(); i++)
 	{
@@ -2175,6 +2200,14 @@ const
 		return pc->player;
 	}
 */
+#else
+	std::map<String, dbref>::const_iterator entry;
+	entry = player_cache.find(name);
+	if(entry != player_cache.end())
+	{
+		return entry->second;
+	}
+#endif
 	return NOTHING;
 }
 
@@ -2186,7 +2219,7 @@ const	String& name)
 {
 	if(Typeof(player)!=TYPE_PLAYER)
 		return;
-
+#ifdef GRIMTHORPE_CANT_CODE
 	struct changed_player_list_struct *entry=(struct changed_player_list_struct *) malloc(sizeof(struct changed_player_list_struct));
 
 	entry->name=strdup(name.c_str());
@@ -2196,11 +2229,15 @@ const	String& name)
 	if(changed_player_list)
 		changed_player_list->prev=entry;
 	changed_player_list=entry;
+#else
+	player_cache[name] = player;
+#endif
 }
 
 
 void Database::remove_player_from_cache(const String& name)
 {
+#ifdef GRIMTHORPE_CANT_CODE
 	for(struct changed_player_list_struct *current=changed_player_list; current; )
 		if(string_compare(current->name, name)==0)
 		{
@@ -2230,8 +2267,12 @@ void Database::remove_player_from_cache(const String& name)
 	for(int i=0; i<player_count; i++)
 		if(string_compare(player_cache[i].name, name)==0)
 			player_cache[i].state=CACHE_INVALID;
+#else
+	build_player_cache(0);
+#endif
 }
 
+#ifdef GRIMTHORPE_CANT_CODE
 int
 player_cache_struct::compare(const player_cache_struct* other) const
 {
@@ -2241,6 +2282,7 @@ player_cache_struct::compare(const player_cache_struct* other) const
 	}
 	return -1;
 }
+#endif
 
 #ifdef DBREF_BUG_HUNTING
 void

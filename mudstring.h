@@ -98,7 +98,7 @@ class	String
 // Private DUMMY members. Defined so that the main code can't use them,
 // DUMMY so that we don't use them internally.
 	operator int() const;
-	bool operator==(const String& str);
+//	bool operator==(const String& str);
 	bool operator==(int);
 
 // PRIVATE CONSTRUCTORS
@@ -128,6 +128,10 @@ public:
 //		 FALSE if the string is empty
 // NOTE: A 0-length string is the same as a 'NULL' string.
 	operator bool()			const	{ return _buffer->length() > 0; }
+
+	bool operator<(const String& other)	const;
+	bool operator>(const String& other)	const;
+	bool operator==(const String& other)	const;
 };
 
 #endif /* _MUDSTRING_H */

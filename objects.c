@@ -75,9 +75,13 @@ const	char	*string)
 
 
 Database::Database ()
-	: array(NULL), top(NOTHING), free_start(NOTHING), free_end(NOTHING),
-		alarms(NULL), player_count(0), player_cache(NULL),
-		changed_player_list(NULL)
+	: array(NULL), top(NOTHING), free_start(0), 
+		alarms(NULL), player_count(0),
+#ifdef GRIMTHORPE_CANT_CODE
+		player_cache(NULL), changed_player_list(NULL)
+#else
+		player_cache()
+#endif
 {
 }
 /*
@@ -93,7 +97,7 @@ Database::~Database ()
 	if (array != NULL)
 	{
 		for (i = 0; i < top; i++)
-			array [i].set_free (NOTHING);
+			array [i].set_free ();
 		free (array);
 	}
 }
@@ -124,13 +128,6 @@ const	dbref	newtop)
 				log_bug("Fatal: grow: realloc failed extending database\n");
 				abort();
 			}
-
-			/* Set up our free list */
-			for (index = real_newtop - 2; index >= top; index--)
-				array [index].init_free (index + 1);
-			array [real_newtop - 1].init_free (NOTHING);
-			free_start = top;
-			free_end = real_newtop;
 		}
 		else
 		{
@@ -141,11 +138,11 @@ const	dbref	newtop)
 				log_bug("Fatal: grow: malloc failed");
 				abort();
 			}
-
-			/* Set up the entries. Do *not* set up the free list - this is done in set_free_between () */
-			for (index = real_newtop - 1; index >= top; index--)
-				array [index].init_free (NOTHING);
 		}
+		/* Set up the entries. */
+		for (index = real_newtop - 1; index >= top; index--)
+			array [index].init_free();
+		free_start = top;
 		top = real_newtop;
 	}
 }
@@ -164,15 +161,25 @@ Database::new_object (
 object		&obj)
 
 {
-	dbref	loc;
+	dbref	loc = NOTHING;
 
-	/* Extend if needed */
-	if (free_start == NOTHING)
+	/* free_start is a hint to where a free object is. */
+	for(dbref i = free_start; i < top; i++)
+	{
+		if(array[i].is_free())
+		{
+			loc = i;
+			break;
+		}
+	}
+	if(NOTHING == loc)
+	{
 		grow (top + 1);
 
-	/* Should guarantee a free slot */
-	loc = free_start;
-	free_start = array [loc].get_free ();
+		/* Should guarantee a free slot this time. */
+		loc = free_start;
+	}
+	free_start=loc+1;
 	array [loc].set_obj (obj);
 
 	return loc;
@@ -198,44 +205,16 @@ const dbref	oldobj)
 {
 	if (oldobj >= 0 && oldobj < top)
 	{
-		if (free_start == NOTHING)
-		{
+		if(oldobj < free_start)
 			free_start = oldobj;
-			free_end = oldobj;
-			array [oldobj].set_free (NOTHING);
-		}
-		else
-		{
-			array [oldobj].set_free (free_start);
-			free_start = oldobj;
-		}
+
+		array [oldobj].set_free ();
 
 		return true;
 	}
 
 	return false;
 }
-
-
-void
-Database::set_free_between (
-const	dbref	from,
-const	dbref	to)
-
-{
-	int	entry;
-
-	for (entry = from; entry <= to; entry++)
-	{
-		array [entry].set_free (NOTHING);
-		if (free_start == NOTHING)
-			free_start = entry;
-		else
-			array [free_end].set_free (entry);
-		free_end = entry;
-	}
-}
-
 
 /************************************************************************/
 /*									*/
