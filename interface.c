@@ -1755,6 +1755,7 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 	}
 }
 
+#if	HAS_CURSES
 #ifdef USE_TERMINFO
 /*
  * I've done a blatant cut and paste of this code for the other version so if
@@ -1901,6 +1902,19 @@ descriptor_data::set_terminal_type(const String& termtype)
 }
 
 #endif /* USE_TERMINFO */
+#else	/* !HAS_CURSES */
+/*
+ * The version for those who don't have curses or termcap available.
+ */
+
+bool
+descriptor_data::set_terminal_type(const String& termtype)
+{
+	// It really doesn't get much simpler.
+	return true;
+}
+
+#endif	/* !HAS_CURSES */
 
 #define CACHE_ADDR_SIZE 4096
 
