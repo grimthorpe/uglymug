@@ -374,8 +374,8 @@ Matcher::check_keys ()
 }
 
 
-/*
- * choose_thing: Given two possibilities, return the better one. Checks:
+/**
+ * Given two possibilities, return the better one. Checks:
  *	- If either is NOTHING, the other one is better,
  *	- If both are variables, ownership by the effective player is better,
  *	- If one is of type preferred_type and the other isn't, the one
@@ -459,8 +459,8 @@ Matcher::match_player ()
 	}
 }
 
-/*
- * match_array_or_dictionary: attempts to find an index in the string
+/**
+ * Attempts to find an index in the string
  *	and then to search for the array or dictionary.  Testing
  *	whether the item has that index is not being done here.
  */
@@ -482,8 +482,8 @@ Matcher::match_player ()
 
 
 
-/*
- * absolute_name: Returns nnn if name = #nnn, else NOTHING
+/**
+ * Return nnn if name = #nnn, else NOTHING.
  */
 
 dbref
@@ -502,6 +502,10 @@ Matcher::absolute_name ()
 }
 
 
+/**
+ * Test for an exact match by #id.  Configurable as to whether it limits who can do this.
+ */
+
 void
 Matcher::match_absolute ()
 
@@ -514,10 +518,13 @@ Matcher::match_absolute ()
 		dbref	match;
 
 		if (((match = absolute_name ()) != NOTHING)
+#ifdef	ID_MATCH_NEEDS_CONTROL_FOR_READ
 			&& (controls_for_read (real_who, match, effective_who)
 				|| Abode (match)
 				|| Jump (match)
-				|| Link (match)) )
+				|| Link (match))
+#endif	/* ID_MATCH_NEEDS_CONTROL_FOR_READ */
+			)
 			exact_match = match;
 	}
 }

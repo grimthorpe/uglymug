@@ -41,6 +41,7 @@
 
 #undef	DEBUG					/* For debugging */
 #undef	MATCH_DEBUG				/* Match debug lines */
+#undef	ID_MATCH_NEEDS_CONTROL_FOR_READ		/* Do you need controls-for-read on something to use a #id on it? */
 
 #define BUFFER_LEN      ((MAX_COMMAND_LEN)*4)
 
