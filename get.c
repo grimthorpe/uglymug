@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)get.c	1.50\t7/27/95";
+/* static char SCCSid[] = "@(#)get.c	1.50\t7/27/95"; */
 #include "copyright.h"
 
 #include <string.h>
@@ -122,6 +122,7 @@ const	char	*const name,
 }
 
 
+#if 0
 static dbref
 find_thing_for_query (
 	context	&c,
@@ -137,6 +138,7 @@ const	char	*const name,
 	}
 	return (thing);
 }
+#endif
 
 static dbref
 find_anything_with_csucc_link_for_query (
