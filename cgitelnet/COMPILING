@@ -5,3 +5,10 @@ to allow the generation of a configure script, this autoconf and automake
 are needed in order to make this work.
 
 JPK (Thu Jan 31 13:38:42 GMT 2002)
+
+In order to set up for compile use autogen.sh to generate configuration
+and make file.
+
+./autogen.sh ; make 
+
+should work in theory.
