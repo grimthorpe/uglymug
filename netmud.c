@@ -6,11 +6,23 @@
 #include "copyright.h"
 #include "version.h"
 
+// Linux and MinGW don't have resource stuff. PJC 6/4/2003.
+#if defined(linux)
+#	define	HAS_RESOURCES	0
+#elif defined(__MINGW32__)
+#	define	HAS_RESOURCES	0
+#else
+#	define	HAS_RESOURCES	1
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <time.h>
+
+#if HAS_RESOURCES
 #include <sys/resource.h>
+#endif /* HAS_RESOURCES */
 
 #include "mudstring.h"
 #include "db.h"
@@ -19,10 +31,6 @@
 #include "config.h"
 #include "externs.h"
 #include "log.h"
-
-/* Code using this has been commented out anyway */ 
-/* From sys/resource.h, gcc doesn't like it */
-/*#define  PRIO_PROCESS  0  */
 
 /* SunOS doesn't define these anywhere useful, apparently. */
 #ifdef	__sun
@@ -128,7 +136,7 @@ char	**argv)
            Trace( "W checks for wizard set items\n\n");
            exit (2);
         }
-#ifndef linux
+#if HAS_RESOURCES
 	struct	rlimit	lim;
 	/* Ignore command line nice level & use MUD_NICE_LEVEL */
 	/* nice (MUD_NICE_LEVEL - getpriority (PRIO_PROCESS, 0)); */
@@ -137,7 +145,7 @@ char	**argv)
 	lim.rlim_cur=MAX_USERS+4;
 	if(setrlimit(RLIMIT_NOFILE,&lim)<0)
 		log_bug("setrlimit() failed");
-#endif
+#endif /* HAS_RESOURCES */
 
 	srand (time(NULL));
 	game_start_time = time(NULL);
