@@ -897,7 +897,7 @@ context::do_query_gravity_factor (const String& name, const String&)
 void
 context::do_query_id (const String& name, const String&)
 {
-	dbref	thing = find_for_query (*this, name, 1);
+	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
