@@ -82,7 +82,7 @@ class	Variable_stack
 				~Variable_stack		();
 		String_pair	*addarg			(const CString& n, const CString& v);
 		String_pair	*check_and_add_arg	(const CString& n, const CString& v);
-		Boolean		updatearg		(const CString& n, const CString& v);
+		bool		updatearg		(const CString& n, const CString& v);
 		String_pair	*locatearg		(const CString& name)	const;
 
 };
@@ -104,7 +104,7 @@ class	Scope
 	virtual	const	dbref		get_command		()	const	{ return outer_scope->get_command (); }
     public:
 	virtual		Command_action	step_once		(context *)		= 0;
-	virtual		void		do_at_elseif		(const Boolean ok);
+	virtual		void		do_at_elseif		(const bool ok);
 			String_pair	*locate_stack_arg	(const CString& name)	const;
 };
 
@@ -141,18 +141,18 @@ class	Brace_scope
 class	If_scope
 : public Scope
 {
-			Boolean		if_ok;
-			Boolean		no_endif;
+			bool		if_ok;
+			bool		no_endif;
 			int		stop_line;
 			int		endif_line;
     protected:
 	virtual	const	int		line_for_outer_scope	()	const;
     public:
-					If_scope	(const Scope &os, Boolean i);
+					If_scope	(const Scope &os, bool i);
 	virtual				~If_scope	()			{}
 			Command_action	step_once	(context *);
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
-	virtual		void		do_at_elseif	(const Boolean ok);
+	virtual		void		do_at_elseif	(const bool ok);
 };
 
 
@@ -168,7 +168,7 @@ class	Loop
     protected:
 					Loop		(const Scope &os);
 	virtual	const	int		line_for_outer_scope	()	const;
-	virtual		Boolean		loopagain	()			= 0;
+	virtual		bool		loopagain	()			= 0;
     public:
 	virtual				~Loop		()			{}
 			Command_action	step_once	(context *);
@@ -184,7 +184,7 @@ class	For_loop
 			int		step;
 			String_pair	*argument;
     protected:
-	virtual		Boolean		loopagain	();
+	virtual		bool		loopagain	();
     public:
 					For_loop	(const Scope &os, int in_start, int in_end, int in_step, const CString& name);
 	virtual				~For_loop	()			{}
@@ -201,7 +201,7 @@ class	With_loop
 			String_pair	*index;
 			String_pair	*element;
     protected:
-	virtual		Boolean		loopagain	();
+	virtual		bool		loopagain	();
     public:
 					With_loop	(const Scope &os, dbref d, const char *index_name, const char *element_name);
 	virtual				~With_loop	()			{}
@@ -225,7 +225,7 @@ class	Command_and_arguments
     public:
 					Command_and_arguments	(const char *sc, const char *a1, const char *a2, Matcher *m);
 					~Command_and_arguments	();
-			void		pend_fuse		(dbref fuse, Boolean success, const char *simple_command, const char *arg1, const char *arg2, const Matcher &matcher);
+			void		pend_fuse		(dbref fuse, bool success, const char *simple_command, const char *arg1, const char *arg2, const Matcher &matcher);
 			void		fire_sticky_fuses	(context &c);
 		const	char		*get_simple_command	()	const		{ return (simple_command); }
 		const	char		*get_arg1		()	const		{ return (arg1); }
@@ -256,10 +256,10 @@ class	Compound_command_and_arguments
 			void		set_effective_id	(dbref i)		{ effective_id = i; }
 		const	dbref		get_effective_id	()	const		{ return (effective_id); }
 			void		chpid			()			{ effective_id = db [command].get_owner (); }
-		const	Boolean		inside_subscope		()	const		{ return !scope_stack.is_empty(); }
-			Boolean		push_scope		(Scope *s)		{ return scope_stack.push (s); }
+		const	bool		inside_subscope		()	const		{ return !scope_stack.is_empty(); }
+			bool		push_scope		(Scope *s)		{ return scope_stack.push (s); }
 			Command_action	step_once	(context *);
-			void		do_at_elseif		(const Boolean ok);
+			void		do_at_elseif		(const bool ok);
 			void		do_at_end		(context &);
 			void		do_at_return		(context &);
 			void		do_at_returnchain	(context &);
@@ -293,9 +293,9 @@ class	context
 		int			depth_limit;
 		String			return_string;
 		Command_status		return_status;
-		Boolean			called_from_command;
+		bool			called_from_command;
 		context &		creator;
-		Boolean			scheduled;
+		bool			scheduled;
 		Dependency		*dependency;
     // friend Scheduler
 		void			clear_dependency	();
@@ -312,12 +312,12 @@ class	context
 		void			command_executed	()	{ commands_executed++; }
 		void			set_step_limit		(int new_limit)	{ step_limit = new_limit; }
 		void			set_depth_limit		(int new_limit)	{ depth_limit = new_limit; }
-	const	Boolean			set_effective_id	(dbref i);
+	const	bool			set_effective_id	(dbref i);
 		void			set_unchpid_id		(dbref i)	{ unchpid_id = i; }
-		void			set_scheduled		(Boolean s)	{ scheduled = s; }
-	const	Boolean			get_scheduled		()	const	{ return scheduled; }
+		void			set_scheduled		(bool s)	{ scheduled = s; }
+	const	bool			get_scheduled		()	const	{ return scheduled; }
 		void			set_return_string	(const CString& rs) { return_string = rs; }
-		void			calling_from_command	()		{ called_from_command = True; }
+		void			calling_from_command	()		{ called_from_command = true; }
 	const	int			get_commands_executed	()	const	{ return (commands_executed); }
 	const	int			get_sneaky_executed_depth()	const	{ return (sneaky_executed_depth); }
 		void			set_sneaky_executed_depth(int d)	{ sneaky_executed_depth = d; }
@@ -327,22 +327,22 @@ class	context
 	const	Command_status		get_return_status	()	const	{ return (return_status); }
 	const	char			*get_innermost_arg1	()	const;
 	const	char			*get_innermost_arg2	()	const;
-	const	Boolean			in_command		()	const;
+	const	bool			in_command		()	const;
 	const	dbref			get_current_command	()	const;
-	const	Boolean			gagged_command		()	const	{ return ((get_current_command () != NOTHING) && Silent (get_current_command ())); }
+	const	bool			gagged_command		()	const	{ return ((get_current_command () != NOTHING) && Silent (get_current_command ())); }
 	const	String&			get_return_string	()	const	{ return (return_string); }
 	const	dbref			get_effective_id	()	const;
 		void			copy_returns_from	(const context &source);
-	const	Boolean			controls_for_read	(const dbref what) const;
-	const	Boolean			controls_for_write	(const dbref what) const;
+	const	bool			controls_for_read	(const dbref what) const;
+	const	bool			controls_for_write	(const dbref what) const;
 		String_pair		*locate_innermost_arg	(const CString& name)	const;
 #ifndef	NO_GAME_CODE
-	Boolean				allow_another_step	();
+	bool				allow_another_step	();
 	void				log_recursion		(dbref command, const char *arg1, const char *arg2);
 	void				process_basic_command	(const char *);
 	String				sneakily_process_basic_command	(const CString&, Command_status &);
-	Boolean				can_do_compound_command	(const char *command, const char *arg1, const char *arg2);
-	Boolean				can_override_command (const char *command, const char *arg1, const char *arg2);
+	bool				can_do_compound_command	(const char *command, const char *arg1, const char *arg2);
+	bool				can_override_command (const char *command, const char *arg1, const char *arg2);
 	Command_action			do_compound_command	(dbref command, const char *simple_command, const char *arg1, const char *arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
 
 	/* Functions from move.c that needed to be inside a context */
@@ -351,9 +351,9 @@ class	context
 	void				maybe_dropto		(dbref loc, dbref dropto);
 	void				send_contents		(dbref loc, dbref dropto);
 
-	const	Boolean			variable_substitution	(const char *arg, char *result, unsigned int max_length);
-	const	Boolean			nested_variable_substitution	(const char *&, char *, const int, const int space_left);
-	const	Boolean			dollar_substitute	(const char *&argp, char *&resp, const int depth, unsigned int space_left);
+	const	bool			variable_substitution	(const char *arg, char *result, unsigned int max_length);
+	const	bool			nested_variable_substitution	(const char *&, char *, const int, const int space_left);
+	const	bool			dollar_substitute	(const char *&argp, char *&resp, const int depth, unsigned int space_left);
 		void			brace_substitute	(const char *&, char *&, unsigned int space_left);
 
 	void				do_alarm		(const CString&, const CString&);
@@ -630,9 +630,9 @@ class	Scheduler
     public:
 					Scheduler	()		{}
 					~Scheduler	()		{}
-		Boolean			runnable	()	const	{ return !contexts.is_empty (); }
+		bool			runnable	()	const	{ return !contexts.is_empty (); }
 		context			*step		();
-		void			push_job	(context *c)	{ c->set_scheduled (True); contexts.push (c); }
+		void			push_job	(context *c)	{ c->set_scheduled (true); contexts.push (c); }
 		context			*push_express_job	(context *c);
 };
 

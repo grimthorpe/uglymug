@@ -40,7 +40,7 @@ dbref	what)
  *	the thing's locations up the tree.
  */
 
-Boolean
+bool
 in_area (
 dbref	thing,
 dbref	area)
@@ -48,12 +48,12 @@ dbref	area)
 {
 	for ( ; thing != NOTHING; thing = db[thing].get_location ())
 		if (thing == area)
-			return (True);
-	return (False);
+			return (true);
+	return (false);
 }
 
 
-Boolean
+bool
 contains (
 dbref	thing,
 dbref	container)
@@ -63,11 +63,11 @@ dbref	container)
 
 	for ( ; thing != NOTHING; thing = db[thing].get_location ())
 		if (thing == container)
-			return (True);
-	return (False);
+			return (true);
+	return (false);
 }
 
-Boolean
+bool
 contains_inherited (
 dbref	thing,
 dbref	container)
@@ -78,7 +78,7 @@ dbref	container)
 	}
 	else if(thing == NOTHING)
 	{
-		return False;
+		return false;
 	}
 
 	dbref contents;
@@ -88,15 +88,15 @@ dbref	container)
 		{
 			if(obj == thing)
 			{
-				return True;
+				return true;
 			}
 		}
 	}
-	return (False);
+	return (false);
 }
 
 
-Boolean
+bool
 member (
 dbref	thing,
 dbref	list)
@@ -107,13 +107,13 @@ dbref	list)
 		if (Container(list) || Typeof(list) == TYPE_PLAYER)
 		{
 			if (member (thing, db [list].get_contents ()))
-				return (True);
+				return (true);
 		}
 		if(list == thing)
-			return (True);
+			return (true);
 	}
 
-	return (False);
+	return (false);
 }
 
 

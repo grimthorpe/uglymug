@@ -114,11 +114,11 @@ Ash_Rule	builder[] =
 };
 
 
-static	int	debug		= False;
-static	int	dump		= False;
-static	int	save_all	= False;
-static	int	set_ash		= False;
-static	int	silent		= False;
+static	int	debug		= false;
+static	int	dump		= false;
+static	int	save_all	= false;
+static	int	set_ash		= false;
+static	int	silent		= false;
 static	FILE	*trash_list	= NULL;
 
 /*
@@ -183,7 +183,7 @@ int check_player(const int player_id)
 	static		int		tc;		/* Total connected time */
 	static		long		now;
 	static		int		i;
-	static		Boolean		AshCan_Player = False;
+	static		bool		AshCan_Player = false;
 
 	time(&now);
 	
@@ -221,12 +221,12 @@ int check_player(const int player_id)
 	if (Wizard(player_id))
 	{
 		dfprintf(stderr, "[#%-5d] *** We never Ashcan a Wizard ***\n", player_id);
-		return False;
+		return false;
 	}
 	else if (Apprentice(player_id))
 	{
 		dfprintf(stderr, "[#%-5d] *** We never Ashcan an Apprentice ***\n", player_id);
-		return False;
+		return false;
 	}
 
 
@@ -238,12 +238,12 @@ int check_player(const int player_id)
 	if ((tc < 0) && (lc < 0))
 	{
 		dfprintf (stderr, "[#%-5d] %sPlayer has never connected%s.\n", player_id, RED, REVERT);
-		AshCan_Player = False;
+		AshCan_Player = false;
 	}
 	else
 	{
 		i = 0;
-		AshCan_Player = False;
+		AshCan_Player = false;
 		
 		if (Builder(player_id))
 		{
@@ -252,7 +252,7 @@ int check_player(const int player_id)
 				if ((tc < (signed long) builder[i].min_connect) && (lci > (signed long) builder[i].last_connect))
 				{
 					sfprintf (stderr, "[#%-5d] %s%s, %s%s\n", player_id, GREEN, builder[i].min_string, builder[i].last_string, REVERT);
-					AshCan_Player = True;
+					AshCan_Player = true;
 				}
 
 				i++;
@@ -265,7 +265,7 @@ int check_player(const int player_id)
 				if ((tc < (signed long) non_builder[i].min_connect) && ((signed long) non_builder[i].last_connect < lci))
 				{
 					sfprintf (stderr, "[#%-5d] %s%s, %s%s\n", player_id, GREEN, non_builder[i].min_string, non_builder[i].last_string, REVERT);
-					AshCan_Player = True;
+					AshCan_Player = true;
 				}
 
 				i++;
@@ -273,7 +273,7 @@ int check_player(const int player_id)
 		}
 	}
 
-	if (AshCan_Player == True)
+	if (AshCan_Player == true)
 	{
 		sfprintf(stderr, "[%s#%-5d%s] %sThis Player Is A Candidate For Being%s %s%s%s AshCanned %s\n",
 				RED_BG, player_id, REVERT,
@@ -319,25 +319,25 @@ int main (int argc, char *argv[])
 		if (!strcmp(argv[i], "-Ash"))
 		{
 			sfprintf (stderr, "Setting ASHCAN flags on qualifying players\n");
-			set_ash = True;
+			set_ash = true;
 		}
 		else
 		if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "--clear"))
 		{
 			sfprintf(stderr, "Clearing all AshCan flags on players.");
-			save_all = True;
+			save_all = true;
 		}
 		else
 		if (!strcmp(argv[i], "-d") || !strcmp(argv[i], "--debug"))
 		{
 			sfprintf (stderr, "Debugging Messages Enabled\n");
-			debug = True;
+			debug = true;
 		}
 		else
 		if (!strcmp(argv[i], "-dump"))
 		{
 			sfprintf (stderr, "Dumping Database to stdout\n");
-			dump = True;
+			dump = true;
 		}
 		else
 		if (!strcmp(argv[i], "-f") || !strcmp(argv[i], "--file"))
@@ -388,7 +388,7 @@ int main (int argc, char *argv[])
 		else
 		if (!strcmp(argv[i], "-s") || !strcmp(argv[i], "--silent"))
 		{
-			silent = True;
+			silent = true;
 		}
 		else
 		{

@@ -831,7 +831,7 @@ const	char	*original_command)
 	char		smashed_original [MAX_COMMAND_LEN];
 	char		command_buf [2 * MAX_COMMAND_LEN];
 	char		*command = command_buf;
-	Boolean		command_done = False;
+	bool		command_done = false;
 	int		legal_command = 0;
 	dbref		tracer;
 	//time_t		dumptime = 0;
@@ -961,10 +961,10 @@ const	char	*original_command)
 	/* Substitute nested commands and variables in the typed string */
 	/*
 	 * This may not be able to complete if there is brace-substitution in the command.
-	 *	In this case, it returns False, and we back out of any immediate command
+	 *	In this case, it returns false, and we back out of any immediate command
 	 *	execution as the compound-command code will catch it later.
 	 *
-	 * If this returns False, it will have placed a Brace_scope on the scope stack.
+	 * If this returns false, it will have placed a Brace_scope on the scope stack.
 	 *
 	 * PJC 18/2/97.
 	 */
@@ -1095,7 +1095,7 @@ const	char	*original_command)
 	if ((*a0 != '|')
 		&& (*a0 != '@')
 		&& can_do_compound_command (get_simple_command (), get_arg1 (), get_arg2 ()))
-		command_done = True;
+		command_done = true;
 	/* Try to do a compound command, if we're not overridden with | */
 	else if (*a0 == '|')
 	{
@@ -1109,20 +1109,20 @@ const	char	*original_command)
 		/* It wasn't ||; try COMMAND_LAST_RESORT */
 		else if (can_override_command (a0, get_arg1 (), get_arg2 ()))
 		{
-			command_done = True;
+			command_done = true;
 		}
 	}
 	else if ((*a0 == '@')
 		&& can_override_command (a0, get_arg1 (), get_arg2 ()))
 	{
-		command_done = True;
+		command_done = true;
 	}
 
 	/* We've bombed out everywhere else; is this a straight, simple command? */
 	if (!command_done && ((entry = find_basic_command (a0)) != NULL))
 	{
 		(this->*(entry->context_address)) (get_arg1 (), get_arg2 ());
-		command_done = True;
+		command_done = true;
 	}
 
 	/* If we're still not done, we couldn't find it */

@@ -104,7 +104,7 @@ void init_strings (void)
 	add_excluded("scunthorpe");	// JC Digita: The man who put the **** into scunthorpe.
 }
 
-Boolean
+bool
 semicolon_string_match (
 const	CString& in_this,
 const	CString& is_this)
@@ -115,13 +115,13 @@ const	CString& is_this)
 
 	/* Check for both NULL or both the same string */
 	if (in_this == is_this)
-		return (True);
+		return (true);
 
 	/* Check for one NULL */
 	if (!in_this)
-		return (False);
+		return (false);
 	if (!is_this)
-		return (True);
+		return (true);
 
 	while(*m)
 	{
@@ -133,7 +133,7 @@ const	CString& is_this)
 		if((*m == '\0' && *p == '\0') || (*m == EXIT_DELIMITER && *p == '\0'))
 		{
 			/* we got it */
-			return(True);
+			return(true);
 		}
 
 		/* we didn't get it, find next match */
@@ -145,7 +145,7 @@ const	CString& is_this)
 		p = is_this.c_str();
 	}
 
-	return(False);
+	return(false);
 }
 
 
@@ -422,7 +422,7 @@ swear_compare(int &skipped, char *s1, char *s2)
         return 0;
 }
 
-Boolean
+bool
 add_rude(
 const CString& string)
 {
@@ -430,7 +430,7 @@ const CString& string)
 	int		i;
 
 	if (!string)
-		return False;
+		return false;
 
 	if (rude_words==NULL)
 	{
@@ -438,13 +438,13 @@ const CString& string)
 		rude_words[0]= strdup(string.c_str());
 		rudes=1;
 		rude_letters[tolower(*string.c_str())]=1;
-		return True;
+		return true;
 	}
 	i=0;
 	while ((i < rudes) && (string_compare(string, rude_words[i]) > 0))
 		i++;
 	if ((i < rudes) && (!string_compare(string, rude_words[i])))
-		return True;  // Word already in list
+		return true;  // Word already in list
 
 	value=rudes++;
 	REALLOC(rude_words, (rudes*sizeof(char *)));
@@ -457,11 +457,11 @@ const CString& string)
 
 	rude_words[i]=strdup(string.c_str());
 	rude_letters[tolower(*string.c_str())]++;
-	return True;
+	return true;
 }
 
 
-Boolean
+bool
 add_excluded(
 const CString& string)
 {
@@ -469,7 +469,7 @@ const CString& string)
 	int		i;
 
 	if (!string)
-		return False;
+		return false;
 
 	if (excluded_words==NULL)
 	{
@@ -477,14 +477,14 @@ const CString& string)
 		excluded_words[0]= strdup(string.c_str());
 		excluded=1;
 		excluded_letters[tolower(*string.c_str())]=1;
-		return True;
+		return true;
 	}
 	i=0;
 
 	while ((i < excluded) && (string_compare(string, excluded_words[i]) > 0))
 		i++;
 	if ((i < excluded) && (!string_compare(string, excluded_words[i])))
-		return True;  // Word already in list
+		return true;  // Word already in list
 
 	value=excluded++;
 	REALLOC(excluded_words, (excluded*sizeof(char *)));
@@ -497,10 +497,10 @@ const CString& string)
 
 	excluded_words[i]=strdup(string.c_str());
 	excluded_letters[tolower(*string.c_str())]++;
-	return True;
+	return true;
 }
 
-Boolean
+bool
 un_rude(
 const CString& string)
 {
@@ -508,14 +508,14 @@ const CString& string)
 	int		i;
 
 	if (!string)
-		return True;
+		return true;
 	if (rude_words==NULL)
-		return True;
+		return true;
 	i=0;
 	while ((i < rudes) && (string_compare(string, rude_words[i]) > 0))
 		i++;
 	if (i == rudes)
-		return True;  // Word not censored
+		return true;  // Word not censored
 	rude_letters[tolower(*string.c_str())]--;
 	free(rude_words[i]);
 	while (i < rudes)
@@ -523,10 +523,10 @@ const CString& string)
 	REALLOC(rude_words, (--rudes*sizeof(char *)));
 	if (rudes==0)
 		rude_words= NULL;
-	return True;
+	return true;
 }
 
-Boolean
+bool
 un_exclude(
 const CString& string)
 {
@@ -534,14 +534,14 @@ const CString& string)
 	int		i;
 
 	if (!string)
-		return True;
+		return true;
 	if (excluded_words==NULL)
-		return True;
+		return true;
 	i=0;
 	while ((i < excluded) && (string_compare(string, excluded_words[i]) > 0))
 		i++;
 	if (i == excluded)
-		return True;  // Word not censored
+		return true;  // Word not censored
 	excluded_letters[tolower(*string.c_str())]--;
 	free(excluded_words[i]);
 	while (i < excluded)
@@ -549,7 +549,7 @@ const CString& string)
 	REALLOC(excluded_words, (--excluded*sizeof(char *)));
 	if (excluded==0)
 		excluded_words=NULL;
-	return True;
+	return true;
 }
 
 int

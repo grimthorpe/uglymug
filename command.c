@@ -42,7 +42,7 @@ const	char	permission_denied	[]	= "Permission denied.";
 	char	scratch_buffer		[2 * BUFFER_LEN];
 
 
-Boolean
+bool
 context::can_do_compound_command (
 const	char	*command_string,
 const	char	*arg1,
@@ -79,13 +79,13 @@ const	char	*arg2)
 
 	/* Did we find one? */
 	if ((command = matcher.match_result ()) == NOTHING)
-		return (False);
+		return (false);
 
 	/* Check ambiguity */
 	if (command == AMBIGUOUS)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Ambiguous command.");
-		return (False);
+		return (false);
 	}
 
 	/* Cannot directly do dark commands - if we find one, keep hunting. */
@@ -98,7 +98,7 @@ const	char	*arg2)
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
 			}
 			/* Whether it worked or not, we've tried our best */
-			return True;
+			return true;
 		}
 		matcher.match_restart ();
 	} while ((command = matcher.match_result ()) != NOTHING);
@@ -107,12 +107,12 @@ const	char	*arg2)
 	/* AJS: Why do we keep quiet about it? DARK commands shouldn't affect
 	 *	the game this way (we don't generate Huh?, things fail silently)
 	 */
-	//return True;
-	return False;
+	//return true;
+	return false;
 }
 
 
-Boolean
+bool
 context::can_override_command (
 const	char	*command_string,
 const	char	*arg1,
@@ -126,14 +126,14 @@ const	char	*arg2)
 	matcher.match_absolute ();
 
 	if ((command = matcher.match_result ()) == NOTHING)
-		return (False);
+		return (false);
 
 	if (command == AMBIGUOUS)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Ambiguous command.");
 		Trace( "BUG: Ambiguous command (%s) in #%d\n", command_string, COMMAND_LAST_RESORT);
 		notify_wizard_unconditional ("Error: There's an ambiguous match on '%s' in #%d!", command_string, COMMAND_LAST_RESORT);
-		return (False);
+		return (false);
 	}
 
 	do {
@@ -141,12 +141,12 @@ const	char	*arg2)
 			if (could_doit (*this, command))
 			{
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
-				return (True);
+				return (true);
 			}
 		matcher.match_restart ();
 	} while ((command = matcher.match_result ()) != NOTHING);
 
-	return (False);
+	return (false);
 }
 
 
@@ -703,7 +703,7 @@ const	CString&)
 	set_return_string (ok_return_string);
 
 	/* A few things fail, everything else succeeds */
-	Boolean	if_ok = True;
+	bool	if_ok = true;
 
 	/* Check for the failure cases */
 	const char* carg1 = arg1.c_str();
@@ -748,7 +748,7 @@ const CString&)
 	set_return_string (ok_return_string);
 
 	/* A few things fail, everything else succeeds */
-	Boolean	if_ok = True;
+	bool	if_ok = true;
 
 	/* Check for the failure cases */
 	const char* carg1 = arg1.c_str();
@@ -784,7 +784,7 @@ const	CString&)
 	}
 
 	/* An else is simply an elseif that succeeds */
-	call_stack.top ()->do_at_elseif (True);
+	call_stack.top ()->do_at_elseif (true);
 }
 
 

@@ -18,24 +18,24 @@
 
 #define RefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {Trace("BUG: %s has REF cleared\n",unparse_object(god_context,(x)));}}
 
-static	Boolean			empty_an_object				(dbref, dbref);
+static	bool			empty_an_object				(dbref, dbref);
 
-static	Boolean			check_and_destroy_weapon			(context &c, dbref);
-static	Boolean			check_and_destroy_armour			(context &c, dbref);
-static	Boolean			check_and_destroy_ammunition			(context &c, dbref);
-static	Boolean			check_and_destroy_alarm			(context &c, dbref);
-static	Boolean			check_and_destroy_array			(context &c, dbref);
-static	Boolean			check_and_destroy_command		(context &c, dbref);
-static	Boolean			check_and_destroy_dictionary		(context &c, dbref);
-static	Boolean			check_and_destroy_exit			(context &c, dbref);
-static	Boolean			check_and_destroy_fuse			(context &c, dbref);
-static	Boolean			check_and_destroy_player		(context &c, dbref);
-static	Boolean			check_and_destroy_property		(context &c, dbref);
-static	Boolean			check_and_destroy_room			(context &c, dbref);
-static	Boolean			check_and_destroy_thing			(context &c, dbref);
-static	Boolean			check_and_destroy_variable		(context &c, dbref);
-static	Boolean			check_and_destroy_array_element		(context &c, dbref, const CString&);
-static	Boolean			check_and_destroy_dictionary_element	(context &c, dbref, const CString&);
+static	bool			check_and_destroy_weapon			(context &c, dbref);
+static	bool			check_and_destroy_armour			(context &c, dbref);
+static	bool			check_and_destroy_ammunition			(context &c, dbref);
+static	bool			check_and_destroy_alarm			(context &c, dbref);
+static	bool			check_and_destroy_array			(context &c, dbref);
+static	bool			check_and_destroy_command		(context &c, dbref);
+static	bool			check_and_destroy_dictionary		(context &c, dbref);
+static	bool			check_and_destroy_exit			(context &c, dbref);
+static	bool			check_and_destroy_fuse			(context &c, dbref);
+static	bool			check_and_destroy_player		(context &c, dbref);
+static	bool			check_and_destroy_property		(context &c, dbref);
+static	bool			check_and_destroy_room			(context &c, dbref);
+static	bool			check_and_destroy_thing			(context &c, dbref);
+static	bool			check_and_destroy_variable		(context &c, dbref);
+static	bool			check_and_destroy_array_element		(context &c, dbref, const CString&);
+static	bool			check_and_destroy_dictionary_element	(context &c, dbref, const CString&);
 static	void			trash_container				(dbref);
 static	void			check_and_make_sane_lock		(dbref object);
 
@@ -62,7 +62,7 @@ const	CString& )
 	else
 	{
 		Matcher matcher(this->get_player(), name, TYPE_NO_TYPE, this->get_effective_id());
-		if(this->gagged_command() == True)
+		if(this->gagged_command() == true)
 			matcher.work_silent();
 		matcher.match_everything();
 		object=matcher.match_result();
@@ -104,7 +104,7 @@ const	CString& dummy)
 
 {
 	dbref	object;
-	Boolean	ok;
+	bool	ok;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -123,7 +123,7 @@ const	CString& dummy)
 	}
 	/* Otherwise, find its dbref */
 	Matcher victim_matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-	if (gagged_command() == True)
+	if (gagged_command() == true)
 		victim_matcher.work_silent();	
 	victim_matcher.match_everything ();
 
@@ -230,7 +230,7 @@ const	CString& dummy)
 			return;
 	}
 
-	if (!ok && (gagged_command() == False))
+	if (!ok && (gagged_command() == false))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That object was not destroyed.");
 	else
 	{
@@ -242,7 +242,7 @@ const	CString& dummy)
 }
 
 
-static Boolean
+static bool
 check_and_destroy_room (
 context	&c,
 dbref	zap_room)
@@ -251,7 +251,7 @@ dbref	zap_room)
 	context god_context (GOD_ID);
 	dbref	i;
 	dbref	temp;
-	Boolean	ok = True;
+	bool	ok = true;
 
 	/* Zap exit destinations, droptos, and homes for things the player controls */
 	for (i = 0; i < db.get_top (); i++)
@@ -265,7 +265,7 @@ dbref	zap_room)
 					if (!c.controls_for_write(i))
 					{
 						notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is linked to that room", unparse_object (c, i));
-						ok = False;
+						ok = false;
 					}
 					else
 					{
@@ -273,7 +273,7 @@ dbref	zap_room)
 							if (!c.controls_for_write (temp))
 							{
 								notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES,"Fuse %s on exit %s is not owned by you.", getname (temp), unparse_object (c, i));
-								ok = False;
+								ok = false;
 							}
 					}
 				}
@@ -283,19 +283,19 @@ dbref	zap_room)
 				{
 					RefSet (zap_room)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Couldn't unlink child room %s.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				if ((db[i].get_destination() == zap_room) && !(c.controls_for_write (i)))
 				{
 					RefSet (zap_room)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Couldn't unlink dropto from room %s.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 		}
 	}
 	if (!ok)
-		return (False);
+		return (false);
 
 	for (i = 0; i < db.get_top (); i++)
 	{
@@ -367,17 +367,17 @@ dbref	zap_room)
 	}
 
 	db[zap_room].destroy (zap_room);
-	return (True);
+	return (true);
 }
 
 
-static Boolean
+static bool
 check_and_destroy_weapon (
 context &c,
 dbref	zap_weapon)
 {
 	context god_context (GOD_ID);
-	Boolean	ok = True;
+	bool	ok = true;
 	dbref	i;
 
 	for (i = 0; i < db.get_top (); i++) 
@@ -389,7 +389,7 @@ dbref	zap_weapon)
 				{
 					RefSet (zap_weapon)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its weapon.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 					
@@ -398,7 +398,7 @@ dbref	zap_weapon)
 				{
 					RefSet (zap_weapon)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its parent.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}	
 				break;
 			default:
@@ -406,20 +406,20 @@ dbref	zap_weapon)
 		}
 	}
 
-	if(ok == False)
-		return(False);
+	if(ok == false)
+		return(false);
 	db[zap_weapon].destroy(zap_weapon);
 
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_armour (
 context &c,
 dbref	zap_armour)
 {
 	context god_context (GOD_ID);
-	Boolean	ok = True;
+	bool	ok = true;
 	dbref	i;
 
 	for (i = 0; i < db.get_top (); i++) 
@@ -431,7 +431,7 @@ dbref	zap_armour)
 				{
 					RefSet (zap_armour)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its armour.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 					
@@ -440,7 +440,7 @@ dbref	zap_armour)
 				{
 					RefSet (zap_armour)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,  "%s has that as its parent.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}	
 				break;
 			default:
@@ -448,20 +448,20 @@ dbref	zap_armour)
 		}
 	}
 
-	if(ok == False)
-		return(False);
+	if(ok == false)
+		return(false);
 	db[zap_armour].destroy(zap_armour);
 
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_ammunition (
 context &c,
 dbref	zap_ammo)
 {
 	context god_context (GOD_ID);
-	Boolean	ok = True;
+	bool	ok = true;
 	dbref	i;
 
 	for (i = 0; i < db.get_top (); i++) 
@@ -473,7 +473,7 @@ dbref	zap_ammo)
 				{
 					RefSet (zap_ammo)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its Ammo Type.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 					
@@ -482,7 +482,7 @@ dbref	zap_ammo)
 				{
 					RefSet (zap_ammo)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its parent.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}	
 				break;
 			default:
@@ -490,28 +490,28 @@ dbref	zap_ammo)
 		}
 	}
 
-	if(ok == False)
-		return(False);
+	if(ok == false)
+		return(false);
 	db[zap_ammo].destroy(zap_ammo);
 
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_thing (
 context	&c,
 dbref	zap_thing)
 
 {
 	context god_context (GOD_ID);
-	Boolean	ok = True;
+	bool	ok = true;
 	dbref	i;
 
 	/* If it's not empty, give up */
 	if (db [zap_thing].get_contents() != NOTHING)
 	{
 		notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,  "That object's a container, and it's not empty. Empty it, then destroy it!");
-		return (False);
+		return (false);
 	}
 
 	/* See if any object has this as a key */
@@ -524,7 +524,7 @@ dbref	zap_thing)
 		{
 			RefSet (zap_thing)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is keyed to that object.", unparse_object (c, i));
-			ok = False;
+			ok = false;
 		}
 		switch (Typeof (i))
 		{
@@ -533,7 +533,7 @@ dbref	zap_thing)
 				{
 					RefSet (zap_thing)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Couldn't unlink child thing %s.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				/* FALLTHROUGH */
 			case TYPE_EXIT:
@@ -543,14 +543,14 @@ dbref	zap_thing)
 				{
 					RefSet (zap_thing)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s is linked to that thing.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 		}
 	}
 
 	/* If it's a key, give up */
 	if (!ok)
-		return (False);
+		return (false);
 
         for (i = 0; i < db.get_top (); i++)
 	{
@@ -593,7 +593,7 @@ dbref	zap_thing)
 
 	db[zap_thing].destroy(zap_thing);
 
-	return (True);
+	return (true);
 }
 
 
@@ -734,7 +734,7 @@ Trace( "Custom list destroyed\n");
  * do_destroy_player: checks for locks against the player
  */
 
-static Boolean
+static bool
 check_and_destroy_player (
 context	&c,
 dbref	zap_player)
@@ -742,7 +742,7 @@ dbref	zap_player)
 {
 	context god_context (GOD_ID);
 	dbref	i;
-	Boolean	ok = True;
+	bool	ok = true;
 
 	for (i = 0; i < db.get_top (); i++)
 		if (Typeof (i) != TYPE_FREE)
@@ -751,46 +751,46 @@ dbref	zap_player)
 			{
 				RefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Player is part of key to %s.", unparse_object (c, i));
-				ok = False;
+				ok = false;
 			}
 			if (Container (i) && db[i].get_lock_key ()->contains (zap_player))
 			{
 				RefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That player is part of lock key for container %s.", unparse_object (c, i));
-				ok = False;
+				ok = false;
 			}
 			if ((i != zap_player) && (Typeof (i) == TYPE_PLAYER) && (db[i].get_controller () == zap_player))
 			{
 				RefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That player is a controller of puppet %s.\n", unparse_object (c, i));
-				ok = False;
+				ok = false;
 			}
 			if ((Typeof (i) == TYPE_PLAYER) && (db[i].get_parent () == zap_player))
 			{
 				RefSet (zap_player)
 				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "That player is the parent of player %s.", unparse_object (c, i));
-				ok = False;
+				ok = false;
 			}
 			if (db[i].get_build_id() == zap_player)
 			{
 				if(i != zap_player)
 				{
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"%s is still building under that player", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 			}
 		}
 	if (Connected (zap_player))
 	{
 		notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,  "That player is still connected... Boot the bugger first.");
-		ok = False;
+		ok = false;
 	}
 
 	if (!empty_an_object(c.get_player (), zap_player))
-		ok = False;
+		ok = false;
 
 	if (!ok)
-		return (False);
+		return (false);
 
 	/* If this player is on anybody's lists, remove him. */
 
@@ -820,7 +820,7 @@ dbref	zap_player)
 #endif
 
 	db[zap_player].destroy(zap_player);
-	return (True);
+	return (true);
 }
 
 
@@ -828,7 +828,7 @@ dbref	zap_player)
  * do_destroy_exit: Zap the exit.
  */
 
-static Boolean
+static bool
 check_and_destroy_exit (
 context	&c,
 dbref	zap_exit)
@@ -845,11 +845,11 @@ dbref	zap_exit)
 			db[i].set_parent(db[zap_exit].get_parent());
 		}
 	db[zap_exit].destroy(zap_exit);
-	return (True);
+	return (true);
 }
 
 
-static Boolean
+static bool
 check_and_destroy_command (
 context	&c,
 dbref	zap_command)
@@ -857,7 +857,7 @@ dbref	zap_command)
 {
 	context god_context (GOD_ID);
 	dbref	i;
-	Boolean	ok = True;
+	bool	ok = true;
 
 	for (i = 0; i < db.get_top (); i++)
 	{
@@ -874,7 +874,7 @@ dbref	zap_command)
 				{
 					RefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command in it's csucc or cfail.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				if (db[i].get_parent () == zap_command)
 				{
@@ -888,7 +888,7 @@ dbref	zap_command)
 				{
 					RefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command in its key.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 			case TYPE_FUSE:
@@ -896,7 +896,7 @@ dbref	zap_command)
 				{
 					RefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 			case TYPE_ALARM:
@@ -904,7 +904,7 @@ dbref	zap_command)
 				{
 					RefSet (zap_command)
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command.", unparse_object (c, i));
-					ok = False;
+					ok = false;
 				}
 				break;
 		}
@@ -912,38 +912,38 @@ dbref	zap_command)
 		{
 			RefSet (zap_command)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s uses this command in its lock.", unparse_object (c, i));
-			ok = False;
+			ok = false;
 		}
 	}
 	if (!ok)
-		return (False);
+		return (false);
 
 	db[zap_command].destroy(zap_command);
-	return (True);
+	return (true);
 }
 
 
-static Boolean
+static bool
 check_and_destroy_variable (
 context	&c,
 dbref	zap_variable)
 
 {
 	db[zap_variable].destroy(zap_variable);
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_array (
 context	&c,
 dbref	zap_array)
 
 {
 	db[zap_array].destroy (zap_array);
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_array_element (
 context		&c,
 dbref		zap_array,
@@ -959,7 +959,7 @@ const	CString&	elem)
 			"Array \"%s\" only has %d elements.",
 			db[zap_array].get_name().c_str(),
 			db[zap_array].get_number_of_elements());
-		return (False);
+		return (false);
 	}
 
 	db[zap_array].destroy_element(temp);
@@ -967,20 +967,20 @@ const	CString&	elem)
 	{
 		db[zap_array].flush_parse_helper();
 	}
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_dictionary (
 context	&c,
 dbref	zap_dictionary)
 
 {
 	db[zap_dictionary].destroy (zap_dictionary);
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_dictionary_element (
 context		&c,
 dbref		zap_dictionary,
@@ -991,26 +991,26 @@ const	CString&	elem)
 
 	if((temp = db[zap_dictionary].exist_element(elem)) == 0)
 	{
-		if (c.gagged_command() == False)
+		if (c.gagged_command() == false)
 			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\"", db[zap_dictionary].get_name().c_str(), elem.c_str());
-		return (False);
+		return (false);
 	}
 
 	db[zap_dictionary].destroy_element(temp);
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_property (
 context	&c,
 dbref	zap_property)
 
 {
 	db[zap_property].destroy(zap_property);
-	return (True);
+	return (true);
 }
 
-static Boolean
+static bool
 check_and_destroy_fuse (
 context	&c,
 dbref	zap_fuse)
@@ -1027,11 +1027,11 @@ dbref	zap_fuse)
 			db[i].set_parent(db[zap_fuse].get_parent());
 		}
 	db[zap_fuse].destroy(zap_fuse);
-	return (True);
+	return (true);
 }
 
 
-static Boolean
+static bool
 check_and_destroy_alarm (
 context	&c,
 dbref	zap_alarm)
@@ -1047,7 +1047,7 @@ dbref	zap_alarm)
 			db[i].set_parent(db[zap_alarm].get_parent());
 		}
 	db[zap_alarm].destroy(zap_alarm);
-	return (True);
+	return (true);
 }
 
 void
@@ -1662,7 +1662,7 @@ dbref	object)
 }
 
 
-static Boolean
+static bool
 empty_an_object(dbref player, dbref container)
 {
 	while (db[container].get_contents() != NOTHING)
@@ -1671,5 +1671,5 @@ empty_an_object(dbref player, dbref container)
 			db[db[container].get_contents()].set_destination(player);
 		moveto (db[container].get_contents(), db[db[container].get_contents()].get_destination());
 	}
-	return(True);
+	return(true);
 }

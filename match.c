@@ -171,7 +171,7 @@ object_flag_type	type,
 dbref			effective_player)
 
 : exact_match			(NOTHING)
-, checking_keys			(False)
+, checking_keys			(false)
 , first_match			(NOTHING)
 , last_match			(NOTHING)
 , match_count			(0)
@@ -179,11 +179,11 @@ dbref			effective_player)
 , real_who			(player)
 , preferred_type		(type)
 , index				(NULL)
-, index_attempt			(False)
-, gagged			(False)
+, index_attempt			(false)
+, gagged			(false)
 , absolute_loc			(NOTHING)
 , beginning			(NULL)
-, already_checked_location	(False)
+, already_checked_location	(false)
 , current_state			(MATCHER_STATE_INVALID)
 , internal_restart		(NOTHING)
 , internal_inheritance_restart	(NOTHING)
@@ -259,7 +259,7 @@ dbref			effective_player)
 		{
 			*begin++ = '\0';
 			*end = '\0';
-			index_attempt = True;
+			index_attempt = true;
 			index = begin;
 			match_absolute();
 		}
@@ -278,7 +278,7 @@ object_flag_type	type,
 dbref			effective_player)
 
 : exact_match			(NOTHING)
-, checking_keys			(False)
+, checking_keys			(false)
 , first_match			(NOTHING)
 , last_match			(NOTHING)
 , match_count			(0)
@@ -287,11 +287,11 @@ dbref			effective_player)
 , match_name			("")
 , preferred_type		(type)
 , index				(NULL)
-, index_attempt			(False)
-, gagged			(False)
+, index_attempt			(false)
+, gagged			(false)
 , absolute_loc			(object)
 , beginning			(NULL)
-, already_checked_location	(False)
+, already_checked_location	(false)
 , current_state			(MATCHER_STATE_INVALID)
 , internal_restart		(NOTHING)
 , internal_inheritance_restart	(NOTHING)
@@ -364,7 +364,7 @@ void
 Matcher::check_keys ()
 
 {
-	checking_keys = True;
+	checking_keys = true;
 }
 
 
@@ -478,13 +478,13 @@ Matcher::match_player ()
 	{
 		*begin++ = '\0';
 		*end = '\0';
-		index_attempt = True;
+		index_attempt = true;
 		index = begin;
 
 		/* We may have an absolute ID as the match_name now */
 		if ((*match_name == NUMBER_TOKEN) && ((temp = parse_dbref (match_name)) != NOTHING) && (temp < db.get_top()) && (Typeof(temp) != TYPE_FREE))
 		{
-			if ((absolute_loc != NOTHING) && (gagged == False))
+			if ((absolute_loc != NOTHING) && (gagged == false))
 				notify (real_who, "Inefficient: Absolute ID used inside a nested match.");
 			if (!Dark (temp) || controls_for_read (effective_who, temp, effective_who));
 				exact_match = temp;
@@ -730,10 +730,10 @@ dbref	loc)
 
 
 /*
- * match_command_internal: returns True if it found something, False if not.
+ * match_command_internal: returns true if it found something, false if not.
  */
 
-Boolean
+bool
 Matcher::match_command_internal ()
 
 {
@@ -746,21 +746,21 @@ Matcher::match_command_internal ()
 			if (semicolon_string_match (db[internal_restart].get_name(), match_name))
 			{
 				exact_match = internal_restart;
-				return (True);
+				return (true);
 			}
 		}
 		internal_inheritance_restart = db [internal_inheritance_restart].get_parent ();
 	}
 
-	return (False);
+	return (false);
 }
 
 
 /*
- * match_fuse_internal: returns True if it found something, False if not.
+ * match_fuse_internal: returns true if it found something, false if not.
  */
 
-Boolean
+bool
 Matcher::match_fuse_internal ()
 
 {
@@ -773,13 +773,13 @@ Matcher::match_fuse_internal ()
 			if (Typeof (internal_restart) == TYPE_FUSE)
 			{
 				exact_match = internal_restart;
-				return (True);
+				return (true);
 			}
 		}
 		internal_inheritance_restart = db [internal_inheritance_restart].get_parent ();
 	}
 
-	return (False);
+	return (false);
 }
 
 
@@ -950,7 +950,7 @@ Matcher::match_continue ()
 				if (location != NOTHING)
 					if (match_command_internal ())
 						return;
-				already_checked_location = True;
+				already_checked_location = true;
 				thing = db [location].get_contents();
 				break;
 			case MATCHER_STATE_COMMAND_LCONTENTS:
@@ -977,7 +977,7 @@ Matcher::match_continue ()
 							/* Remember to reset the location checker so we don't keep skipping levels */
 							if (already_checked_location)
 							{
-								already_checked_location = False;
+								already_checked_location = false;
 								internal_inheritance_restart = db [location].get_location ();
 							}
 							else
@@ -1018,7 +1018,7 @@ Matcher::match_continue ()
 							/* Remember to reset the location checker so we don't keep skipping levels */
 							if (already_checked_location)
 							{
-								already_checked_location = False;
+								already_checked_location = false;
 								internal_inheritance_restart = db [location].get_location ();
 							}
 							else
@@ -1108,7 +1108,7 @@ Matcher::match_index_result()
 	return(index);
 }
 
-Boolean
+bool
 Matcher::match_index_attempt_result()
 
 {
@@ -1165,11 +1165,11 @@ Matcher::noisy_match_result ()
 	switch(match = match_result())
 	{
 		case NOTHING:
-			if (gagged == False)
+			if (gagged == false)
 				notify_colour(real_who,real_who, COLOUR_MESSAGES, "I don't see '%s' here.", value_or_empty (match_name));
 			return NOTHING;
 		case AMBIGUOUS:
-			if (gagged == False)
+			if (gagged == false)
 				notify_colour(real_who, real_who, COLOUR_MESSAGES, AMBIGUOUS_MESSAGE);
 			return NOTHING;
 		default:
@@ -1246,7 +1246,7 @@ const	CString& arg)
 		pos = atoi (arg.c_str());
 	if (pos >= call_stack.depth ())
 	{
-		if (gagged_command () == False)
+		if (gagged_command () == false)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: Not that many levels on stack");
 		return_status = COMMAND_FAIL;
 		set_return_string (error_return_string);
@@ -1263,7 +1263,7 @@ const	CString& arg)
 			set_return_string (unparse_for_return (*this, matcher->get_leaf ()));
 		else
 		{
-			if (gagged_command () == False)
+			if (gagged_command () == false)
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: '%s' is not a valid type.", type.c_str());
 			return_status = COMMAND_FAIL;
 			set_return_string (error_return_string);

@@ -416,7 +416,7 @@ const	boolexp	*b)
 }
 
 
-const Boolean
+const bool
 object::write (
 FILE	*f)
 const
@@ -443,11 +443,11 @@ const
 	}
 	putfieldtype	(f, OBJECT_OWNER);
 	putref		(f, owner);
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 object::read (
 	FILE	*f,
 const	int	version,
@@ -512,11 +512,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Dictionary::write (
 FILE	*f)
 const
@@ -532,10 +532,10 @@ const
 		putstring(f, indices[i - 1]);
 		putstring(f, elements[i - 1]);
 	}
-	return (True);
+	return (true);
 }
 
-const Boolean
+const bool
 Dictionary::read (
 	FILE	*f,
 const	int	version,
@@ -600,12 +600,12 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 
 }
 
 
-const Boolean
+const bool
 Array_storage::write(
 FILE	*f)
 const
@@ -617,22 +617,22 @@ const
 	putint(f, number);
 	for(i=1; i <= number; i++)
 		putstring(f, elements[i - 1]);
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Array::write (
 FILE	*f)
 const
 
 {
 	Array_storage::write (f);
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Array::read (
 	FILE	*f,
 const	int	version,
@@ -690,22 +690,22 @@ const	int	iformat)
 			}
 		}
 	}
-	return(True);
+	return(true);
 }
 
 
-const Boolean
+const bool
 Describable_object::write (
 FILE	*f)
 const
 
 {
 	Array_storage::write (f);
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Describable_object::read (
 	FILE	*f,
 const	int	version,
@@ -761,11 +761,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Lockable_object::write (
 FILE	*f)
 const
@@ -807,11 +807,11 @@ const
 		putfieldtype(f, LOBJECT_ODROP);
 		putstring	(f, odrop);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Lockable_object::read (
 	FILE	*f,
 const	int	version,
@@ -894,11 +894,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Inheritable_object::write (
 FILE    *f)
 const
@@ -910,11 +910,11 @@ const
 		putfieldtype(f, IOBJECT_PARENT);
 		putref          (f, parent);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Inheritable_object::read (
 	FILE    *f,
 const	int     version,
@@ -995,11 +995,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Old_object::write (
 FILE	*f)
 const
@@ -1036,11 +1036,11 @@ const
 		putfieldtype(f, OOBJECT_INFO);
 		putref		(f, info_items);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Old_object::read (
 	FILE	*f,
 const	int	version,
@@ -1144,10 +1144,10 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
-const Boolean
+const bool
 Room::read (
 	FILE	*f,
 const	int	version,
@@ -1283,10 +1283,10 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
-const Boolean
+const bool
 Room::write (
 FILE	*f)
 const
@@ -1301,10 +1301,10 @@ const
 		putfieldtype(f, ROOM_CONTSTR);
 		putstring(f, contents_string);
 	}
-	return (True);
+	return (true);
 }
 
-const Boolean
+const bool
 Massy_object::write (
 FILE	*f)
 const
@@ -1336,11 +1336,11 @@ const
 		putfieldtype(f, MOBJECT_VOLUMELIM);
 		putdouble (f, volume_limit);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Massy_object::read (
 	FILE	*f,
 const	int	version,
@@ -1465,11 +1465,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 puppet::read(
 	FILE	*f,
 const	int	version,
@@ -1612,11 +1612,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 puppet::write (
 FILE	*f)
 const
@@ -1655,11 +1655,11 @@ const
 	}
 	putfieldtype(f, PLAYER_BUILDID);
 	putref		(f, get_build_id());
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Player::write (
 FILE	*f)
 const
@@ -1695,11 +1695,11 @@ const
 		putfieldtype(f, PLAYER_COLOUR);
 		putstring	(f, colour);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Player::read (
 	FILE	*f,
 const	int	version,
@@ -1906,11 +1906,11 @@ const	int	iformat)
 			}
 		}
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Thing::write (
 FILE	*f)
 const
@@ -1927,11 +1927,11 @@ const
 		putfieldtype(f, THING_KEYNOFREE);
 		putboolexp	(f, lock_key);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Thing::read (
 	FILE	*f,
 const	int	version,
@@ -2057,11 +2057,11 @@ const	int	iformat)
                         }
                 }
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Weapon::write (
 FILE	*f)
 const
@@ -2098,11 +2098,11 @@ const
 		putfieldtype(f, WEAPON_PAMMO);
 		putref	(f, parent_ammunition);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Weapon::read (
 	FILE	*f,
 const	int	version,
@@ -2206,11 +2206,11 @@ const	int	iformat)
                         }
                 }
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Armour::write (
 FILE	*f)
 const
@@ -2227,11 +2227,11 @@ const
 		putfieldtype(f, ARMOUR_PROTEC);
 		putint(f, protection);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Armour::read (
 	FILE	*f,
 const	int	version,
@@ -2318,11 +2318,11 @@ const	int	iformat)
                         }
                 }
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Ammunition::write (
 FILE	*f)
 const
@@ -2334,11 +2334,11 @@ const
 		putfieldtype(f, AMMO_COUNT);
 		putint(f, count);
 	}
-	return (True);
+	return (true);
 }
 
 
-const Boolean
+const bool
 Ammunition::read (
 	FILE	*f,
 const	int	version,
@@ -2421,10 +2421,10 @@ const	int	iformat)
                         }
                 }
 	}
-	return (True);
+	return (true);
 }
 
-const Boolean
+const bool
 Database::write (
 FILE	*f)
 const
@@ -2460,7 +2460,7 @@ const
 	putstring(f, "***END OF DUMP***");
 	fflush(f);
 
-	return(True);
+	return(true);
 }
 
 
@@ -2627,18 +2627,18 @@ int	iformat)
 }
 
 
-const Boolean
+const bool
 object::read_pre12 (
 	FILE	*f,
 const	int	/* version */)
 
 {
 	owner = getref		(f);
-	return(True);
+	return(true);
 }
 
 
-const Boolean
+const bool
 Old_object::read_pre12 (
 	FILE	*f,
 const	int	version)
@@ -2731,11 +2731,11 @@ const	int	version)
 			break;
 		default:
 //			Trace( "BUG: Tried to read object of (unknown) type %d.\n", get_flags() & OLD_TYPE_MASK);
-			return (False);
+			return (false);
 	}
 
 	/* All went OK */
-	return (True);
+	return (true);
 }
 
 
@@ -2753,7 +2753,7 @@ FILE	*f)
 	char			format[20];
 	int			iformat;
 	char			ch;
-	Boolean			error = False;
+	bool			error = false;
 
 	/* Make sure we're empty */
 	if (array != NULL)
@@ -2800,7 +2800,7 @@ FILE	*f)
 
 	/* Read the objects up until end of dump */
 	ch = get_next_char(f);
-	while (True)
+	while (true)
 	{
 		switch(ch)
 		{
@@ -2817,7 +2817,7 @@ FILE	*f)
 				if (error)
 				{
 					Trace( "... skipped to #%d.\n", i);
-					error = False;
+					error = false;
 				}
 
 				if (i <= last_entry)
@@ -2827,7 +2827,7 @@ FILE	*f)
 						while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 					else
 						while ((ch = get_next_char (f)) != '#');
-					error = True;
+					error = true;
 					continue;
 				}
 
@@ -2993,7 +2993,7 @@ FILE	*f)
 					while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 				else
 					while ((ch = get_next_char (f)) != '#');
-				error = True;
+				error = true;
 				continue;
 		}
 		ch = get_next_char (f);

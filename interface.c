@@ -614,8 +614,8 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 {
 	struct descriptor_data *d;
 	va_list vl;
-	Boolean deruded = False,
-		censorall= False;
+	bool deruded = false,
+		censorall= false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
@@ -624,9 +624,9 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 
 	if (Censored(originator))
 	{
-		censorall= True;
+		censorall= true;
 		censored=censor(vsnprintf_result);
-		deruded=True;
+		deruded=true;
 	}
 
 	for (d = descriptor_list; d; d = d->next)
@@ -636,9 +636,9 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 			if (censorall || Censorall(d->get_player()) ||
 			    (Censorpublic(d->get_player()) && Public(db[d->get_player()].get_location())))
 			{
-				if (deruded==False)
+				if (deruded==false)
 				{
-					deruded=True;
+					deruded=true;
 					censored=censor(vsnprintf_result);
 				}
 				d->queue_string (censored);
@@ -815,7 +815,7 @@ const char *fmt, ...)
 {
 	struct descriptor_data *d;
 	va_list vl;
-	Boolean deruded=False;
+	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
@@ -834,9 +834,9 @@ const char *fmt, ...)
 			d->queue_string (player_colour(player, talker, colour));
 			if (Censored(talker) || Censorall(player))
 			{
-				if (deruded==False)
+				if (deruded==false)
 				{
-					deruded=True;
+					deruded=true;
 					censored=censor(vsnprintf_result);
 				}
 				d->queue_string(censored);
@@ -857,7 +857,7 @@ const char *fmt, ...)
 	struct descriptor_data *d;
 	va_list vl;
 
-	Boolean deruded=False;
+	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
@@ -876,9 +876,9 @@ const char *fmt, ...)
 			d->queue_string (player_colour(player, talker, colour));
 			if (Censorall(player) || Censored(talker) || (Censorpublic(player) && Public(db[player].get_location())) )
 			{
-				if (deruded==False)
+				if (deruded==false)
 				{
-					deruded=True;
+					deruded=true;
 					censored=censor(vsnprintf_result);
 				}
 				d->queue_string (censored);
@@ -976,7 +976,7 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 {
 	struct descriptor_data *d;
 	va_list vl;
-	Boolean deruded=False;
+	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
@@ -988,9 +988,9 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 		{
 			if (Censorall(player) || Censored(originator))
 			{
-				if (deruded==False)
+				if (deruded==false)
 				{
-					deruded=True;
+					deruded=true;
 					censored=censor(vsnprintf_result);
 				}
 				d->queue_string(censored);
@@ -1010,7 +1010,7 @@ void notify_public(dbref player, dbref originator, const char *fmt, ...)
 	struct descriptor_data *d;
 	va_list vl;
 
-	Boolean deruded=False;
+	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
@@ -1022,9 +1022,9 @@ void notify_public(dbref player, dbref originator, const char *fmt, ...)
 		{
 			if (Censorall(player) || Censored(originator) || (Censorpublic(player) && Public(db[player].get_location())))
 			{
-				if (deruded==False)
+				if (deruded==false)
 				{
-					deruded=True;
+					deruded=true;
 					censored=censor(vsnprintf_result);
 				}
 				d->queue_string (censored);
@@ -2652,7 +2652,7 @@ descriptor_data::announce_player (announce_states state)
 	const char*	app_string;
 	const char*	mortal_string;
 
-	Boolean deruded=False;
+	bool deruded=false;
 	const char *censored=NULL;
 
 	if(db[get_player()].get_flag(FLAG_DONTANNOUNCE))
@@ -2725,9 +2725,9 @@ descriptor_data::announce_player (announce_states state)
 			}
 			else if (Censorall(d->get_player()) || Censorpublic(d->get_player()))
 			{
-				if (deruded==False)
+				if (deruded==false)
 				{
-					deruded=True;
+					deruded=true;
 					censored=censor(mortal_string);
 				}
 				d->queue_string (underscorify (d->get_player(), censored));

@@ -122,7 +122,7 @@ unsigned char flag_map[][64] =
 };
 
 
-Boolean
+bool
 is_flag_allowed(
 typeof_type	type,
 flag_type	flag)
@@ -132,15 +132,15 @@ flag_type	flag)
 	do
 	{
 		if((current = flag_map[type][count]) == flag)
-			return(True);
+			return(true);
 		count++;
 	}
 	while(current);
-	return(False);
+	return(false);
 }
 
 
-const Boolean
+const bool
 can_link_to (
 const	context	&c,
 const	dbref	where)
@@ -153,7 +153,7 @@ const	dbref	where)
 }
 
 
-const Boolean
+const bool
 context::controls_for_write (
 const	dbref	what)
 const
@@ -170,7 +170,7 @@ const
 }
 
 
-const Boolean
+const bool
 context::controls_for_read (
 const	dbref	what)
 const
@@ -191,7 +191,7 @@ const
 }
 
 
-const Boolean
+const bool
 controls_for_read (
 const	dbref	/* real_who */,
 const	dbref	what,
@@ -208,7 +208,7 @@ const	dbref	effective_who)
 }
 
 
-const Boolean
+const bool
 can_link (
 const	context	&c,
 const	dbref	what)

@@ -23,10 +23,10 @@ class	Array_stack
     public:
 			Array_stack	(int s)		{ ary = new T [size = s]; where = 0; }
 			~Array_stack	()		{ delete [] ary; }
-		Boolean	push		(T elem)	{ if (where >= size) return False; ary [where++] = elem; return True; }
+		bool	push		(T elem)	{ if (where >= size) return false; ary [where++] = elem; return true; }
 		T	pop		()		{ return ary [--where]; }
 		void	drop		()		{ --where; }
-	const	Boolean	is_empty	()	const	{ return where == 0; }
+	const	bool	is_empty	()	const	{ return where == 0; }
 	const	int	depth		()	const	{ return where; }
 	const	T	&top		()	const	{ if (where <= 0) panic ("Top with no elements"); return ary [where - 1]; }
 	const	T	&operator[]	(int i)	const	{ if (i >= where) return *(T*)0; return ary [i]; }
@@ -75,7 +75,7 @@ class	Link_stack
     public:
 					Link_stack	()		{ list = 0; depth = 0; }
 					~Link_stack	()		{ while (list) pop (); }
-	const	Boolean			is_empty	()	const	{ return !list; }
+	const	bool			is_empty	()	const	{ return !list; }
 		void			push		(const T &what)	{ Link_element <T> *temp = new Link_element <T> (what); temp->link_between (0, list); list = temp; depth++; }
 		T			pop		()		{ if (is_empty ()) panic ("Popped off end of Link_stack"); T value (list->object); Link_element <T> *temp = list; list = list->unlink (); delete temp; depth--; return value; }
 		void			drop		()		{ if (is_empty ()) panic ("Dropped off end of Link_stack"); Link_element <T> *temp = list; list = list->unlink (); delete temp; depth--; }

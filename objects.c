@@ -191,11 +191,11 @@ object		&obj)
  *	should be deleted.
  *
  * Return value:
- *	True	Success,
- *	False	Failure.
+ *	true	Success,
+ *	false	Failure.
  */
 
-const Boolean
+const bool
 Database::delete_object (
 const dbref	oldobj)
 
@@ -214,10 +214,10 @@ const dbref	oldobj)
 			free_start = oldobj;
 		}
 
-		return True;
+		return true;
 	}
 
-	return False;
+	return false;
 }
 
 
@@ -525,8 +525,8 @@ void object::set_index(const int, const CString&)
 void object::set_size (const int)
 { IMPLEMENTATION_ERROR ("size"); }
 
-const Boolean object::destroy (const dbref)
-{ IMPLEMENTATION_ERROR ("destroy"); return (True); }
+const bool object::destroy (const dbref)
+{ IMPLEMENTATION_ERROR ("destroy"); return (true); }
 
 void object::set_description (const CString&)
 { IMPLEMENTATION_ERROR ("description") }
@@ -620,8 +620,8 @@ void object::set_volume_limit (const double)
 void object::set_parse_helper (const unsigned int, const unsigned short)
 { IMPLEMENTATION_ERROR ("parse helper") }
 
-const Boolean object::alloc_parse_helper ()
-{ IMPLEMENTATION_ERROR ("alloc parse helper") return False; }
+const bool object::alloc_parse_helper ()
+{ IMPLEMENTATION_ERROR ("alloc parse helper") return false; }
 
 void object::flush_parse_helper ()
 { IMPLEMENTATION_ERROR ("flush parse helper") }
@@ -1864,7 +1864,7 @@ const	dbref	i)
 }
 
 
-const Boolean
+const bool
 Weapon::destroy (
 const	dbref	item)
 
@@ -1890,7 +1890,7 @@ Armour::Armour()
 }
 
 
-const Boolean
+const bool
 Armour::destroy (
 const	dbref	item)
 
@@ -1915,7 +1915,7 @@ Ammunition::Ammunition()
 }
 
 
-const Boolean
+const bool
 Ammunition::destroy (
 const	dbref	item)
 
@@ -1971,7 +1971,7 @@ struct	boolexp	*k)
 }
 
 
-const Boolean
+const bool
 Thing::destroy (
 const	dbref	item)
 
@@ -2136,7 +2136,7 @@ const	dbref	command)
 	set_contents(command);
 }
 
-const Boolean
+const bool
 Fuse::destroy (
 const	dbref	item)
 
@@ -2160,7 +2160,7 @@ const	dbref	item)
 /*									*/
 /************************************************************************/
 
-const Boolean
+const bool
 Alarm::destroy (
 const	dbref	item)
 
@@ -2176,7 +2176,7 @@ const	dbref	item)
 }
 
 
-const Boolean
+const bool
 Room::destroy (
 const	dbref	item)
 
@@ -2266,7 +2266,7 @@ const
 		return (db [get_parent ()].get_inherited_volume_limit ());
 }
 
-const Boolean
+const bool
 Variable::destroy (
 const	dbref	item)
 
@@ -2281,7 +2281,7 @@ const	dbref	item)
 }
 
 
-const Boolean
+const bool
 Property::destroy (
 const	dbref	item)
 
@@ -2296,7 +2296,7 @@ const	dbref	item)
 }
 
 
-const Boolean
+const bool
 Array_storage::destroy (
 const	dbref	item)
 
@@ -2311,7 +2311,7 @@ const	dbref	item)
 }
 
 
-const Boolean
+const bool
 Dictionary::destroy (
 const	dbref	item)
 
@@ -2326,7 +2326,7 @@ const	dbref	item)
 }
 
 
-const Boolean
+const bool
 Exit::destroy (
 const	dbref	item)
 
@@ -2345,7 +2345,7 @@ const	dbref	item)
 }
 
 
-const Boolean
+const bool
 puppet::destroy (
 const	dbref	item)
 
@@ -2377,18 +2377,18 @@ Command::~Command ()
  * the end). */
 unsigned int Command::lines_in_command_block(const unsigned start_line) const
 {
-	Boolean backslash_primed=True; 	// Get first line
+	bool backslash_primed=true; 	// Get first line
 	unsigned current_line=start_line;
 
 	while((current_line<=unsigned(get_number_of_elements())) && (backslash_primed))
 	{
-		backslash_primed=False;
+		backslash_primed=false;
 		const char *const line_start=get_element(current_line).c_str();
 		if(line_start)
 		{
 			const char *sliding_ptr=line_start+strlen(line_start);
 			while((sliding_ptr>line_start) && (*(--sliding_ptr)=='\\'))
-				backslash_primed=(backslash_primed==True)?False:True;
+				backslash_primed=(backslash_primed==true)?false:true;
 		}
 		current_line++;
 	}
@@ -2410,15 +2410,15 @@ unsigned Command::reconstruct_command_block(char *const command_block, const uns
 {
 	static const char too_big[]="TooBig";
 	unsigned space_left=max_size;
-	Boolean it_dont_fit=False;
+	bool it_dont_fit=false;
 	unsigned	current_line=start_line;
-	Boolean first=True;
+	bool first=true;
 
 	*command_block='\0';
 	space_left--;
 	for(;current_line<(start_line+lines_in_command_block(start_line));current_line++)
 	{
-		if(first==False)
+		if(first==false)
 		{
 			if(space_left)
 			{
@@ -2426,10 +2426,10 @@ unsigned Command::reconstruct_command_block(char *const command_block, const uns
 				space_left--;
 			}
 			else
-				it_dont_fit=True;
+				it_dont_fit=true;
 		}
 		else
-			first=False;
+			first=false;
 		if(get_element(current_line))
 		{
 			if(get_element(current_line).length()<=space_left)
@@ -2439,7 +2439,7 @@ unsigned Command::reconstruct_command_block(char *const command_block, const uns
 			}
 			else
 			{
-				it_dont_fit=True;
+				it_dont_fit=true;
 				Trace("BUG:  command_block overflow, Start_line:  %u, max_size:  %u\n", start_line, max_size);
 			}
 		}
@@ -2484,7 +2484,7 @@ const	dbref	command)
 }
 
 
-const Boolean
+const bool
 Command::destroy (
 const	dbref	item)
 
@@ -2505,21 +2505,21 @@ const	dbref	item)
  * Allocate the parse_helper array.
  *
  * Return values:
- *	True if the array was newly allocated,
- *	False if the array was already allocated.
+ *	true if the array was newly allocated,
+ *	false if the array was already allocated.
  */
 
-const Boolean
+const bool
 Command::alloc_parse_helper ()
 
 {
 	if (parse_helper)
-		return False;
+		return false;
 
 	if (!(parse_helper = new unsigned short [get_inherited_number_of_elements () + 1]))
 		panic ("Couldn't allocate parse helper array");
 
-	return True;
+	return true;
 }
 
 

@@ -22,7 +22,7 @@ class	Pending
 	Pending			*next;
 	dbref			object;
     protected:
-	virtual	Boolean		operator<	(Pending &rhs)	{ return (object < rhs.object); }
+	virtual	bool		operator<	(Pending &rhs)	{ return (object < rhs.object); }
 				Pending		(dbref object);
     public:
 	void			insert_into	(Pending **list);
@@ -38,7 +38,7 @@ class	Pending_alarm
 {
     private:
 	time_t			time_to_execute;
-	Boolean			operator<	(Pending &rhs)	{ return (time_to_execute < (*(Pending_alarm*) &rhs).time_to_execute); }
+	bool			operator<	(Pending &rhs)	{ return (time_to_execute < (*(Pending_alarm*) &rhs).time_to_execute); }
     public:
 				Pending_alarm	(dbref object, time_t firing_time);
 	time_t			get_time_to_execute ()		{ return (time_to_execute); }
@@ -49,14 +49,14 @@ class	Pending_fuse
 : public Pending
 {
     private:
-	Boolean			success;
+	bool			success;
 	const	char		*command;
 	const	char		*arg1;
 	const	char		*arg2;
 	Matcher			matcher;	/* Copied */
-	Boolean			operator<	(Pending &)	{ return (True); }
+	bool			operator<	(Pending &)	{ return (true); }
     public:
-				Pending_fuse	(dbref object, Boolean success, const char *cmd, const char *a1, const char *a2, const Matcher &matcher);
+				Pending_fuse	(dbref object, bool success, const char *cmd, const char *a1, const char *a2, const Matcher &matcher);
 	virtual			~Pending_fuse	();
 	void			fire		(context &c);
 };

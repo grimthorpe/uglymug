@@ -11,19 +11,12 @@
 #include "config.h"
 #include "colour.h"
 typedef	int	dbref;		/* offset into db */
-typedef	char	Boolean;
 typedef int	typeof_type;
 typedef unsigned char	flag_type;
 typedef int object_flag_type;
 
 class	Channel;
 
-#ifndef False
-const	Boolean	False = 0;
-#endif
-#ifndef True
-const	Boolean	True = 1;
-#endif
 #define FLAGS_WIDTH 8
 
 /*These defines will be used to store the flags in the database
@@ -655,7 +648,7 @@ class	boolexp
 	boolexp			*sub1;
 	boolexp			*sub2;
 	dbref			thing;
-	const	Boolean		eval_internal		(const context &c, Matcher &matcher)		const;
+	const	bool		eval_internal		(const context &c, Matcher &matcher)		const;
 		void		unparse_internal	(context &c, boolexp_type outer_type)	const;
 		void		unparse_for_return_internal	(context &c, const boolexp_type outer_type)	const;
 	friend	boolexp		*parse_boolexp_E	(const dbref player);
@@ -666,8 +659,8 @@ class	boolexp
     public:
 				boolexp			(boolexp_type t);
 				~boolexp		();
-	const	Boolean		eval			(const context &c, Matcher &matcher)		const;
-	const	Boolean		contains		(const dbref thing)		const;
+	const	bool		eval			(const context &c, Matcher &matcher)		const;
+	const	bool		contains		(const dbref thing)		const;
 	const	char		*unparse		(context &c)		const;
 	const	char		*unparse_for_return	(context &c)		const;
 	boolexp			*sanitise		();
@@ -697,13 +690,13 @@ class	object
 				object				();
 	virtual			~object				();
 
-//	virtual	const	Boolean	write_array_elements		(FILE *)		const;
-//	virtual	const	Boolean	read_array_elements		(FILE *, const int, const int);
+//	virtual	const	bool	write_array_elements		(FILE *)		const;
+//	virtual	const	bool	read_array_elements		(FILE *, const int, const int);
 
-	virtual	const	Boolean	write				(FILE *)		const;
-	virtual	const	Boolean	read_pre12			(FILE *, const int);
-	virtual	const	Boolean	read				(FILE *, const int, const int);
-	virtual	const	Boolean	destroy				(const dbref);
+	virtual	const	bool	write				(FILE *)		const;
+	virtual	const	bool	read_pre12			(FILE *, const int);
+	virtual	const	bool	read				(FILE *, const int, const int);
+	virtual	const	bool	destroy				(const dbref);
 	/* set functions */
 
 			void	set_flag			(const int f)			{ flags[f/8] |= (1<<(f%8)); }
@@ -856,7 +849,7 @@ class	object
 	virtual	const	dbref	get_cfail			()			const	{ return NOTHING; }
 		const	dbref	get_inherited_cfail		()			const;
 	virtual	const	unsigned short	get_parse_helper	(const unsigned int)		const	{ return 0; }
-	virtual	const	Boolean	alloc_parse_helper		();
+	virtual	const	bool	alloc_parse_helper		();
 	virtual		void	flush_parse_helper		();
 	virtual		void	set_parse_helper		(const unsigned int index, const unsigned short value);
 	/* Massy_object */
@@ -906,7 +899,7 @@ class	object
     	virtual	const	int	exist_element			(int)			const	{ return 0; }
     	/* Dictionary */
     	virtual		void	set_element			(int, const CString&, const CString&){ return; }
-    	virtual	const	int	exist_element			(const CString&)		const	{ return False; }
+    	virtual	const	int	exist_element			(const CString&)		const	{ return false; }
     	virtual		void	set_index			(const int, const CString&);
     	virtual	const	String&	get_index			(int)			const	{ return (NULLSTRING); }
 
@@ -943,7 +936,7 @@ class	object_and_flags
     	typeof_type		get_type	()			const	{ return (type); }
 	void			set_type	(const typeof_type i)		{ type = i; }
 				object_and_flags ()				{ obj = NULL; type = TYPE_FREE; }
-	Boolean			is_free		()			const	{ return (type == TYPE_FREE); }
+	bool			is_free		()			const	{ return (type == TYPE_FREE); }
 	dbref			get_free	()			const	{ return (freelist); }
 	object			*get_obj	()			const	{ return (type == TYPE_FREE ? (object*)NULL : obj); }
 	void			init_free	(const dbref next)		{ type = TYPE_FREE; freelist = next; }
@@ -991,8 +984,8 @@ class	Database
 		object		*operator+	(dbref i)		const	{ return (array [i].get_obj ()); }
 	const	dbref		get_top		()			const	{ return top; }
 	const	dbref		new_object	(object &obj);
-	const	Boolean		delete_object	(const dbref oldobj);
-	const	Boolean		write		(FILE *f)		const;
+	const	bool		delete_object	(const dbref oldobj);
+	const	bool		write		(FILE *f)		const;
 	const	dbref		read		(FILE *f);
 		void		set_free_between (dbref, dbref);
 

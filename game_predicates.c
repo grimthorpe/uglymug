@@ -67,7 +67,7 @@ const	CString& text)
  *	0	if it isn't.
  */
 
-const Boolean
+const bool
 could_doit (
 const	context	&c,
 const	dbref	thing)
@@ -75,11 +75,11 @@ const	dbref	thing)
 {
 	/* If it is a NOTHING then we can't do it. */
 	if (thing == NOTHING)
-		return (False);
+		return (false);
 
 	/* Can't traverse unlinked exits */
 	if (Typeof (thing) == TYPE_EXIT && db [thing].get_destination () == NOTHING)
-		return (False);
+		return (false);
 
 	/* Can't do it if it's locked against you */
 	Matcher matcher (c.get_player (), thing, TYPE_NO_TYPE, c.get_player ());
@@ -98,7 +98,7 @@ const	dbref	thing)
  *	1	if could do it.
  */
 
-const Boolean
+const bool
 can_doit (
 const	context	&c,
 const	dbref	thing,
@@ -144,11 +144,11 @@ const	char	*default_fail_msg)
 	}
 }
 
-Boolean
+bool
 can_see (
 context	&c,
 dbref	thing,
-Boolean	can_see_loc)
+bool	can_see_loc)
 
 {
 	if(c.get_player () == thing || Typeof(thing) == TYPE_EXIT)
@@ -202,7 +202,7 @@ int	cost)
 		return 0;
 }
 
-Boolean
+bool
 ok_name (
 const	CString&name)
 
@@ -217,7 +217,7 @@ const	CString&name)
 }
 
 
-Boolean
+bool
 ok_puppet_name (
 const	CString& name)
 
@@ -225,26 +225,26 @@ const	CString& name)
 	const	char	*scan;
 
 	if(!ok_name(name))
-		return (False);
+		return (false);
 
 	if (name.length() > 20)
-		return (False);
+		return (false);
 
 	for(scan = name.c_str(); *scan; scan++)
 		if(!(valid_char(*scan) || isspace(*scan)))
-			return (False);
+			return (false);
 
-	return (True);
+	return (true);
 }
 
 
-Boolean
+bool
 ok_player_name (
 const	CString& name)
 
 {
 	if (!ok_puppet_name (name))
-		return (False);
+		return (false);
 
 	/* lookup name to avoid conflicts */
 	return (lookup_player(NOTHING, name) == NOTHING);
@@ -565,7 +565,7 @@ dbref exception)
 	return(total_mass); 
 }
 
-Boolean
+bool
 abortable_command (
 const	char	*command)
 {
@@ -574,7 +574,7 @@ const	char	*command)
 	switch (*command)
 	{
 		case	'|':
-			return (False);
+			return (false);
 		case	'h':
 		case	'H':
 			/* We want to check that the command is 'home<NULL>'	*/
@@ -584,11 +584,11 @@ const	char	*command)
 				&& ((*(++command) == 'e' || *command == 'E'))
 				&& ((*(++command) == '\0'))));
 		default:
-			return (True);
+			return (true);
 	}
 }
 
-Boolean
+bool
 is_guest (
 dbref player)
 {
@@ -601,14 +601,14 @@ dbref player)
 	if ((guest_match = matcher.match_result()) == NOTHING)
         {
                 Trace( "BUG: Cannot find guest_dictionary in #4\n");
-                return (False);
+                return (false);
         }
         else
         {
                 if (db[guest_match].exist_element(element))
-                        return (True);
+                        return (true);
                 else
-                        return (False);
+                        return (false);
         }
 }
 

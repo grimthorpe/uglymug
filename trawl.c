@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "mudstring.h"
 #include "db.h"
 #include "externs.h"
 #include "command.h"
@@ -39,6 +40,8 @@
 const char* version = "trawl; unknown version.";
 int dump_interval = 10000000;
 
+CString NULLCSTRING;
+String NULLSTRING;
 /*
  * Function.
  */
@@ -56,6 +59,7 @@ void print_helpful_message(const char *msg)
 int main ()
 {
 	int		i;
+	int		total = 0;
 
 	Trace("%s diagnostic: Starting db.read() from stdin.\n",
 				APPNAME);
@@ -66,20 +70,27 @@ int main ()
 		exit(1);
 	}
 	print_helpful_message("db.read() completed. Beginning sensor sweep.");
+	time_t now;
+	now = time(0);
+#define YEARSECS (60*60*24*365)
+#define MONTHSECS (60*60*24*31)
+
 	for (i = 0 ; i < db.get_top(); i++)
 	{
-		if (Typeof(i) == TYPE_COMMAND)
-			db[i].set_flag(FLAG_BACKWARDS);
 		if (Typeof(i) == TYPE_PLAYER)
 		{
-			if (Builder(i) || Wizard(i) || (Apprentice(i)))
-				db[i].set_flag(FLAG_LINENUMBERS);
-			db[i].clear_flag(FLAG_ERIC);
-			db[i].clear_flag(FLAG_OFFICER);
-			db[i].set_flag(FLAG_FCHAT);
+			if(!Builder(i) && !Apprentice(i) && !Welcomer(i) && !Wizard(i))
+			if(true)
+			{
+				if((atoi(db[i].get_ofail().c_str()) < 3600) // Less than 1 hour connection
+				&& (now - atoi(db[i].get_fail_message().c_str()) > YEARSECS))
+				{
+					printf("#%d\n", i);
+					total++;
+				}
+			}
 		}
 	}
-	print_helpful_message("Sweep complete.");
-	db.write(stdout);
+	printf("Total: %d\n", total);
 	return 0;
 }

@@ -98,7 +98,7 @@ description_class::description_class (void)
   strcpy(desc_lines[1], "\0");
 }
 
-Boolean
+bool
 description_class::add_line (void)
 {
   const char *LINE = "HELLO WORLD!";
@@ -133,14 +133,14 @@ description_class::view_all_lines(void)
     fprintf(stderr, "[%02d] %s\n", count, view_line(count));
 }
 
-Boolean
+bool
 description_class::delete_line (int line_to_delete)
 {
   fprintf(stderr, "edit: delete line %d\n", line_to_delete);
 	return true;
 }
 
-Boolean
+bool
 description_class::replace_line (const char *text, int line_to_replace)
 {
   if (line_to_replace > num_lines_in_desc())

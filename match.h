@@ -75,7 +75,7 @@ class	Matcher
 {
     private:
 	dbref			exact_match;		/* holds result of exact match */
-	Boolean			checking_keys;
+	bool			checking_keys;
 	dbref			first_match;		/* holds result of the first match */
 	dbref			last_match;		/* holds result of last match */
 	int			match_count;		/* holds total number of inexact matches */
@@ -85,17 +85,17 @@ class	Matcher
 	int			preferred_type;		/* preferred type */
 
 	char			*index;			/* Index into array or dictionary */
-	Boolean			index_attempt;		/* Whether the player tried to define an index */
+	bool			index_attempt;		/* Whether the player tried to define an index */
 	dbref			absolute;		/* Cached absolute ID or NOTHING */
 
-	Boolean			gagged;			/* Whether we're working silently or not */
+	bool			gagged;			/* Whether we're working silently or not */
 
 	/* This is here to support name matching */
 	dbref			absolute_loc;		/* location specified by ':' */
 	char			*beginning;		/* begining of above for freeing */
 
 	/* Following to support command and fuse search restarts */
-	Boolean			already_checked_location;
+	bool			already_checked_location;
 	Matcher_path		path;
 	Matcher_state		current_state;
 	dbref			internal_restart;
@@ -110,8 +110,8 @@ class	Matcher
 	void			match_list			(dbref head);
 	void			match_list_variable		(dbref head);
 	void			match_command_remote		();
-	Boolean			match_command_internal		();
-	Boolean			match_fuse_internal		();
+	bool			match_command_internal		();
+	bool			match_fuse_internal		();
 	void			match_contents_list		(dbref base);
 	void			match_continue			();
 	void			match_fuse_list			(dbref base);
@@ -124,7 +124,7 @@ class	Matcher
 				~Matcher			();
 	void			set_beginning			(const char *str);
 	void			check_keys			();
-	void			work_silent			()			{ gagged = True; }
+	void			work_silent			()			{ gagged = true; }
 	void			match_me			();
 	void			match_here			();
 	void			match_player			();
@@ -149,7 +149,7 @@ class	Matcher
 	dbref			last_match_result		();
 	dbref			noisy_match_result		();
 	const CString		match_index_result		();
-	Boolean			match_index_attempt_result	();
+	bool			match_index_attempt_result	();
 	dbref			choose_thing			(dbref, dbref);
 	dbref			get_leaf			()			{ return (thing); }
 
@@ -157,7 +157,7 @@ class	Matcher
 	void			set_my_match			(dbref my_match)	{ exact_match = my_match; }
 	void			set_my_leaf			(dbref my_leaf)		{ thing = my_leaf; }
 
-	Boolean			was_absolute			()			{ return (absolute != NOTHING) || (absolute_loc != NOTHING); }
+	bool			was_absolute			()			{ return (absolute != NOTHING) || (absolute_loc != NOTHING); }
 };
 
 #endif	/* _MATCH_H */

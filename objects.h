@@ -38,11 +38,11 @@ class	Array_storage
 		void		destroy_element		(const int element);
 	const	int		exist_element		(const int)		const;
 		void		insert_element		(const int, const CString&);
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
     		void		set_size		(const int value)	{ size = value; }
 		int		get_size		()			{ return size; }
-	const	Boolean		write			(FILE *f)		const;
-//	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+//	const	bool		read			(FILE *f, const int db_version, const int iformat);
 		void		sort_elements		(int);
 };
 
@@ -60,11 +60,11 @@ class	Dictionary
 		void		set_element		(const int element, const CString& index, const CString& string);
 		void		destroy_element		(const int element);
 	const	int		exist_element		(const CString& )		const;
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	String&		get_index		(const int)		const;
 		void		set_index		(const int, const CString& );
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 	const	dbref		get_next		()			const;
 };
 
@@ -73,8 +73,8 @@ class	Array
 : public Array_storage
 {
     public:
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 	const	dbref		get_next		()			const;
 };
 
@@ -90,8 +90,8 @@ class	Describable_object
 {
     public:
 	virtual			~Describable_object	();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, int db_version, int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, int db_version, int iformat);
 		void		set_description		(const CString&);
 	const	String&		get_description	()			const;
 };
@@ -111,8 +111,8 @@ class	Lockable_object
     public:
 				Lockable_object		();
 	virtual			~Lockable_object	();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 		void		set_key			(boolexp *);
 		void		set_key_no_free		(boolexp *k)			{ key = k; }
 		void		set_fail_message	(const CString& str);
@@ -139,8 +139,8 @@ class	Inheritable_object
 	dbref			parent;
     public:
 				Inheritable_object	()				{ parent = NOTHING; }
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 		void		set_parent		(const dbref p);
 		void		set_parent_no_check	(const dbref p)			{ parent = p; }
 	const	dbref		get_parent		()			const	{ return (parent); }
@@ -162,9 +162,9 @@ class	Old_object
 	dbref			destination;	/* pointer to destination of exits */
     public:
 				Old_object		();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
-	const	Boolean		read_pre12		(FILE *, const int);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read_pre12		(FILE *, const int);
 		void		set_destination		(const dbref o);
 		void		set_destination_no_check(const dbref o)			{ destination = o; }
 		void		set_contents		(const dbref o)			{ contents = o; }
@@ -182,7 +182,7 @@ class	Old_object
 	const	dbref		get_properties		()			const;
 	const	dbref		get_arrays		()			const;
 	const	dbref		get_dictionaries	()			const;
-	const	Boolean		empty_an_object		(dbref, dbref);
+	const	bool		empty_an_object		(dbref, dbref);
 };
 
 
@@ -198,8 +198,8 @@ class	Massy_object
 	double			volume_limit;
     public:
 				Massy_object		();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 		void		set_gravity_factor	(const double g)		{ gravity_factor = g; }
 		void		set_mass		(const double m)		{ mass = m; }
 		void		set_volume		(const double v)		{ volume = v; }
@@ -218,7 +218,7 @@ class	Alarm
 
 {
     public:
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	dbref		get_csucc		()			const	{ return (get_destination ()); }
 		void		set_csucc		(const dbref o)			{ set_destination (o); }
 };
@@ -235,7 +235,7 @@ class	Command
     public:
 				Command			()	: parse_helper (0)	{}
 	virtual			~Command		();
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	dbref		get_csucc		()			const	{ return (get_contents ()); }
 	const	dbref		get_cfail		()			const	{ return (get_exits ()); }
 		void		set_csucc		(const dbref o);
@@ -243,7 +243,7 @@ class	Command
 		void		set_description		(const CString&);
 	const	unsigned short	get_parse_helper	(const unsigned int index)	const;
 		void		set_parse_helper	(const unsigned int index, const unsigned short value);
-	const	Boolean		alloc_parse_helper	();
+	const	bool		alloc_parse_helper	();
 		void		flush_parse_helper	();
 		unsigned	inherited_lines_in_cmd_blk(const unsigned) const;
 		unsigned	reconstruct_inherited_command_block(char *const, const unsigned, const unsigned)	const;
@@ -255,7 +255,7 @@ class	Exit
 
 {
     public:
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 };
 
 
@@ -264,7 +264,7 @@ class	Fuse
 
 {
     public:
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	dbref		get_csucc		()			const	{ return (get_contents ()); }
 	const	dbref		get_cfail		()			const	{ return (get_exits ()); }
 		void		set_csucc		(const dbref o);
@@ -302,8 +302,8 @@ class	puppet
     public:
 				puppet			();
 	virtual			~puppet			();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 		void		set_pennies		(const int i)			{ pennies=i; }
 		void		add_pennies		(const int i)			{ pennies+=i; }
 	const	dbref		get_build_id		()			const	{ return build_id; }
@@ -329,7 +329,7 @@ class	puppet
 #if 0	/* PJC 24/1/97 */
 		void		event			(const dbref player, const dbref npc, const char *e);
 #endif
-	const	Boolean		destroy			(dbref);
+	const	bool		destroy			(dbref);
 };
 
 class	Player
@@ -369,8 +369,8 @@ class	Player
     public:
 				Player			();
 	virtual			~Player			();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, int db_version, int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, int db_version, int iformat);
 		void		set_colour		(const char *new_colour);
 		CString		get_colour		()			const	{return colour;}
 		void		set_colour_at		(colour_at* c)		{ if(c != col_at) delete col_at; col_at = c; }
@@ -432,9 +432,9 @@ class	Room
     public:
 				Room			();
 				~Room			();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
-	const	Boolean		destroy			(const dbref);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		destroy			(const dbref);
 		void		set_last_entry_time	()				{ time (&last_entry_time); }
 		void		set_contents_string	(const CString& c);
 	const	String&		get_contents_string	()			const	{ return (contents_string); }
@@ -458,15 +458,15 @@ class	Thing
     public:
 				Thing			();
 	virtual			~Thing			();
-	const	Boolean		write			(FILE *f)		const;
-	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		write			(FILE *f)		const;
+	const	bool		read			(FILE *f, const int db_version, const int iformat);
 		void		set_contents_string	(const CString& c);
 		void		set_lock_key		(boolexp *k);
 		void		set_lock_key_no_free	(boolexp *k)			{ lock_key=k; }
 	const	String&		get_contents_string	()			const	{ return (contents_string); }
 	const	boolexp		*get_lock_key		()			const	{ return (lock_key); }
 		boolexp		*get_lock_key_for_edit	()			const	{ return (lock_key); }
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	double		get_inherited_mass	()			const;
 	const	double		get_inherited_volume	()			const;
 	const	double		get_inherited_mass_limit ()			const;
@@ -480,7 +480,7 @@ class	Variable
 
 {
     public:
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	dbref		get_next		()			const;
 };
 
@@ -488,7 +488,7 @@ class	Property
 : public Describable_object
 {
     public:
-	const	Boolean		destroy			(const dbref);
+	const	bool		destroy			(const dbref);
 	const	dbref		get_next		()			const;
 };
 
@@ -505,9 +505,9 @@ class Weapon
 
     public:
 				Weapon			();
-	const	Boolean		write			(FILE *)		const;
-	const	Boolean		read			(FILE *, const int, const int iformat);
-	const	Boolean		destroy			(const dbref);
+	const	bool		write			(FILE *)		const;
+	const	bool		read			(FILE *, const int, const int iformat);
+	const	bool		destroy			(const dbref);
 		void		set_degradation(int i)		{degradation = i;}
 		int		get_degradation()		{return(degradation);}
 		void		set_damage(int i)		{damage = i;}
@@ -531,9 +531,9 @@ class Ammunition
 
     public:
 				Ammunition();
-	const	Boolean		write			(FILE *)		const;
-	const	Boolean		read			(FILE *, const int, const int iformat);
-	const	Boolean		destroy			(const dbref);
+	const	bool		write			(FILE *)		const;
+	const	bool		read			(FILE *, const int, const int iformat);
+	const	bool		destroy			(const dbref);
 		void		set_count(int i)	{count = i;}
 		int		get_count()		{return(count);}
 };
@@ -547,9 +547,9 @@ class Armour
 
     public:
 				Armour();
-	const	Boolean		write			(FILE *)		const;
-	const	Boolean		read			(FILE *, const int, const int iformat);
-	const	Boolean		destroy			(const dbref);
+	const	bool		write			(FILE *)		const;
+	const	bool		read			(FILE *, const int, const int iformat);
+	const	bool		destroy			(const dbref);
 		void		set_degradation(int i)	{degradation = i;}
 		int		get_degradation()	{return(degradation);}
 		void		set_protection(int i)	{protection = i;}

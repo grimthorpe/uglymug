@@ -200,7 +200,7 @@ const	CString& string)
 
 	if (!controls_for_write (victim))
 	{
-		if (gagged_command () == False)
+		if (gagged_command () == false)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
 		return;
 	}
@@ -214,7 +214,7 @@ const	CString& string)
 		test = ok_alias_string(victim, string);
 		if (!string || (test != -1))
 		{
-			if (gagged_command () == False)
+			if (gagged_command () == false)
 			{
 				if (test == 0)
 				{
@@ -232,7 +232,7 @@ const	CString& string)
 	 */
 
 	result = db[victim].add_alias(string);
-	if (gagged_command () == False)
+	if (gagged_command () == false)
 	{
 		switch (result)
 		{
@@ -276,21 +276,21 @@ const	CString& string)
 
 	if (!controls_for_write (victim))
 	{
-		if (gagged_command () == False)
+		if (gagged_command () == false)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
 		return;
 	}
 
 	if (!string || (!ok_alias_string (victim,string)))
 	{
-		if (gagged_command () == False)
+		if (gagged_command () == false)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "That is not a valid alias.");
 		return;
 	}
 
 	if (db[victim].remove_alias(string))
 	{
-		if (gagged_command () == False)
+		if (gagged_command () == false)
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "Alias removed.");
 			db.remove_player_from_cache(string);
@@ -298,7 +298,7 @@ const	CString& string)
 	}
 	else
 	{
-		if (gagged_command () == False)
+		if (gagged_command () == false)
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such alias.");
 		return;
 	}

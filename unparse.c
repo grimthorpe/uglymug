@@ -161,6 +161,10 @@ const	dbref	thing,
 		case HOME:
 			return "*HOME*";
 		default:
+			if(Typeof(thing) == TYPE_FREE)
+			{
+				return "*FREE*";
+			}
 			if (!((Typeof (thing) == TYPE_ROOM)
 			|| (Typeof (thing) == TYPE_EXIT)
 			|| (Typeof (thing) == TYPE_THING)

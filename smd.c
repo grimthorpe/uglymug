@@ -28,7 +28,7 @@ struct smd
 	u_long		host;		/* host address */
 	u_long		mask;		/* mask for the address */
 	int		flags;		/* Misc. flags */
-	Boolean		temp;		/* whether it is a temporary (not written to file) ban */
+	bool		temp;		/* whether it is a temporary (not written to file) ban */
 	struct	smd	*next;		/* Next entry */
 };
 
@@ -51,7 +51,7 @@ static struct smd *smd_list = NULL;
 #define	DEFAULT_MASK 0xffffffff		/* mask: address given is a machine */
 
 
-static Boolean
+static bool
 is_in_smd_list (u_long a)
 {
 	struct smd *b;
@@ -59,10 +59,10 @@ is_in_smd_list (u_long a)
 	for (b = smd_list; b != NULL; b = b->next)
 	{
 		if (a == b->host)
-			return True;
+			return true;
 	}
 
-	return False;
+	return false;
 }
 
 static void
@@ -83,14 +83,14 @@ replace_smd_entry (u_long a, struct smd *b)
 	}
 }
 
-static Boolean
+static bool
 remove_smd_entry (u_long a)
 {
 	struct smd	*b,
 			*x;
 
 	if (! is_in_smd_list(a))
-		return False;
+		return false;
 
 	/*
 	 * Found a matching entry - now we just need to remove it.
@@ -120,7 +120,7 @@ remove_smd_entry (u_long a)
 		}
 	}
 
-	return True;
+	return true;
 }
 static int
 get_smd_flags(u_long a)
@@ -345,7 +345,7 @@ const	CString& arg2)
 	struct smd *a;
 	return_status = COMMAND_FAIL;
 	const  colour_at&      ca = db[get_player()].get_colour_at();
-	Boolean		matched = False;
+	bool		matched = false;
 
 	set_return_string (error_return_string);
 	if(in_command())
@@ -364,8 +364,9 @@ const	CString& arg2)
 		notify(player, "%sUsage:%s  @smd <function> = <args>",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
 		notify(player, "        @smd check");
 		notify(player, "        @smd read");
-		notify(player, "        @smd list = <flag>");
-		notify(player, "        @smd ban  = <host>[/<mask>]");
+		notify(player, "        @smd list  = <flag>");
+		notify(player, "        @smd ban   = <host>[/<mask>]");
+		notify(player, "        @smd unban = <host>");
 		notify(player, "%sType \"%shelp @smd%s\" for more information.%s", ca[COLOUR_MESSAGES],  ca[COLOUR_COMMANDS], ca[COLOUR_MESSAGES], COLOUR_REVERT );
 
 		RETURN_FAIL;
@@ -373,7 +374,7 @@ const	CString& arg2)
 
 	if(string_compare(arg1, "list")==0)
 	{
-		matched = True;
+		matched = true;
 		a = smd_list;
 		notify_colour(player, player, COLOUR_MESSAGES,
 			" Temporary  Host                  Mask        B  D  C  G ");
@@ -385,7 +386,7 @@ const	CString& arg2)
 		while(a)
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "%-11s %-21s 0x%08x  %-2s %-2s %-2s %-2s",
-				      (a->temp == True) ? "<Temporary>" : "",
+				      (a->temp == true) ? "<Temporary>" : "",
 				      addr_inttostr(a),
 				      (a->mask),
 				      (a->flags & BANNED)?"b":"-",
@@ -404,7 +405,7 @@ const	CString& arg2)
 
 	if(string_compare(arg1, "read")==0)
 	{
-		matched = True;
+		matched = true;
 		do_smdread ((char *)NULL, (char *)NULL);
 		RETURN_SUCC;
 	}
@@ -416,7 +417,7 @@ const	CString& arg2)
 				char	*host;
 				char	*mask;
 
-		matched = True;
+		matched = true;
 
 		/*
 		 * Make sure we are trying to ban something
@@ -499,7 +500,7 @@ const	CString& arg2)
 		a->inet		= 1;
 		a->host		= host_num;
 		a->flags	= DEFAULT_FLAGS | BANNED;
-		a->temp		= True;
+		a->temp		= true;
 
 		if (mask == NULL)
 			a->mask = DEFAULT_MASK;
@@ -547,7 +548,7 @@ const	CString& arg2)
 	 */
 	if ((string_compare(arg1, "remove")==0) || (string_compare(arg1, "unban")==0))
 	{
-		matched = True;
+		matched = true;
 
 		if (!arg2)
 		{
@@ -567,7 +568,7 @@ const	CString& arg2)
 	 */
 	if(string_compare(arg1, "check")==0)
 	{
-		matched = True;
+		matched = true;
 
 		notify_colour(player, player, COLOUR_MESSAGES, "Checking current SMD list...");
 		smd_updated();

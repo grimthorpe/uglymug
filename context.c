@@ -75,7 +75,7 @@ const	CString& v)
 }
 
 
-Boolean
+bool
 Variable_stack::updatearg (
 const	CString& name,
 const	CString& val)
@@ -86,10 +86,10 @@ const	CString& val)
 	if (!(temp = locatearg (name))) /* This shouldn't happen! */
 	{
 		Trace("BUG: Trying to find non-existent argument %s.\n", name.c_str());
-		return False;
+		return false;
 	}
 	temp->set_value (val);
-	return True;
+	return true;
 }
 
 
@@ -144,7 +144,7 @@ const
 
 void
 Scope::do_at_elseif (
-const	Boolean	ok)
+const	bool	ok)
 
 {
 	fputs ("BUG: Scope::do_at_elseif called.\n", stderr);
@@ -224,7 +224,7 @@ const	char	*s)
 void
 Command_and_arguments::pend_fuse (
 dbref		fuse,
-Boolean		success,
+bool		success,
 const	char	*simple_command,
 const	char	*arg1,
 const	char	*arg2,
@@ -562,7 +562,7 @@ context	*c)
 
 void
 Compound_command_and_arguments::do_at_elseif (
-const	Boolean	if_ok)
+const	bool	if_ok)
 
 {
 #ifdef	DEBUG
@@ -621,9 +621,9 @@ context &your_maker)
 , return_string (unset_return_string)
 /* Initialisation changed to SUCC from INIT by PJC 14/1/96 */
 , return_status (COMMAND_SUCC)
-, called_from_command (False)
+, called_from_command (false)
 , creator (your_maker)
-, scheduled (False)
+, scheduled (false)
 , dependency (0)
 
 {
@@ -638,17 +638,17 @@ context::~context ()
 }
 
 
-Boolean
+bool
 context::allow_another_step ()
 
 {
 	if (commands_executed > step_limit)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Too many steps in command");
-		return False;
+		return false;
 	}
 
-	return True;
+	return true;
 }
 
 
@@ -662,7 +662,7 @@ const	context	&source)
 }
 
 
-const Boolean
+const bool
 context::in_command ()
 const
 
@@ -713,17 +713,17 @@ const
 }
 
 
-const Boolean
+const bool
 context::set_effective_id (
 dbref	id)
 
 {
 	if (call_stack.is_empty ())
-		return (False);
+		return (false);
 	else
 	{
 		call_stack.top ()->set_effective_id (id);
-		return (True);
+		return (true);
 	}
 }
 
@@ -875,7 +875,7 @@ const	String& v)
 
 If_scope::If_scope (
 const	Scope	&os,
-	Boolean	i)
+	bool	i)
 : Scope (os)
 , if_ok (i)
 
@@ -900,7 +900,7 @@ const	Scope	&os,
 
 void
 If_scope::do_at_elseif (
-const	Boolean	ok)
+const	bool	ok)
 
 {
 	if_ok = ok;
@@ -1089,15 +1089,15 @@ const	char	*element_name)
  *	set up the loop for the next iteration if this is the case.
  */
 
-Boolean
+bool
 With_loop::loopagain ()
 
 {
 	if (Typeof(dict) == TYPE_FREE)
-		return False;
+		return false;
 
 	if (++counter > (int)db[dict].get_number_of_elements ())
-		return False;
+		return false;
 
 	switch (Typeof(dict))
 	{
@@ -1113,10 +1113,10 @@ With_loop::loopagain ()
 			break;
 		default:
 			/* Probably means that the collection has been destroyed */
-			return False;
+			return false;
 	}
 	element->set_value (db[dict].get_element(counter));
-	return True;
+	return true;
 }
 
 
@@ -1139,7 +1139,7 @@ const	CString&name)
 }
 
 
-Boolean
+bool
 For_loop::loopagain ()
 
 {
@@ -1212,7 +1212,7 @@ Scheduler::step ()
 			/* FALLTHROUGH */
 		case ACTION_STOP:
 			returned = contexts.pop ();
-			returned->set_scheduled (False);
+			returned->set_scheduled (false);
 			return returned;
 		case ACTION_UNSET:
 			// When do we get this?
@@ -1249,7 +1249,7 @@ context	*c)
 
 	/* Push it on the queue at the top, just to make sure */
 	int	old_depth = contexts.get_depth ();
-	c->set_scheduled (True);
+	c->set_scheduled (true);
 	contexts.push (c);
 	/* Now keep going while the queue is deeper */
 // HACK: We might hit a loop here...

@@ -52,7 +52,7 @@ int	tom_fuse)
 					&& (could_doit (c, db[fuse].get_csucc ())))
 				{
 					if (Sticky (fuse))
-						c.pend_fuse (fuse, True, "SUCC", command_arg1, command_arg2, matcher);
+						c.pend_fuse (fuse, true, "SUCC", command_arg1, command_arg2, matcher);
 					else
 					{
 						context	*fuse_context = new context (c.get_player ());
@@ -76,7 +76,7 @@ int	tom_fuse)
 					&& (could_doit (c, db[fuse].get_cfail ())))
 				{
 					if (Sticky (fuse))
-						c.pend_fuse (fuse, False, "FAIL", command_arg1, command_arg2, matcher);
+						c.pend_fuse (fuse, false, "FAIL", command_arg1, command_arg2, matcher);
 					else
 					{
 						context	*fuse_context = new context (c.get_player ());
@@ -153,7 +153,7 @@ dbref	object)
 					&& (could_doit (c, db[fuse].get_cfail ())))
 				{
 					if (Sticky (fuse))
-						c.pend_fuse (fuse, False, "FAIL", command_arg1, command_arg2, matcher);
+						c.pend_fuse (fuse, false, "FAIL", command_arg1, command_arg2, matcher);
 					else
 					{
 						context	*fuse_context = new context (c.get_player ());
@@ -178,7 +178,7 @@ dbref	object)
 
 Pending_fuse::Pending_fuse (
 dbref		f,
-Boolean		succ,
+bool		succ,
 const	char	*sc,
 const	char	*a1,
 const	char	*a2,

@@ -238,9 +238,9 @@ context::do_lset(const CString& victims, const CString& flag)
 	if (!gagged_command())	
 	{
 		if (*flag.c_str() == NOT_TOKEN)
-			notify_colour(player, player, COLOUR_MESSAGES, "%s flag reset on %s.", playerlist_flag_list[i].string, targets.generate_courtesy_string(player,player,True));
+			notify_colour(player, player, COLOUR_MESSAGES, "%s flag reset on %s.", playerlist_flag_list[i].string, targets.generate_courtesy_string(player,player,true));
 		else
-			notify_colour(player, player, COLOUR_MESSAGES, "%s flag set on %s.", playerlist_flag_list[i].string, targets.generate_courtesy_string(player,player,True));
+			notify_colour(player, player, COLOUR_MESSAGES, "%s flag set on %s.", playerlist_flag_list[i].string, targets.generate_courtesy_string(player,player,true));
 	}
 }
 
@@ -251,7 +251,7 @@ Player_list::get_first()
 		return NOTHING;
 
 	current=list;
-	while (current && (current->included==False))
+	while (current && (current->included==false))
 		current=current->next;
 
 	if (current)
@@ -267,7 +267,7 @@ Player_list::get_next()
 		return NOTHING;
 	do
 		current=current->next;
-	while (current && (current->included==False));
+	while (current && (current->included==false));
 
 	return (current)? (current->player):NOTHING;
 }
@@ -278,7 +278,7 @@ Player_list::beep()
 	PLE *current=list;
 	while (current)
 	{
-		if (current->included==True)
+		if (current->included==true)
 			::beep(current->player);
 		current=current->next;
 	}
@@ -291,7 +291,7 @@ Player_list::trigger_command(const char *command, context &c)
 	dbref automatic;
 	while (current)
 	{
-		if (current->included == False)
+		if (current->included == false)
 		{
 			current=current->next;
 			continue;
@@ -404,7 +404,7 @@ Player_list::warn_me_if_idle()
 }
 
 void
-Player_list::set_included(PLE *player, Boolean state, const char *message = NULL)
+Player_list::set_included(PLE *player, bool state, const char *message = NULL)
 {
 	int index;
 	dbref automatic = NOTHING;
@@ -414,11 +414,11 @@ Player_list::set_included(PLE *player, Boolean state, const char *message = NULL
 		Trace("BUG: Trying to set the included state of NULL.\n");
 		return;
 	}
-	filtered_size+=(state==player->included)?0:(state==True)?1:-1;
+	filtered_size+=(state==player->included)?0:(state==true)?1:-1;
 
-	if ((player->included==True) && (message) && (state==False))
+	if ((player->included==true) && (message) && (state==false))
 	{
-		if ((player->from_a_list==False) && ((*message==HACKY_INSERT_HAVENMESSAGE) || (*message==HACKY_INSERT_SLEEPINGMESSAGE)))
+		if ((player->from_a_list==false) && ((*message==HACKY_INSERT_HAVENMESSAGE) || (*message==HACKY_INSERT_SLEEPINGMESSAGE)))
 		{
 			Matcher matcher (player->player, ".message", TYPE_DICTIONARY, originator);
 			matcher.check_keys ();
@@ -443,7 +443,7 @@ Player_list::set_included(PLE *player, Boolean state, const char *message = NULL
 				break;
 
 			case HACKY_INSERT_SLEEPINGMESSAGE:
-				if (player->from_a_list == True)
+				if (player->from_a_list == true)
 					break;
 				if ((automatic!=NOTHING) && (index=db[automatic].exist_element("Sleep")))
 					notify_censor_colour (originator, player->player, COLOUR_MESSAGES, "Sleeping message from %s:  %s", getname_inherited (player->player), db[automatic].get_element(index).c_str());
@@ -506,11 +506,11 @@ Player_list::include_if_unset(const int f)
 		if ( (Typeof(i) == TYPE_PLAYER) && !(db[i].get_flag(f)))
 			if ((temp=find_player(i)))
 			{
-				set_included(temp, True);
+				set_included(temp, true);
 			}
 			else
 			{
-				add_player(i, True);
+				add_player(i, true);
 			}
 	}
 	return filtered_size;
@@ -525,11 +525,11 @@ Player_list::include_if_set(const int f)
 		if ( (Typeof(i) == TYPE_PLAYER) && (db[i].get_flag(f)))
 			if ((temp=find_player(i)))
 			{
-				set_included(temp, True);
+				set_included(temp, true);
 			}
 			else
 			{
-				add_player(i, True);
+				add_player(i, true);
 			}
 	}
 	return filtered_size;
@@ -542,7 +542,7 @@ Player_list::filter_out_if_unset(const int f, const char *message=NULL)
 	while (current)
 	{
 		if (!(db[current->player].get_flag(f)))
-			set_included(current, False, message);
+			set_included(current, false, message);
 		current=current->next;
 	}
 	return filtered_size;
@@ -555,7 +555,7 @@ Player_list::filter_out_if_set(const int f, const char *message=NULL)
 	while (current)
 	{
 		if (db[current->player].get_flag(f))
-			set_included(current, False, message);
+			set_included(current, false, message);
 		current=current->next;
 	}
 	return filtered_size;
@@ -566,7 +566,7 @@ Player_list::exclude(int player, const char *message=NULL)
 {
 	PLE *temp;
 	if ((temp=find_player(player)))
-		set_included(temp, False, message);
+		set_included(temp, false, message);
 	return filtered_size;
 }
 
@@ -581,7 +581,7 @@ Player_list::include_from_list(dbref player, int f)
 		if ( (atoi(db[lists].get_element(i).c_str()) & f) &&
 			(!find_player (atoi (db[lists].get_index(i).c_str()))))
 		{
-			if(add_player(atoi(db[lists].get_index(i).c_str()), True) == False)
+			if(add_player(atoi(db[lists].get_index(i).c_str()), true) == false)
 			{
 				db[lists].destroy_element(i);
 				i--; // Hope that the compiler re-evaluates the number of elements each time...
@@ -600,7 +600,7 @@ Player_list::include_from_reverse_list(dbref player, int f)
 	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i).c_str()) & f) && (!find_player (atoi (db[lists].get_index(i).c_str()))))
 		{
-			if(add_player(atoi(db[lists].get_index(i).c_str()), True) == False)
+			if(add_player(atoi(db[lists].get_index(i).c_str()), true) == false)
 			{
 				db[lists].destroy_element(i);
 				i--; // Hope that the compiler re-evaluates the number of elements each time...
@@ -618,7 +618,7 @@ Player_list::exclude_from_list(dbref player, int f, const char *message=NULL)
 
 	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i).c_str()) & f) && (temp=find_player (atoi (db[lists].get_index(i).c_str()))))
-			set_included(temp, False, message);
+			set_included(temp, false, message);
 
 	return filtered_size;
 }
@@ -633,7 +633,7 @@ Player_list::exclude_from_reverse_list(dbref player, int f, const char *message=
 
 	for (unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i).c_str()) & f) && (temp=find_player (atoi (db[lists].get_index(i).c_str()))))
-			set_included(temp, False, message);
+			set_included(temp, false, message);
 	return filtered_size;
 }
 
@@ -648,28 +648,28 @@ Player_list::include(int player)
 		temp = get_list();
 	}
 
-	set_included(temp, True);
+	set_included(temp, true);
 
 	return filtered_size;
 }
 
-/* adds a player to a player_list, returns True if we succeeded */
+/* adds a player to a player_list, returns true if we succeeded */
 
-Boolean
-Player_list::add_player(int player, Boolean fromlist=False)
+bool
+Player_list::add_player(int player, bool fromlist=false)
 {
 	if (Typeof(player) != TYPE_PLAYER)
 	{
 		Trace( "BUG: Non-player %d on a player list.\n",player);
-		return False;
+		return false;
 	}
 
-	if ((_include_unconnected == False) && (!Connected(player)))
-		return True; // Ok, a lie, but it isn't a fatal non-add.
+	if ((_include_unconnected == false) && (!Connected(player)))
+		return true; // Ok, a lie, but it isn't a fatal non-add.
 	PLE *new_player=(PLE *) malloc(sizeof(PLE));
 
 	new_player->player=player;
-	new_player->included=True;
+	new_player->included=true;
 	new_player->prev=NULL;
 	new_player->next=list;
 	new_player->from_a_list=fromlist;
@@ -680,11 +680,11 @@ Player_list::add_player(int player, Boolean fromlist=False)
 	list=new_player;
 	filtered_size++;
 	count++;
-	return True;
+	return true;
 }
 
 const char *
-Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean inform_me=False)
+Player_list::generate_courtesy_string(dbref source, dbref destination, bool inform_me=false)
 {
 	int		done=0,
 			remaining=0;
@@ -692,7 +692,7 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 	static char	listbuf[256];
 	char		workspace[16*1024];
 	PLE		*current=list;
-	Boolean		include_you=False;
+	bool		include_you=false;
 	*listbuf='\0';
 	*buf='\0';
 	workspace[0]='\0';
@@ -700,10 +700,10 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 
 	while (current)
 	{
-		if ((current->player != destination) && (current->included == True) && (current->from_a_list == False))
+		if ((current->player != destination) && (current->included == true) && (current->from_a_list == false))
 			remaining++;
-		if ((current->player == destination) && (current->included == True) && (current->from_a_list==False))
-			include_you=True;
+		if ((current->player == destination) && (current->included == true) && (current->from_a_list==false))
+			include_you=true;
 		current=current->next;
 	}
 
@@ -740,7 +740,7 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 	{
 		if ((source==destination) && (remaining > 0))
 			strcat(listbuf, ", and ");
-		else if ((include_you==True) || (remaining == 1 ))
+		else if ((include_you==true) || (remaining == 1 ))
 			strcat(listbuf, ", and to ");
 		else if (remaining > 1)
 			strcat(listbuf, ", and to the players ");
@@ -750,7 +750,7 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 
 	while ((done < 4) && current && remaining)
 	{
-		if ((current->included == False) || (current->from_a_list == True))
+		if ((current->included == false) || (current->from_a_list == true))
 		{
 			current=current->next;
 			continue;
@@ -764,7 +764,7 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 
 		done++;
 		remaining--;
-		if((*buf) || (include_you==True))
+		if((*buf) || (include_you==true))
 		{
 			if (remaining == 0)
 				strcat(buf, " and ");
@@ -776,7 +776,7 @@ Player_list::generate_courtesy_string(dbref source, dbref destination, Boolean i
 		current=current->next;
 	}
 
-	if (include_you == True)
+	if (include_you == true)
 	{
 		sprintf(workspace, "%s%s", inform_me ? "yourself":"you", buf);
 		strcpy(buf,workspace);
@@ -807,12 +807,12 @@ Player_list::notify(
 
 	for(PLE *current=list; current; current=current->next)
 	{
-		if (current->included==False)
+		if (current->included==false)
 			break;
 
 		if (Haven(current->player))
 		{
-			current->included=False;
+			current->included=false;
 			int index;
 			dbref automatic;
 
@@ -882,7 +882,7 @@ const CString& arg1)
 			do
 			{
 				if (!find_player(atoi(ptr)))
-					add_player(atoi(ptr), True);
+					add_player(atoi(ptr), true);
 				while(*ptr && isdigit(*ptr))
 					ptr++;
 				if (*ptr)
@@ -926,7 +926,7 @@ const CString& arg1)
 				dbref	mate= temp.get_first();
 				while (mate != NOTHING)
 				{
-					add_player(mate, True);
+					add_player(mate, true);
 					mate=temp.get_next();
 				}
 			}

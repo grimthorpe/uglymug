@@ -99,14 +99,14 @@ extern	void		mud_time_sync		();
 
 enum	fit_result	{ SUCCESS=0, NO_MASS=1, NO_VOLUME=2, NOT_CONTAINER=3, NO_REASON=4 };
 
-extern	Boolean		is_flag_allowed		(typeof_type type, flag_type flag);
-extern	const	Boolean	could_doit		(const context &c, const dbref thing);
-extern	const	Boolean	can_doit		(const context &c, const dbref thing, const char *default_fail_msg);
-extern	Boolean		can_see			(context &c, dbref thing, Boolean can_see_location);
+extern	bool		is_flag_allowed		(typeof_type type, flag_type flag);
+extern	const	bool	could_doit		(const context &c, const dbref thing);
+extern	const	bool	can_doit		(const context &c, const dbref thing, const char *default_fail_msg);
+extern	bool		can_see			(context &c, dbref thing, bool can_see_location);
 extern	int		payfor			(dbref who, int cost);
-extern	Boolean		ok_name			(const CString& name);
-extern	Boolean		ok_puppet_name		(const CString& puppet_name);
-extern	Boolean		ok_player_name		(const CString& player_name);
+extern	bool		ok_name			(const CString& name);
+extern	bool		ok_puppet_name		(const CString& puppet_name);
+extern	bool		ok_player_name		(const CString& player_name);
 extern	int		ok_password		(const CString& password);
 #ifdef ALIASES
 extern	int		ok_alias_string		(dbref player,const CString& alias);
@@ -122,8 +122,8 @@ extern	double		find_mass_of_object	(dbref thing);
 extern	double		find_volume_of_object	(dbref thing);
 extern	double		find_volume_limit_of_object (dbref thing);
 extern	double		find_mass_limit_of_object (dbref thing);
-extern	Boolean		abortable_command	(const char *command);
-extern	Boolean		is_guest		(dbref player);
+extern	bool		abortable_command	(const char *command);
+extern	bool		is_guest		(dbref player);
 /* From interface.c */
 extern	void		panic			(const char *);
 extern	int		peak_users;
@@ -138,17 +138,17 @@ extern	char		*time_string		(time_t interval);
 extern	char		*small_time_string	(time_t interval);
 
 /* From move.c */
-extern	Boolean		can_move		(context &c, const char *direction);
-extern	Boolean		moveto			(dbref what, dbref where);
+extern	bool		can_move		(context &c, const CString& direction);
+extern	bool		moveto			(dbref what, dbref where);
 
 /* From player.c */
 extern	dbref		lookup_player		(dbref player, const CString& name);
 
 /* From predicates.c */
 extern	object_flag_type type_to_flag_map	[];
-extern	const	Boolean	controls_for_read	(const dbref real_who, const dbref what, const dbref effective_who);
-extern	const	Boolean	can_link_to		(const context &c, const dbref where);
-extern	const	Boolean	can_link		(const context &c, const dbref exit);
+extern	const	bool	controls_for_read	(const dbref real_who, const dbref what, const dbref effective_who);
+extern	const	bool	can_link_to		(const context &c, const dbref where);
+extern	const	bool	can_link		(const context &c, const dbref exit);
 
 /* From speech.c */
 extern	void		notify_except		(dbref first, dbref originator, dbref exception, const char *msg);
@@ -157,7 +157,7 @@ extern	int		blank			(const char *s);
 extern	const	char	*reconstruct_message	(const CString& arg1, const CString& arg2);
 
 /* From stringutil.c */
-extern	Boolean		semicolon_string_match	(const CString&, const CString&);
+extern	bool		semicolon_string_match	(const CString&, const CString&);
 extern	void		init_strings		();
 extern	void		pronoun_substitute	(char *result, unsigned int buffer_length, dbref player, const CString& str);
 extern	int		string_compare		(const CString& s1, const CString& s2);
@@ -165,22 +165,22 @@ extern	int		string_prefix		(const CString& string, const CString& prefix);
 extern	const	char	*string_match		(const CString& src, const CString& sub);
 extern  const	char	*censor			(const CString& string);
 extern	int		colour_strlen		(const CString& string);
-extern	Boolean		add_rude		(const CString&);
-extern	Boolean		add_excluded		(const CString&);
-extern	Boolean		un_rude			(const CString&);
-extern	Boolean		un_exclude		(const CString&);
+extern	bool		add_rude		(const CString&);
+extern	bool		add_excluded		(const CString&);
+extern	bool		un_rude			(const CString&);
+extern	bool		un_exclude		(const CString&);
 extern	char		**rude_words;
 extern	char		**excluded_words;
 extern	int		rudes;
 extern	int		excluded;
 /* From utils.c */
-extern	Boolean		contains		(dbref thing, dbref container);
-extern	Boolean		contains_inherited	(dbref thing, dbref container);
+extern	bool		contains		(dbref thing, dbref container);
+extern	bool		contains_inherited	(dbref thing, dbref container);
 extern  const   char    *getarticle		(int article_base, dbref thing);
 extern	const	char	*getname		(dbref thing);
 extern	const	char	*getname_inherited	(dbref thing);
-extern	Boolean		in_area			(dbref thing, dbref area);
-extern	Boolean		member			(dbref thing, dbref list);
+extern	bool		in_area			(dbref thing, dbref area);
+extern	bool		member			(dbref thing, dbref list);
 extern	dbref		remove_first		(dbref first, dbref what);
 extern	dbref		reverse			(dbref list);
 

@@ -16,8 +16,8 @@
 typedef struct	player_list_entry
 {
 	int	player;
-	Boolean	from_a_list;
-	Boolean	included;
+	bool	from_a_list;
+	bool	included;
 	struct	player_list_entry *next;
 	struct	player_list_entry *prev;
 } PLE;
@@ -25,7 +25,7 @@ typedef struct	player_list_entry
 class	Player_list
 {
 	private:
-		Boolean	_include_unconnected;
+		bool	_include_unconnected;
 		String	listnames[MAX_LIST_TELLS];
 		int	listcount;
 		int	count;
@@ -33,22 +33,22 @@ class	Player_list
 		int	originator;
 		PLE	*current;
 		PLE	*list;
-		void	set_included(PLE *player, Boolean state, const char *message=NULL);
+		void	set_included(PLE *player, bool state, const char *message=NULL);
 	public:
-		Player_list(int a) :	_include_unconnected(False), listcount(0), count (0), filtered_size (0), originator (a), current (NULL), list (NULL) {}
+		Player_list(int a) :	_include_unconnected(false), listcount(0), count (0), filtered_size (0), originator (a), current (NULL), list (NULL) {}
 		~Player_list();
-		void		include_unconnected()	{ _include_unconnected= True; }
+		void		include_unconnected()	{ _include_unconnected= true; }
 		void		add_list(const CString&);
 		void		eat_keiths_chips();
 		int		get_realsize()		{ return count;}
 		int		get_filtered_size()	{ return filtered_size;}
 		int		get_first();
 		int		get_next();
-		Boolean		add_player(int	p, Boolean fromlist=False);
+		bool		add_player(int	p, bool fromlist=false);
 		PLE		*find_player(int p);
 		PLE		*get_list() { return list; }
 		int		build_from_text(int player, const CString& text);
-		const char	*generate_courtesy_string(int source, int dest, Boolean myself=False);
+		const char	*generate_courtesy_string(int source, int dest, bool myself=false);
 		void		notify(int player, const char *prefix, const char *suffix, const char *string);
 		void		beep();
 

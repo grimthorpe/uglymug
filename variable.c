@@ -338,13 +338,13 @@ const	CString& arg2)
 }
 
 
-const Boolean
+const bool
 context::variable_substitution (
 const	char* arg,
 	char* result,
 const	unsigned int	max_length)
 {
-	Boolean retval;
+	bool retval;
 
 	retval = nested_variable_substitution (arg, result, 0, max_length);
 	if (strlen (result) > max_length)
@@ -364,13 +364,13 @@ const	unsigned int	max_length)
  * This substitution may cause a recursive call to nested_variable_substitution.
  *
  * Return value:
- *	False	if a command needs to be executed to complete the substitution.
- *	True	if the substitution proceeded to completion.
+ *	false	if a command needs to be executed to complete the substitution.
+ *	true	if the substitution proceeded to completion.
  *
  * PJC 22/2/97.
  */
 
-const Boolean
+const bool
 context::dollar_substitute (
 const	char	*&argp,
 	char	*&resp,
@@ -481,7 +481,7 @@ const	int	depth,
 			if((length = value.length()) > space_left)
 			{
 				strcpy (resp, too_big);
-				return True;
+				return true;
 			}
 			strcpy (resp, value.c_str());
 			resp += length;
@@ -492,7 +492,7 @@ const	int	depth,
 			if((length = value.length()) > space_left)
 			{
 				strcpy (dummy, too_big);
-				return True;
+				return true;
 			}
 			strcpy (resp++, "=");
 			strcpy (resp, value.c_str());
@@ -548,7 +548,7 @@ const	int	depth,
 		if ((length = value.length()) > space_left)
 		{
 			strcpy(resp, too_big);
-			return True;
+			return true;
 		}
 
 		strcpy (resp, value.c_str());
@@ -558,11 +558,11 @@ const	int	depth,
 	}
 	else
 		*resp = '\0';
-	return True;
+	return true;
 }
 
 
-const Boolean
+const bool
 context::nested_variable_substitution (
 const	char	*&argp,
 	char	*resp,
@@ -570,8 +570,8 @@ const	int	depth,
 	int	space_left)
 
 {
-	Boolean		backslash_primed = False;
-	Boolean		breakout;
+	bool		backslash_primed = false;
+	bool		breakout;
 	char		*result;
 	char		*end;
 	char		*tmp;
@@ -582,26 +582,26 @@ const	int	depth,
 	{
 		/** Match close-braces with *argp to allow higher levels to continue **/
 		strcpy (resp, recursion_return_string);
-		return True;
+		return true;
 	}
 
 	result = resp;
 	/* Cope with multiple non-nested $-substitutions */
-	while (True)
+	while (true)
 	{
 		/* Copy to result until first unescaped $ or { */
-		breakout = False;
+		breakout = false;
 		while (!breakout && *argp)
 		{
 			if (backslash_primed)
 			{
 				*resp++ = *argp++;
-				backslash_primed = False;
+				backslash_primed = false;
 				space_left--;
 				if(space_left <= 0)
 				{
 					strcpy(result, too_big);
-					return True;
+					return true;
 				}
 			}
 			else
@@ -610,12 +610,12 @@ const	int	depth,
 				switch (*argp)
 				{
 					case '\\':
-						backslash_primed = True;
+						backslash_primed = true;
 						argp++;
 						break;
 					case '$':
 					case '{':
-						breakout = True;
+						breakout = true;
 						break;
 					default:
 						*resp++ = *argp++;
@@ -623,7 +623,7 @@ const	int	depth,
 						if(space_left <= 0)
 						{
 							strcpy(result, too_big);
-							return True;
+							return true;
 						}
 				}
 			}
@@ -646,7 +646,7 @@ const	int	depth,
 				if (resp >= end)
 				{
 					strcpy (tmp, too_big);
-					return True;
+					return true;
 				}
 			}
 			else if (*argp == '{')
@@ -656,13 +656,13 @@ const	int	depth,
 				if (resp >= end)
 				{
 					strcpy (tmp, too_big);
-					return True;
+					return true;
 				}
 			}
 		}
 	}
 
-	return True;
+	return true;
 }
 
 
@@ -1323,7 +1323,7 @@ unsigned int	space_left)
 			case EVAL_OP_MIDSTRING:
 				if (strlen(results[2].string) < (size_t)results[1].integer)
 				{
-					if (c.gagged_command()==False)
+					if (c.gagged_command()==false)
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
 
 					strcpy (result_buffer, error_return_string);
@@ -1363,7 +1363,7 @@ unsigned int	space_left)
 			case EVAL_OP_NCHAR:
 				if (strlen(results[1].string) < (size_t)results[0].integer)
 				{
-					if (c.gagged_command()==False)
+					if (c.gagged_command()==false)
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"Argument past end of string in nchar");
 
 					strcpy (result_buffer, error_return_string);

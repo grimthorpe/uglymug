@@ -85,11 +85,11 @@ const char* object_name = decompile_string(db[object].get_name());
 }
 
 
-static Boolean
+static bool
 decompile_flags (dbref object, dbref player)
 {
  int		i;
- Boolean	readonly_set = False;
+ bool	readonly_set = false;
 
 
  readonly_set = (db[object].get_flag(FLAG_READONLY));
@@ -190,7 +190,7 @@ const	CString& args)
 
 {
 	dbref	object;			/* We need to be able to refer to the object */
-	Boolean	readonly_flag_set;	/* We need to know if an object is RO - it's a special flag - needs to be final command */
+	bool	readonly_flag_set;	/* We need to know if an object is RO - it's a special flag - needs to be final command */
 	int	number,			/* The number of elements in an array or dictionary */
 		temp;			/* A counter for outputting array or dictionary elements */
 	char	decompiled_name[BUFFER_LEN * 2];
@@ -363,7 +363,7 @@ const	CString& args)
 
 
 /* If an object is set readonly it must be the last thing you set on. I think the reasons for this are fairly obvious! */
-	if (readonly_flag_set == True)
+	if (readonly_flag_set == true)
 		notify (player, "@set %s = ReadOnly", decompiled_name);
 
 	notify (player, "[Decompile Output End]");

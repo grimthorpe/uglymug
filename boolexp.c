@@ -37,7 +37,7 @@ boolexp::~boolexp ()
 }
 
 
-const Boolean
+const bool
 boolexp::eval_internal (
 const	context	&c,
 	Matcher	&matcher)
@@ -47,7 +47,7 @@ const
 	int	i;
 
 	if (this == TRUE_BOOLEXP)
-		return True;
+		return true;
 	else
 		switch(type)
 		{
@@ -62,7 +62,7 @@ const
 					return (thing == c.get_effective_id () || ::contains_inherited(thing, c.get_player ()));
 					//return (thing == c.get_effective_id () || ::contains(thing, c.get_player ()));
 				if (!could_doit (c, thing))
-					return False; /* Automatically fails */
+					return false; /* Automatically fails */
 				else
 				{
 					/* The idea is that the player still gets to see what's going on, but the command can't unchpid to the player... */
@@ -77,12 +77,12 @@ const
 					switch (status)
 					{
 						case COMMAND_SUCC:
-							return True;
+							return true;
 						case COMMAND_FAIL:
-							return False;
+							return false;
 						default:
 							notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"Command in lock returned invalid boolean value.");
-							return (False);
+							return (false);
 					}
 				}
 			case BOOLEXP_FLAG:
@@ -94,21 +94,21 @@ const
 				else
 				{
 					Trace("BUG: eval_internal - Bad flag number %d\n", thing);
-					return False;
+					return false;
 				}
 
 				break; /* Unreachable, but just for neatness */
 			default:
 				Trace("BUG: eval_internal - Bad node type %d.\n", type);
-				return False;
+				return false;
 		}
 
 	/* Should never get here */
-	return False;
+	return false;
 }
 
 
-const Boolean
+const bool
 boolexp::eval (
 const	context	&c,
 	Matcher	&matcher)
@@ -325,14 +325,14 @@ const	CString& buf)
 }
 
 
-const Boolean
+const bool
 boolexp::contains (
 dbref	object)
 const
 
 {
 	if (this == TRUE_BOOLEXP)
-		return (False);
+		return (false);
 	switch (type)
 	{
 		case BOOLEXP_AND:
@@ -343,12 +343,12 @@ const
 		case BOOLEXP_CONST:
 			return (thing == object);
 		case BOOLEXP_FLAG:
-			return (False);
+			return (false);
 	}
 
 	/* Should always be one of the above types */
 	Trace( "BUG: boolexp::contains: Invalid node type %d.\n", type);
-	return (False);
+	return (false);
 }
 
 

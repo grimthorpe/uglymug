@@ -12,6 +12,11 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_023 - Grimthorpe
+    Tidied up the alarm code; can't remember what I was trying to fix...
+    Changed Boolean->bool, True->true, False->false to keep with Standard C++.
+    If .enter destroys the room you've just moved to, don't do the look.
+    @welcomer works for real-id welcomer as well as effective-id welcomer.
     The connection code specifically looks for 'connect' or 'create', or
     a prefix of them. If not found, it uses the *ENTIRE* input as a name
     or password.

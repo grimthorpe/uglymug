@@ -82,6 +82,102 @@ db_patch_alarms ()
 }
 
 
+static int
+eat_space_and_number (
+const	char	**ptr)
+
+{
+	int	number;
+
+	number = 0;
+	while ((**ptr) && isspace (**ptr))
+		(*ptr)++;
+
+	/* If it's a '*', return a token for wildcard. */
+	if (**ptr == '*')
+	{
+		(*ptr)++;
+		return (-1);
+	}
+
+	/* It's not a '*', so it had better be a real number. Blanks count as 0. */
+	while (**ptr && (**ptr >= '0') && (**ptr <= '9'))
+		number = number * 10 + *((*ptr)++) - '0';
+	return (number);
+}
+
+
+static long
+time_of_next_cron (
+const	CString& string)
+
+{
+	struct	tm	*rtime;
+	const	char	*ptr;
+	bool		forward = false;
+	int		second;
+	int		minute;
+	int		hour;
+	int		day;
+	time_t		now;
+	long		then;
+
+	ptr = string.c_str();
+	while ((*ptr) && isspace (*ptr))
+		ptr++;
+	if (*ptr == '+')
+	{
+		ptr ++;
+		forward = true;
+	}
+	second = eat_space_and_number (&ptr);
+	minute = eat_space_and_number (&ptr);
+	hour = eat_space_and_number (&ptr);
+	day = eat_space_and_number (&ptr);
+
+	/* Round */
+	if (second != -1)
+		second = (((second % 60) + 9) / 10) * 10;
+	if (minute != -1)
+		minute = minute % 60;
+	if (hour != -1)
+		hour = hour % 24;
+	if (day != -1)
+		day = day % 7;
+
+	/* When are we? */
+	time (&now);
+	now ++;
+	rtime = localtime(&now);
+	then = now;
+
+	if (forward)
+	{
+		now += ((day * 24 + hour) * 60 + minute) *60 + second;
+		if (now <= then)
+			now += 10;
+	}
+	else
+	{
+		if (second == -1)
+			second = (rtime->tm_sec + 10) % 60;
+		now += second - rtime->tm_sec;
+		if (minute == -1)
+			minute = (rtime->tm_min + (now < then)) % 60;
+		now += (minute - rtime->tm_min) * 60;
+		if (hour == -1)
+			hour = (rtime->tm_hour + (now < then)) % 60;
+		now += (hour - rtime->tm_hour) * 60 * 60;
+		if (day == -1)
+			day = (rtime->tm_wday + (now < then)) % 7;
+		now += (day - rtime->tm_wday) * 60 * 60 * 24;
+		if (now < then)
+			now += 60 * 60 * 24 * 7;
+	}
+
+	return (now);
+}
+
 void
 Database::pend (
 dbref	alarm)
@@ -89,7 +185,7 @@ dbref	alarm)
 {
 	Pending_alarm	*new_entry;
 	
-	new_entry = new Pending_alarm (alarm, time_of_next_cron (db[alarm].get_description ().c_str()));
+	new_entry = new Pending_alarm (alarm, time_of_next_cron (db[alarm].get_description()));
 	new_entry->insert_into ((Pending **) &alarms);
 }
 
@@ -161,103 +257,6 @@ time_t	now)
 		delete (current);
 		return (the_command);
 	}
-}
-
-
-static int
-eat_space_and_number (
-const	char	**ptr)
-
-{
-	int	number;
-
-	number = 0;
-	while ((**ptr) && isspace (**ptr))
-		(*ptr)++;
-
-	/* If it's a '*', return a token for wildcard. */
-	if (**ptr == '*')
-	{
-		(*ptr)++;
-		return (-1);
-	}
-
-	/* It's not a '*', so it had better be a real number. Blanks count as 0. */
-	while (**ptr && (**ptr >= '0') && (**ptr <= '9'))
-		number = number * 10 + *((*ptr)++) - '0';
-	return (number);
-}
-
-
-long
-time_of_next_cron (
-const	char	*string)
-
-{
-	struct	tm	*rtime;
-	const	char	*ptr;
-	Boolean		forward = False;
-	int		second;
-	int		minute;
-	int		hour;
-	int		day;
-	time_t		now;
-	long		then;
-
-	ptr = string;
-	while ((*ptr) && isspace (*ptr))
-		ptr++;
-	if (*ptr == '+')
-	{
-		ptr ++;
-		forward = True;
-	}
-	second = eat_space_and_number (&ptr);
-	minute = eat_space_and_number (&ptr);
-	hour = eat_space_and_number (&ptr);
-	day = eat_space_and_number (&ptr);
-
-	/* Round */
-	if (second != -1)
-		second = (((second % 60) + 9) / 10) * 10;
-	if (minute != -1)
-		minute = minute % 60;
-	if (hour != -1)
-		hour = hour % 24;
-	if (day != -1)
-		day = day % 7;
-
-	/* When are we? */
-	time (&now);
-	now ++;
-	rtime = localtime(&now);
-	then = now;
-
-	if (forward)
-	{
-		now += ((day * 24 + hour) * 60 + minute) *60 + second;
-		if (now <= then)
-			now += 10;
-	}
-	else
-	{
-		if (second == -1)
-			second = (rtime->tm_sec + 10) % 60;
-		now += second - rtime->tm_sec;
-		if (minute == -1)
-			minute = (rtime->tm_min + (now < then)) % 60;
-		now += (minute - rtime->tm_min) * 60;
-		if (hour == -1)
-			hour = (rtime->tm_hour + (now < then)) % 60;
-		now += (hour - rtime->tm_hour) * 60 * 60;
-		if (day == -1)
-			day = (rtime->tm_wday + (now < then)) % 7;
-		now += (day - rtime->tm_wday) * 60 * 60 * 24;
-		if (now < then)
-			now += 60 * 60 * 24 * 7;
-	}
-
-	return (now);
 }
 
 

@@ -17,7 +17,7 @@
 
 #define MAX_IDLE_MESSAGE_LENGTH 70
 
-void notify_except_colour (dbref first,dbref exception, const char *prefix,const char *msg, Boolean speechmarks, dbref talker,int colour);
+void notify_except_colour (dbref first,dbref exception, const char *prefix,const char *msg, bool speechmarks, dbref talker,int colour);
 
 static void
 strcpy_with_indent (
@@ -144,7 +144,7 @@ const	CString& arg2)
 				player,
 				scratch_buffer,
 			        value_or_empty(message),
-				True,
+				true,
 				player,
 				COLOUR_SAYS);
 	return_status = COMMAND_SUCC;
@@ -342,7 +342,7 @@ const	CString& arg2)
 		sprintf(scratch_buffer, "%s", getname_inherited (player));
 	else
 		sprintf(scratch_buffer, "%s ", getname_inherited (player));
-	notify_except_colour(db[loc].get_contents(), NOTHING, scratch_buffer, message, False, player, COLOUR_EMOTES);
+	notify_except_colour(db[loc].get_contents(), NOTHING, scratch_buffer, message, false, player, COLOUR_EMOTES);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -625,7 +625,7 @@ const	CString& part2)
 
 	all_targets.trigger_command(".page", *this);
 	if (!in_command())
-		notify_colour(player, player, COLOUR_MESSAGES,  "Message sent to %s.", targets.generate_courtesy_string(player, player, True));
+		notify_colour(player, player, COLOUR_MESSAGES,  "Message sent to %s.", targets.generate_courtesy_string(player, player, true));
 
 	if (Haven (player))
 	{
@@ -870,7 +870,7 @@ dbref		first,
 dbref		exception,
 const	char	*prefix,
 const	char	*msg,
-Boolean		speechmarks,
+bool		speechmarks,
 dbref		talker,
 int		colour)
 
@@ -895,7 +895,7 @@ int		colour)
 		{
 
 			const colour_at& ca=db[first].get_colour_at();
-			if (speechmarks==True)
+			if (speechmarks==true)
 				notify_public(first, talker, "%s%s\"%s%s%s\"%%z", ca[rank_colour(talker)], myprefix, ca[colour],  mymsg, ca[rank_colour(talker)]);
 			else
 				notify_public(first, talker, "%s%s%s%s%%z", ca[rank_colour(talker)], myprefix, ca[colour],  mymsg);
@@ -950,8 +950,8 @@ const	char	*s)
 	return !(*s);
 }
 
-Boolean
-really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
+bool
+really_do_tell(char *arg1, char *arg2, bool force_emote, context &c)
 {
 	Player_list	targets(c.get_player());
 	Player_list	all_targets(c.get_player());
@@ -961,7 +961,7 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 	if (blank(arg1))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Syntax: tell <playerlist> [=] message");
-		return False;
+		return false;
 	}
 	if (blank(arg2))
 	{
@@ -1015,7 +1015,7 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "Usage:  tell <playerlist> [=] <message>");
 		notify_colour(player, player, COLOUR_MESSAGES, "(see 'help playerlist' for more information about player lists.)");
-		return False;
+		return false;
 	}
 
 	/* You can't tell if you are set silent */
@@ -1023,7 +1023,7 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 	if(Silent(player) && !Wizard(player) && !Apprentice(player))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are set Silent. You can't 'tell' to people.");
-		return False;
+		return false;
 	}
 	targets.include_unconnected();
 	count=targets.build_from_text(player, arg1);
@@ -1050,7 +1050,7 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 		else if (targets.get_realsize() > 1)
 			notify_colour(player, player, COLOUR_MESSAGES, "Those players are either set haven or are not connected.");
 		all_targets.trigger_command(".tell", c);
-		return False;
+		return false;
 	}
 
 	targets.warn_me_if_idle();
@@ -1067,8 +1067,8 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 	{
 
 		const colour_at& ca=db[target].get_colour_at();
-		if ((*arg2==':') || (force_emote==True))
-			notify_censor (target, player, "%s[To %s] %s %s%s", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==True)?arg2:arg2+1);
+		if ((*arg2==':') || (force_emote==true))
+			notify_censor (target, player, "%s[To %s] %s %s%s", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==true)?arg2:arg2+1);
 		else
 			notify_censor (target, player, "%s[To %s] %s tells you \"%s%s%s\"", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
 		target= targets.get_next();
@@ -1077,12 +1077,12 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 	all_targets.trigger_command(".tell", c);
 
 	const colour_at& ca=db[player].get_colour_at();
-	if ((*arg2==':') || (force_emote==True))
-		notify(player,"%s[To %s] %s %s%s",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, True), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==True)?arg2:arg2+1);
+	if ((*arg2==':') || (force_emote==true))
+		notify(player,"%s[To %s] %s %s%s",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, true), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==true)?arg2:arg2+1);
 	else
-		notify(player,"%sYou tell %s \"%s%s%s\"",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, True), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
+		notify(player,"%sYou tell %s \"%s%s%s\"",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, true), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
 
-	return True;
+	return true;
 }
 
 /*
@@ -1100,7 +1100,7 @@ void context::do_tellemote (const CString& part1, const CString& part2)
 	arg1=(part1)?strdup(part1.c_str()):NULL;
 	arg2=(part2)?strdup(part2.c_str()):NULL;
 
-	if (really_do_tell(arg1, arg2, True, *this)==True)
+	if (really_do_tell(arg1, arg2, true, *this)==true)
 	{
 		return_status=COMMAND_FAIL;
 		set_return_string(error_return_string);
@@ -1123,7 +1123,7 @@ void context::do_tell(const CString& part1, const CString& part2)
 	arg1=(!part1)?NULL:strdup(part1.c_str());
 	arg2=(!part2)?NULL:strdup(part2.c_str());
 
-	if (really_do_tell(arg1, arg2, False, *this)==True)
+	if (really_do_tell(arg1, arg2, false, *this)==true)
 	{
 		return_status=COMMAND_FAIL;
 		set_return_string(error_return_string);
@@ -1167,7 +1167,7 @@ void context::do_at_censor(const CString& arg1, const CString& arg2)
 		p++;
 	}
 
-	if (add_rude(arg1) == False)
+	if (add_rude(arg1) == false)
 	{
 		if (!in_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Error: Unable to add word to censor list.");
@@ -1210,7 +1210,7 @@ void context::do_at_exclude(const CString& arg1, const CString& arg2)
 		p++;
 	}
 
-	if (add_excluded(arg1) == False)
+	if (add_excluded(arg1) == false)
 	{
 		if (!in_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Error: Unable to add word to excluded list.");
@@ -1253,7 +1253,7 @@ void context::do_at_uncensor(const CString& arg1, const CString& arg2)
 		p++;
 	}
 
-	if (un_rude(arg1) == False)
+	if (un_rude(arg1) == false)
 	{
 		if (!in_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Error: Unable to remove word from censored list.");
@@ -1297,7 +1297,7 @@ void context::do_at_unexclude(const CString& arg1, const CString& arg2)
 		p++;
 	}
 
-	if (un_exclude(arg1) == False)
+	if (un_exclude(arg1) == false)
 	{
 		if (!in_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Error: Unable to remove word from excluded list.");

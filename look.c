@@ -73,8 +73,8 @@ dbref	player)
 {
 	int		tab_level = 0;
 	unsigned	line = 1;
-	Boolean		force_outdent=False;
-	Boolean		linenumbers = Linenumbers(player);
+	bool		force_outdent=false;
+	bool		linenumbers = Linenumbers(player);
 	Command_next	what;
 	const	char	*text;
 
@@ -110,7 +110,7 @@ dbref	player)
 
 		if (force_outdent)
 		{
-			force_outdent = False;
+			force_outdent = false;
 			tab_level--;
 		}
 
@@ -560,6 +560,11 @@ look_room (
 context	&c,
 dbref	loc)
 {
+	if(Typeof(loc) != TYPE_ROOM)
+	{
+		notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "That room has been destroyed!");
+		return;
+	}
 	const colour_at& ca = db[c.get_player()].get_colour_at();
 	dbref looper;
 	int   prettylook= Prettylook(c.get_player()) ;
@@ -634,7 +639,7 @@ const	CString& )
 	{
 		/* look at a thing here */
 		Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
-		if (gagged_command () == True)
+		if (gagged_command () == true)
 			matcher.work_silent ();
 		matcher.match_everything ();
 		if((thing = matcher.noisy_match_result()) != NOTHING)
