@@ -15,6 +15,7 @@ information doesn't get lost.
 
 	Fixed @gc so that when you destroy the puppets it doesn't crash the game.
 	Fixed create_player so that it will deal with blank passwords properly.
+	Added @?hardcodecommands which returns a list of hardcoded commands
 
 um1_037 - Back to stability perhaps?
 	Added an (optional) debugging version of dbref selectable via a #define and made the code compatible with both the normal dbref and the debugging one
