@@ -36,7 +36,7 @@ extern	int	puppet_check;
 extern	int	fix_things;
 
 	int	dump_interval=DUMP_INTERVAL;
-const	char	*version=VERSION;
+const	char	*version=VERSION " Release: $Name:  $";
 
 
 int
