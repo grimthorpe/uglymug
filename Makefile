@@ -128,6 +128,7 @@ RAW_LIB_OBJECTS:= \
 	wiz.o 
 
 RAW_OUTFILES:= \
+	trawl \
 	dump \
 	extract \
 	mondodestruct \
@@ -136,7 +137,7 @@ RAW_OUTFILES:= \
 	sadness \
 	scat \
 	stats \
-	concentrator
+	concentrator 
 
 # Include anything that needs doing for a specific build environment. PJC 20/4/2003.
 include $(CONFIG_DIR)/Makefile
