@@ -3788,7 +3788,8 @@ int			flags)
 
 	(void) time (&now);
 
-	WhoToShow who(victim, get_player(), true);
+	const String vict = victim;
+	WhoToShow who(vict, get_player(), true);
 	
 	//Find size of current descriptor list
 	//Make new array
