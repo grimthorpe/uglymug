@@ -62,8 +62,10 @@ const	String& arg2)
 		 * with '#' (ie an absolute number, or relative to
 		 * an absolute), then print a nasty warning.
 		 * We'll let commands relative to 'here' through...
+		 * and anything indirected off a specific 'remote' player.
 		 */
 		if((command_string.c_str()[0] != '#')
+			&& (command_string.c_str()[0] != '*')
 			&& (strncasecmp(command_string.c_str(), "here:", 5) != 0))
 		{
 			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
