@@ -2,8 +2,6 @@ MAKEFLAGS=-k -B
 
 by_default_just_make: netmud
 
-include Makefile.$(HOSTTYPE)
-
 # Whatever you put in for $(CC) must be able to grok ANSI C.
 CC=gcc
 CPLUSPLUS=g++
@@ -12,10 +10,10 @@ OPTIM=
 ####################################
 #           Solaris 2.8
 ####################################
-WHOAMI=who am i
-LIBS= -lcurses -lm -ltermcap -lsocket -lnsl
+WHOAMI.sparc=who am i
+LIBS.sparc= -lcurses -lm -ltermcap -lsocket -lnsl
 # Normal
-CFLAGS= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
+CFLAGS.sparc= -g -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 # Extra debug info
 #CFLAGS= -ggdb -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion 
 
