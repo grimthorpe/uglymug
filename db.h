@@ -16,6 +16,8 @@ typedef int	typeof_type;
 typedef unsigned char	flag_type;
 typedef int object_flag_type;
 
+class	Channel;
+
 #ifndef False
 const	Boolean	False = 0;
 #endif
@@ -757,8 +759,8 @@ class	object
 	virtual		void	set_mass_limit			(const double m);
 	virtual		void	set_volume_limit		(const double v);
 	/* Player */
-	virtual		struct channel	*get_channel		()			const	{return NULL;}
-	virtual		void	set_channel			(struct channel *);
+	virtual		Channel	*get_channel		()			const	{return NULL;}
+	virtual		void	set_channel			(Channel *);
 	virtual	const	int	get_money			()			const	{return 0;}
 	virtual		void	set_money			(const int);
 	virtual		void	set_colour			(const char *);

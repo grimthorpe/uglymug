@@ -196,7 +196,8 @@ extern	const	char	*const	unparse_for_return			(const context &c, const dbref obj
 extern	const	char	*const	unparse_for_return_inherited		(const context &c, const dbref object);
 
 /* From channel.c */
-extern	void		channel_disconnect	(dbref);
+class Channel;
+extern	void		channel_disconnect	(dbref, bool just_leave = false);
 
 /* From smd.c */
 extern	int		is_banned		(unsigned long a);

@@ -364,7 +364,7 @@ class	Player
 	cplay *			colour_play;
 	int			colour_play_size;
 
-	struct channel *	channel;
+	Channel*		channel;
 
     public:
 				Player			();
@@ -381,8 +381,8 @@ class	Player
 	const	int		get_colour_play_size	()			const	{return colour_play_size;}
 		void		set_controller		(dbref c);
 		void		set_password		(const CString& p);
-		void		set_channel		(struct channel *c)		{channel = c;}
-		struct channel *get_channel		()			const	{return channel;}
+		void		set_channel		(Channel *c)		{channel = c;}
+		Channel *	get_channel		()			const	{return channel;}
 
 #ifdef ALIASES
 	const	String&		get_alias		(const int which)	const	{ return (alias[which]); }

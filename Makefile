@@ -292,7 +292,6 @@ boolexp.o: boolexp.c \
 	interface.h
 
 channel.o: channel.c \
-	channel.h \
 	colour.h \
 	externs.h \
 	context.h \

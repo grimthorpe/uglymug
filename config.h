@@ -169,3 +169,9 @@
  * which seems rather dodgey.  -Abs
  */
 #define	USE_TERMINFO 
+
+/* Chat channels.*/
+
+#define CHANNEL_MAGIC_COOKIE		'#'
+#define CHANNEL_INVITE_FREQUENCY	60
+

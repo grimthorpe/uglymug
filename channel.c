@@ -1,337 +1,537 @@
+#include "copyright.h"
+/*
+ * channel.c (or will be one day)
+ *
+ * A complete re-write of the old channel code, because it was a mess.
+ *
+ * This time, we'll make it object-oriented.
+ */
+
+#include "config.h"
+
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
 
 #include "db.h"
-#include "objects.h"
 #include "externs.h"
-#include "context.h"
-#include "command.h"
 #include "interface.h"
-#include "channel.h"
 #include "colour.h"
 #include "context.h"
 
-#define	MAKELONG(a,b,c,d)	((a<<24)|(b<<16)|(c<<8)|d)
-#define INVITE_FREQUENCY	(60)
-static struct channel *channels=NULL;
-
-
-static struct channel *
-find_channel (
-const	char	*name)
-
+class ChannelPlayer
 {
-	for(struct channel *current=channels; current; current=current->next)
-		if(strcasecmp(current->name, name)==0)
-			return current;
-	
-	return NULL;
-}
+	dbref			Player;
+	bool			Controller;
+	time_t			Timestamp;
 
+	ChannelPlayer*		Next;
+	ChannelPlayer**		PPrev;
 
-static inline Boolean
-ok_channel_name (
-const	char	*name)
-
-{
-	if(blank(name) || *name!=CHANNEL_MAGIC_COOKIE ||
-	   strlen(name)<2 || strlen(name)>14)
-		return False;
-
-	return True;
-}
-
-
-static struct channel_player *
-on_channel (
-	struct	channel_player	*list,
-const	dbref			player)
-
-{
-	for(struct channel_player *current=list; current; current=current->next)
-		if(current->player==player)
-			return current;
-	
-	return NULL;
-}
-
-
-static void
-delete_channel (
-struct	channel	*channel)
-
-{
-	struct channel_player *cp, *old;
-
-	if(channel->players)
+	ChannelPlayer();
+	ChannelPlayer& operator=(const ChannelPlayer&);
+	ChannelPlayer(const ChannelPlayer&);
+public:
+	ChannelPlayer(dbref p, ChannelPlayer** pprev)
 	{
-		Trace( "BUG: delete_channel called with non-empty channel\n");
-		return;
-	}
-
-	for(cp=channel->invites; cp; )
-	{
-		old=cp;
-		cp=cp->next;
-		free(cp);
-	}
-
-	for(cp=channel->bans; cp; )
-	{
-		old=cp;
-		cp=cp->next;
-		free(cp);
-	}
-
-	if(channel->prev)
-		channel->prev->next=channel->next;
-	if(channel->next)
-		channel->next->prev=channel->prev;
-	if(channel==channels)
-		channels=channels->next;
-}
-
-
-static struct channel_player *add_to_list(struct channel_player **list, dbref player, enum channel_player_flags flags=CHANNEL_PLAYER_NORMAL)
-{
-	struct channel_player *channel_player=(struct channel_player *) malloc(sizeof(struct channel_player));
-
-	channel_player->player=player;
-	channel_player->flags=flags;
-	channel_player->next=*list;
-	channel_player->prev=NULL;
-	time(&(channel_player->issued));
-	if(*list)
-		(*list)->prev=channel_player;
-		
-	*list=channel_player;
-
-	return channel_player;
-}
-
-
-static void remove_from_list(struct channel_player **list, dbref player)
-{
-	for(struct channel_player *current=*list; current; current=current->next)
-		if(current->player==player)
+		Player = p;
+		Controller = false;
+		Timestamp = 0;
+		Next = *pprev;
+		if(Next)
 		{
-			if(current->prev)
-				current->prev->next=current->next;
-			if(current->next)
-				current->next->prev=current->prev;
-			if(current==*list)
-				*list=(*list)->next;
-			
-			free(current);
-			break;
+			Next->PPrev = &Next;
 		}
-}
-
-
-static struct channel *
-join_channel (
-const	char	*name,
-const	dbref	player,
-const	CString&	arg2)
-{
-	struct	channel	*channel = find_channel(name);
-	const colour_at& ca = db[player].get_colour_at();
-
-	if(!channel)
+		*pprev = this;
+		PPrev = pprev;
+	}
+	~ChannelPlayer()
 	{
-		channel=(struct channel *) malloc(sizeof(struct channel));
-
-		channel->name=strdup(name);
-		channel->mode=CHANNEL_PUBLIC;
-		channel->players=NULL;
-		channel->invites=NULL;
-		channel->bans=NULL;
-		channel->next=channels;
-		channel->prev=NULL;
-
-		if(channels)
-			channels->prev=channel;
-		
-		channels=channel;
-
-		notify(player, "%sNew channel \"%s\" created.%s", ca[COLOUR_ERROR_MESSAGES], name, COLOUR_REVERT);
+		*PPrev = Next;
+		if(Next)
+		{
+			Next->PPrev = PPrev;
+		}
 	}
 
-	if(channel->mode==CHANNEL_PRIVATE && !on_channel(channel->invites, player))
+	ChannelPlayer*	OnList(dbref p)
 	{
-		if(string_compare("force", arg2.c_str()) == 0)
+		if(Player == p)
 		{
-			if(Wizard(player))
+			return this;
+		}
+		if(Next)
+		{
+			return Next->OnList(p);
+		}
+		return 0;
+	}
+	dbref			player()	{ return Player; }
+	bool			controller()	{ return Controller; }
+	void			set_controller(bool con) { Controller = con; }
+	time_t			timestamp()	{ return Timestamp; }
+	void			set_timestamp(time_t t) { Timestamp = t; }
+	ChannelPlayer*		next()		{ return Next; }
+};
+
+class Channel
+{
+	String		Name;
+	bool		Private;
+	bool		Censored;
+
+	ChannelPlayer*	Players;
+	ChannelPlayer*	Invites;
+	ChannelPlayer*	Bans;
+
+	Channel*	Next;
+	Channel**	PPrev;
+
+	static Channel*	Head;
+
+	bool	remove_player_fromlist(dbref p, ChannelPlayer* list);
+public:
+	Channel(const CString& n);
+	~Channel();
+	static Channel*	head() { return Head; }
+	static bool	ok_name(const CString& n)
+	{
+		if((n.length() < 2) || (n.length() > 14))
+			return false;
+		if(n.c_str()[0] != CHANNEL_MAGIC_COOKIE)
+			return false;
+		return true;
+	}
+	static Channel* find(const CString& n)
+	{
+		if(!ok_name(n))
+		{
+			return 0;
+		}
+		for(Channel* iter = head(); iter != 0; iter = iter->next())
+		{
+			if(string_compare(n.c_str(), iter->name().c_str()) == 0)
 			{
-				notify(player, "%sWARNING: PRIVATE CHANNEL INVITATION OVERRULED.%s", ca[COLOUR_ERROR_MESSAGES], ca[COLOUR_ERROR_MESSAGES]);
+				return iter;
 			}
-			else
-			{
-				notify(player, "%sSorry, channel \"%s\" is private, and you don't have an invitation.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-				return NULL;
-			}
+		}
+		return 0;
+	}
+		
+	const String&	name() { return Name; }
+	void		set_name(const CString& n) { Name = n; }
+	bool	get_private() { return Private; }
+	void	set_private(bool s) { Private = s; }
+	bool	get_censored() { return Censored; }
+	void	set_censored(bool s) {Censored = s; }
+
+	bool	add_invite(dbref p);
+	bool	remove_invite(dbref p);
+	bool	add_ban(dbref p);
+	bool	remove_ban(dbref p);
+	bool	add_player(dbref p);
+	bool	remove_player(dbref p);
+	bool	remove_player_and_send(dbref p, dbref op, const CString& msg)
+	{
+		if(!find_player(p))
+		{
+			return false;
+		}
+		send(op, msg, true);
+		remove_player(p);
+		if(!Players)
+		{
+			delete this;
+		}
+		return true;
+	}
+	bool	player_banned(dbref p);
+	bool	player_invited(dbref p);
+	bool	player_connected(dbref p);
+
+	ChannelPlayer*	find_player(dbref p) { if(Players) return Players->OnList(p); return 0; }
+	ChannelPlayer*	find_invite(dbref p) { if(Invites) return Invites->OnList(p); return 0; }
+	ChannelPlayer*	find_ban(dbref p) { if(Bans) return Bans->OnList(p); return 0; }
+	ChannelPlayer*	players() { return Players; }
+	ChannelPlayer*	invites() { return Invites; }
+	ChannelPlayer*	bans() { return Bans; }
+	Channel*	next() { return Next; }
+
+	void	send(dbref player, const CString& msg, bool system = false);
+
+	static Channel*	find_and_join_player(dbref player, const CString& cname, bool can_force);
+	bool		join(dbref player, bool can_force);
+};
+
+Channel* Channel::Head = 0;
+
+Channel::Channel(const CString& n)
+{
+	Name = n;
+	Censored = false;
+	Private = false;
+	Players = 0;
+	Invites = 0;
+	Bans = 0;
+
+	Next = Head;
+	Head = this;
+	if(Next)
+	{
+		Next->PPrev = &Next;
+	}
+	PPrev = &Head;
+}
+
+Channel::~Channel()
+{
+	*PPrev = Next;
+	if(Next)
+	{
+		Next->PPrev = PPrev;
+	}
+	if(Players)
+	{
+		Trace("BUG: Channel destroyed whilst players connected to it");
+		while(Players)
+		{
+			delete Players;
+		}
+	}
+	while(Bans)
+	{
+		delete Bans;
+	}
+	while(Invites)
+	{
+		delete Invites;
+	}
+}
+
+bool
+Channel::remove_player_fromlist(dbref p, ChannelPlayer* list)
+{
+	for(; list != NULL; list = list->next())
+	{
+		if(list->player() == p)
+		{
+			delete list;
+			return true;
+		}
+	}
+	return false;
+}
+
+// Add a player to the channel, no matter if they're banned or !invited
+bool
+Channel::add_player(dbref p)
+{
+	if(!player_connected(p))
+	{
+		new ChannelPlayer(p, &Players);
+	}
+	return true;
+}
+
+bool
+Channel::add_invite(dbref p)
+{
+	if(player_banned(p))
+	{
+		remove_ban(p);
+	}
+	if(!player_invited(p))
+	{
+		new ChannelPlayer(p, &Invites);
+	}
+	return true;
+}
+
+bool
+Channel::add_ban(dbref p)
+{
+	if(player_invited(p))
+	{
+		remove_invite(p);
+	}
+	if(!player_banned(p))
+	{
+		new ChannelPlayer(p, &Bans);
+	}
+	return true;
+}
+
+bool
+Channel::remove_player(dbref p)
+{
+	return remove_player_fromlist(p, Players);
+}
+
+bool
+Channel::remove_invite(dbref p)
+{
+	return remove_player_fromlist(p, Invites);
+}
+
+bool
+Channel::remove_ban(dbref p)
+{
+	return remove_player_fromlist(p, Bans);
+}
+
+bool
+Channel::player_connected(dbref p)
+{
+	if(Players)
+	{
+		return Players->OnList(p);
+	}
+	return false;
+}
+
+bool
+Channel::player_invited(dbref p)
+{
+	if(Invites)
+	{
+		return Invites->OnList(p);
+	}
+	return false;
+}
+
+bool
+Channel::player_banned(dbref p)
+{
+	if(Bans)
+	{
+		return Bans->OnList(p);
+	}
+	return false;
+}
+
+void
+Channel::send(dbref player, const CString& msg, bool system)
+{
+ChannelPlayer* iter;
+bool emote = false;
+const char* msgstart = msg.c_str();
+
+	if(msgstart[0] == ':')
+	{
+		emote = true;
+	}
+	if(get_censored())
+	{
+		msgstart = censor(msg.c_str());
+	}
+
+	for(iter = Players; iter != 0; iter = iter->next())
+	{
+		const colour_at& ca = db[iter->player()].get_colour_at();
+		if(system)
+		{
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], msgstart, COLOUR_REVERT);
+		}
+		else if(emote)
+		{
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s %s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), msgstart+1, COLOUR_REVERT);
 		}
 		else
 		{
-			notify(player, "%sSorry, channel \"%s\" is private, and you don't have an invitation.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-			return NULL;
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s says \"%s\"%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), msgstart, COLOUR_REVERT);
+		}
+	}
+}
+
+Channel*
+Channel::find_and_join_player(dbref player, const CString& cname, bool can_force)
+{
+	Channel* channel = 0;
+	bool created = false;
+	channel = find(cname);
+	if(!channel)
+	{
+		if(ok_name(cname))
+		{
+			channel = new Channel(cname);
+			created = true;
 		}
 	}
 
-	if(on_channel(channel->bans, player))
-	{
-		notify(player, "%sSorry, you are banned from joining this channel.%s", ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
-		return NULL;
-	}
-
-	add_to_list(&channel->players, player, channel->players? CHANNEL_PLAYER_NORMAL : CHANNEL_PLAYER_OPERATOR);
-
-	notify(player, "Joined channel \"%s\".", channel->name);
-
-	return channel;
-}
-
-
-static void
-send_chat_message (
-const	dbref	player,
-const	char	*msg,
-const	int	system = 0)
-{
-		static	char	buf[8192];
-	const	struct	channel	*channel=db[player].get_channel();
-
 	if(!channel)
-		return;
-
-	for (struct channel_player *current=channel->players; current; current=current->next)
 	{
-		const colour_at& ca = db[current->player].get_colour_at();
-
-		if(*msg==':')
-			sprintf(buf, "%s[%s]%s  %s%s %s%s", ca[COLOUR_CHANNEL_NAMES], channel->name, COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), msg+1, COLOUR_REVERT);
-		else if(system)
-			sprintf(buf, "%s[%s]%s  %s[%s]%s", ca[COLOUR_CHANNEL_NAMES], channel->name, COLOUR_REVERT, ca[COLOUR_ERROR_MESSAGES], msg, COLOUR_REVERT);
-		else
-			sprintf(buf, "%s[%s]%s  %s%s says \"%s\"%s", ca[COLOUR_CHANNEL_NAMES], channel->name, COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), msg, COLOUR_REVERT);
-
-		notify_censor(current->player, player, "%s", buf);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unable to create channel %s", cname.c_str());
+		return 0;
 	}
+	if(channel->join(player, can_force))
+	{
+		if(created)
+		{
+			channel->find_player(player)->set_controller(true);
+		}
+		return channel;
+	}
+	return 0;
 }
 
-
-void context::do_chat(const char *arg1, const char *arg2)
+bool
+Channel::join(dbref player, bool can_force)
 {
-	if (Typeof(player) == TYPE_PUPPET)
+bool forced = false;
+	if(player_connected(player))
 	{
-		notify_colour(db[player].get_owner(), db[player].get_owner(), COLOUR_ERROR_MESSAGES, "NPCs are not allowed to use chatting channels. Your NPC named '%s' just tried to join one.", db[player].get_name().c_str());
+		return true;
+	}
+	else if(player_banned(player))
+	{
+		if(!can_force)
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You have been banned from channel %s.", name().c_str());
+			return false;
+		}
+		forced = true;
+	}
+	else if(get_private() && !player_invited(player))
+	{
+		if(!can_force)
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You haven't been invited to the private channel %s", name().c_str());
+			return false;
+		}
+		forced = true;
+	}
+	add_player(player);
+	if(forced)
+	{
+		sprintf(scratch_buffer, "%s has overridden permission and joined the channel", db[player].get_name().c_str());
+	}
+	else
+	{
+		sprintf(scratch_buffer, "%s has joined the channel", db[player].get_name().c_str());
+	}
+	send(player, scratch_buffer, true);
+	return true;
+}
+
+void
+context::do_chat(const char* arg1, const char* arg2)
+{
+	if(Typeof(player) != TYPE_PLAYER)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "NPCs aren't allowed to join channels.");
 		RETURN_FAIL;
 	}
 
-	const colour_at& ca = db[get_player()].get_colour_at();
 	if(blank(arg1))
 	{
-		if(!db[player].get_channel())
-			notify(player, "%sYou are not on any channels.%s",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
+		if(db[player].get_channel() == 0)
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You aren't on any channels");
+		}
 		else
 		{
-			notify(player, "%sDefault channel:%s  %s%s%s", ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT, ca[COLOUR_CHANNEL_NAMES], db[player].get_channel()->name, COLOUR_REVERT);
-			sprintf(scratch_buffer, "On channels:  ");
-
-			for(struct channel *current=channels; current; current=current->next)
-				if(on_channel(current->players, player))
+			notify_colour(player, player, COLOUR_CHANNEL_NAMES, "Default channel: %s", db[player].get_channel()->name().c_str());
+			sprintf(scratch_buffer, "On channels: ");
+			for(Channel* iter = Channel::head(); iter != NULL; iter++)
+			{
+				if(iter->player_connected(player))
 				{
-					strcat(scratch_buffer, current->name);
+					strcat(scratch_buffer, iter->name().c_str());
 					strcat(scratch_buffer, ", ");
 				}
-			
-			scratch_buffer[strlen(scratch_buffer)-2]='\0';
-			notify(player, "%s", scratch_buffer);
-		}
-
-		RETURN_SUCC;
-	}
-
-	if(*arg1==CHANNEL_MAGIC_COOKIE)
-	{
-		/* chat #woo - or - chat #woo=message */
-
-		if(!ok_channel_name(arg1))
-		{
-			notify(player, "That isn't a valid channel name.");
-			RETURN_FAIL;
-		}
-
-		struct channel *channel=find_channel(arg1);
-		
-		if(channel && on_channel(channel->players, player))
-		{
-			db[player].set_channel(channel);
-			if(blank(arg2))
-			{
-				notify(player, "%sSwitched to channel \"%s\".%s", ca[COLOUR_ERROR_MESSAGES], arg1, COLOUR_REVERT);
-				RETURN_SUCC;
 			}
+			scratch_buffer[strlen(scratch_buffer)-2] = 0;
+			notify_colour(player, player, COLOUR_CHANNEL_NAMES, "%s", scratch_buffer);
 		}
-		else if((channel=join_channel(arg1, player, arg2)))
-		{
-			db[player].set_channel(channel);
-			sprintf(scratch_buffer, "%s has joined the channel", db[player].get_name().c_str());
-			send_chat_message(player, scratch_buffer, 1);
-
-			if(blank(arg2))
-				RETURN_SUCC;
-		}
-		else
-			RETURN_FAIL;
-
-		/* chat #woo=message */
-
-		send_chat_message(player, arg2);
 		RETURN_SUCC;
 	}
 
-	/* chat message - or - chat message=message */
-
-	if(db[player].get_channel())
+	if(arg1[0] == CHANNEL_MAGIC_COOKIE)
 	{
-		send_chat_message(player, reconstruct_message(arg1, arg2));
+		bool forced = false;
+		if(Wizard(get_effective_id()) && (string_compare(arg2, "force") == 0))
+		{
+			forced = true;
+		}
+		Channel* channel = Channel::find_and_join_player(player, arg1, forced);
+		if(!channel)
+		{
+			RETURN_FAIL;
+		}
+		db[player].set_channel(channel);
+		if(arg2 && !forced)
+			channel->send(player, arg2);
 		RETURN_SUCC;
 	}
-
-	notify(player, "%sYou are not on any channels.%s", ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
-
-	RETURN_FAIL;
+	if(!db[player].get_channel())
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You aren't on a channel");
+		RETURN_FAIL;
+	}
+	db[player].get_channel()->send(player, reconstruct_message(arg1, arg2));
+	RETURN_SUCC;
 }
 
 /*
  * Queries on the channnel state.
  */
-void context::do_query_channel (const char *const arg1, const char * const arg2){
-	const colour_at& ca = db[get_player()].get_colour_at();
+void
+context::do_query_channel (const char *const carg1, const char * const carg2)
+{
+const CString arg1((const char*)carg1);
+const CString arg2((const char*)carg2);
+
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	dbref victim;
-	if ((arg1) && ((strcasecmp(arg1, "primary") == 0) || (strcasecmp(arg1, "all") == 0)))
+	enum { Unknown, Primary, All, Members, Operators } query = Unknown;
+
+	if(!arg1)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES,
+			"Usage:  @?channel <command> [ = <victim> ]\n"
+			"	Commands: primary, all, members, operators");
+		RETURN_FAIL;
+	}
+
+	if(string_compare(arg1.c_str(), "primary") == 0)
+	{
+		query = Primary;
+	}
+	else if(string_compare(arg1.c_str(), "all") == 0)
+	{
+		query = All;
+	}
+	else if(string_compare(arg1.c_str(), "members") == 0)
+	{
+		query = Members;
+	}
+	else
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unknown @?channel option '%s'", arg1.c_str());
+		RETURN_FAIL;
+	}
+
+	dbref victim = player;
+
+	if((Primary == query) || (All == query))
 	{
 		if (arg2)
 		{
-			if((victim = lookup_player(player, arg2)) == NOTHING)
+			if((victim = lookup_player(player, arg2.c_str())) == NOTHING)
 			{
-				notify(player, "%sPlayer not found.%s", ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Player '%s' not found", arg2.c_str());
 				RETURN_FAIL;
 			}
 		}
-		else
-			victim = player;
 	}
-	struct channel *interested_channel;
-	if ((arg1) && ((strcasecmp(arg1, "members") == 0) || (strcasecmp(arg1, "operators") == 0)))
+
+	Channel *interested_channel = 0;
+
+	if((Members == query) || (Operators == query))
 	{
-		if (arg2 != NULL)
-			interested_channel = find_channel (arg2);
+		if (arg2)
+			interested_channel = Channel::find (arg2);
 		else
 			interested_channel = db[player].get_channel();
 		if (interested_channel == NULL)
@@ -340,55 +540,55 @@ void context::do_query_channel (const char *const arg1, const char * const arg2)
 		}
 	}
 
-	if((arg1) && (strcasecmp(arg1, "primary") == 0))
+	if(Primary == query)
 	{
-		struct channel *ch = db[victim].get_channel();
+		Channel *ch = db[victim].get_channel();
 		if(ch)
 		{
 			return_status = COMMAND_SUCC;
-			set_return_string (ch->name);
+			set_return_string (ch->name().c_str());
 		}
 	}
-	else if((arg1) && (strcasecmp(arg1, "all") == 0))
+	else if(All == query)
 	{
 		scratch_buffer[0] = '\0';
-		for(struct channel *current=channels; current; current=current->next)
+		for(Channel *current=Channel::head(); current; current=current->next())
 		{
-			for(struct channel_player *current_player=current->players; current_player; current_player=current_player->next)
+			for(ChannelPlayer *current_player=current->players(); current_player; current_player=current_player->next())
 			{
-				if (current_player->player == victim)
+				if (current_player->player() == victim)
 				{
 					if (scratch_buffer[0] != '\0')
 						strcat (scratch_buffer, ";");
-					strcat (scratch_buffer, current->name);
+					strcat (scratch_buffer, current->name().c_str());
 				}
 			}
 		}
 		return_status = COMMAND_SUCC;
 		set_return_string (scratch_buffer);
 	}
-	else if ((arg1) && (strcasecmp(arg1, "members") == 0))
+	else if(Members == query)
 	{
 		scratch_buffer[0] = '\0';
-		for(struct channel_player *current_player=interested_channel->players; current_player; current_player=current_player->next)
+		for(ChannelPlayer *current_player=interested_channel->players(); current_player; current_player=current_player->next())
 		{
 			if (scratch_buffer[0] != '\0')
 				strcat (scratch_buffer, ";");
-			strcat (scratch_buffer, db[current_player->player].get_name().c_str());
+			strcat (scratch_buffer, db[current_player->player()].get_name().c_str());
 		}
 		return_status = COMMAND_SUCC;
 		set_return_string (scratch_buffer);
 	}
-	else if ((arg1) && (strcasecmp(arg1, "operators") == 0))
+	else if(Operators == query)
 	{
 		scratch_buffer[0] = '\0';
-		for(struct channel_player *current_player=interested_channel->players; current_player; current_player=current_player->next)
+		for(ChannelPlayer *current_player=interested_channel->players(); current_player; current_player=current_player->next())
 		{
-			if (current_player->flags==CHANNEL_PLAYER_OPERATOR)
+			if (current_player->controller())
 			{
 				if (scratch_buffer[0] != '\0')
 					strcat (scratch_buffer, ";");
-				strcat (scratch_buffer, db[current_player->player].get_name().c_str());
+				strcat (scratch_buffer, db[current_player->player()].get_name().c_str());
 			}
 		}
 		return_status = COMMAND_SUCC;
@@ -396,7 +596,8 @@ void context::do_query_channel (const char *const arg1, const char * const arg2)
 	}
 	else
 	{
-		notify(player, "%sThat is not a valid @?channel option%s", ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Something went wrong in @?channel.");
+		Trace("BUG: Something went wrong in @?channel");
 	}
 }
 
@@ -405,219 +606,238 @@ context::do_channel (
 const	char	*arg1,
 const	char	*arg2)
 {
-		dbref			victim;
-	const colour_at&	ca = db[get_player()].get_colour_at();
-
+	if(Typeof(player) != TYPE_PLAYER)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "NPC's can't use channels.");
+		RETURN_FAIL;
+	}
 	if(blank(arg1))
 	{
-		notify(player, "%sUsage:  @channel opadd = <player>%s",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
-		notify(player, "        @channel opdel = <player>");
-		notify(player, "        @channel status");
-		notify(player, "        @channel who");
-		notify(player, "        @channel mode = public / private");
-		notify(player, "        @channel invite = <player>");
-		notify(player, "        @channel uninvite = <player>");
-		notify(player, "        @channel boot = <player>");
-		notify(player, "        @channel ban = <player>");
-		notify(player, "        @channel unban = <player>");
-		notify(player, "        @channel list");
-		notify(player, "        @channel rename = <name>");
-		notify(player, "        @channel leave [ = #channel (or all)");
-		notify(player, "\nAll commands (except list) apply to your current channel. ");
-		notify(player, "Type \"help @channel\" for more information.%s",COLOUR_REVERT );
-
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, 
+			"Usage:  @channel list\n"
+			"        @channel join = <name>\n"
+			"        @channel status\n"
+			"        @channel who\n"
+			"        @channel leave [ = <name> or 'all']\n"
+			"        @channel mode = public / private (Operator only)\n"
+			"        @channel opadd = <player> (Operator only)\n"
+			"        @channel opdel = <player> (Operator only)\n"
+			"        @channel invite = <player> (Operator only)\n"
+			"        @channel uninvite = <player> (Operator only)\n"
+			"        @channel ban = <player> (Operator only)\n"
+			"        @channel unban = <player> (Operator only)\n"
+			"        @channel boot = <player> (Operator only)\n"
+			"        @channel rename = <name> (Operator only)\n"
+			"\nAll commands (except 'list' and 'join') apply to your current channel.\n"
+			"Type \"help @channel\" for more information.");
 		RETURN_FAIL;
 	}
 
-	if(strcasecmp(arg1, "list")==0)
+	enum ChannelCommand { Unknown, List, Join, Status, Who, Leave, Mode, Opadd, Opdel, Invite, Uninvite, Ban, Unban, Boot, Rename } command = Unknown;
+	static struct CommandEntry
 	{
-		if(!channels)
-			notify(player, "%sThere are no channels in use.%s",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
+		const char*	cmd;
+		ChannelCommand	cmdtag;
+	}
+	Commands[] = {
+		{ "list",	List },
+		{ "join",	Join },
+		{ "status",	Status },
+		{ "who",	Who },
+		{ "leave",	Leave },
+		{ "mode",	Mode },
+		{ "opadd",	Opadd },
+		{ "opdel",	Opdel },
+		{ "invite",	Invite },
+		{ "uninvite",	Uninvite },
+		{ "ban",	Ban },
+		{ "unban",	Unban },
+		{ "boot",	Boot },
+		{ "rename",	Rename },
+		{ "name",	Rename }
+	};
+	for(unsigned int i = 0; i < (sizeof(Commands) / sizeof(Commands[0])); i++)
+	{
+		if(string_compare(arg1, Commands[i].cmd) == 0)
+		{
+			command = Commands[i].cmdtag;
+			break;
+		}
+	}
+
+	if(Unknown == command)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "'%s' is not a valid @channel command", arg1);
+		RETURN_FAIL;
+	}
+
+	if(List == command)
+	{
+		if(!Channel::head())
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "There are no channels to list.");
+		}
 		else
 		{
-			int total=0;
-
-			for(struct channel *current=channels; current; current=current->next, total++)
+			Channel* iter = Channel::head();
+			int total = 0;
+			for(; iter != 0; iter = iter->next())
 			{
-				sprintf(scratch_buffer, "%-15.15s%s  ", current->name, current->mode==CHANNEL_PRIVATE? "P":"");
-				for(struct channel_player *current_player=current->players; current_player; current_player=current_player->next)
+				total++;
+				sprintf(scratch_buffer, "%-15.15s%s%s  ", iter->name().c_str(), iter->get_private()?"P":" ",iter->get_censored()?"C":" ");
+				for(ChannelPlayer* cit = iter->players(); cit != 0; cit = cit->next())
 				{
-					if(current_player->flags==CHANNEL_PLAYER_OPERATOR)
+					if(cit->controller())
 						strcat(scratch_buffer, "@");
-					strcat(scratch_buffer, db[current_player->player].get_name().c_str());
+					strcat(scratch_buffer, db[cit->player()].get_name().c_str());
 					strcat(scratch_buffer, ", ");
 				}
-			
-				scratch_buffer[strlen(scratch_buffer)-2]='\0';
-				notify(player, "%s", scratch_buffer);
+				scratch_buffer[strlen(scratch_buffer) - 2] = 0;
+				notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
 			}
-
-			notify(player, "%s%d channel%s listed.%s",ca[COLOUR_ERROR_MESSAGES], total, PLURAL(total), COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_MESSAGES, "%d channel%s listed.", total, PLURAL(total));
 		}
-
 		RETURN_SUCC;
 	}
 
-	struct channel *channel=db[player].get_channel();
+	if (Join == command)
+	{
+		if(blank(arg2))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Which channel do you want to join?");
+			RETURN_FAIL;
+		}
+		bool forced = false;
+		if(Wizard(get_effective_id()))
+		{
+			forced = true;
+		}
+		if(!Channel::find_and_join_player(player, arg2, forced))
+		{
+			RETURN_FAIL;
+		}
+		notify_colour(player, player, COLOUR_MESSAGES, "Channel %s joined.", arg2);
+		RETURN_SUCC;
+	}
+
+	if (Leave == command)
+	{
+		Channel* channel = 0;
+		if(!blank(arg2))
+		{
+			if(string_compare(arg2, "all")==0)
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are no longer on any channels.",COLOUR_REVERT);
+				channel_disconnect(player, true);
+				RETURN_SUCC;
+			}
+
+			if(!Channel::ok_name(arg2))
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't a valid channel name.",COLOUR_REVERT);
+				RETURN_FAIL;
+			}
+
+			if(!(channel=Channel::find(arg2)))
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such channel.",COLOUR_REVERT);
+				RETURN_FAIL;
+			}
+
+			if(!channel->find_player(player))
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You're not on channel %s.", channel->name().c_str());
+				RETURN_FAIL;
+			}
+		}
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You have left channel %s.", channel->name().c_str());
+		if(db[player].get_channel() == channel)
+			db[player].set_channel(NULL);
+		sprintf(scratch_buffer, "%s has left the channel.", db[player].get_name().c_str());
+		channel->remove_player_and_send(player, player, scratch_buffer);
+		RETURN_SUCC;
+	}
+
+	/*
+	 * At this point, all further commands require you to be on a channel.
+	 */
+	Channel *channel=db[player].get_channel();
 
 	if(!channel)
 	{
-		notify(player, "%sYou must belong to a channel to use this command.%s",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must belong to a channel to use this command.");
 		RETURN_FAIL;
 	}
 
-	struct channel_player *channel_player=on_channel(channel->players, player);
+	ChannelPlayer *channel_player=channel->find_player(player);
 
 	if(!channel_player)
 	{
-		notify(player, "%sBug in code - player missing from default channel.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Bug in code - player missing from default channel.");
 		Trace( "BUG: player missing from default channel\n");
 		RETURN_FAIL;
 	}
 
-	if (string_prefix("opadd", arg1))
+	if(Status == command)
 	{
-		dbref victim;
-		struct channel_player *vc;
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is %s and %s.", channel->name().c_str(), channel->get_private()? "private":"public",channel->get_censored()?"censored":"uncensored");
 
-		if(blank(arg2))
+		if(channel->invites())
 		{
-			notify(player, "%sYou must specify someone to add as an operator.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard(get_effective_id())))
-		{
-			notify(player, "%sYou are not an operator on channel %s.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT );
-			RETURN_FAIL;
-		}
-
-		if((victim=lookup_player(player, arg2))==NOTHING)
-		{
-			notify(player, "%sNo such player \"%s\".%s", ca[COLOUR_ERROR_MESSAGES], arg2, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(!(vc=on_channel(channel->players, victim)))
-		{
-			notify(player, "%s%s is not on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(vc->flags==CHANNEL_PLAYER_OPERATOR)
-		{
-			notify(player, "%s%s is already an operator on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		vc->flags=CHANNEL_PLAYER_OPERATOR;
-
-		// add himself etc here one day.
-		if (player != victim)
-			sprintf(scratch_buffer, "%s makes %s an operator", db[player].get_name().c_str(), db[victim].get_name().c_str());
-		else
-			sprintf(scratch_buffer, "%s gets a promotion to operator", db[player].get_name().c_str());
-
-		send_chat_message(player, scratch_buffer, 1);
-
-		RETURN_SUCC;
-	}
-
-
-	if(string_prefix("opdel", arg1))
-	{
-		struct channel_player *vc;
-
-		if(blank(arg2))
-		{
-			notify(player, "%sYou must specify someone to remove as an operator.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard(get_effective_id())))
-		{
-			notify(player, "%sYou are not an operator on channel \"%s\".%s", ca[COLOUR_ERROR_MESSAGES],channel->name,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((victim=lookup_player(player, arg2))==NOTHING)
-		{
-			notify(player, "%sNo such player \"%s\".%s",ca[COLOUR_ERROR_MESSAGES], arg2,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(!(vc=on_channel(channel->players, victim)))
-		{
-			notify(player, "%s%s is not on channel %s.%s", ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(vc->flags!=CHANNEL_PLAYER_OPERATOR)
-		{
-			notify(player, "%s%s is not an operator on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		vc->flags=CHANNEL_PLAYER_NORMAL;
-
-		if (player != victim)
-			sprintf(scratch_buffer, "%s removes %s as an operator", db[player].get_name().c_str(), db[victim].get_name().c_str());
-		else
-			/* resigns from being an operator */
-			sprintf(scratch_buffer, "%s resigns from being an operator", db[player].get_name().c_str());
-		send_chat_message(player, scratch_buffer, 1);
-
-		RETURN_SUCC;
-	 
-	}
-
-	if(string_prefix("status", arg1))
-	{
-		notify(player, "%sChannel %s is %s.%s",ca[COLOUR_ERROR_MESSAGES], channel->name, channel->mode==CHANNEL_PUBLIC? "public":"private",COLOUR_REVERT);
-
-		if(channel->invites)
-		{
-			sprintf(scratch_buffer, "Channel %s outstanding invites:  ", channel->name);
-			for(struct channel_player *cp=channel->invites; cp; cp=cp->next)
+			sprintf(scratch_buffer, "Channel %s outstanding invites:  ", channel->name().c_str());
+			for(ChannelPlayer *cp=channel->invites(); cp; cp=cp->next())
 			{
-				strcat(scratch_buffer, db[cp->player].get_name().c_str());
-				if(cp->next)
+				strcat(scratch_buffer, db[cp->player()].get_name().c_str());
+				if(cp->next())
 					strcat(scratch_buffer, ", ");
 			}
 
-			notify(player, "%s%s%s", ca[COLOUR_ERROR_MESSAGES],scratch_buffer,COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", scratch_buffer,COLOUR_REVERT);
 		}
 
-		if(channel->bans)
+		if(channel->bans())
 		{
-			sprintf(scratch_buffer, "Channel %s banned players:  ", channel->name);
-			for(struct channel_player *cp=channel->bans; cp; cp=cp->next)
+			sprintf(scratch_buffer, "Channel %s banned players:  ", channel->name().c_str());
+			for(ChannelPlayer *cp=channel->bans(); cp; cp=cp->next())
 			{
-				strcat(scratch_buffer, db[cp->player].get_name().c_str());
-				if(cp->next)
+				strcat(scratch_buffer, db[cp->player()].get_name().c_str());
+				if(cp->next())
 					strcat(scratch_buffer, ", ");
 			}
 
-			notify(player, "%s%s%s", ca[COLOUR_ERROR_MESSAGES],scratch_buffer,COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", scratch_buffer,COLOUR_REVERT);
 		}
 	}
 
-	if (string_prefix("who", arg1) || string_prefix("status", arg1))
+	if ((Who == command) || (Status == command))
 	{
-		sprintf(scratch_buffer, "Channel %s players:  ", channel->name);
-		for(struct channel_player *cp=channel->players; cp; cp=cp->next)
+		sprintf(scratch_buffer, "Channel %s players:  ", channel->name().c_str());
+		for(ChannelPlayer *cp=channel->players(); cp; cp=cp->next())
 		{
-			if(cp->flags==CHANNEL_PLAYER_OPERATOR)
+			if(cp->controller())
 				strcat(scratch_buffer, "@");
-			strcat(scratch_buffer, db[cp->player].get_name().c_str());
-			if(cp->next)
+			strcat(scratch_buffer, db[cp->player()].get_name().c_str());
+			if(cp->next())
 				strcat(scratch_buffer, ", ");
 		}
-		notify(player, "%s%s%s", ca[COLOUR_ERROR_MESSAGES],scratch_buffer,COLOUR_REVERT);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", scratch_buffer,COLOUR_REVERT);
 			RETURN_SUCC;
 	}
 
-	if (string_prefix("mode", arg1))
+	/*
+	 * Once we get here, all commands are operator only.
+	 */
+
+	if((!channel_player->controller()) && !Wizard(get_effective_id()))
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are not an operator on channel %s.", channel->name().c_str());
+		RETURN_FAIL;
+	}
+
+	/*
+	 * Put all commands that don't take a player as 2nd argument here.
+	 */
+	if (Mode == command)
 	{
 		if(blank(arg2))
 		{
@@ -625,339 +845,324 @@ const	char	*arg2)
 			RETURN_FAIL;
 		}
 
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard (get_effective_id())))
-		{
-			notify(player, "You are not an operator on channel %s.", channel->name);
-			RETURN_FAIL;
-		}
-
 		if(strncasecmp(arg2, "pub", 3)==0)
 		{
-			if(channel->mode==CHANNEL_PUBLIC)
+			if(!channel->get_private())
 			{
-				notify(player, "Channel %s is already public.", channel->name);
+				notify(player, "Channel %s is already public.", channel->name().c_str());
 				RETURN_FAIL;
 			}
 
-			channel->mode=CHANNEL_PUBLIC;
+			channel->set_private(false);
 			sprintf(scratch_buffer, "%s sets the channel public", db[player].get_name().c_str());
-			send_chat_message(player, scratch_buffer, 1);
+			channel->send(player, scratch_buffer, 1);
 			RETURN_SUCC;
 		}
 
 		if(strncasecmp(arg2, "pri", 3)==0)
 		{
-			if(channel->mode==CHANNEL_PRIVATE)
+			if(channel->get_private())
 			{
-				notify(player, "Channel %s is already private.", channel->name);
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is already private.", channel->name().c_str());
 				RETURN_FAIL;
 			}
 
-			channel->mode=CHANNEL_PRIVATE;
+			channel->set_private(true);
 			sprintf(scratch_buffer, "%s sets the channel private", db[player].get_name().c_str());
-			send_chat_message(player, scratch_buffer, 1);
+			channel->send(player, scratch_buffer, 1);
 			RETURN_SUCC;
 		}
 
-		notify(player, "%sYou must specify either \"private\" or \"public\".%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+		if(strncasecmp(arg2, "cen", 3)==0)
+		{
+			if(channel->get_censored())
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is already censored.", channel->name().c_str());
+				RETURN_FAIL;
+			}
+
+			channel->set_censored(true);
+			sprintf(scratch_buffer, "%s sets the channel censored", db[player].get_name().c_str());
+			channel->send(player, scratch_buffer, 1);
+			RETURN_SUCC;
+		}
+
+		if(strncasecmp(arg2, "unc", 3)==0)
+		{
+			if(!channel->get_censored())
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Channel %s is already uncensored.", channel->name().c_str());
+				RETURN_FAIL;
+			}
+
+			channel->set_censored(false);
+			sprintf(scratch_buffer, "%s sets the channel uncensored", db[player].get_name().c_str());
+			channel->send(player, scratch_buffer, 1);
+			RETURN_SUCC;
+		}
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must specify either \"private\", \"public\", \"censored\" or \"uncensored\".",COLOUR_REVERT);
 		RETURN_FAIL;
 	}
 
-	if (string_prefix("uninvite", arg1) || string_prefix("invite", arg1))
+	if (Rename == command)
 	{
 		if(blank(arg2))
 		{
-			notify(player, "%sYou must specify a player to invite.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must give a new name for the channel.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
-		if((victim=lookup_player(player, arg2))==NOTHING)
+		if(!Channel::ok_name(arg2))
 		{
-			notify(player, "%sNo such player \"%s\".%s", ca[COLOUR_ERROR_MESSAGES],arg2,COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't a valid channel name.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard (get_effective_id())))
+		// Check the channel is not already in use.
+		if (Channel::find (arg2))
 		{
-			notify(player, "%sYou are not an operator on channel %s.%s", ca[COLOUR_ERROR_MESSAGES],channel->name,COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That channel name is already taken.",COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
-		if(on_channel(channel->players, victim))
+		sprintf(scratch_buffer, "%s has changed the channel name to \"%s\"", db[player].get_name().c_str(), arg2);
+		channel->send(player, scratch_buffer, 1);
+
+		channel->set_name(arg2);
+
+		RETURN_SUCC;
+	}
+	/*
+	 * All remaining commands require a player as the 2nd argument.
+	 */
+	if(blank(arg2))
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must specify a player to do that.");
+		RETURN_FAIL;
+	}
+
+	dbref victim;
+
+	if((victim=lookup_player(player, arg2))==NOTHING)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player \"%s\".", arg2);
+		RETURN_FAIL;
+	}
+
+	if (Opadd == command)
+	{
+		ChannelPlayer *vc;
+
+		if(!(vc=channel->find_player(victim)))
 		{
-			notify(player, "%s%s is already on channel %s.%s", ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name, COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not on channel %s.", db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
-		if(on_channel(channel->bans, victim))
+		if(vc->controller())
 		{
-			notify(player, "%s%s is banned from channel %s.%s", ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name, COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is already an operator on channel %s.", db[victim].get_name().c_str(), channel->name().c_str());
+			RETURN_FAIL;
+		}
+
+		vc->set_controller(true);
+
+		// add himself etc here one day.
+		if (player != victim)
+		{
+			sprintf(scratch_buffer, ":makes %s an operator", db[victim].get_name().c_str());
+			channel->send(player, scratch_buffer);
+		}
+		else
+		{
+			channel->send(player, ":gets a promotion to operator");
+		}
+
+		RETURN_SUCC;
+	}
+
+
+	if(Opdel == command)
+	{
+		ChannelPlayer *vc;
+
+		if(!(vc=channel->find_player(victim)))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not on channel %s.",  db[victim].get_name().c_str(), channel->name().c_str(),COLOUR_REVERT);
+			RETURN_FAIL;
+		}
+
+		if(!vc->controller())
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not an operator on channel %s.", db[victim].get_name().c_str(), channel->name().c_str(),COLOUR_REVERT);
+			RETURN_FAIL;
+		}
+
+		vc->set_controller(false);
+
+		if (player != victim)
+			sprintf(scratch_buffer, "%s removes %s as an operator", db[player].get_name().c_str(), db[victim].get_name().c_str());
+		else
+			/* resigns from being an operator */
+			sprintf(scratch_buffer, "%s resigns from being an operator", db[player].get_name().c_str());
+		channel->send(player, scratch_buffer, 1);
+
+		RETURN_SUCC;
+	 
+	}
+
+	if ((Uninvite == command) || (Invite == command))
+	{
+		if(channel->find_player(victim))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is already on channel %s.",  db[victim].get_name().c_str(), channel->name().c_str());
+			RETURN_FAIL;
+		}
+
+		if(channel->player_banned(victim))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is banned from channel %s.",  db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
 		if(!Connected(victim))
 		{
-			notify(player, "%s%s is not connected.%s", ca[COLOUR_ERROR_MESSAGES],db[victim].get_name().c_str(), COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not connected.", db[victim].get_name().c_str());
 			RETURN_FAIL;
 		}
 
-		if (string_prefix("uninvite", arg1))
+		if (Uninvite == command)
 		{
-			if(on_channel(channel->invites, victim))
+			if(channel->player_invited(victim))
 			{
-				remove_from_list(&channel->invites, victim);
-				notify(victim, "%s[%s withdraws your invitation to channel %s]%s",ca[COLOUR_ERROR_MESSAGES], db[player].get_name().c_str(), channel->name,COLOUR_REVERT);
+				channel->remove_invite(victim);
+				notify_colour(victim, victim, COLOUR_MESSAGES, "[%s withdraws your invitation to channel %s]", db[player].get_name().c_str(), channel->name().c_str());
 				sprintf(scratch_buffer, "%s withdraws %s's invitation", db[player].get_name().c_str(), db[victim].get_name().c_str());
-				send_chat_message(player, scratch_buffer, 1);
+				channel->send(player, scratch_buffer, 1);
 			}
-				else
-					notify(player, "%sThat player is not currently invited.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+			else
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player is not currently invited.");
+			}
 		}
 		else	// must be 'invite'
 		{
 			time_t now;
-			struct channel_player *which;
+			ChannelPlayer *which;
 			time(&now);
-			if((which= on_channel(channel->invites, victim)) && (now-which->issued < INVITE_FREQUENCY))
-				notify(player, "%sThat player is already invited (you can re-send the invite in %s).%s",ca[COLOUR_ERROR_MESSAGES],time_string(INVITE_FREQUENCY - now + which->issued), COLOUR_REVERT);
+			if((which=channel->find_invite(victim)) && (now-which->timestamp() < CHANNEL_INVITE_FREQUENCY))
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player is already invited (you can re-send the invite in %s).",time_string(CHANNEL_INVITE_FREQUENCY - now + which->timestamp()));
+			}
 			else
 			{
 				if (which)
 				{
-					time(&(which->issued));
-					notify(victim, "%s[%s re-invites you to channel %s (type \"chat %s\" to join)]%s", ca[COLOUR_ERROR_MESSAGES], db[player].get_name().c_str(), channel->name, channel->name,COLOUR_REVERT);
-				sprintf(scratch_buffer, "%s re-invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
+					which->set_timestamp(time(0));
+					notify_colour(victim, victim, COLOUR_MESSAGES, "[%s re-invites you to channel %s (type \"chat %s\" to join)]", db[player].get_name().c_str(), channel->name().c_str(), channel->name().c_str());
+					sprintf(scratch_buffer, "%s re-invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
 				}
 				else
 				{
-					add_to_list(&channel->invites, victim);
-					notify(victim, "%s[%s invites you to channel %s (type \"chat %s\" to join)]%s", ca[COLOUR_ERROR_MESSAGES], db[player].get_name().c_str(), channel->name, channel->name,COLOUR_REVERT);
-				sprintf(scratch_buffer, "%s invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
+					channel->add_invite(victim);
+					notify_colour(victim, victim, COLOUR_MESSAGES, "[%s invites you to channel %s (type \"chat %s\" to join)]", db[player].get_name().c_str(), channel->name().c_str(), channel->name().c_str());
+					sprintf(scratch_buffer, "%s invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
 				}
-				send_chat_message(player, scratch_buffer, 1);
+				channel->send(player, scratch_buffer, 1);
 			}
 		}
 		RETURN_SUCC;
 	}
 
-	if (string_prefix("boot", arg1))
+	if (Boot == command)
 	{
-		if(blank(arg2))
+		if(player == victim)
 		{
-			notify(player, "%sYou must specify who to boot from the channel.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You cannot boot yourself from a channel. Use @channel leave instead");
+			RETURN_FAIL;
+		}
+		if(!channel->find_player(victim))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not on channel %s.", db[victim].get_name().c_str(), channel->name().c_str(),COLOUR_REVERT);
 			RETURN_FAIL;
 		}
 
-		if((victim=lookup_player(player, arg2))==NOTHING)
-		{
-			notify(player, "%sNo such player \"%s\".%s",ca[COLOUR_ERROR_MESSAGES], arg2,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard (get_effective_id())))
-		{
-			notify(player, "%sYou are not an operator on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(!on_channel(channel->players, victim))
-		{
-			notify(player, "%s%s is not on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		remove_from_list(&channel->players, victim);
-		notify(victim, "%s[%s has booted you from channel %s]%s", ca[COLOUR_ERROR_MESSAGES], db[player].get_name().c_str(), channel->name, COLOUR_REVERT);
+		sprintf(scratch_buffer, "%s has booted %s from the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
+		channel->remove_player_and_send(victim, player, scratch_buffer);
 		db[victim].set_channel(NULL);
-		if(channel->players)
-		{
-			sprintf(scratch_buffer, "%s has booted %s from the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
-			send_chat_message(player, scratch_buffer, 1);
-		}
-		else
-			delete_channel(channel);
-			
 		RETURN_SUCC;
 	}
-	if (string_prefix("ban", arg1))
+
+	if (Ban == command)
 	{
-		if(blank(arg2))
+		if(player == victim)
 		{
-			notify(player, "%sYou must specify a player to ban.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You cannot ban yourself from a channel");
+			RETURN_FAIL;
+		}
+		if(channel->find_ban(victim))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is already banned from channel %s.", db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
-		if((victim=lookup_player(player, arg2))==NOTHING)
+		notify_colour(victim, victim, COLOUR_MESSAGES, "[%s has banned you from channel %s]", db[player].get_name().c_str(), channel->name().c_str());
+		sprintf(scratch_buffer, "%s has banned %s from the channel.", db[player].get_name().c_str(), db[victim].get_name().c_str());
+		if(channel->find_player(victim))
 		{
-			notify(player, "%sNo such player \"%s\".%s", ca[COLOUR_ERROR_MESSAGES], arg2, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard (get_effective_id())))
-		{
-			notify(player, "%sYou are not an operator on channel %s.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(on_channel(channel->bans, victim))
-		{
-			notify(player, "%s%s is already banned from channel %s.%s",ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		notify(victim, "%s[%s has banned you from channel %s]%s", ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), channel->name, COLOUR_REVERT);
-		if(on_channel(channel->players, victim))
-		{
-			remove_from_list(&channel->players, victim);
+			channel->remove_player_and_send(victim, player, scratch_buffer);
 			db[victim].set_channel(NULL);
 		}
-			
-		add_to_list(&channel->bans, victim);
-		sprintf(scratch_buffer, "%s has banned %s from the channel.", db[player].get_name().c_str(), db[victim].get_name().c_str());
-		send_chat_message(player, scratch_buffer, 1);
+		else
+		{
+			channel->send(player, scratch_buffer, 1);
+		}
+		channel->add_ban(victim);
 
 		RETURN_SUCC;
 	}
 		
-	if (string_prefix("unban", arg1))
+	if (Unban == command)
 	{
-		if(blank(arg2))
+		if(!channel->player_banned(victim))
 		{
-			notify(player, "%sYou must specify a player to unban.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s is not banned from channel %s.",  db[victim].get_name().c_str(), channel->name().c_str());
 			RETURN_FAIL;
 		}
 
-		if((victim=lookup_player(player, arg2))==NOTHING)
-		{
-			notify(player, "%sNo such player \"%s\".%s",ca[COLOUR_ERROR_MESSAGES], arg2, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard (get_effective_id())))
-		{
-			notify(player, "%sYou are not an operator on channel %s.%s", ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(!on_channel(channel->bans, victim))
-		{
-			notify(player, "%s%s is not banned from channel %s.%s", ca[COLOUR_ERROR_MESSAGES], db[victim].get_name().c_str(), channel->name, COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		notify(victim, "%s[%s has removed the ban on you from channel %s]%s", ca[COLOUR_ERROR_MESSAGES], db[player].get_name().c_str(), channel->name, COLOUR_REVERT);
+		notify_colour(victim, victim, COLOUR_MESSAGES, "[%s has removed the ban on you from channel %s]", db[player].get_name().c_str(), channel->name().c_str());
 			
-		remove_from_list(&channel->bans, victim);
+		channel->remove_ban(victim);
 		sprintf(scratch_buffer, "%s has removed the ban on %s", db[player].get_name().c_str(), db[victim].get_name().c_str());
-		send_chat_message(player, scratch_buffer, 1);
+		channel->send(player, scratch_buffer, 1);
 
 		RETURN_SUCC;
 	}
 
-	if ((string_prefix("rename", arg1)) || (string_prefix("name", arg1)))
-	{
-		if(blank(arg2))
-		{
-			notify(player, "%sYou must give a new name for the channel.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if((channel_player->flags!=CHANNEL_PLAYER_OPERATOR) && (!Wizard (get_effective_id())))
-		{
-			notify(player, "%sYou are not an operator on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], channel->name,COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		if(!ok_channel_name(arg2))
-		{
-			notify(player, "%sThat isn't a valid channel name.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		// Check the channel is not already in use.
-		if (find_channel (arg2))
-		{
-			notify(player, "%sThat channel name is already taken.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-			RETURN_FAIL;
-		}
-
-		sprintf(scratch_buffer, "%s has changed the channel name to \"%s\"", db[player].get_name().c_str(), arg2);
-		send_chat_message(player, scratch_buffer, 1);
-
-		free(channel->name);
-		channel->name=strdup(arg2);
-
-		RETURN_SUCC;
-	}
-
-	if (string_prefix("leave", arg1))
-	{
-		if(!blank(arg2))
-		{
-			if(strcasecmp(arg2, "all")==0)
-			{
-				notify(player, "%sYou are no longer on any channels.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-				channel_disconnect(player);
-				RETURN_SUCC;
-			}
-
-			if(!ok_channel_name(arg2))
-			{
-				notify(player, "%sThat isn't a valid channel name.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-				RETURN_FAIL;
-			}
-
-			if(!(channel=find_channel(arg2)))
-			{
-				notify(player, "%sNo such channel.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
-				RETURN_FAIL;
-			}
-
-			if(!on_channel(channel->players, player))
-			{
-				notify(player, "%sYou're not on channel %s.%s",ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-				RETURN_FAIL;
-			}
-		}
-		notify(player, "%sYou have left channel %s.%s",ca[COLOUR_ERROR_MESSAGES], channel->name, COLOUR_REVERT);
-		db[player].set_channel(NULL);
-		remove_from_list(&channel->players, player);
-		if(channel->players)
-		{
-			sprintf(scratch_buffer, "%s has left the channel.", db[player].get_name().c_str());
-			send_chat_message(player, scratch_buffer, 1);
-		}
-		else
-			delete_channel(channel);
-
-		RETURN_SUCC;
-	}
-
-	notify(player, "%sUnknown @channel command.  Type @channel on its own for usage information.%s",ca[COLOUR_ERROR_MESSAGES],COLOUR_REVERT);
+	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Something went wrong with @channel.");
+	Trace("BUG: Something went wrong with @channel");
 }
 
 
-void channel_disconnect(dbref player)
+void channel_disconnect(dbref player, bool just_leave)
 {
-	for(struct channel *current=channels; current; )
-		if(on_channel(current->players, player))
+	if(just_leave)
+	{
+		sprintf(scratch_buffer, "%s has left this channel", db[player].get_name().c_str());
+	}
+	else
+	{
+		sprintf(scratch_buffer, "%s has disconnected", db[player].get_name().c_str());
+	}
+	for(Channel *current=Channel::head(); current; )
+	{
+		Channel* next = current->next();
+		if(current->player_connected(player))
 		{
-			remove_from_list(&current->players, player);
-			if(current->players)
-			{
-				db[player].set_channel(current);
-				sprintf(scratch_buffer, "%s has disconnected", db[player].get_name().c_str());
-				send_chat_message(player, scratch_buffer, 1);
-			}
-			else
-			{
-				struct channel *old=current;
-				current=current->next;
-				delete_channel(old);
-			}
+			current->remove_player_and_send(player, player, scratch_buffer);
 		}
-		else
-			current=current->next;
+		current = next;
+	}
 	
 	db[player].set_channel(NULL);
 }
@@ -1013,7 +1218,7 @@ context::do_channel_who
 {
 	int	channel_count = 0;
 	time_t	interval;
-	struct	channel *channel=db[player].get_channel();
+	Channel *channel=db[player].get_channel();
 	const colour_at&	ca = db[get_player()].get_colour_at();
 	char	buf[200];
 
@@ -1022,19 +1227,20 @@ context::do_channel_who
 	 */
 	if(!db[player].get_channel())
 	{
-		notify(player, "%sYou are not on any channels.%s",ca[COLOUR_ERROR_MESSAGES], COLOUR_REVERT);
-		return;
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are not on a channel.");
+		RETURN_FAIL;
 	}
 
 
 	/*
 	 * Print out the header: Players on channel: <name> [(Private)]   Idle
 	 */
-	sprintf(buf, "%s%s %s%s",
+	sprintf(buf, "%s%s %s%s%s",
 			ca[COLOUR_TITLES],
-			channel->name,
+			channel->name().c_str(),
 			ca[COLOUR_ERROR_MESSAGES],
-			channel->mode==CHANNEL_PRIVATE ? "(Private)" : "");
+			channel->get_private() ? "(Private)" : "",
+			channel->get_censored() ? "(Censored)" : "");
 
 	notify(player, "%sPlayers on channel: %-30s                                    %sIdle%s",
 			ca[COLOUR_MESSAGES],
@@ -1046,7 +1252,7 @@ context::do_channel_who
 	/*
 	 * Process each player on the channel
 	 */
-	for(struct channel_player *cp=channel->players; cp; cp=cp->next)
+	for(ChannelPlayer *cp=channel->players(); cp; cp=cp->next())
 	{
 
 		int	firstchar;
@@ -1057,19 +1263,19 @@ context::do_channel_who
 		 */
 		sprintf(scratch_buffer, "%s%8s %s%s",
 				ca[COLOUR_WIZARDS],
-				cp->flags==CHANNEL_PLAYER_OPERATOR ? "Operator" : "",
+				cp->controller() ? "Operator" : "",
 				ca[COLOUR_WHOSTRINGS],
-				db[cp->player].get_name().c_str());
+				db[cp->player()].get_name().c_str());
 
-		interval = get_idle_time (cp->player);
+		interval = get_idle_time (cp->player());
 
 		/*
 		 * If who-string starts with 'special' character, don't put a space in
 		 * (just like normal who)
 		 */
-		if (db[cp->player].get_who_string())
+		if (db[cp->player()].get_who_string())
                 {
-			firstchar = db[cp->player].get_who_string().c_str()[0];
+			firstchar = db[cp->player()].get_who_string().c_str()[0];
 
 			if (!(firstchar == ' '
 			      || firstchar == ','
@@ -1082,11 +1288,11 @@ context::do_channel_who
 				extra_space=1;
 			      }
 
-			strcat(scratch_buffer, chop_string(db[cp->player].get_who_string ().c_str(), 60 - extra_space - strlen(db[cp->player].get_name().c_str())));
+			strcat(scratch_buffer, chop_string(db[cp->player()].get_who_string ().c_str(), 60 - extra_space - strlen(db[cp->player()].get_name().c_str())));
 		}
 		else
 		{
-			strcat(scratch_buffer, chop_string("", 60 - extra_space - strlen(db[cp->player].get_name().c_str())));
+			strcat(scratch_buffer, chop_string("", 60 - extra_space - strlen(db[cp->player()].get_name().c_str())));
 		}
 
 		strcat(scratch_buffer, ca[COLOUR_WHOSTRINGS]);
@@ -1123,6 +1329,6 @@ context::do_channel_who
 		channel_count++;
 	}
 
-	notify(player, "%sPlayers: %s%i%s", ca[COLOUR_MESSAGES], ca[COLOUR_TITLES], channel_count, COLOUR_REVERT);
+	notify_colour(player, player, COLOUR_MESSAGES, "Players: %i", channel_count);
 }
 

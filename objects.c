@@ -635,7 +635,7 @@ unsigned object::reconstruct_inherited_command_block(char *const, const unsigned
 
 /* Player */
 
-void object::set_channel (struct channel *)
+void object::set_channel (Channel *)
 { IMPLEMENTATION_ERROR ("channel") }
 
 void object::set_money (int)
