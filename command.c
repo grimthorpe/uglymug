@@ -103,9 +103,9 @@ const	String& arg2)
 			if (could_doit (*this, command))
 			{
 				do_compound_command (command, command_string, arg1, arg2, NOTHING, matcher);
+				return true;
 			}
-			/* Whether it worked or not, we've tried out best */
-			return true;
+			/* If we can't doit, (its locked against us) then try looking for another command */
 		}
 		matcher.match_restart ();
 	} while ((command = matcher.match_result ()) != NOTHING);
