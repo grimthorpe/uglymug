@@ -113,23 +113,21 @@ char	**argv)
 	
 	if (errflg)
 	{
-		Trace( "usage:  netmud [-fcishABCHPRW]\n\n
-	        h gives this help.
-
-		c does a sanity-check. Game run.
-		i <value> sets the dump interval to <value> minutes.
-		s does a sanity-check only. Game not run.
-		f runs sanity-check and attempts to fix any db errors.
-
-		A <value> checks for players with <value> bp's.
-		B checks for rich players
-		C checks for chown abnormalities
-		H checks for hacks.
-		P checks puppet rules.
-		R checks for room/area rules
-		W checks for wizard set items\n\n"); 
-		exit (2);
-	}
+           Trace( "usage:  netmud [-fcishABCHPRW]\n\n");
+           Trace( "h gives this help.\n\n");
+           Trace( "c does a sanity-check. Game run.\n");
+           Trace( "i <value> sets the dump interval to <value> minutes.\n");
+           Trace( "s does a sanity-check only. Game not run.\n");
+           Trace( "f runs sanity-check and attempts to fix any db errors.\n");
+           Trace( "A <value> checks for players with <value> bp's.\n");
+           Trace( "B checks for rich players\n");
+           Trace( "C checks for chown abnormalities\n");
+           Trace( "H checks for hacks.\n");
+           Trace( "P checks puppet rules.\n");
+           Trace( "R checks for room/area rules\n");
+           Trace( "W checks for wizard set items\n\n");
+           exit (2);
+        }
 #ifndef linux
 	struct	rlimit	lim;
 	/* Ignore command line nice level & use MUD_NICE_LEVEL */
