@@ -7,8 +7,8 @@
 
 // Linux
 #ifdef linux
-#	define	HAS_RESOURCES	0
 #	define	NEEDS_CRYPT_H	1
+#	define	NEEDS_RESOURCES	0
 #endif /* linux */ 
 
 // Sun
@@ -18,13 +18,22 @@
 
 // MinGW
 #ifdef __MINGW32__
-#	define	HAS_RESOURCES	0
+#	define	HAS_FORK	0
+#	define	HAS_SIGNALS	0
 #	define	NEEDS_CRYPT_H	1
+#	define	NEEDS_GETOPT	1
+#	define	NEEDS_RESOURCES	0
 #endif
 
 // Defaults
-#ifndef	HAS_RESOURCES
-#	define	HAS_RESOURCES	1
+#ifndef	HAS_FORK
+#	define	HAS_FORK	1
+#endif
+#ifndef	HAS_SIGNALS
+#	define	HAS_SIGNALS	1
+#endif
+#ifndef	NEEDS_RESOURCES
+#	define	NEEDS_RESOURCES	1
 #endif
 
 #endif	/* OS_H_DEFINED */

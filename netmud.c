@@ -12,9 +12,12 @@
 #include <sys/time.h>
 #include <time.h>
 
-#if HAS_RESOURCES
-#include <sys/resource.h>
-#endif /* HAS_RESOURCES */
+#if NEEDS_GETOPT
+#	include "getopt.h"
+#endif /* NEEDS_GETOPT */
+#if NEEDS_RESOURCES
+#	include <sys/resource.h>
+#endif /* NEEDS_RESOURCES */
 
 #include "mudstring.h"
 #include "db.h"
@@ -128,7 +131,7 @@ char	**argv)
            Trace( "W checks for wizard set items\n\n");
            exit (2);
         }
-#if HAS_RESOURCES
+#if NEEDS_RESOURCES
 	struct	rlimit	lim;
 	/* Ignore command line nice level & use MUD_NICE_LEVEL */
 	/* nice (MUD_NICE_LEVEL - getpriority (PRIO_PROCESS, 0)); */
@@ -137,7 +140,7 @@ char	**argv)
 	lim.rlim_cur=MAX_USERS+4;
 	if(setrlimit(RLIMIT_NOFILE,&lim)<0)
 		log_bug("setrlimit() failed");
-#endif /* HAS_RESOURCES */
+#endif /* NEEDS_RESOURCES */
 
 	srand (time(NULL));
 	game_start_time = time(NULL);
