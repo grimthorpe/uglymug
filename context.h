@@ -359,6 +359,7 @@ public:
 	const	Command_status		get_return_status	()	const	{ return (return_status); }
 	const	String&			get_innermost_arg1	()	const;
 	const	String&			get_innermost_arg2	()	const;
+	const	bool			really_in_command	()	const;
 	const	bool			in_command		()	const;
 	const	dbref			get_current_command	()	const;
 	const	bool			gagged_command		()	const	{ return (call_stack.is_empty())?false:call_stack.top()->gagged_command(); }

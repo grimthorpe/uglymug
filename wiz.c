@@ -93,8 +93,6 @@ const	String& command)
 		if (in_command ())
 			victim_context->calling_from_command ();
 
-		count_down_fuses (*victim_context, victim, !TOM_FUSE);
-		count_down_fuses (*victim_context, db[victim].get_location(), !TOM_FUSE);
 		victim_context->commands_executed = commands_executed;
 		victim_context->step_limit = step_limit;
 		victim_context->process_basic_command (command.c_str());

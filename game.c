@@ -947,7 +947,7 @@ const	char	*original_command)
 		notify(tracer, "%s[%s, %s]%s %s%s",
 			ca[COLOUR_TITLES],
 			value_or_empty(getname (player)),
-			in_command() ?
+			really_in_command() ?
 				value_or_empty(getname (get_current_command ())) :
 				"(top): ",
 			ca[COLOUR_TRACING],
@@ -957,7 +957,7 @@ const	char	*original_command)
 	else if (Debug(player) && ( !in_command() || (trace_command != get_current_command())))
 	{
 		trace_command= get_current_command();
-		notify(effective_player, "%s[%s: %s%s]%s", ca[COLOUR_TITLES], getname (player), in_command() ? "" : "(top) ", in_command() ? getname (get_current_command ()) : original_command, COLOUR_REVERT);
+		notify(effective_player, "%s[%s: %s%s]%s", ca[COLOUR_TITLES], getname (player), really_in_command() ? "" : "(top) ", in_command() ? getname (get_current_command ()) : original_command, COLOUR_REVERT);
 	}
 
 	/* eat extra white space */
@@ -1140,7 +1140,7 @@ const	char	*original_command)
 	}
 
 	/* Do it */
-	if (!in_command ())
+	if (!really_in_command ())
 	{
 		count_down_fuses (*this, player, !TOM_FUSE);
 		count_down_fuses (*this, db [player].get_location (), !TOM_FUSE);
@@ -1158,7 +1158,7 @@ const	char	*original_command)
 	{
 		/* || means an override even of COMMAND_LAST_RESORT */
 		if ((*++a0 == '|')
-			&& in_command ()
+			&& really_in_command ()
 			&& (Wizard (get_current_command ())))
 		{
 			a0++;

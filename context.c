@@ -693,6 +693,13 @@ const	context	&source)
 
 
 const bool
+context::really_in_command ()
+const
+{
+	return (!call_stack.is_empty () || (get_current_command() != NOTHING));
+}
+
+const bool
 context::in_command ()
 const
 
@@ -702,6 +709,9 @@ const
  * when used on a compound command at the top level.
  *
  * AJS, 4 Feb 2000
+ */
+/* Oh, and some things want to check if we're *REALLY* in a command right now,
+ * which really screws up with @force
  */
 	return (!call_stack.is_empty () || called_from_command || (get_current_command() != NOTHING));
 }

@@ -417,7 +417,7 @@ const	String& string)
 
 	db[victim].set_who_string (string);
 
-	if (in_command() && !Wizard(get_current_command()))
+	if (really_in_command() && !Wizard(get_current_command()))
 		notify_colour (victim, victim, COLOUR_ERROR_MESSAGES, "WARNING: Your who string has been changed to %s.", string.c_str());
 	else if (!in_command())
 		notify_colour (player,  player, COLOUR_MESSAGES,"Set.");

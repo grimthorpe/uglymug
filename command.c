@@ -513,7 +513,7 @@ const	String&,
 const	String&)
 
 {
-	if(in_command())
+	if(really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "ERROR: @endif in command when not expected.");
 		log_bug("@endif in command %s(#%d) not expected", getname(get_current_command()), get_current_command());
@@ -601,7 +601,7 @@ const	String&arg2)
 {
 	set_return_string (error_return_string);
 
-	if (!in_command () || call_stack.is_empty ())
+	if (!really_in_command())
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@return can only be used inside a command.");
 		return_status = COMMAND_FAIL;
@@ -649,7 +649,7 @@ const	String&arg2)
 {
 	set_return_string (error_return_string);
 
-	if (!in_command () || call_stack.is_empty ())
+	if (!really_in_command())
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@return can only be used inside a command.");
 		return_status = COMMAND_FAIL;
@@ -707,7 +707,7 @@ const	String&arg1,
 const	String&)
 
 {
-	if ((!in_command()) || (call_stack.is_empty()))
+	if (!really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@if may only be used inside compound commands.");
 		return_status = COMMAND_FAIL;
@@ -752,7 +752,7 @@ const String&arg1,
 const String&)
 
 {
-	if ((!in_command()) || (call_stack.is_empty()))
+	if (!really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@elseif may only be used in compound commands.");
 		return_status = COMMAND_FAIL;
@@ -792,7 +792,7 @@ const	String&,
 const	String&)
 
 {
-	if ((!in_command()) || (call_stack.is_empty()))
+	if (!really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@else may only be used in compound commands.");
 		return_status = COMMAND_FAIL;
@@ -814,7 +814,7 @@ const String&)
 	return_status= COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!in_command() || call_stack.is_empty())
+	if (!really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can only use @end in a command");
 		return;
@@ -841,7 +841,7 @@ const String&args)
 	return_status=COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if (!in_command() || call_stack.is_empty ())
+	if (!really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@with may only be used within compound commands.");
 		return;
@@ -925,7 +925,7 @@ const String&args)
 	return_status=COMMAND_FAIL;
 	set_return_string (error_return_string);
 
-	if ((!in_command()) || (call_stack.is_empty()))
+	if (!really_in_command())
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "@for may only be used in compound commands.");
 		return;
