@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Re-set SO_REUSEADDR on listening sockets so we can restart the game quickly.
+
 um1_055
 	Added a new terminal setting colour_terminal. If unset then game will not
 	output colour. Set to false automatically if you come in through the

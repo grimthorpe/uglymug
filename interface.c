@@ -2235,6 +2235,8 @@ SOCKET make_socket(int port, unsigned long inaddr)
 		perror ("creating stream socket");
 		exit (3);
 	}
+	int one = 1;
+	setsockopt(s, SOL_SOCKET, SO_REUSEADDR, SETSOCKOPT_OPTCAST &one, sizeof(one));
 
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = inaddr;
