@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#) move.c 1.57@(#)";
+/* static char SCCSid[] = "@(#) move.c 1.57@(#)"; */
 
 #include <math.h>
 #include "copyright.h"

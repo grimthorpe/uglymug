@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)set.c 1.108 99/03/02@(#)";
+/* static char SCCSid[] = "@(#)set.c 1.108 99/03/02@(#)"; */
 #include "copyright.h"
 
 /* commands which set parameters */

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)create.c	1.26\t12/2/94";
+/* static char SCCSid[] = "@(#)create.c	1.26\t12/2/94"; */
 #include "copyright.h"
 
 /* Commands that create new objects */

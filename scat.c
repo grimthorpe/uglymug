@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)scat.c	1.5\t6/9/95";
+/* static char SCCSid[] = "@(#)scat.c	1.5\t6/9/95"; */
 /*
  * scat - by Ian Chard
  *

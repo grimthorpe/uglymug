@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)memory.c	1.2\t7/19/94";
+/* static char SCCSid[] = "@(#)memory.c	1.2\t7/19/94"; */
 #include "memory.h"
 #include <stdio.h>
 #include <stdlib.h>

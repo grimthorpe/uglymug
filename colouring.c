@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)colouring.c	1.6\t7/31/95";
+/* static char SCCSid[] = "@(#)colouring.c	1.6\t7/31/95"; */
 /*
  * colouring.c: Make coloured clusters of rooms that can be reached from
  *	each other.

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)db.c	1.46\t7/27/95";
+/* static char SCCSid[] = "@(#)db.c	1.46\t7/27/95"; */
 #include "copyright.h"
 
 /* Modified database format finished 1/3/96. See db.h for details */

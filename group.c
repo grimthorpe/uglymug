@@ -1,4 +1,4 @@
-static char SCCSid[] = "%W\t8/8/95";
+/* static char SCCSid[] = "%W\t8/8/95"; */
 /*
  *	group.c, written by The ReaperMan for group building
 

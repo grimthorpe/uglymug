@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)netmud.c	1.13\t7/19/94";
+/* static char SCCSid[] = "@(#)netmud.c	1.13\t7/19/94"; */
 /*
  *	@(#)netmud.c 2.4 91/01/22
  */

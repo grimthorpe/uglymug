@@ -13,6 +13,6 @@
 #define RETURN(c)	return;
 #define ERROR(c)	fprintf (stderr, "BUG: Problem with regexp: %d\n", c);
 
-static char SCCSid[] = "@(#)regexp.c	1.4\t8/12/94";
+/* static char SCCSid[] = "@(#)regexp.c	1.4\t8/12/94"; */
 
 #include "regexp.h"

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)trawl.c	1.3\t7/19/94";
+/* static char SCCSid[] = "@(#)trawl.c	1.3\t7/19/94"; */
 /* 
  * Name		: OneShot
  *

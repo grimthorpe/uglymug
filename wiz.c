@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)wiz.c	1.39\t10/19/95";
+/* static char SCCSid[] = "@(#)wiz.c	1.39\t10/19/95"; */
 #include "copyright.h"
 
 /* Wizard-only commands */

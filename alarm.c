@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)alarm.c	1.11\t1/5/95";
+/* static char SCCSid[] = "@(#)alarm.c	1.11\t1/5/95"; */
 #include "copyright.h"
 
 #include <time.h>

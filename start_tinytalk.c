@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)start_tinytalk.c	1.2\t7/19/94";
+/* static char SCCSid[] = "@(#)start_tinytalk.c	1.2\t7/19/94"; */
 /*
  * start_tinytalk.c: Start the tinytalk program on spec3, port 4201.
  *

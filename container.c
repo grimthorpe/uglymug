@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)container.c	1.15\t6/14/95";
+/* static char SCCSid[] = "@(#)container.c	1.15\t6/14/95"; */
 #include "copyright.h"
 
 /* Commands that manipulate containers */

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)boolexp.c	1.23\t2/17/95";
+/* static char SCCSid[] = "@(#)boolexp.c	1.23\t2/17/95"; */
 #include "copyright.h"
 
 #include <ctype.h>

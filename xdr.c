@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)xdr.c	1.2\t7/19/94";
+/* static char SCCSid[] = "@(#)xdr.c	1.2\t7/19/94"; */
 /* This isn't true XDR, it's just an attempt at a transfer format that
    will be compatible between most hosts.  Used by the concentrator.
 

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)command.c	1.30\t9/25/95";
+/* static char SCCSid[] = "@(#)command.c	1.30\t9/25/95"; */
 /*
  * command.c: File for compound command implementation.
  *

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)destroy.c	1.39\t10/17/95";
+/* static char SCCSid[] = "@(#)destroy.c	1.39\t10/17/95"; */
 /*
  * destroy.c: Routines to allow destruction of database entries.
  *

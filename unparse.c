@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)unparse.c	1.19\t9/25/95";
+/* static char SCCSid[] = "@(#)unparse.c	1.19\t9/25/95"; */
 #include "db.h"
 
 #include "config.h"

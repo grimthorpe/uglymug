@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)sadness.c	1.4\t7/19/94";
+/* static char SCCSid[] = "@(#)sadness.c	1.4\t7/19/94"; */
 /* 
  * Name		: Sadness
  *

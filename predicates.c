@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)predicates.c	1.32\t10/17/95";
+/* static char SCCSid[] = "@(#)predicates.c	1.32\t10/17/95"; */
 /*
  * predicates.c: Predicates for testing conditions. This lot are
  *	independent of netmud.

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)rob.c	1.17\t6/14/95";
+/* static char SCCSid[] = "@(#)rob.c	1.17\t6/14/95"; */
 #include "copyright.h"
 
 /* rob and kill */

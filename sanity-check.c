@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)sanity-check.c	1.25\t10/19/95";
+/* static char SCCSid[] = "@(#)sanity-check.c	1.25\t10/19/95"; */
 #include "copyright.h"
 #include "externs.h"
 #include "db.h"

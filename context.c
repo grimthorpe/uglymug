@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)context.c	1.26\t9/25/95";
+/* static char SCCSid[] = "@(#)context.c	1.26\t9/25/95"; */
 
 /*
  * context.c: Things to do with execution contexts.

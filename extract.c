@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)extract.c	1.3\t7/19/94";
+/* static char SCCSid[] = "@(#)extract.c	1.3\t7/19/94"; */
 #ifdef DEBUG
 #include "mnemosyne.h"
 #endif

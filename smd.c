@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)smd.c	1.23\t10/13/95";
+/* static char SCCSid[] = "@(#)smd.c	1.23\t10/13/95"; */
 /*
  * smd.c - site monitoring device
  */

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)objects.c	1.34\t7/27/95";
+/* static char SCCSid[] = "@(#)objects.c	1.34\t7/27/95"; */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

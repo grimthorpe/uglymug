@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)game_predicates.c	1.34\t9/25/95";
+/* static char SCCSid[] = "@(#)game_predicates.c	1.34\t9/25/95"; */
 #include "copyright.h"
 
 /* Predicates for testing various conditions */

@@ -1,4 +1,4 @@
-static char SCCSid[] = "@(#)fuses.c	1.16\t1/26/95";
+/* static char SCCSid[] = "@(#)fuses.c	1.16\t1/26/95"; */
 #include "copyright.h"
 
 #include <stdio.h>
