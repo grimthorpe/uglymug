@@ -897,6 +897,12 @@ const String&args)
 		return;
 	}
 
+	if(Private(target) && !controls_for_private(target))
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Permission Denied");
+		return;
+	}
+
 	/* Grab the first argument (up to comma or end of string) */
 	p = arg1;
 	const char* cargs = args.c_str();
