@@ -44,7 +44,7 @@
 #include "game_predicates.h"
 
 #ifdef USE_TERMINFO
-#ifdef sun
+#if defined (sun) || (linux)
 	#include <curses.h>
 #else
 	/* #include <ncurses.h> */
