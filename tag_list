@@ -14,7 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
-
+	Altered set.c to not allow you to give or take money from things other than players and puppets.
 um1_049
 	Altered do_at_debit not to work in commands and only to work under
 		controls_for_write
