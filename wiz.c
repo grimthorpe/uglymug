@@ -264,12 +264,20 @@ const	CString& password)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such player.");
 	else if (!controls_for_write (victim))
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, permission_denied);
-	else if(!password || !ok_password(password))
+	else if(password && !ok_password(password))
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Bad password");
 	else
 	{
 		/* it's ok, do it */
-		db[victim].set_password ((char *) crypt(password.c_str(),password.c_str()) + 2);
+		if(password)
+		{
+			db[victim].set_password ((char *) crypt(password.c_str(),password.c_str()) + 2);
+		}
+		else
+		{
+			db[victim].set_password(NULL);
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Password set to NOTHING. The game will not prompt for a password");
+		}
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Password changed.");
 		notify_colour(victim, player, COLOUR_ERROR_MESSAGES, "Your password has been changed by %s.", getname_inherited (player));
 		return_status = COMMAND_SUCC;
