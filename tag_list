@@ -7,6 +7,7 @@ Please update everytime a new release goes live on the main game. This way we
 can always pull out the correct version. In reverse order.
 Leave the Name: tag at the top of the file to get the correct release tag
 embedded in the game when you build it.
+Add an entry into UglyMUG's UMS (Topic: UM Version) for the release as well.
 
 Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
