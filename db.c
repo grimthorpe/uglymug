@@ -1926,7 +1926,7 @@ FILE	*f)
 					default:
 						log_bug ("Illegal object type in database load.\n");
 				}
-				array [i].set_obj (*obj);
+				array [i].set_obj (*obj, i);
 				Settypeof(i, type);
 				array [i].get_obj ()->read (f);
 				last_entry = i;
@@ -2125,7 +2125,7 @@ void Database::build_player_cache(int player_count)
 	{
 		if(Typeof(i)==TYPE_PLAYER)
 		{
-			player_cache[db[i].get_name()] = i;
+			add_player_to_cache(i, db[i].get_name());
 #ifdef ALIASES
 			for(int alias=0; alias<MAX_ALIASES; alias++)
 			{
@@ -2134,7 +2134,7 @@ void Database::build_player_cache(int player_count)
 				alias_name = db[i].get_alias(alias);
 				if(alias_name)
 				{
-					player_cache[alias_name] = i;
+					add_player_to_cache(i, alias_name);
 				}
 			}
 #endif
@@ -2205,7 +2205,9 @@ const
 	entry = player_cache.find(name);
 	if(entry != player_cache.end())
 	{
-		return entry->second;
+		dbref id = entry->second;
+		// Return the positive value
+		return (id >= 0)?id:-id;
 	}
 #endif
 	return NOTHING;
@@ -2230,7 +2232,15 @@ const	String& name)
 		changed_player_list->prev=entry;
 	changed_player_list=entry;
 #else
-	player_cache[name] = player;
+	if(player_cache.find(name) != player_cache.end())
+	{
+		// NEGATIVE entry means name & alias
+		player_cache[name] = -player;
+	}
+	else
+	{
+		player_cache[name] = player;
+	}
 #endif
 }
 
@@ -2268,7 +2278,20 @@ void Database::remove_player_from_cache(const String& name)
 		if(string_compare(player_cache[i].name, name)==0)
 			player_cache[i].state=CACHE_INVALID;
 #else
-	build_player_cache(0);
+	std::map<String, dbref>::iterator entry;
+	
+	entry = player_cache.find(name);
+	if(entry != player_cache.end())
+	{
+		if(entry->second < 0)
+		{
+			entry->second = -entry->second;
+		}
+		else
+		{
+			player_cache.erase(entry);
+		}
+	}
 #endif
 }
 
