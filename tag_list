@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_053
 	Fixed Accessed(), Modified(), Created() to check if the object is not nothing. (Grimthorpe)
 	Removed PRIVATE flags from Players & Puppets. (Grimthorpe)
 	Changed examine so that you always get the item name (and #id if appropriate) (Grimthorpe)
