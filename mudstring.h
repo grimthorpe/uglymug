@@ -6,9 +6,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define STRINGBUFFER_GROWSIZE	256
+/*
+ * Define OLD_STRING whilst Adrian sorts out bugs in the new string code.
+ */
+
+#define OLD_STRING
+
 class	String;
 class	CString;
+
+extern String NULLSTRING;
+extern CString NULLCSTRING;
+
 
 class	CString
 {
@@ -85,6 +94,146 @@ public:
 	}
 };
 
+#ifdef OLD_STRING
+
+class String
+{
+private:
+	char* buf;
+	unsigned int len;
+
+	void init()
+	{
+		buf = 0;
+		len = 0;
+	}
+	operator int() const;
+	bool operator==(const String& str);
+	bool operator==(int);
+protected:
+	void copy(const char* str)
+	{
+		if(str != buf)
+		{
+			empty();
+			if(str && *str)
+			{
+				buf = strdup(str);
+				len = strlen(buf);
+			}
+		}
+	}
+	void copy(const char* str, unsigned int slen)
+	{
+		if(str != buf)
+		{
+			empty();
+			if(str && *str)
+			{
+				buf = strdup(str);
+				len = slen;
+			}
+		}
+	}
+public:
+	String()
+	{
+		init();
+	}
+	String(const char* str)
+	{
+		init();
+		if(str)
+			copy(str);
+	}
+	String(const String& str)
+	{
+		init();
+		if(str)
+			copy(str.buf, str.len);
+	}
+	String(const CString& str)
+	{
+		init();
+		if(str)
+			copy(str.c_str(), str.length());
+	}
+	~String()
+	{
+		empty();
+	}
+	void empty()
+	{
+		if(buf)
+		{
+			free(buf);
+		}
+		init();
+	}
+
+	const char*	c_str()		const { return (buf)?buf:""; }
+		operator bool()		const { return len != 0; }
+	unsigned int	length()	const { return len; }
+
+	String& operator=(const char* str)
+	{
+		if(str && *str)
+		{
+			copy(str);
+		}
+		else
+		{
+			empty();
+		}
+		return *this;
+	}
+	String& operator=(const String& str)
+	{
+		if(str)
+		{
+			copy(str.c_str(), str.length());
+		}
+		else
+		{
+			empty();
+		}
+		return *this;
+	}
+	String& operator=(const CString& str)
+	{
+		if(str)
+		{
+			copy(str.c_str(), str.length());
+		}
+		else
+		{
+			empty();
+		}
+		return *this;
+	}
+
+	String& operator+=(const CString& str)
+	{
+		unsigned int newlen = len + str.length();
+		char* newbuf = (char*)malloc(newlen+1);
+		if(!newbuf)
+		{
+			return *this;
+		}
+		strcpy(newbuf, buf);
+		strcat(newbuf, str.c_str());
+		free(buf);
+		buf = newbuf;
+		len = newlen;
+
+		return *this;
+	}
+};
+
+#else
+
+#define STRINGBUFFER_GROWSIZE	64
+
 class	String
 {
 public:
@@ -107,26 +256,28 @@ public:
 		}
 		void resize(unsigned int newsize, bool copy=true)
 		{
-			if(newsize < _capacity)
+			if(newsize <= _capacity)
 				return;
-			newsize++; // The newsize doesn't include space for the terminator.
-			while(newsize >= _capacity)
+			while(newsize > _capacity)
 				_capacity += STRINGBUFFER_GROWSIZE;
-			char* tmp = new char[_capacity];
+			char* tmp = (char*)malloc(_capacity+2); // Allow for slight overrun (JIC)
 			if(_buf && copy)
 			{
 				// We use memcpy because the regions will not overlap.
 				memcpy(tmp, _buf, _len); // Copy the \0 terminator
-				delete[] _buf;
 				tmp[_len+1] = 0;
 			}
+			if(_buf)
+				free(_buf);
 			_buf = tmp;
 		}
 		~Buffer() // Private so that nobody can delete this. Use the reference counting!
 		{
-			delete[] _buf;
+			if(_buf)
+				free(_buf);
 		}
 		Buffer& operator=(const Buffer&);
+		Buffer(const Buffer&);
 	public:
 		void assign(const char* str, int len)
 		{
@@ -140,7 +291,8 @@ public:
 			{
 				_len = 0;
 			}
-			_buf[len] = 0; // NULL terminate.
+			if(_buf)
+				_buf[len] = 0; // NULL terminate.
 		}
 		Buffer(unsigned int capacity = 0)
 		{
@@ -162,11 +314,6 @@ public:
 			{
 				assign(str, len);
 			}
-		}
-		Buffer(const Buffer& b)
-		{
-			init();
-			assign(b._buf, b._len);
 		}
 		void ref()
 		{
@@ -196,12 +343,7 @@ public:
 		if(_buffer)
 			_buffer->unref();
 	}
-	String()
-	{
-		_buffer = new Buffer();
-		_buffer->ref();
-	}
-	String(const char* str)
+	String(const char* str = 0)
 	{
 		_buffer = new Buffer(str);
 		_buffer->ref();
@@ -261,6 +403,8 @@ public:
 	operator bool()			const	{ return _buffer->length() > 0; }
 };
 
+#endif // OLD_STRING
+
 inline CString::CString(const String& str)
 {
 	if(str)
@@ -287,7 +431,5 @@ inline CString& CString::operator=(const String& str)
 	return *this;
 }
 
-extern String NULLSTRING;
-extern CString NULLCSTRING;
 
 #endif /* _MUDSTRING_H */
