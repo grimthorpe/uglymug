@@ -239,7 +239,7 @@ version.h:
 
 # Generate our prerequisites.  Plagiarised from the gmake manual by PJC 12/4/03.
 # C and C++ files...
-$(BUILD_DIR)/%.d: %.c
+$(BUILD_DIR)/%.d: %.c version.h
 	@echo Generating dependency file $@...
 	@set -e; rm -f $@; \
 	$(CPLUSPLUS) -MM $(CPPFLAGS) $< > $@.$$$$; \
