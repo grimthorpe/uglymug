@@ -218,7 +218,7 @@ static struct
 	{NULL,		0}
 };
 
-colour_at default_colour_at;
+colour_at	default_colour_at;	// This is the default used in db.h
 
 static char *find_cia(const char *colour_string, char* cia)
 {
@@ -571,7 +571,7 @@ const	CString& colour_codes)
 	db[player].set_colour_play(make_colour_play(player, new_colour));
 
 	if(colour_player ==NOTHING)
-		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia, (colour_codes)? " to default":"");
+		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia, (colour_codes)?"":" to default");
 	else
 		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), (colour_codes)?"":" to default");
 
