@@ -493,7 +493,7 @@ class	object
 	virtual	const	double	get_inherited_volume_limit	()			const;
 	/* Player */
 #ifdef ALIASES
-	virtual	const	String&	get_alias			(int)			const	{ return NULLSTRING; }
+	virtual	const	String&	get_alias			(const int)			const	{ return NULLSTRING; }
 	virtual	const	int	remove_alias			(const String&	)		{ return 0; }
 	virtual	const	int	add_alias			(const String&	)		{ return 0; }
 	virtual	const	int	has_alias			(const String&	)		const	{ return 0; }
@@ -518,19 +518,19 @@ class	object
 	virtual	const	time_t	get_last_entry_time		()			const	{ return 0; }
 	/* Information */
     	virtual	const	unsigned int	get_number_of_elements		()			const	{ return 0; }
-    	virtual	const	String&	get_element			(int)			const	{ return (NULLSTRING); }
-    	virtual		void	destroy_element			(int)				{ return; }
-    	virtual		void	insert_element			(int, const String&)		{ return; }
+    	virtual	const	String&	get_element			(const int)			const	{ return (NULLSTRING); }
+    	virtual		void	destroy_element			(const int)				{ return; }
+    	virtual		void	insert_element			(const int, const String&)		{ return; }
     	/* Array_storage */
     	virtual		void	sort_elements			(int);
 	/* Array */
-    	virtual		void	set_element			(int, const String&)	{ return; }
-    	virtual	const	int	exist_element			(int)			const	{ return 0; }
+    	virtual		void	set_element			(const int, const String&)	{ return; }
+    	virtual	const	int	exist_element			(const int)			const	{ return 0; }
     	/* Dictionary */
-    	virtual		void	set_element			(int, const String&, const String&){ return; }
+    	virtual		void	set_element			(const int, const String&, const String&){ return; }
     	virtual	const	int	exist_element			(const String&)		const	{ return false; }
     	virtual		void	set_index			(const int, const String&);
-    	virtual	const	String&	get_index			(int)			const	{ return (NULLSTRING); }
+    	virtual	const	String&	get_index			(const int)			const	{ return (NULLSTRING); }
 };
 
 

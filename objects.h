@@ -392,7 +392,7 @@ private:
 #if 0	/* PJC 24/1/97 */
 		void		event			(const dbref player, const dbref npc, const char *e);
 #endif
-	const	bool		destroy			(dbref);
+	const	bool		destroy			(const dbref);
 };
 
 class	Player
@@ -450,9 +450,9 @@ private:
 	const	colour_at&	get_colour_at		()  	   		const	{ return col_at?(*col_at):default_colour_at; }
 		void		set_colour_play		(cplay *c)  			{if(colour_play) delete[] colour_play; colour_play = c;}
 	const	cplay *		get_colour_play		()			const	{return colour_play;}
-		void		set_colour_play_size	(int c)				{colour_play_size=c;}
+		void		set_colour_play_size	(const int c)			{colour_play_size=c;}
 	const	int		get_colour_play_size	()			const	{return colour_play_size;}
-		void		set_controller		(dbref c);
+		void		set_controller		(const dbref c);
 		void		set_password		(const String& p);
 		void		set_channel		(Channel *c)		{channel = c;}
 		Channel *	get_channel		()			const	{return channel;}
