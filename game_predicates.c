@@ -228,7 +228,7 @@ const	String& name)
 	if(!ok_name(name))
 		return (false);
 
-	if (name.length() > 20)
+	if (name.length() > MAX_NAME_LENGTH)
 		return (false);
 
 	for(scan = name.c_str(); *scan; scan++)
