@@ -12,6 +12,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+    Massive database code cleanup; we no longer support 'ALPHA' format dumps.
+    @broadcast (and supporting functions) have been removed.
+    Cleaned up set.c slightly; When setting the READONLY flag, do the check
+    before messing with the flag.
     Reconnections are now announced as [foo has reconnected].
     notify_wizard_unconditional has been removed from interface.c as the
     first part of tidying up the code; All notify_wizard output goes to

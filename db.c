@@ -49,7 +49,7 @@ static	void			putfieldtype	(FILE *, const int);
 static	const	int		getfieldtype	(FILE *);
 static	const	int		getint		(FILE *);
 static	const	double		getdouble	(FILE *);
-static	boolexp			*getboolexp	(FILE *, const int version, const int iformat);
+static	boolexp			*getboolexp	(FILE *);
 static	const	dbref		getref		(FILE *);
 
 
@@ -78,206 +78,6 @@ object	*it)
 			getstring(f);
 	}
 }
-
-/* Used for backward compatibility to convert from the flag
- *	int used in db version 16 to the unsigned char array used with
- *	db version 17+
- */
-
-static void
-convert_flags (
-const	dbref			i,
-const	object_flag_type	oldflags)
-
-{
-	if(oldflags & OLD_APPRENTICE)
-		db[i].set_flag(FLAG_APPRENTICE);
-	if(oldflags & OLD_ABORT)
-		db[i].set_flag(FLAG_ABORT);
-	if(oldflags & OLD_WIZARD)
-		db[i].set_flag(FLAG_WIZARD);
-	if(oldflags & OLD_DARK)
-		db[i].set_flag(FLAG_DARK);
-	if(oldflags & OLD_LISTEN)
-		db[i].set_flag(FLAG_LISTEN);
-	if(oldflags & OLD_STICKY)
-		db[i].set_flag(FLAG_STICKY);
-	if(oldflags & OLD_BUILDER)
-		db[i].set_flag(FLAG_BUILDER);
-	if(oldflags & OLD_VISIBLE)
-		db[i].set_flag(FLAG_VISIBLE);
-	if(oldflags & OLD_OPENABLE)
-		db[i].set_flag(FLAG_OPENABLE);
-	if(oldflags & OLD_OPEN)
-		db[i].set_flag(FLAG_OPEN);
-	if(oldflags & OLD_OPAQUE)
-		db[i].set_flag(FLAG_OPAQUE);
-	if(oldflags & OLD_LOCKED)
-		db[i].set_flag(FLAG_LOCKED);
-	if(oldflags & OLD_HAVEN)
-		db[i].set_flag(FLAG_HAVEN);
-	if(oldflags & OLD_CHOWN_OK)
-		db[i].set_flag(FLAG_CHOWN_OK);
-	if(oldflags & OLD_APPRENTICE)
-		db[i].set_flag(FLAG_APPRENTICE);
-	if(oldflags & OLD_TOM)
-		db[i].set_flag(FLAG_TOM);
-	if(oldflags & OLD_NUMBER)
-		db[i].set_flag(FLAG_NUMBER);
-	if(oldflags & OLD_CONNECTED)
-		db[i].set_flag(FLAG_CONNECTED);
-	if(oldflags & OLD_TRACING)
-		db[i].set_flag(FLAG_TRACING);
-	if(oldflags & OLD_FIGHTING)
-		db[i].set_flag(FLAG_FIGHTING);
-	if(oldflags & OLD_ASHCAN)
-		db[i].set_flag(FLAG_ASHCAN);
-	if(oldflags & OLD_INHERITABLE)
-		db[i].set_flag(FLAG_INHERITABLE);
-	if(oldflags & OLD_REFERENCED)
-		db[i].set_flag(FLAG_REFERENCED);
-
-	switch(Typeof(i))
-	{
-		case TYPE_PLAYER:
-		case TYPE_PUPPET:
-			switch ((oldflags & OLD_GENDER_MASK) >> OLD_GENDER_SHIFT)
-			{
-				case OLD_GENDER_MALE:
-					db[i].set_flag(FLAG_MALE);
-					break;
-				case OLD_GENDER_FEMALE:
-					db[i].set_flag(FLAG_FEMALE);
-					break;
-				case OLD_GENDER_NEUTER:
-					db[i].set_flag(FLAG_NEUTER);
-					break;
-				default:
-					/* Unassigned, leave it clear */
-					break;
-			}
-			/*FALLTHROUGH*/
-		case TYPE_THING:
-		case TYPE_EXIT:
-		case TYPE_ROOM:
-
-			switch (((oldflags & OLD_LOW_ARTICLE) >> OLD_LOW_ARTICLE_SHIFT) | ((oldflags & OLD_HIGH_ARTICLE) >> OLD_HIGH_ARTICLE_SHIFT))
-			{
-				case OLD_ARTICLE_NOUN:
-					db[i].set_flag(FLAG_ARTICLE_NOUN);
-					break;
-				case OLD_ARTICLE_PLURAL:
-					db[i].set_flag(FLAG_ARTICLE_PLURAL);
-					break;
-				case OLD_ARTICLE_SINGULAR_VOWEL:
-					db[i].set_flag(FLAG_ARTICLE_SINGULAR_VOWEL);
-					break;
-				case OLD_ARTICLE_SINGULAR_CONS_FLAG:
-					db[i].set_flag(FLAG_ARTICLE_SINGULAR_CONS);
-					break;
-				default:
-					break;
-			}
-			break;
-		default:
-			break;
-
-	}
-}
-
-
-static int
-convert_flag (
-const	int	oldflag)
-{
-	int	tmp;
-
-	if(oldflag == OLD_APPRENTICE)
-		return(FLAG_APPRENTICE);
-	if(oldflag == OLD_ABORT)
-		return(FLAG_ABORT);
-	if(oldflag == OLD_WIZARD)
-		return(FLAG_WIZARD);
-	if(oldflag == OLD_DARK)
-		return(FLAG_DARK);
-	if(oldflag == OLD_LISTEN)
-		return(FLAG_LISTEN);
-	if(oldflag == OLD_STICKY)
-		return(FLAG_STICKY);
-	if(oldflag == OLD_BUILDER)
-		return(FLAG_BUILDER);
-	if(oldflag == OLD_VISIBLE)
-		return(FLAG_VISIBLE);
-	if(oldflag == OLD_OPENABLE)
-		return(FLAG_OPENABLE);
-	if(oldflag == OLD_OPEN)
-		return(FLAG_OPEN);
-	if(oldflag == OLD_OPAQUE)
-		return(FLAG_OPAQUE);
-	if(oldflag == OLD_LOCKED)
-		return(FLAG_LOCKED);
-	if(oldflag == OLD_HAVEN)
-		return(FLAG_HAVEN);
-	if(oldflag == OLD_CHOWN_OK)
-		return(FLAG_CHOWN_OK);
-	if(oldflag == OLD_APPRENTICE)
-		return(FLAG_APPRENTICE);
-	if(oldflag == OLD_TOM)
-		return(FLAG_TOM);
-	if(oldflag == OLD_NUMBER)
-		return(FLAG_NUMBER);
-	if(oldflag == OLD_CONNECTED)
-		return(FLAG_CONNECTED);
-	if(oldflag == OLD_TRACING)
-		return(FLAG_TRACING);
-	if(oldflag == OLD_FIGHTING)
-		return(FLAG_FIGHTING);
-	if(oldflag == OLD_ASHCAN)
-		return(FLAG_ASHCAN);
-	if(oldflag == OLD_INHERITABLE)
-		return(FLAG_INHERITABLE);
-	if(oldflag == OLD_REFERENCED)
-		return(FLAG_REFERENCED);
-
-	tmp = (oldflag & OLD_GENDER_MASK) >> OLD_GENDER_SHIFT;
-	switch(tmp)
-	{
-		case OLD_GENDER_MALE:
-			return(FLAG_MALE);
-			break;
-		case OLD_GENDER_FEMALE:
-			return(FLAG_FEMALE);
-			break;
-		case OLD_GENDER_NEUTER:
-			return(FLAG_NEUTER);
-			break;
-		default:
-			/* Unassigned, leave it clear */
-			break;
-	}
-
-	tmp = (((oldflag & OLD_LOW_ARTICLE) >> OLD_LOW_ARTICLE_SHIFT) | ((oldflag & OLD_HIGH_ARTICLE) >> OLD_HIGH_ARTICLE_SHIFT));
-	switch(tmp)
-	{
-		case OLD_ARTICLE_NOUN:
-			return(FLAG_ARTICLE_NOUN);
-			break;
-		case OLD_ARTICLE_PLURAL:
-			return(FLAG_ARTICLE_PLURAL);
-			break;
-		case OLD_ARTICLE_SINGULAR_VOWEL:
-			return(FLAG_ARTICLE_SINGULAR_VOWEL);
-			break;
-		case OLD_ARTICLE_SINGULAR_CONS_FLAG:
-			return(FLAG_ARTICLE_SINGULAR_CONS);
-			break;
-		default:
-			break;
-	}
-	Trace( "Unknown flag in lock, converted to 0");
-	return(0);
-}
-
 
 static void
 putref (
@@ -449,67 +249,42 @@ const
 
 const bool
 object::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int		fieldtype;
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat == 0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		if(version >16)
+		switch(fieldtype)
 		{
+		case OBJECT_FLAGS:
 			field = get_next_field(f);
 
-			for (int count=0; count < FLAGS_WIDTH; count++)
+			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
-				sscanf (&field[count*2], "%02x", &byte);
-				set_flag_byte (count, byte);
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
-			/* This should really be the field separator */
-		}
-		set_name (getstring (f));
-		set_location (getref (f));
-		set_next (getref (f));
-
-		/* Owner set using direct assignment to avoid set_referenced() on an object that isn't read yet */
-		owner = getref (f);
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-		{
-			switch(fieldtype)
-			{
-				case OBJECT_FLAGS:
-	                        	field = get_next_field(f);
-
-					for(int count=0;count < FLAGS_WIDTH;count++)
-                        		{
-                       	         		sscanf(&field[count*2], "%02x", &byte);
-                                		set_flag_byte(count, byte);
-                        		}
-					break;
-				case OBJECT_NAME:
-					set_name(getstring (f));
-					break;
-				case OBJECT_LOCATION:
-					set_location (getref (f));
-					break;
-				case OBJECT_NEXT:
-					set_next (getref (f));
-					break;
-				case OBJECT_OWNER:
-					owner = getref(f);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in object::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
-			}
+			break;
+		case OBJECT_NAME:
+			set_name(getstring (f));
+			break;
+		case OBJECT_LOCATION:
+			set_location (getref (f));
+			break;
+		case OBJECT_NEXT:
+			set_next (getref (f));
+			break;
+		case OBJECT_OWNER:
+			owner = getref(f);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in object::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -537,9 +312,7 @@ const
 
 const bool
 Dictionary::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int		i;
@@ -548,56 +321,43 @@ const	int	iformat)
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat == 0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		object::read (f, version, iformat);
-		for(i=getint(f); i; i--)
+		switch(fieldtype)
 		{
-			temp = strdup(getstring(f));
-			set_element(0, temp, getstring(f));
-			FREE(temp);
-		}
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-                {
-                        switch(fieldtype)
-                        {
-                                case DICTIONARY_FLAGS:
-                                        field = get_next_field(f);
+		case DICTIONARY_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case DICTIONARY_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case DICTIONARY_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case DICTIONARY_NEXT:
-                                        set_next (getref (f));
-                                        break;
-				case DICTIONARY_OWNER:
-                                        set_owner_no_check (getref(f));
-					break;
-				case DICTIONARY_ELEMENTS:
-					for(i=getint(f); i; i--)
-				        {
-				                temp = strdup(getstring(f));
-				                set_element(0, temp, getstring(f));
-                				FREE(temp);
-        				}
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Dictionary::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case DICTIONARY_NAME:
+			set_name(getstring (f));
+			break;
+		case DICTIONARY_LOCATION:
+			set_location (getref (f));
+			break;
+		case DICTIONARY_NEXT:
+			set_next (getref (f));
+			break;
+		case DICTIONARY_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case DICTIONARY_ELEMENTS:
+			for(i=getint(f); i; i--)
+			{
+				temp = strdup(getstring(f));
+				set_element(0, temp, getstring(f));
+				FREE(temp);
+			}
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Dictionary::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -634,60 +394,45 @@ const
 
 const bool
 Array::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
-
+	FILE	*f)
 {
 	int		fieldtype;
-	int		i;
-	int		num_elements;
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat == 0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		object::read (f, version, iformat);
-		num_elements = getint(f);
-		for(i = 1; i <= num_elements; i++)
-			set_element(i, getstring(f));
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                	{
-                                case ARRAY_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case ARRAY_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case ARRAY_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case ARRAY_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case ARRAY_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case ARRAY_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-				case ARRAY_ELEMENTS:
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Array::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case ARRAY_NAME:
+			set_name(getstring (f));
+			break;
+		case ARRAY_LOCATION:
+			set_location (getref (f));
+			break;
+		case ARRAY_NEXT:
+			set_next (getref (f));
+			break;
+		case ARRAY_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case ARRAY_ELEMENTS:
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Array::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return(true);
@@ -707,58 +452,48 @@ const
 
 const bool
 Describable_object::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int		fieldtype;
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		object::read (f, version, iformat);
-		set_description (getstring (f));
-	}
-	else
-        {
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case DOBJECT_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case DOBJECT_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case DOBJECT_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case DOBJECT_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case DOBJECT_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case DOBJECT_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-				case DOBJECT_DESC:
-					set_description(getstring(f));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Describable_object::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case DOBJECT_NAME:
+			set_name(getstring (f));
+			break;
+		case DOBJECT_LOCATION:
+			set_location (getref (f));
+			break;
+		case DOBJECT_NEXT:
+			set_next (getref (f));
+			break;
+		case DOBJECT_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case DOBJECT_DESC:
+			set_description(getstring(f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Describable_object::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -813,85 +548,69 @@ const
 
 const bool
 Lockable_object::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int		fieldtype;
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Describable_object::read (f, version, iformat);
-		set_key_no_free (getboolexp (f, version, iformat));
-		set_fail_message (getstring (f));
-		set_succ_message (getstring (f));
-		set_drop_message (getstring (f));
-		set_ofail (getstring (f));
-		set_osuccess (getstring (f));
-		set_odrop (getstring (f));
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case LOBJECT_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case LOBJECT_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case LOBJECT_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case LOBJECT_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case LOBJECT_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case LOBJECT_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case LOBJECT_DESC:
-                                        set_description(getstring(f));
-                                        break;
-				case LOBJECT_KEY:
-					set_key_no_free (getboolexp (f, version, iformat));
-					break;
-				case LOBJECT_FAIL:
-					set_fail_message (getstring (f));
-					break;
-				case LOBJECT_SUCC:
-					set_succ_message (getstring (f));
-					break;
-				case LOBJECT_DROP:
-					set_drop_message (getstring (f));
-					break;
-				case LOBJECT_OFAIL:
-					set_ofail (getstring (f));
-					break;
-				case LOBJECT_OSUCC:
-					set_osuccess (getstring (f));
-					break;
-				case LOBJECT_ODROP:
-					set_odrop (getstring (f));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Lockable_object::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case LOBJECT_NAME:
+			set_name(getstring (f));
+			break;
+		case LOBJECT_LOCATION:
+			set_location (getref (f));
+			break;
+		case LOBJECT_NEXT:
+			set_next (getref (f));
+			break;
+		case LOBJECT_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case LOBJECT_DESC:
+			set_description(getstring(f));
+			break;
+		case LOBJECT_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case LOBJECT_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case LOBJECT_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case LOBJECT_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case LOBJECT_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case LOBJECT_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case LOBJECT_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Lockable_object::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -916,83 +635,72 @@ const
 
 const bool
 Inheritable_object::read (
-	FILE    *f,
-const	int     version,
-const	int	iformat)
+	FILE    *f)
 
 {
 	int		fieldtype;
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Lockable_object::read (f, version, iformat);
-		/* Parent set using direct assignment to avoid set_referenced() on an object that isn't read yet */
-		parent = getref (f);
-	}
-	else
-        {
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case IOBJECT_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case IOBJECT_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case IOBJECT_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case IOBJECT_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case IOBJECT_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case IOBJECT_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case IOBJECT_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case IOBJECT_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case IOBJECT_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case IOBJECT_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case IOBJECT_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case IOBJECT_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case IOBJECT_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case IOBJECT_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-				case IOBJECT_PARENT:
-					parent = getref(f);
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Inheritable_object::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case IOBJECT_NAME:
+			set_name(getstring (f));
+			break;
+		case IOBJECT_LOCATION:
+			set_location (getref (f));
+			break;
+		case IOBJECT_NEXT:
+			set_next (getref (f));
+			break;
+		case IOBJECT_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case IOBJECT_DESC:
+			set_description(getstring(f));
+			break;
+		case IOBJECT_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case IOBJECT_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case IOBJECT_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case IOBJECT_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case IOBJECT_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case IOBJECT_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case IOBJECT_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case IOBJECT_PARENT:
+			parent = getref(f);
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Inheritable_object::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -1042,106 +750,90 @@ const
 
 const bool
 Old_object::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int		fieldtype;
 	char		*field;
 	unsigned int	byte;
 
-	if(iformat == 0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Inheritable_object::read (f, version, iformat);
-		set_commands (getref (f));
-		set_contents (getref (f));
-	/* Destination set using direct assignment to avoid set_referenced() on an object that isn't read yet */
-		destination = getref (f);
-		set_exits (getref (f));
-		set_fuses (getref (f));
-		set_info_items (getref (f));
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case OOBJECT_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case OOBJECT_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case OOBJECT_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case OOBJECT_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case OOBJECT_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case OOBJECT_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case OOBJECT_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                               	case OOBJECT_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case OOBJECT_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case OOBJECT_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case OOBJECT_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case OOBJECT_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case OOBJECT_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case OOBJECT_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case OOBJECT_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-				case OOBJECT_COMMANDS:
-					set_commands (getref (f));
-					break;
-				case OOBJECT_CONTENTS:
-					set_contents (getref (f));
-					break;
-				case OOBJECT_DESTINATION:
-					set_destination_no_check (getref (f));
-					break;
-				case OOBJECT_EXITS:
-					set_exits (getref (f));
-					break;
-				case OOBJECT_FUSES:
-					set_fuses (getref (f));
-					break;
-				case OOBJECT_INFO:
-					set_info_items (getref (f));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements (f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Old_object::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case OOBJECT_NAME:
+			set_name(getstring (f));
+			break;
+		case OOBJECT_LOCATION:
+			set_location (getref (f));
+			break;
+		case OOBJECT_NEXT:
+			set_next (getref (f));
+			break;
+		case OOBJECT_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case OOBJECT_DESC:
+			set_description(getstring(f));
+			break;
+		case OOBJECT_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case OOBJECT_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case OOBJECT_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case OOBJECT_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case OOBJECT_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case OOBJECT_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case OOBJECT_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case OOBJECT_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case OOBJECT_COMMANDS:
+			set_commands (getref (f));
+			break;
+		case OOBJECT_CONTENTS:
+			set_contents (getref (f));
+			break;
+		case OOBJECT_DESTINATION:
+			set_destination_no_check (getref (f));
+			break;
+		case OOBJECT_EXITS:
+			set_exits (getref (f));
+			break;
+		case OOBJECT_FUSES:
+			set_fuses (getref (f));
+			break;
+		case OOBJECT_INFO:
+			set_info_items (getref (f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements (f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Old_object::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -1149,138 +841,111 @@ const	int	iformat)
 
 const bool
 Room::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Massy_object::read (f, version, iformat);
-		if (version > 12)
-			last_entry_time = getint (f);
-		if (version < 15)
+		switch(fieldtype)
 		{
-			set_mass_limit (get_mass ());	/* on pre-version 15 db's mass was (supposed) to be used as mass limit */
-			set_volume_limit (get_volume ());
-			set_mass (STANDARD_ROOM_MASS);
-			set_volume (STANDARD_ROOM_VOLUME);
-			set_gravity_factor (STANDARD_ROOM_GRAVITY);
-			if ((get_mass_limit () > 2100000000)
-			|| (get_mass_limit () < 2200000000.0)
-			|| (get_mass_limit () == 1000) || (get_mass_limit () == 0))
-				set_mass_limit (STANDARD_ROOM_MASS_LIMIT);
-			if ((get_volume_limit () > 2100000000)
-			|| (get_volume_limit () < 2200000000.0)
-			|| (get_volume_limit () == 200) || (get_volume_limit () == 0))
-				set_volume_limit (STANDARD_ROOM_VOLUME_LIMIT);
-		}
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case ROOM_FLAGS:
-                                        field = get_next_field(f);
+		case ROOM_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case ROOM_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case ROOM_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case ROOM_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case ROOM_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case ROOM_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case ROOM_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case ROOM_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case ROOM_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case ROOM_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case ROOM_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case ROOM_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case ROOM_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case ROOM_PARENT:
-                                        set_parent_no_check (getref(f));
-					break;
-                                case ROOM_COMMANDS:
-                                        set_commands (getref (f));
-                                        break;
-                                case ROOM_CONTENTS:
-                                        set_contents (getref (f));
-                                        break;
-                                case ROOM_DESTINATION:
-                                        set_destination_no_check (getref (f));
-                                        break;
-                                case ROOM_EXITS:
-                                        set_exits (getref (f));
-                                        break;
-                                case ROOM_FUSES:
-                                        set_fuses (getref (f));
-                                        break;
-                                case ROOM_INFO:
-                                        set_info_items (getref (f));
-                                        break;
-                                case ROOM_GF:
-                                        set_gravity_factor (getdouble (f));
-                                        break;
-                                case ROOM_MASS:
-                                        set_mass (getdouble (f));
-                                        break;
-                                case ROOM_VOLUME:
-                                        set_volume (getdouble (f));
-                                        break;
-                                case ROOM_MASSLIM:
-                                        set_mass_limit (getdouble (f));
-                                        break;
-                                case ROOM_VOLUMELIM:
-                                        set_volume_limit (getdouble (f));
-                                        break;
-				case ROOM_LASTENTRY:
-					last_entry_time = getint (f);
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				case ROOM_CONTSTR:
-					set_contents_string(getstring(f));
-					break;
-                                default:
-                                        Trace( "Something has gone seriously wrong in Room::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case ROOM_NAME:
+			set_name(getstring (f));
+			break;
+		case ROOM_LOCATION:
+			set_location (getref (f));
+			break;
+		case ROOM_NEXT:
+			set_next (getref (f));
+			break;
+		case ROOM_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case ROOM_DESC:
+			set_description(getstring(f));
+			break;
+		case ROOM_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case ROOM_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case ROOM_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case ROOM_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case ROOM_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case ROOM_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case ROOM_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case ROOM_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case ROOM_COMMANDS:
+			set_commands (getref (f));
+			break;
+		case ROOM_CONTENTS:
+			set_contents (getref (f));
+			break;
+		case ROOM_DESTINATION:
+			set_destination_no_check (getref (f));
+			break;
+		case ROOM_EXITS:
+			set_exits (getref (f));
+			break;
+		case ROOM_FUSES:
+			set_fuses (getref (f));
+			break;
+		case ROOM_INFO:
+			set_info_items (getref (f));
+			break;
+		case ROOM_GF:
+			set_gravity_factor (getdouble (f));
+			break;
+		case ROOM_MASS:
+			set_mass (getdouble (f));
+			break;
+		case ROOM_VOLUME:
+			set_volume (getdouble (f));
+			break;
+		case ROOM_MASSLIM:
+			set_mass_limit (getdouble (f));
+			break;
+		case ROOM_VOLUMELIM:
+			set_volume_limit (getdouble (f));
+			break;
+		case ROOM_LASTENTRY:
+			last_entry_time = getint (f);
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		case ROOM_CONTSTR:
+			set_contents_string(getstring(f));
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Room::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -1342,127 +1007,105 @@ const
 
 const bool
 Massy_object::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Old_object::read (f, version, iformat);
-		if (version < 15)
+		switch(fieldtype)
 		{
-			set_mass (getdouble (f));
-			set_volume (getdouble (f));
-		}
-		else
-		{
-			set_gravity_factor (getdouble (f));
-			set_mass (getdouble (f));
-			set_volume (getdouble (f));
-			set_mass_limit (getdouble (f));
-			set_volume_limit (getdouble (f));
-		}
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case MOBJECT_FLAGS:
-                                        field = get_next_field(f);
+		case MOBJECT_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case MOBJECT_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case MOBJECT_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case MOBJECT_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case MOBJECT_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case MOBJECT_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case MOBJECT_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case MOBJECT_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case MOBJECT_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case MOBJECT_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case MOBJECT_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case MOBJECT_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case MOBJECT_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case MOBJECT_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-                                case MOBJECT_COMMANDS:
-                                        set_commands (getref (f));
-                                        break;
-                                case MOBJECT_CONTENTS:
-                                        set_contents (getref (f));
-                                        break;
-                                case MOBJECT_DESTINATION:
-                                        set_destination_no_check (getref (f));
-                                        break;
-                                case MOBJECT_EXITS:
-                                        set_exits (getref (f));
-                                        break;
-                                case MOBJECT_FUSES:
-                                        set_fuses (getref (f));
-                                        break;
-                                case MOBJECT_INFO:
-                                        set_info_items (getref (f));
-                                        break;
-				case MOBJECT_GF:
-					set_gravity_factor (getdouble (f));
-					break;
-				case MOBJECT_MASS:
-					set_mass (getdouble (f));
-					break;
-				case MOBJECT_VOLUME:
-					set_volume (getdouble (f));
-					break;
-				case MOBJECT_MASSLIM:
-					set_mass_limit (getdouble (f));
-					break;
-				case MOBJECT_VOLUMELIM:
-					set_volume_limit (getdouble (f));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements (f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Massy_object::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case MOBJECT_NAME:
+			set_name(getstring (f));
+			break;
+		case MOBJECT_LOCATION:
+			set_location (getref (f));
+			break;
+		case MOBJECT_NEXT:
+			set_next (getref (f));
+			break;
+		case MOBJECT_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case MOBJECT_DESC:
+			set_description(getstring(f));
+			break;
+		case MOBJECT_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case MOBJECT_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case MOBJECT_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case MOBJECT_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case MOBJECT_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case MOBJECT_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case MOBJECT_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case MOBJECT_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case MOBJECT_COMMANDS:
+			set_commands (getref (f));
+			break;
+		case MOBJECT_CONTENTS:
+			set_contents (getref (f));
+			break;
+		case MOBJECT_DESTINATION:
+			set_destination_no_check (getref (f));
+			break;
+		case MOBJECT_EXITS:
+			set_exits (getref (f));
+			break;
+		case MOBJECT_FUSES:
+			set_fuses (getref (f));
+			break;
+		case MOBJECT_INFO:
+			set_info_items (getref (f));
+			break;
+		case MOBJECT_GF:
+			set_gravity_factor (getdouble (f));
+			break;
+		case MOBJECT_MASS:
+			set_mass (getdouble (f));
+			break;
+		case MOBJECT_VOLUME:
+			set_volume (getdouble (f));
+			break;
+		case MOBJECT_MASSLIM:
+			set_mass_limit (getdouble (f));
+			break;
+		case MOBJECT_VOLUMELIM:
+			set_volume_limit (getdouble (f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements (f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Massy_object::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -1471,145 +1114,126 @@ const	int	iformat)
 
 const bool
 puppet::read(
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Massy_object::read(f, version, iformat);
-		set_pennies(getint(f));
-		set_score(getint(f));
-		if(version < 16)
+		switch(fieldtype)
 		{
-			getint(f);	/* Read strength */
-			getint (f);	/* Read paralysistime */
-		}
-		set_race (getstring (f));
-		set_who_string (getstring (f));
-		set_email_addr (getstring (f));
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case PUPPET_FLAGS:
-                                        field = get_next_field(f);
+		case PUPPET_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case PUPPET_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case PUPPET_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case PUPPET_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case PUPPET_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case PUPPET_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case PUPPET_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case PUPPET_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case PUPPET_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case PUPPET_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case PUPPET_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case PUPPET_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case PUPPET_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case PUPPET_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-                                case PUPPET_COMMANDS:
-                                        set_commands (getref (f));
-                                        break;
-                                case PUPPET_CONTENTS:
-                                        set_contents (getref (f));
-                                        break;
-                                case PUPPET_DESTINATION:
-                                        set_destination_no_check (getref (f));
-                                        break;
-                                case PUPPET_EXITS:
-                                        set_exits (getref (f));
-                                        break;
-                                case PUPPET_FUSES:
-                                        set_fuses (getref (f));
-                                        break;
-                                case PUPPET_INFO:
-                                        set_info_items (getref (f));
-                                        break;
-                                case PUPPET_GF:
-                                        set_gravity_factor (getdouble (f));
-                                        break;
-                                case PUPPET_MASS:
-                                        set_mass (getdouble (f));
-                                        break;
-                                case PUPPET_VOLUME:
-                                        set_volume (getdouble (f));
-                                        break;
-                                case PUPPET_MASSLIM:
-                                        set_mass_limit (getdouble (f));
-                                        break;
-                                case PUPPET_VOLUMELIM:
-                                        set_volume_limit (getdouble (f));
-                                        break;
-				case PUPPET_PENNIES:
-					set_pennies(getint(f));
-					break;
-				case PUPPET_SCORE:
-					set_score(getint(f));
-					break;
-				case PUPPET_RACE:
-					set_race (getstring (f));
-					break;
-				case PUPPET_WHOSTRING:
-					set_who_string (getstring (f));
-					break;
-				case PUPPET_EMAIL:
-					set_email_addr (getstring (f));
-					break;
-				case PUPPET_MONEY:
-					set_money (getint (f));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				case PUPPET_BUILDID:
-					build_id = getref (f);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Puppet::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case PUPPET_NAME:
+			set_name(getstring (f));
+			break;
+		case PUPPET_LOCATION:
+			set_location (getref (f));
+			break;
+		case PUPPET_NEXT:
+			set_next (getref (f));
+			break;
+		case PUPPET_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case PUPPET_DESC:
+			set_description(getstring(f));
+			break;
+		case PUPPET_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case PUPPET_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case PUPPET_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case PUPPET_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case PUPPET_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case PUPPET_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case PUPPET_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case PUPPET_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case PUPPET_COMMANDS:
+			set_commands (getref (f));
+			break;
+		case PUPPET_CONTENTS:
+			set_contents (getref (f));
+			break;
+		case PUPPET_DESTINATION:
+			set_destination_no_check (getref (f));
+			break;
+		case PUPPET_EXITS:
+			set_exits (getref (f));
+			break;
+		case PUPPET_FUSES:
+			set_fuses (getref (f));
+			break;
+		case PUPPET_INFO:
+			set_info_items (getref (f));
+			break;
+		case PUPPET_GF:
+			set_gravity_factor (getdouble (f));
+			break;
+		case PUPPET_MASS:
+			set_mass (getdouble (f));
+			break;
+		case PUPPET_VOLUME:
+			set_volume (getdouble (f));
+			break;
+		case PUPPET_MASSLIM:
+			set_mass_limit (getdouble (f));
+			break;
+		case PUPPET_VOLUMELIM:
+			set_volume_limit (getdouble (f));
+			break;
+		case PUPPET_PENNIES:
+			set_pennies(getint(f));
+			break;
+		case PUPPET_SCORE:
+			set_score(getint(f));
+			break;
+		case PUPPET_RACE:
+			set_race (getstring (f));
+			break;
+		case PUPPET_WHOSTRING:
+			set_who_string (getstring (f));
+			break;
+		case PUPPET_EMAIL:
+			set_email_addr (getstring (f));
+			break;
+		case PUPPET_MONEY:
+			set_money (getint (f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		case PUPPET_BUILDID:
+			build_id = getref (f);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Puppet::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -1701,9 +1325,7 @@ const
 
 const bool
 Player::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int fieldtype;
@@ -1711,199 +1333,132 @@ const	int	iformat)
 	char	*field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		if(version > 13)
+		switch(fieldtype)
 		{
-			puppet::read (f, version, iformat);
-			set_password (getstring (f));
-#ifdef ALIASES
-				for (i = 0; i < MAX_ALIASES; i++)
-					set_alias(i, getstring (f));
-#endif /* ALIASES */
-		/* Controller set using direct assignment to avoid set_referenced() on an object that isn't read yet */
-			controller = getref (f);
-			if(version > 15)
-				reset_build_id(getref (f));
-			if(version > 17)
-			{
-				set_colour(getstring(f));
-#if 0
-				/* Combat Stats */
-				weapon = getref(f);
-				armour = getref(f);
-				strength = getref(f);
-				dexterity = getref(f);
-				constitution = getref(f);
-				max_hit_points = getref(f);
-				hit_points = getref(f);
-				experience = getref(f);
-#endif
-			}
-		}
-		else
-		{
-			Massy_object::read(f, version, iformat);
-			set_pennies (getint (f));
-			set_password (getstring (f));
-#ifdef ALIASES
-			if (version > 12)
-				for (i = 0; i < MAX_ALIASES; i++)
-					set_alias(i, getstring (f));
-#endif /* ALIASES */
-			set_score (getint (f));
-			getint (f);		/* Strength */
-			getint (f);		/* Constitution */
-			getint (f);		/* Dexterity */
-			getint (f);		/* Perception */
-			getint (f);		/* Intelligence */
-			getint (f);		/* Hitpoints */
-			getint (f);		/* Armourclass */
-			getint (f);		/* Paralysis time*/
-			getint (f);		/* Level */
-			getint (f);		/* Experience */
-			set_race (getstring (f));
-		/* Controller set using direct assignment to avoid set_referenced() on an object that isn't read yet */
-			controller = getref (f);
-			set_who_string (getstring (f));
-			set_email_addr (getstring (f));
-		}
-		if (version < 15)
-		{
-			set_mass_limit (STANDARD_PLAYER_MASS_LIMIT);
-			set_volume_limit (STANDARD_PLAYER_VOLUME_LIMIT);
-			set_gravity_factor (STANDARD_PLAYER_GRAVITY);
-		}
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case PLAYER_FLAGS:
-                                        field = get_next_field(f);
+		case PLAYER_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case PLAYER_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case PLAYER_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case PLAYER_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case PLAYER_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case PLAYER_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case PLAYER_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case PLAYER_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case PLAYER_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case PLAYER_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case PLAYER_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case PLAYER_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case PLAYER_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case PLAYER_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-                                case PLAYER_COMMANDS:
-                                        set_commands (getref (f));
-                                        break;
-                                case PLAYER_CONTENTS:
-                                        set_contents (getref (f));
-                                        break;
-                                case PLAYER_DESTINATION:
-                                        set_destination_no_check (getref (f));
-                                        break;
-                                case PLAYER_EXITS:
-                                        set_exits (getref (f));
-                                        break;
-                                case PLAYER_FUSES:
-                                        set_fuses (getref (f));
-                                        break;
-                                case PLAYER_INFO:
-                                        set_info_items (getref (f));
-                                        break;
-                                case PLAYER_GF:
-                                        set_gravity_factor (getdouble (f));
-                                        break;
-                                case PLAYER_MASS:
-                                        set_mass (getdouble (f));
-                                        break;
-                                case PLAYER_VOLUME:
-                                        set_volume (getdouble (f));
-                                        break;
-                                case PLAYER_MASSLIM:
-                                        set_mass_limit (getdouble (f));
-                                        break;
-                                case PLAYER_VOLUMELIM:
-                                        set_volume_limit (getdouble (f));
-                                        break;
-                                case PLAYER_PENNIES:
-                                        set_pennies(getint(f));
-                                        break;
-                                case PLAYER_SCORE:
-                                        set_score(getint(f));
-                                        break;
-                                case PLAYER_RACE:
-                                        set_race (getstring (f));
-                                        break;
-                                case PLAYER_WHOSTRING:
-                                        set_who_string (getstring (f));
-                                        break;
-                                case PLAYER_EMAIL:
-                                        set_email_addr (getstring (f));
-                                        break;
-				case PLAYER_PASSWORD:
-					set_password (getstring (f));
-					break;
-				case PLAYER_CONTROLLER:
-					controller = getref (f);
-					break;
-				case PLAYER_BUILDID:
-					reset_build_id (getref (f));
-					break;
-				case PLAYER_COLOUR:
-					set_colour(getstring(f));
-					break;
-				case PLAYER_ALIASES:
-					for (i = 0; i < MAX_ALIASES; i++)
-						set_alias(i, getstring (f));
-					break;
-				case PLAYER_MONEY:
-					set_money (getint (f));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-				default:
-					Trace( "Something has gone seriously wrong in Player::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
 			}
+			break;
+		case PLAYER_NAME:
+			set_name(getstring (f));
+			break;
+		case PLAYER_LOCATION:
+			set_location (getref (f));
+			break;
+		case PLAYER_NEXT:
+			set_next (getref (f));
+			break;
+		case PLAYER_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case PLAYER_DESC:
+			set_description(getstring(f));
+			break;
+		case PLAYER_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case PLAYER_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case PLAYER_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case PLAYER_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case PLAYER_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case PLAYER_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case PLAYER_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case PLAYER_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case PLAYER_COMMANDS:
+			set_commands (getref (f));
+			break;
+		case PLAYER_CONTENTS:
+			set_contents (getref (f));
+			break;
+		case PLAYER_DESTINATION:
+			set_destination_no_check (getref (f));
+			break;
+		case PLAYER_EXITS:
+			set_exits (getref (f));
+			break;
+		case PLAYER_FUSES:
+			set_fuses (getref (f));
+			break;
+		case PLAYER_INFO:
+			set_info_items (getref (f));
+			break;
+		case PLAYER_GF:
+			set_gravity_factor (getdouble (f));
+			break;
+		case PLAYER_MASS:
+			set_mass (getdouble (f));
+			break;
+		case PLAYER_VOLUME:
+			set_volume (getdouble (f));
+			break;
+		case PLAYER_MASSLIM:
+			set_mass_limit (getdouble (f));
+			break;
+		case PLAYER_VOLUMELIM:
+			set_volume_limit (getdouble (f));
+			break;
+		case PLAYER_PENNIES:
+			set_pennies(getint(f));
+			break;
+		case PLAYER_SCORE:
+			set_score(getint(f));
+			break;
+		case PLAYER_RACE:
+			set_race (getstring (f));
+			break;
+		case PLAYER_WHOSTRING:
+			set_who_string (getstring (f));
+			break;
+		case PLAYER_EMAIL:
+			set_email_addr (getstring (f));
+			break;
+		case PLAYER_PASSWORD:
+			set_password (getstring (f));
+			break;
+		case PLAYER_CONTROLLER:
+			controller = getref (f);
+			break;
+		case PLAYER_BUILDID:
+			reset_build_id (getref (f));
+			break;
+		case PLAYER_COLOUR:
+			set_colour(getstring(f));
+			break;
+		case PLAYER_ALIASES:
+			for (i = 0; i < MAX_ALIASES; i++)
+				set_alias(i, getstring (f));
+			break;
+		case PLAYER_MONEY:
+			set_money (getint (f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Player::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
 		}
 	}
 	return (true);
@@ -1933,128 +1488,111 @@ const
 
 const bool
 Thing::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
+	FILE	*f)
 
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Massy_object::read (f, version, iformat);
-		set_contents_string (getstring (f));
-		set_lock_key_no_free (getboolexp (f, version, iformat));
-		if (version < 15)
+		switch(fieldtype)
 		{
-			set_mass_limit (STANDARD_THING_MASS_LIMIT);
-			set_volume_limit (STANDARD_THING_VOLUME_LIMIT);
-			set_gravity_factor (STANDARD_THING_GRAVITY);
-		}
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case THING_FLAGS:
-                                        field = get_next_field(f);
+		case THING_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case THING_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case THING_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case THING_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case THING_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case THING_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case THING_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case THING_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case THING_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case THING_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case THING_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case THING_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case THING_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case THING_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-                                case THING_COMMANDS:
-                                        set_commands (getref (f));
-                                        break;
-                                case THING_CONTENTS:
-                                        set_contents (getref (f));
-                                        break;
-                                case THING_DESTINATION:
-                                        set_destination_no_check (getref (f));
-                                        break;
-                                case THING_EXITS:
-                                        set_exits (getref (f));
-                                        break;
-                                case THING_FUSES:
-                                        set_fuses (getref (f));
-                                        break;
-                                case THING_INFO:
-                                        set_info_items (getref (f));
-                                        break;
-                                case THING_GF:
-                                        set_gravity_factor (getdouble (f));
-                                        break;
-                                case THING_MASS:
-                                        set_mass (getdouble (f));
-                                        break;
-                                case THING_VOLUME:
-                                        set_volume (getdouble (f));
-                                        break;
-                                case THING_MASSLIM:
-                                        set_mass_limit (getdouble (f));
-                                        break;
-                                case THING_VOLUMELIM:
-                                        set_volume_limit (getdouble (f));
-                                        break;
-				case THING_CONTSTR:
-					set_contents_string (getstring (f));
-					break;
-				case THING_KEYNOFREE:
-					set_lock_key_no_free (getboolexp (f, version, iformat));
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-                                default:
-                                        Trace( "Something has gone seriously wrong in Thing::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
-                        }
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
+			}
+			break;
+		case THING_NAME:
+			set_name(getstring (f));
+			break;
+		case THING_LOCATION:
+			set_location (getref (f));
+			break;
+		case THING_NEXT:
+			set_next (getref (f));
+			break;
+		case THING_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case THING_DESC:
+			set_description(getstring(f));
+			break;
+		case THING_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case THING_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case THING_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case THING_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case THING_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case THING_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case THING_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case THING_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case THING_COMMANDS:
+			set_commands (getref (f));
+			break;
+		case THING_CONTENTS:
+			set_contents (getref (f));
+			break;
+		case THING_DESTINATION:
+			set_destination_no_check (getref (f));
+			break;
+		case THING_EXITS:
+			set_exits (getref (f));
+			break;
+		case THING_FUSES:
+			set_fuses (getref (f));
+			break;
+		case THING_INFO:
+			set_info_items (getref (f));
+			break;
+		case THING_GF:
+			set_gravity_factor (getdouble (f));
+			break;
+		case THING_MASS:
+			set_mass (getdouble (f));
+			break;
+		case THING_VOLUME:
+			set_volume (getdouble (f));
+			break;
+		case THING_MASSLIM:
+			set_mass_limit (getdouble (f));
+			break;
+		case THING_VOLUMELIM:
+			set_volume_limit (getdouble (f));
+			break;
+		case THING_CONTSTR:
+			set_contents_string (getstring (f));
+			break;
+		case THING_KEYNOFREE:
+			set_lock_key_no_free (getboolexp (f));
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Thing::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
                 }
 	}
 	return (true);
@@ -2104,106 +1642,89 @@ const
 
 const bool
 Weapon::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
-
+	FILE	*f)
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Inheritable_object::read (f, version, iformat);
-		degradation	= getint(f);
-		damage		= getint(f);
-		speed		= getint(f);
-		ammunition	= getint(f);
-		range		= getint(f);
-		parent_ammunition = getref(f);
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case WEAPON_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case WEAPON_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case WEAPON_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case WEAPON_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case WEAPON_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case WEAPON_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case WEAPON_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case WEAPON_KEY:
-                                        set_key_no_free (getboolexp (f, version,
- iformat));
-                                        break;
-                                case WEAPON_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case WEAPON_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case WEAPON_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case WEAPON_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case WEAPON_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case WEAPON_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case WEAPON_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-				case WEAPON_DEGRAD:
-					degradation     = getint(f);
-					break;
-				case WEAPON_DAMAGE:
-					damage          = getint(f);
-					break;
-				case WEAPON_SPEED:
-					speed           = getint(f);
-					break;
-				case WEAPON_AMMO:
-					ammunition      = getint(f);
-					break;
-				case WEAPON_RANGE:
-					range           = getint(f);
-					break;
-				case WEAPON_PAMMO:
-					parent_ammunition = getref(f);
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-                                default:
-                                        Trace( "Something has gone seriously wrong in Weapon::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
-                        }
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
+			}
+			break;
+		case WEAPON_NAME:
+			set_name(getstring (f));
+			break;
+		case WEAPON_LOCATION:
+			set_location (getref (f));
+			break;
+		case WEAPON_NEXT:
+			set_next (getref (f));
+			break;
+		case WEAPON_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case WEAPON_DESC:
+			set_description(getstring(f));
+			break;
+		case WEAPON_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case WEAPON_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case WEAPON_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case WEAPON_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case WEAPON_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case WEAPON_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case WEAPON_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case WEAPON_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case WEAPON_DEGRAD:
+			degradation     = getint(f);
+			break;
+		case WEAPON_DAMAGE:
+			damage          = getint(f);
+			break;
+		case WEAPON_SPEED:
+			speed           = getint(f);
+			break;
+		case WEAPON_AMMO:
+			ammunition      = getint(f);
+			break;
+		case WEAPON_RANGE:
+			range           = getint(f);
+			break;
+		case WEAPON_PAMMO:
+			parent_ammunition = getref(f);
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Weapon::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
                 }
 	}
 	return (true);
@@ -2233,89 +1754,77 @@ const
 
 const bool
 Armour::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
-
+	FILE	*f)
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Inheritable_object::read (f, version, iformat);
-		degradation = getint(f);
-		protection = getint(f);
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case ARMOUR_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case ARMOUR_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int count=0;count < FLAGS_WIDTH;count++)
-                                        {
-                                                sscanf(&field[count*2], "%02x", &byte);
-                                                set_flag_byte(count, byte);
-                                        }
-                                        break;
-                                case ARMOUR_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case ARMOUR_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case ARMOUR_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case ARMOUR_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case ARMOUR_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case ARMOUR_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case ARMOUR_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case ARMOUR_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case ARMOUR_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case ARMOUR_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case ARMOUR_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case ARMOUR_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case ARMOUR_PARENT:
-                                        set_parent_no_check (getref(f));
-                                        break;
-				case ARMOUR_DEGRAD:
-					degradation = getint(f);
-					break;
-				case ARMOUR_PROTEC:
-					protection = getint(f);
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-                                default:
-                                        Trace( "Something has gone seriously wrong in Armour::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
-                        }
+			for(int count=0;count < FLAGS_WIDTH;count++)
+			{
+				sscanf(&field[count*2], "%02x", &byte);
+				set_flag_byte(count, byte);
+			}
+			break;
+		case ARMOUR_NAME:
+			set_name(getstring (f));
+			break;
+		case ARMOUR_LOCATION:
+			set_location (getref (f));
+			break;
+		case ARMOUR_NEXT:
+			set_next (getref (f));
+			break;
+		case ARMOUR_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case ARMOUR_DESC:
+			set_description(getstring(f));
+			break;
+		case ARMOUR_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case ARMOUR_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case ARMOUR_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case ARMOUR_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case ARMOUR_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case ARMOUR_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case ARMOUR_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case ARMOUR_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case ARMOUR_DEGRAD:
+			degradation = getint(f);
+			break;
+		case ARMOUR_PROTEC:
+			protection = getint(f);
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Armour::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
                 }
 	}
 	return (true);
@@ -2340,85 +1849,74 @@ const
 
 const bool
 Ammunition::read (
-	FILE	*f,
-const	int	version,
-const	int	iformat)
-
+	FILE	*f)
 {
 	int fieldtype;
 	char *field;
 	unsigned int byte;
 
-	if(iformat==0)
+	for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
 	{
-		Inheritable_object::read (f, version, iformat);
-		count = getint(f);
-	}
-	else
-	{
-		for(fieldtype=getfieldtype(f); fieldtype != 257; fieldtype=getfieldtype(f))
-        	{
-                	switch(fieldtype)
-                        {
-                                case AMMO_FLAGS:
-                                        field = get_next_field(f);
+		switch(fieldtype)
+		{
+		case AMMO_FLAGS:
+			field = get_next_field(f);
 
-                                        for(int cnt=0;cnt < FLAGS_WIDTH;cnt++)
-                                        {
-                                                sscanf(&field[cnt*2], "%02x", &byte);
-                                                set_flag_byte(cnt, byte);
-                                        }
-                                        break;
-                                case AMMO_NAME:
-                                        set_name(getstring (f));
-                                        break;
-                                case AMMO_LOCATION:
-                                        set_location (getref (f));
-                                        break;
-                                case AMMO_NEXT:
-                                        set_next (getref (f));
-                                        break;
-                                case AMMO_OWNER:
-                                        set_owner_no_check (getref(f));
-                                        break;
-                                case AMMO_DESC:
-                                        set_description(getstring(f));
-                                        break;
-                                case AMMO_KEY:
-                                        set_key_no_free (getboolexp (f, version, iformat));
-                                        break;
-                                case AMMO_FAIL:
-                                        set_fail_message (getstring (f));
-                                        break;
-                                case AMMO_SUCC:
-                                        set_succ_message (getstring (f));
-                                        break;
-                                case AMMO_DROP:
-                                        set_drop_message (getstring (f));
-                                        break;
-                                case AMMO_OFAIL:
-                                        set_ofail (getstring (f));
-                                        break;
-                                case AMMO_OSUCC:
-                                        set_osuccess (getstring (f));
-                                        break;
-                                case AMMO_ODROP:
-                                        set_odrop (getstring (f));
-                                        break;
-                                case AMMO_PARENT:
-                                        set_parent_no_check (getref(f));
-					break;
-				case AMMO_COUNT:
-					count = getint(f);
-					break;
-				case ARRAY_STORAGE_ELEMENTS:
-					get_array_elements(f, this);
-					break;
-                                default:
-                                        Trace( "Something has gone seriously wrong in Ammunition::read\n");
-					Trace( "Field Type: %d\n", fieldtype);
-					exit(1);
-                        }
+			for(int cnt=0;cnt < FLAGS_WIDTH;cnt++)
+			{
+				sscanf(&field[cnt*2], "%02x", &byte);
+				set_flag_byte(cnt, byte);
+			}
+			break;
+		case AMMO_NAME:
+			set_name(getstring (f));
+			break;
+		case AMMO_LOCATION:
+			set_location (getref (f));
+			break;
+		case AMMO_NEXT:
+			set_next (getref (f));
+			break;
+		case AMMO_OWNER:
+			set_owner_no_check (getref(f));
+			break;
+		case AMMO_DESC:
+			set_description(getstring(f));
+			break;
+		case AMMO_KEY:
+			set_key_no_free (getboolexp (f));
+			break;
+		case AMMO_FAIL:
+			set_fail_message (getstring (f));
+			break;
+		case AMMO_SUCC:
+			set_succ_message (getstring (f));
+			break;
+		case AMMO_DROP:
+			set_drop_message (getstring (f));
+			break;
+		case AMMO_OFAIL:
+			set_ofail (getstring (f));
+			break;
+		case AMMO_OSUCC:
+			set_osuccess (getstring (f));
+			break;
+		case AMMO_ODROP:
+			set_odrop (getstring (f));
+			break;
+		case AMMO_PARENT:
+			set_parent_no_check (getref(f));
+			break;
+		case AMMO_COUNT:
+			count = getint(f);
+			break;
+		case ARRAY_STORAGE_ELEMENTS:
+			get_array_elements(f, this);
+			break;
+		default:
+			Trace( "Something has gone seriously wrong in Ammunition::read\n");
+			Trace( "Field Type: %d\n", fieldtype);
+			exit(1);
                 }
 	}
 	return (true);
@@ -2532,9 +2030,7 @@ FILE	*f)
 
 boolexp *
 getboolexp1(
-char    **buffer_ptr,
-int	version,
-int	iformat)
+char    **buffer_ptr)
 
 {
 	boolexp *b;
@@ -2551,7 +2047,7 @@ int	iformat)
 			if((c = *(*buffer_ptr)++) == '!')
 			{
 				b = new boolexp (BOOLEXP_NOT);
-				b->sub1 = getboolexp1(buffer_ptr, version, iformat);
+				b->sub1 = getboolexp1(buffer_ptr);
 				if((*(*buffer_ptr)++) != ')') goto error;
 				return b;
 			}
@@ -2564,8 +2060,6 @@ int	iformat)
 	/* Will need to be changed if putref/getref change */
 				while(isdigit(c = *(*buffer_ptr)++))
 					b->thing = b->thing * 10 + c - '0';
-				if((iformat == 0) && (version < 17))
-					b->thing = convert_flag(b->thing);
 
 				if (c != ')') goto error;
 				return b;
@@ -2573,7 +2067,7 @@ int	iformat)
 			else
 			{
 				(*buffer_ptr)--;
-				lhs = getboolexp1(buffer_ptr, version, iformat);
+				lhs = getboolexp1(buffer_ptr);
 				switch(c = *(*buffer_ptr)++)
 				{
 					case AND_TOKEN:
@@ -2588,7 +2082,7 @@ int	iformat)
 						goto error;
 						/* break */
 				}
-				b->sub2 = getboolexp1(buffer_ptr, version, iformat);
+				b->sub2 = getboolexp1(buffer_ptr);
 				if(*(*buffer_ptr)++ != ')') goto error;
 				return b;
 			}
@@ -2615,127 +2109,13 @@ int	iformat)
 
 boolexp *
 getboolexp(
-FILE	*f,
-int	version,
-int	iformat)
+FILE	*f)
 
 {
 	char	*buf;
 
 	buf = get_next_field(f);
-	return (getboolexp1(&buf, version, iformat));
-}
-
-
-const bool
-object::read_pre12 (
-	FILE	*f,
-const	int	/* version */)
-
-{
-	owner = getref		(f);
-	return(true);
-}
-
-
-const bool
-Old_object::read_pre12 (
-	FILE	*f,
-const	int	version)
-
-{
-	int			pennies;
-	object_flag_type	type = TYPE_NO_TYPE;
-//	= get_flags() & OLD_TYPE_MASK;
-	dbref			scratch;
-
-	set_name		(getstring	(f));
-	set_description		(getstring	(f));
-	set_location		(getref		(f));
-	scratch = getref (f);
-	if (type != TYPE_VARIABLE)
-		destination = scratch;
-	scratch = getref (f);
-	if (type != TYPE_VARIABLE)
-		set_contents (scratch);
-	scratch = getref (f);
-	if (type != TYPE_VARIABLE)
-		set_exits (scratch);
-	set_next		(getref		(f));
-	set_key			(getboolexp	(f, version, 0));
-	set_fail_message	(getstring	(f));
-	set_succ_message	(getstring	(f));
-	set_drop_message	(getstring	(f));
-	set_ofail		(getstring	(f));
-	set_osuccess		(getstring	(f));
-	set_odrop		(getstring	(f));
-	object::read_pre12(f, version);
-	pennies	= getint (f);
-	if (type == TYPE_PLAYER)
-		set_pennies (pennies);
-	scratch = getref (f);
-	if (type != TYPE_VARIABLE)
-		set_commands (scratch);
-	scratch = getref (f);
-	if (type != TYPE_VARIABLE)
-		set_info_items (scratch);
-	scratch = getref (f);
-	if (type != TYPE_VARIABLE)
-		set_fuses (scratch);
-	switch (type)
-	{
-		case TYPE_ROOM:
-			set_mass_limit		(getdouble (f));
-			set_volume_limit	(getdouble (f));
-			set_gravity_factor	(STANDARD_ROOM_GRAVITY);
-			if (get_mass_limit () > 20000000)
-				set_mass_limit (STANDARD_ROOM_MASS_LIMIT);
-			if (get_volume_limit () > 20000000)
-				set_volume_limit (STANDARD_ROOM_VOLUME_LIMIT);
-			break;
-		case TYPE_THING:
-			set_contents_string	(getstring (f));
-			set_mass		(getdouble (f));
-			set_volume		(getdouble (f));
-			set_lock_key		(getboolexp (f, version, 0));
-			break;
-		case TYPE_PLAYER:
-			set_password		(getstring (f));
-			set_score		(getint (f));
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-						getint (f);
-			set_race		(getstring (f));
-			set_mass		(getdouble (f));
-			set_volume		(getdouble (f));
-			set_controller		(getref(f));
-			set_who_string		(getstring (f));
-			if (version >= 11)
-				set_email_addr	(getstring(f));
-			else
-	      			set_email_addr	(NULL);
-
-			break;
-		case TYPE_EXIT:
-		case TYPE_COMMAND:
-		case TYPE_FUSE:
-		case TYPE_ALARM:
-		case TYPE_VARIABLE:
-			break;
-		default:
-//			Trace( "BUG: Tried to read object of (unknown) type %d.\n", get_flags() & OLD_TYPE_MASK);
-			return (false);
-	}
-
-	/* All went OK */
-	return (true);
+	return (getboolexp1(&buf));
 }
 
 
@@ -2747,11 +2127,9 @@ FILE	*f)
 	dbref			i;
 	dbref			last_entry = NOTHING;
 	object			*obj=NULL;
-	object_flag_type	oldflags = 0;
 	typeof_type		type=TYPE_NO_TYPE;
 	int			version	= 0;
 	char			format[20];
-	int			iformat;
 	char			ch;
 	bool			error = false;
 
@@ -2768,7 +2146,6 @@ FILE	*f)
 	if (string_compare(format, "Beta(tagged)") == 0)
 	{
 		Trace( "Beta(tagged) Database DUMP format recognised.\n");
-		iformat = 1;
 	}
 	else if (string_compare(format, "Alpha") == 0)
 	{
@@ -2780,8 +2157,8 @@ FILE	*f)
 		}
 		else
 		{
-			Trace( "Alpha Database DUMP format version %d recognised.\n", version);
-			iformat = 0;
+			Trace( "Alpha Database DUMP format version %d is no longer supported. Please use UglyCODE release um1_027 or earlier to convert to Beta(tagged) format.\n", version);
+			return (NOTHING);
 		}
 	}
 	else
@@ -2806,7 +2183,7 @@ FILE	*f)
 		{
 			case OBJECT_SEPARATOR:
 				/* This is guaranteed to be a separator IF version > 13 */
-				if(((iformat == 1) || (version > 13)) && ((ch = get_next_char(f)) != '#'))
+				if((ch = get_next_char(f)) != '#')
 				{
 					Trace( "ERROR: Object not correctly saved - Looking for <\\002>#, got <\\002> 0x%x (%c).\n", ch, ch);
 					return (-1);
@@ -2823,10 +2200,7 @@ FILE	*f)
 				if (i <= last_entry)
 				{
 					Trace( "Major Problem Dudes - Item #%d is out of order guv.\n", i);
-					if((iformat == 1) || (version > 13))
-						while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
-					else
-						while ((ch = get_next_char (f)) != '#');
+					while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 					error = true;
 					continue;
 				}
@@ -2835,56 +2209,7 @@ FILE	*f)
 					set_free_between (last_entry + 1, i - 1);
 
 				/* read it in */
-				if((iformat == 0) && (version < 17))
-				{
-					oldflags = getint (f);
-					switch (oldflags & OLD_TYPE_MASK)
-					{
-						case OLD_TYPE_ALARM:
-							type = TYPE_ALARM;
-							break;
-						case OLD_TYPE_COMMAND:
-							type = TYPE_COMMAND;
-							break;
-						case OLD_TYPE_EXIT:
-							type = TYPE_EXIT;
-							break;
-						case OLD_TYPE_FUSE:
-							type = TYPE_FUSE;
-							break;
-						case OLD_TYPE_PLAYER:
-							type = TYPE_PLAYER;
-							break;
-						case OLD_TYPE_PUPPET:
-							type = TYPE_PUPPET;
-							break;
-						case OLD_TYPE_ROOM:
-							type = TYPE_ROOM;
-							break;
-						case OLD_TYPE_THING:
-							type = TYPE_THING;
-							break;
-						case OLD_TYPE_DICTIONARY:
-							type = TYPE_DICTIONARY;
-							break;
-						case OLD_TYPE_PROPERTY:
-							type = TYPE_PROPERTY;
-							break;
-						case OLD_TYPE_ARRAY:
-							type = TYPE_ARRAY;
-							break;
-						case OLD_TYPE_VARIABLE:
-							type = TYPE_VARIABLE;
-							break;
-						default:
-							break;
-					}
-				}
-				else
-				{
-				/* Get the type for 17+ version db's */
-					type = getint(f);
-				}
+				type = getint(f);
 
 				switch (type)
 				{
@@ -2940,21 +2265,7 @@ FILE	*f)
 				}
 				array [i].set_obj (*obj);
 				Settypeof(i, type);
-				if((iformat == 0) && (version < 17))
-					convert_flags(i, oldflags);
-
-				if ((iformat == 0) && (version < 16))
-				{
-					if (version < 12)
-						array [i].get_obj ()->read_pre12 (f, version);
-					else
-						array [i].get_obj ()->read (f, version, iformat);
-					if((Typeof(i) == TYPE_PLAYER)
-						|| (Typeof(i) == TYPE_PUPPET))
-						db[i].reset_build_id(i);
-				}
-				else
-					array [i].get_obj ()->read (f, version, iformat);
+				array [i].get_obj ()->read (f);
 				last_entry = i;
 
 #ifdef ALIASES
@@ -2978,21 +2289,12 @@ FILE	*f)
 				}
 				/* NOTREACHED */
 				break;
-			case '#':
-				if((iformat == 0) && (version < 14))
-				{
-					ch = OBJECT_SEPARATOR;
-					continue;
-				}
 			default:
-				Trace( "Expected <\\002> or #, got 0x%x (%c). Last object read was #%d. Skipping to next #...\n",
+				Trace( "Expected <\\002>, got 0x%x (%c). Last object read was #%d. Skipping to next #...\n",
 					ch,
 					ch,
 					last_entry);
-				if((iformat == 1) || (version > 13))
-					while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
-				else
-					while ((ch = get_next_char (f)) != '#');
+				while((ch = get_next_char (f)) != OBJECT_SEPARATOR);
 				error = true;
 				continue;
 		}

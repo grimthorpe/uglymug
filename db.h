@@ -125,75 +125,6 @@ class	Channel;
 
 #define FLAG_DONTANNOUNCE		51
 
-/* Old defines for db load */
-
-#define OLD_BASE_TYPE_MASK 	0x00000007	/* room for expansion */
-#define OLD_ABORT		0x00000008	/* Fuse attempts to abort command if the fuse command fails */
-#define OLD_WIZARD		0x00000010	/* gets automatic control */
-#define OLD_DARK		0x00000040	/* contents of room are not printed */
-#define OLD_LISTEN		0x00000080	/* player is notified when other players connect and disconnect */
-#define OLD_STICKY		0x00000100	/* this object goes home when dropped */
-#ifdef RESTRICTED_BUILDING
-#define OLD_BUILDER		0x00000200	/* this player can use construction commands */
-#endif /* RESTRICTED_BUILDING */
-#define	OLD_VISIBLE		0x00000400	/* Allows others to examine as if their own */
-#define OLD_OPENABLE	0x00000800	/* if a container is openable */
-#define OLD_OPEN		0x00001000	/* if a container is open */
-#define OLD_OPAQUE		0x00002000	/* if a container is opaque */
-#define OLD_GENDER_MASK	0x0000c000	/* 2 bits of gender */
-#define OLD_LOCKED		0x00010000	/* if a container is locked or fuse not working */
-#define OLD_HAVEN		0x00020000	/* can't kill here */
-#define OLD_CHOWN_OK	0x00040000	/* This can be @chowned */
-#define	OLD_EXTENDED_TYPE	0x00080000	/* Another type bit for expansion */
-#define OLD_APPRENTICE	0x00100000	/* Homes of THINGS and PLAYERS */
-#define OLD_TOM		0x00200000	/* Trigger On Move for fuses */
-#define OLD_NUMBER		0x00400000	/* Do you see number on what you own */
-#define OLD_CONNECTED	0x00800000	/* obvious isn't it ?*/
-#define OLD_TRACING		0x01000000	/* Player wishes to trace commands */
-#define OLD_FIGHTING	0x02000000	/* Can I fight */
-#define	OLD_ASHCAN		0x04000000	/* Binnable on an @gc */
-#define OLD_INHERITABLE	0x08000000	/* This object may be a parent even if you don't control_for_read it */
-#define	OLD_REFERENCED	0x10000000	/* This object has had at least one back-reference made to it at some point */
-#define OLD_READONLY	0x20000000	/* None of the fields of this object may be changed */
-#define OLD_SILENT		0x40000000	/* Can they speak in the room? */
-#define OLD_LOW_ARTICLE		0x00000020
-#define OLD_HIGH_ARTICLE	0x80000000
-#define OLD_ARTICLE_MASK	0x80000020	/* 2 bits for articles */
-#define	OLD_ARTICLE_PLURAL_FLAG		0x00000020
-#define OLD_ARTICLE_SINGULAR_VOWEL_FLAG	0x80000000
-#define OLD_ARTICLE_SINGULAR_CONS_FLAG	0x80000020
-
-#define OLD_TYPE_ROOM 	0x00000000
-#define OLD_TYPE_THING 	0x00000001
-#define OLD_TYPE_EXIT 	0x00000002
-#define OLD_TYPE_PLAYER 	0x00000003
-#define	OLD_TYPE_FREE	0x00000004
-#define	OLD_TYPE_SEMAPHORE	0x00000005
-#define OLD_TYPE_PUPPET	0x00000006
-#define OLD_NOTYPE		0x00000007	/* no particular type */
-#define	OLD_TYPE_COMMAND	0x00080000
-#define	OLD_TYPE_FUSE	0x00080001
-#define	OLD_TYPE_ALARM	0x00080002
-#define	OLD_TYPE_VARIABLE	0x00080003
-#define	OLD_TYPE_PROPERTY	0x00080004
-#define	OLD_TYPE_ARRAY	0x00080005
-#define	OLD_TYPE_DICTIONARY	0x00080006
-#define	OLD_TYPE_TASK	0x00080007
-#define OLD_TYPE_MASK 	0x00080007	/* room for expansion */
-
-#define OLD_GENDER_SHIFT		14
-#define OLD_GENDER_UNASSIGNED	0x0	/* default */
-#define OLD_GENDER_NEUTER		0x1
-#define OLD_GENDER_FEMALE		0x2
-#define OLD_GENDER_MALE		0x3
-
-#define OLD_LOW_ARTICLE_SHIFT	5
-#define OLD_HIGH_ARTICLE_SHIFT	30
-#define OLD_ARTICLE_NOUN		0x0	/* This will be the default */
-#define OLD_ARTICLE_PLURAL		0x1
-#define OLD_ARTICLE_SINGULAR_VOWEL	0x2
-#define OLD_ARTICLE_SINGULAR_CONS	0x3
-
 /* Used inside the code and not stored in the db */
 /* Lee, says so and I belive him !*/
 #define ARTICLE_LOWER_INDEFINITE  0x0
@@ -289,19 +220,6 @@ typedef	char			boolexp_type;
 #define	BOOLEXP_NOT		2
 #define	BOOLEXP_CONST		3
 #define BOOLEXP_FLAG		4
-
-/* The following flags are still needed in if the system is to load pre-version 10 db's */
-#define BOOLFLAG_WIZARD		1
-#define BOOLFLAG_DARK		2
-#define BOOLFLAG_NEUTER		3
-#define BOOLFLAG_MALE		4
-#define BOOLFLAG_FEMALE		5
-#define BOOLFLAG_STICKY		6
-#define BOOLFLAG_HAVEN		7
-#define BOOLFLAG_CHOWN_OK	8
-#define BOOLFLAG_APPRENTICE	9
-#define BOOLFLAG_ERIC		10
-#define BOOLFLAG_LISTEN_OK	11
 
 /* This little lot following is so that the database load/save knows the number
  * of the field to save for each field on each object. When adding fields to 
@@ -655,7 +573,7 @@ class	boolexp
 	friend	boolexp		*parse_boolexp_T	(const dbref player);
 	friend	boolexp		*parse_boolexp_F	(const dbref player);
 	friend	void		putbool_subexp		(FILE *, const boolexp *, char **);
-	friend	boolexp		*getboolexp1		(char **, int, int);
+	friend	boolexp		*getboolexp1		(char **);
     public:
 				boolexp			(boolexp_type t);
 				~boolexp		();
@@ -696,8 +614,7 @@ class	object
 //	virtual	const	bool	read_array_elements		(FILE *, const int, const int);
 
 	virtual	const	bool	write				(FILE *)		const;
-	virtual	const	bool	read_pre12			(FILE *, const int);
-	virtual	const	bool	read				(FILE *, const int, const int);
+	virtual	const	bool	read				(FILE *);
 	virtual	const	bool	destroy				(const dbref);
 	/* set functions */
 
