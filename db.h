@@ -615,6 +615,7 @@ class	object
 			void	set_referenced			()				{ set_flag(FLAG_REFERENCED); }
 	virtual		void	set_name			(const String& str);
 	virtual		void	set_location			(const dbref o)			{ location = o; }
+	virtual		void	set_remote_location		(const dbref o);
 			void	set_next			(const dbref o)			{ next = o; }
 			void	set_owner_no_check		(const dbref o)			{ owner = o; }
 			void	set_owner			(const dbref o);
@@ -697,7 +698,8 @@ class	object
 		const	String& get_name		()			const	{ return (name); }
 		const	std::list<String>&	get_namelist	()		const	{ return namelist; }
 		const	String&	get_inherited_name	()			const;
-		const	dbref	get_location			()			const	{ return location; }
+	virtual	const	dbref	get_location			()			const	{ return location; }
+		const	dbref	get_real_location		()			const	{ return location; }
 		const	dbref	get_next			()			const	{ return next; }
 		const	dbref	get_real_next			()			const	{ return next; }
 		const	dbref	get_owner			()			const	{ return owner; }

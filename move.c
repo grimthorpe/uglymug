@@ -1114,6 +1114,9 @@ const	String& where)
  * do_remote: Remote to a location, do a command, un-remote afterwards.
  *	Currently buggers up the remoting player's position in the contents
  *	list of initial location. Tough.
+ *
+ * Grimthorpe: Well, here is a first attempt at not buggering up the remote
+ *		player's position...
  */
 
 void
@@ -1156,7 +1159,8 @@ const	String& command)
 	}
 
 	cached_loc = db [player].get_location();
-	moveto (player, loc);
+	db[player].set_remote_location(loc);	// sets up the fudged location.
+//	moveto (player, loc);
 
 	const int old_depth = call_stack.depth();
 	process_basic_command (command.c_str());
@@ -1164,18 +1168,14 @@ const	String& command)
 		step();
 
 	/* Just make sure players don't pull silly stunts like zapping the thing they remoted out of */
-	if ((cached_loc < 0) || (cached_loc >= db.get_top ()) || ((Typeof (cached_loc) != TYPE_ROOM) && !Container (cached_loc)))
+	if ((cached_loc < 0) || (cached_loc >= db.get_top ())
+		|| (Typeof(cached_loc) == TYPE_FREE)
+		|| ((Typeof (cached_loc) != TYPE_ROOM) && !Container (cached_loc)))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Oops! Someone zapped the location you came from! You'd better stay here...");
-		if (will_fit(player, loc)!=SUCCESS)
-		{
-			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "... except that you won't fit here either. Limbo, here we come!");
-			enter_room (LIMBO);
-		}
-		else
-			enter_room (loc);
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Oops! Someone zapped the location you came from! You'd better go to limbo");
+		enter_room(LIMBO);
 	}
 	else
-		moveto (player, cached_loc);
+		db[player].set_remote_location(cached_loc);
 }
 

@@ -342,6 +342,7 @@ private:
 	String			who_string;
    	String			email_addr;		/* email address of the player */
 	int			money;
+	dbref			remote_location;
 	struct	fsm_state
 	{
 		dbref		player;				/* who's talking to us... */
@@ -362,6 +363,9 @@ private:
 	virtual			~puppet			();
 	const	bool		write			(FILE *f)		const;
 	const	bool		read			(FILE* f);
+	virtual	const	dbref		get_location		()			const	{ return remote_location; }
+	virtual		void		set_location		(const dbref loc)	{ Massy_object::set_location(loc); remote_location = loc; }
+	virtual		void		set_remote_location	(const dbref loc)	{ remote_location = loc; }
 		void		set_pennies		(const int i)			{ pennies=i; }
 		void		add_pennies		(const int i)			{ pennies+=i; }
 	const	dbref		get_build_id		()			const	{ return build_id; }

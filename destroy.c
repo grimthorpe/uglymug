@@ -311,7 +311,7 @@ dbref	zap_room)
 					break;
 				case TYPE_EXIT:
 					/* Don't warn if it'll go anyway */
-					if (db [i].get_location() != zap_room)
+					if (db [i].get_real_location() != zap_room)
 					{
 						notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Exit %s: Unlinked.", unparse_object (c, i));
 					}
@@ -330,7 +330,7 @@ dbref	zap_room)
 	{
 		if (Typeof (temp) == TYPE_ROOM)
 		{
-			if (!moveto (temp, db[zap_room].get_location()))
+			if (!moveto (temp, db[zap_room].get_real_location()))
 			{
 				db[zap_room].set_contents (remove_first (temp, db[zap_room].get_contents ()));
 				db[temp].set_location (LIMBO);
@@ -346,7 +346,12 @@ dbref	zap_room)
 				db[temp].set_destination(LIMBO);
 			}
 
-			if (!moveto (temp, db[temp].get_destination()))
+			/* If it is a remoted player or puppet, then put them back to where they 'really' are */
+			if(db[temp].get_real_location() != db[temp].get_location())
+			{
+				db[temp].set_location(db[temp].get_real_location());
+			}
+			else if (!moveto (temp, db[temp].get_destination()))
 			{
 				db[zap_room].set_contents (remove_first (temp, db[zap_room].get_contents ()));
 				db[temp].set_location (LIMBO);
@@ -440,7 +445,7 @@ dbref	zap_thing)
                                         break;
                                 case TYPE_EXIT:
                                         /* Don't warn if it'll die anyway */
-                                        if (db [i].get_location() != zap_thing)
+                                        if (db [i].get_real_location() != zap_thing)
                                         {
                                                 notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Exit %s: Unlinked.", unparse_object (c, i));
                                         }
@@ -1134,7 +1139,7 @@ const	String& )
 								moveto (object, db[object].get_destination());
 								break;
 							case TYPE_ROOM:
-								moveto (object, db[i].get_location());
+								moveto (object, db[i].get_real_location());
 								break;
 							default:
 								notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Contents List of %d is wrong.", i);
@@ -1283,7 +1288,7 @@ const	String& )
 						case TYPE_PUPPET:
 							break;
 						case TYPE_ROOM:
-							if (db[object].get_location() != i)
+							if (db[object].get_real_location() != i)
 								moveto (object, LIMBO);
 							break;
 						default:
@@ -1295,10 +1300,10 @@ const	String& )
 			case TYPE_THING:
 				if (db[i].get_parent() != NOTHING && Typeof(db[i].get_parent()) == TYPE_FREE)
 					db[i].set_parent(NOTHING);
-				if ((db [i].get_location () == NOTHING)
-					|| ((Typeof (db[i].get_location()) != TYPE_ROOM)
-						&& (Typeof (db[i].get_location()) != TYPE_THING)
-						&& (Typeof (db[i].get_location()) != TYPE_PLAYER)))
+				if ((db [i].get_real_location () == NOTHING)
+					|| ((Typeof (db[i].get_real_location()) != TYPE_ROOM)
+						&& (Typeof (db[i].get_real_location()) != TYPE_THING)
+						&& (Typeof (db[i].get_real_location()) != TYPE_PLAYER)))
 					moveto (i, LIMBO);
 				check_and_make_sane_lock (i);
 				if ((db[i].get_destination() == NOTHING)
@@ -1311,10 +1316,10 @@ const	String& )
 			case TYPE_EXIT:
 				if (db[i].get_parent() != NOTHING && Typeof(db[i].get_parent()) == TYPE_FREE)
 					db[i].set_parent(NOTHING);
-				if ((db [i].get_location () == NOTHING)
-					|| ((Typeof (db[i].get_location()) != TYPE_ROOM)
-						&& (Typeof (db[i].get_location()) != TYPE_THING)
-						&& (Typeof (db[i].get_location()) != TYPE_PLAYER)))
+				if ((db [i].get_real_location () == NOTHING)
+					|| ((Typeof (db[i].get_real_location()) != TYPE_ROOM)
+						&& (Typeof (db[i].get_real_location()) != TYPE_THING)
+						&& (Typeof (db[i].get_real_location()) != TYPE_PLAYER)))
 				{
 					db [i].destroy (i);
 					break;
@@ -1332,9 +1337,9 @@ const	String& )
 			case TYPE_PUPPET:
 				if (db[i].get_parent() != NOTHING && Typeof(db[i].get_parent()) == TYPE_FREE)
 					db[i].set_parent(NOTHING);
-				if ((db [i].get_location () == NOTHING)
-					|| ((Typeof (db[i].get_location()) != TYPE_ROOM)
-						&& (Typeof (db[i].get_location()) != TYPE_THING)))
+				if ((db [i].get_real_location () == NOTHING)
+					|| ((Typeof (db[i].get_real_location()) != TYPE_ROOM)
+						&& (Typeof (db[i].get_real_location()) != TYPE_THING)))
 					moveto (i, LIMBO);
 				if ((db[i].get_destination() == NOTHING)
 					|| (db[i].get_destination() == HOME)

@@ -521,6 +521,9 @@ const	dbref	o)
 		db [o].set_referenced ();
 }
 
+void object::set_remote_location (const dbref)
+{ IMPLEMENTATION_ERROR ("remote_location"); }
+
 void object::set_index(const int, const String&)
 { IMPLEMENTATION_ERROR("index"); }
 
@@ -1470,7 +1473,7 @@ Massy_object::Massy_object ()
 puppet::puppet ()
 	: pennies(0), score(0), last_name_change(time(NULL)),
 		build_id(NOTHING), race(), who_string(), email_addr(),
-		money(0), fsm_states(NULL)
+		money(0), remote_location(get_real_location()), fsm_states(NULL)
 {
 }
 
