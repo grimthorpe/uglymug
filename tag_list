@@ -7,6 +7,13 @@ correct version. In reverse order.
 Place the latest tag number at the top to ensure
 the version information in the game is correct.
 
+um1_011 - Grimthorpe
+    @channel / chat cleaned up and 'fixed'.
+    You can also set a channel as censored.
+    '[xxx has connected]' now comes out in colour, is better written,
+    and generally better.
+    First attempt at fixing '@endif' locking problem.
+
 um1_010 - Grimthorpe
     Not really a major change, but now we have the release tag in the code
     done properly, as long as everyone remebers to edit the top line of this

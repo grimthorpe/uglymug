@@ -413,8 +413,6 @@ void				make_nonblocking	(int s);
 const	char			*convert_addr 		(struct in_addr *);
 struct	descriptor_data		*new_connection		(int sock);
 void				parse_connect 		(const char *msg, char *command, char *user, char *pass);
-void				set_userstring 		(char **userstring, const char *command);
-char				*strsave 		(const char *s);
 int				make_socket		(int, unsigned long);
 void				bailout			(int);
 u_long				addr_numtoint		(char *, int);
@@ -2751,12 +2749,11 @@ void
 descriptor_data::announce_player (announce_states state)
 {
 	struct descriptor_data *d;
-	char	admin_buffer[1024];
-// This is the original line. Trying to get rid of unix time of connect time
-// being displayed for admin listening. Its suspect that its something to do
-// with scratch_return_string
-//	char	scratch_return_string [BUFFER_LEN];
-	char	scratch_return_string [1024];
+
+	char	wizard_string[1024];
+	const char*	app_string;
+	const char*	mortal_string;
+
 	Boolean deruded=False;
 	const char *censored=NULL;
 
@@ -2766,36 +2763,46 @@ descriptor_data::announce_player (announce_states state)
 		return;
 	}
 
+	/*
+	 * Note: In order to make the colour stuff easier to look at, the '[<playername>' bit is done further down.
+	 */
 	switch (state)
 	{
 		case ANNOUNCE_CONNECTED :
-			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name ().c_str());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has connected from %s]\n", db[get_player()].get_name ().c_str(), hostname);
+			mortal_string = " has connected]\n";
+			app_string = mortal_string;
+			snprintf (wizard_string, sizeof(wizard_string), " has connected from %s]\n", hostname);
 			break;
 		case ANNOUNCE_CREATED :
-			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name().c_str());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been created from %s]\n", db[get_player()].get_name ().c_str(), hostname);
-			snprintf (admin_buffer, sizeof(admin_buffer), "[%s has been created]\n", db[get_player()].get_name().c_str());
+			mortal_string = " has connected]\n";
+			app_string = " has been created]\n";
+			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", db[get_player()].get_name ().c_str(), hostname);
 			break;
 		case ANNOUNCE_BOOTED :
-			snprintf (scratch, sizeof(scratch), "[%s has been booted by %s%s%s]\n", db[get_player()].get_name ().c_str(), player_booting, blank (boot_reason)?"":" ", boot_reason);
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been booted from %s by %s%s%s]\n", db[get_player()].get_name ().c_str(), hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (scratch, sizeof(scratch), " has been booted by %s%s%s]\n", player_booting, blank (boot_reason)?"":" ", boot_reason);
+			mortal_string = scratch;
+			app_string = mortal_string;
+			snprintf (wizard_string, sizeof(wizard_string), " has been booted from %s by %s%s%s]\n", hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
 			break;
 		case ANNOUNCE_DISCONNECTED :
-			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ().c_str());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s]\n", db[get_player()].get_name ().c_str(), hostname);
+			mortal_string = " has disconnected]\n";
+			app_string = mortal_string;
+			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s]\n", hostname);
 			break;
 		case ANNOUNCE_SMD :
-			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ().c_str());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s due to an SMD read]\n", db[get_player()].get_name ().c_str(), hostname);
+			mortal_string = " has disconnected]\n";
+			app_string = mortal_string;
+			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s due to an SMD read]\n", hostname);
 			break;
 		case ANNOUNCE_TIMEOUT :
-			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ().c_str());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has timed out from %s]\n", db[get_player()].get_name ().c_str(), hostname);
+			mortal_string = " has disconnected]\n";
+			app_string = " has timed out]\n";
+			snprintf (wizard_string, sizeof(wizard_string), " has timed out from %s]\n", hostname);
 			break;
 		case ANNOUNCE_PURGE :
-			snprintf (scratch, sizeof(scratch), "[%s has purged an idle connection]\n", db[get_player()].get_name ().c_str());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has purged an idle connection from %s]\n", db[get_player()].get_name ().c_str(), hostname);
+			mortal_string = " has purged an idle connection]\n";
+			app_string = mortal_string;
+			snprintf (wizard_string, sizeof(wizard_string), " has purged an idle connection from %s]\n", hostname);
 			break;
 		default :
 			Trace( "BUG: Unknown state (%d) encounted in announce_player()\n", state);
@@ -2806,43 +2813,34 @@ descriptor_data::announce_player (announce_states state)
 	{
 		if (d->IS_CONNECTED () && Listen (d->get_player()))
 		{
+			d->queue_string("[");
+			d->queue_string(player_colour(d->get_player(), get_player(), rank_colour(get_player())));
+			d->queue_string(db[get_player()].get_name().c_str());
+			d->queue_string(COLOUR_REVERT);
 			if (Wizard (d->get_player()))
-				d->queue_string (underscorify (d->get_player(), scratch_return_string));
+			{
+				d->queue_string (underscorify (d->get_player(), wizard_string));
+			}
+			else if ( Apprentice(d->get_player()) || Welcomer (d->get_player()))
+			{
+				d->queue_string (underscorify (d->get_player(), app_string));
+			}
+			else if (Censorall(d->get_player()) || Censorpublic(d->get_player()))
+			{
+				if (deruded==False)
+				{
+					deruded=True;
+					censored=censor(mortal_string);
+				}
+				d->queue_string (underscorify (d->get_player(), censored));
+			}
 			else
 			{
-				if (( Apprentice(d->get_player()) || Welcomer (d->get_player())) && ( state == ANNOUNCE_CREATED))
-					d->queue_string (underscorify (d->get_player(), admin_buffer));
-				else
-				{
-					if (Censorall(d->get_player()) || Censorpublic(d->get_player()))
-					{
-						if (deruded==False)
-						{
-							deruded=True;
-							censored=censor(scratch);
-						}
-						d->queue_string (underscorify (d->get_player(), censored));
-					}
-					else
-						d->queue_string (underscorify (d->get_player(), scratch));
-				}
+				d->queue_string (underscorify (d->get_player(), mortal_string));
 			}
 		}
 	}
 }
-
-
-char *strsave (const char *s)
-{
-	char *p;
-
-	MALLOC (p, char, strlen(s) + 1);
-	if (p)
-		strcpy (p, s);
-
-	return p;
-}
-
 
 
 int
@@ -3057,20 +3055,6 @@ charcount++;
 	return 1;
 }
 
-
-void set_userstring (char **userstring, const char *command)
-{
-	if (*userstring)
-	{
-		FREE (*userstring);
-		*userstring = NULL;
-	}
-	while (*command && isascii (*command) && isspace (*command))
-		command++;
-
-	if (*command)
-		*userstring = strsave (command);
-}
 
 void
 process_commands()

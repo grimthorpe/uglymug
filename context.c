@@ -931,7 +931,7 @@ const	Scope	&os,
 	endif_line = temp >> 8;
 
 	/* Set up backwards-compatibility if required */
-	no_endif = Backwards (command);
+	//no_endif = Backwards (command);
 
 	/* Flip to the elseif / endif if required */
 	if (!if_ok)
@@ -960,7 +960,8 @@ const
 
 {
 	/* For backwards compatibility: there may not always be an endif line */
-	return endif_line + (no_endif ? 0 : 1);
+	//return endif_line + (no_endif ? 0 : 1);
+	return endif_line + 1;
 }
 
 

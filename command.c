@@ -179,6 +179,14 @@ Matcher		&matcher)
 		return ACTION_HALT;
 	}
 
+	if(Backwards(command))
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Attempt to run BACKWARDS command not supported any more.");
+		Trace("BUG: Player #%d tried to execute BACKWARDS command #%d", player, command);
+		return_status = COMMAND_HALT;
+		return ACTION_HALT;
+	}
+
 	/* Schedule ourselves */
 	if (!scheduled)
 		mud_scheduler.push_job (this);
@@ -373,16 +381,16 @@ const	int	start_line,
 	char	*errs)
 
 {
-		int		previous_block = start_line;
-		char command_block[MAX_COMMAND_LEN];
-		int lines_in_block;
-		int		line = start_line + 1;
-		int		end_line = cmd->get_inherited_number_of_elements ();
-		int		force_end_line = 0;
-		Boolean		force_endif = False;
-		Boolean		backwards = cmd->get_flag(FLAG_BACKWARDS);
-		Boolean		one_line_done = False;
-		Command_next	temp_result;
+	int		previous_block = start_line;
+	char command_block[MAX_COMMAND_LEN];
+	int lines_in_block;
+	int		line = start_line + 1;
+	int		end_line = cmd->get_inherited_number_of_elements ();
+	int		force_end_line = 0;
+	Boolean		force_endif = False;
+	//Boolean		backwards = cmd->get_flag(FLAG_BACKWARDS);
+	//Boolean		one_line_done = False;
+	Command_next	temp_result;
 
 	while (line > 0 && line <= end_line)
 	{
@@ -393,15 +401,6 @@ const	int	start_line,
 
 		temp_result=what_is_next(command_block);
 
-		// Have we got a backwards command with no @else?
-
-		if (backwards && 
-		    ( (line == end_line) || 
-		     ((temp_result != ELSE_NEXT) && (one_line_done==True))
-		    )
-		   )
-			force_endif = True;
-
 		/* This will force an exit */
 		if (force_end_line == line)
 			force_endif = True;
@@ -409,40 +408,19 @@ const	int	start_line,
 		switch (force_endif ? ENDIF_NEXT : temp_result)
 		{
 			case NORMAL_NEXT:
-				if (backwards)
-					one_line_done= True;
 				break;
 			case ELSEIF_NEXT:
-				if (cmd->get_flag (FLAG_BACKWARDS))
-				{
-					sprintf (errs, "Line %d: Cannot use @elseif in a command with BACKWARDS set on it.", line);
-					line = -1;
-					break;
-				}
-				/* FALLTHROUGH */
 			case ELSE_NEXT:
 				cmd->set_parse_helper (previous_block, line);
 				previous_block = line;
-				if (backwards)
-					force_end_line = line + 2;
-				one_line_done=False;
 				break;
 			case ENDIF_NEXT:
 				/* If force_endif is set, there's a fake endif inserted just here (and our return from here fixes it) */
-				if (!force_endif && backwards)
-				{
-					sprintf (errs, "Line %d: Cannot use @endif in a command with BACKWARDS set on it.", line);
-					line = -1;
-					break;
-				}
-				// If we're here with force_endif set, it's because either
-				// we've hit the end of the command (one_line_done will be false) or we've
-				// got a 2nd line which is not an @if (o_l_d will be true). In the former case, store
-				// line+1 to go to end of command.
+				// If we're here with force_endif set, it's because we've hit the end of the command
 
-				cmd->set_parse_helper (previous_block, line + ((force_endif && !one_line_done) ? 1:0));
+				cmd->set_parse_helper (previous_block, line + ((force_endif)?1:0));
 				/* Our start line needs to know where our end line is */
-				cmd->set_parse_helper (start_line, ( ( line + ((force_endif && !one_line_done)?1:0)) << 8) + cmd->get_parse_helper (start_line));
+				cmd->set_parse_helper (start_line, ( ( line + ((force_endif)?1:0)) << 8) + cmd->get_parse_helper (start_line));
 				return line - ((force_endif) ? 1: 0);
 			case END_NEXT:
 				sprintf (errs, "Missing @for or @with at line %d in command", line);
@@ -517,6 +495,7 @@ const	char	*text)
  * do_at_endif: If we ever try to execute an @endif directly, we've got problems.
  *	Within a command, it's parsed out, so we can only get here if a player
  *	has typed it directly on the command line.
+ *	Or we have a bug in the parser. Which seems to be true more often than not.
  */
 
 void
@@ -525,7 +504,18 @@ const	char	*,
 const	char	*)
 
 {
-	notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@endif can only be used inside commands.");
+	if(in_command())
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "ERROR: @endif in command when not expected.");
+		Trace("BUG: @endif in command #%d not expected.", get_current_command());
+		// Cause the command to abort.
+		commands_executed = step_limit + 1;
+		RETURN_FAIL;
+	}
+	else
+	{
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@endif can only be used inside commands.");
+	}
 	RETURN_FAIL;
 }
 

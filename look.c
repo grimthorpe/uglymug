@@ -30,7 +30,7 @@
 /** Yuck! Sometime I'll get around to changing this - PJC 23/12/96 **/
 // If you hit this limit then just increase the table below
 #define MAX_LEVELS 13
-const char *const spaces[] = 
+const char *const spacestring[] = 
 {
 	"",
 	"  ",
@@ -48,6 +48,23 @@ const char *const spaces[] =
 	"                          "
 };
 
+const char* const
+spaces(unsigned int level)
+{
+static char spc[1024];	// 512 levels of indentation...
+	if(level < MAX_LEVELS)
+	{
+		return spacestring[level];
+	}
+	if(level >= (sizeof(spc) / 2))
+	{
+		level = (sizeof(spc) / 2) - 1;
+	}
+	memset((void*)spc, ' ', level*2);
+	spc[level*2] = 0;
+
+	return spc;
+}
 
 static void
 output_command(
@@ -57,7 +74,6 @@ dbref	player)
 	int		tab_level = 0;
 	unsigned	line = 1;
 	Boolean		force_outdent=False;
-	Boolean		backwards = db[command].get_flag(FLAG_BACKWARDS);
 	Boolean		linenumbers = Linenumbers(player);
 	Command_next	what;
 	const	char	*text;
@@ -70,8 +86,6 @@ dbref	player)
 		switch(what)
 		{
 			case ELSE_NEXT:
-				if (backwards)
-					break; // Indenting will be done by force_outdent
 			case ENDIF_NEXT:
 			case ELSEIF_NEXT:
 			case END_NEXT:
@@ -89,9 +103,9 @@ dbref	player)
 		for(;line<block_end;line++)
 		{
 			if (linenumbers)
-				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces[tab_level], db[command].get_inherited_element(line).c_str());
+				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces(tab_level), db[command].get_inherited_element(line).c_str());
 			else
-				notify_censor(player, player, "%s%s", spaces[tab_level], db[command].get_inherited_element(line).c_str());
+				notify_censor(player, player, "%s%s", spaces(tab_level), db[command].get_inherited_element(line).c_str());
 		}
 
 		if (force_outdent)
@@ -105,9 +119,6 @@ dbref	player)
 			case IF_NEXT:
 			case ELSE_NEXT:
 			case ELSEIF_NEXT:
-				if (backwards)
-					force_outdent=True;
-				/* Fallthru */
 			case WITH_NEXT:
 			case FOR_NEXT:
 				tab_level++;
@@ -115,9 +126,6 @@ dbref	player)
 			default:
 				break;
 		}
-
-		if(tab_level > MAX_LEVELS)
-			tab_level--;
 	}
 }
 
