@@ -763,7 +763,7 @@ void notify_welcomer_natter(const char *fmt, ...)
 	for (d = descriptor_list; d; d=d->next)
 		if (d->IS_CONNECTED() && (Welcomer(d->get_player())))
 		{
-			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTER_TITLES]);
+			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_WELCOMER_TITLES]);
 			d->queue_string("[WELCOMER]");
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTERS]);
 			d->queue_string(vsnprintf_result);
