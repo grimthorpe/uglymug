@@ -723,32 +723,34 @@ const	char	*arg2)
 	if (Leave == command)
 	{
 		Channel* channel = 0;
-		if(!blank(arg2))
+		if(blank(arg2))
 		{
-			if(string_compare(arg2, "all")==0)
-			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are no longer on any channels.",COLOUR_REVERT);
-				channel_disconnect(player, true);
-				RETURN_SUCC;
-			}
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Which channel do you want to leave?");
+			RETURN_FAIL;
+		}
+		if(string_compare(arg2, "all")==0)
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You are no longer on any channels.",COLOUR_REVERT);
+			channel_disconnect(player, true);
+			RETURN_SUCC;
+		}
 
-			if(!Channel::ok_name(arg2))
-			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't a valid channel name.",COLOUR_REVERT);
-				RETURN_FAIL;
-			}
+		if(!Channel::ok_name(arg2))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That isn't a valid channel name.",COLOUR_REVERT);
+			RETURN_FAIL;
+		}
 
-			if(!(channel=Channel::find(arg2)))
-			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such channel.",COLOUR_REVERT);
-				RETURN_FAIL;
-			}
+		if(!(channel=Channel::find(arg2)))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "No such channel.",COLOUR_REVERT);
+			RETURN_FAIL;
+		}
 
-			if(!channel->find_player(player))
-			{
-				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You're not on channel %s.", channel->name().c_str());
-				RETURN_FAIL;
-			}
+		if(!channel->find_player(player))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You're not on channel %s.", channel->name().c_str());
+			RETURN_FAIL;
 		}
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You have left channel %s.", channel->name().c_str());
 		if(db[player].get_channel() == channel)
