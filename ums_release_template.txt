@@ -2,7 +2,7 @@
 ums topic = UM Version
 
 
-@rem Add A News Item
+@rem Add A News Item.
 ums add = um1_0xx - <tag line> = <changelog>
 
 
