@@ -228,15 +228,14 @@ class descriptor_data
 {
 public:
 	descriptor_data(int sock, sockaddr_in *a, int conc = 0);
-	void clearstrings();
 private:
 	int			_descriptor;
 	dbref			_player;	/* Initilized to zero; hence (d->get_player() == 0) implies never connected */
-	char			*_player_name;	/* Used at connect time - not necessarily correct outside check_connect */
-	char			*_password;	/* Used at connect time - not necessarily correct outside check_connect */
+	String			_player_name;	/* Used at connect time - not necessarily correct outside check_connect */
+	String			_password;	/* Used at connect time - not necessarily correct outside check_connect */
 	enum connect_states	_connect_state;
-	char			*_output_prefix;
-	char			*_output_suffix;
+	String			_output_prefix;
+	String			_output_suffix;
 // Remove this when ready:
 public:
 	int			connect_attempts;
@@ -260,14 +259,14 @@ public:
 	int                     terminal_width;
 	int                     terminal_wrap;
 	int			terminal_height;
-	char			*terminal_type;
+	String			terminal_type;
 	struct		{
-				char *bold_on;
-				char *bold_off;
-				char *underscore_on;
-				char *underscore_off;
-				char *backspace;
-				char *clearline;
+				String bold_on;
+				String bold_off;
+				String underscore_on;
+				String underscore_off;
+				String backspace;
+				String clearline;
 			}	termcap;
 	int			terminal_xpos;
 	int			terminal_lftocr;
@@ -293,16 +292,16 @@ public:
 	int			_got_an_iac; // Set to non-zero if we've ever received an iac
 // Functions:
 public:
-	int	IS_CONNECTED()
+	bool	IS_CONNECTED()
 	{
 		return ((_connect_state == DESCRIPTOR_CONNECTED)
 			|| (_connect_state == DESCRIPTOR_FAKED));
 	}
-	int	IS_FAKED()
+	bool	IS_FAKED()
 	{
 		return (_connect_state == DESCRIPTOR_FAKED);
 	}
-	int	CHANNEL()
+	bool	CHANNEL()
 	{
 		return ((get_descriptor()==0)? -channel:get_descriptor());
 	}
@@ -313,8 +312,8 @@ public:
 	}
 	void	output_prefix();
 	void	output_suffix();
-	void	set_output_prefix(const char *s);
-	void	set_output_suffix(const char *s);
+	void	set_output_prefix(const CString& s) { _output_prefix = s; }
+	void	set_output_suffix(const CString& s) { _output_suffix = s; }
 
 	enum connect_states
 		get_connect_state()	{ return _connect_state; }
@@ -322,11 +321,11 @@ public:
 					{ _connect_state = cs; }
 	int	get_descriptor()	{ return _descriptor; }
 	int	get_player()		{ return _player; }
-	char *	get_player_name()	{ return _player_name;}
-	char *	get_password()		{ return _password;}
+	const String& 	get_player_name()	{ return _player_name;}
+	const String&	get_password()		{ return _password;}
 	void	set_player(int p)	{ _player = p; }
-	void	set_player_name(char *p);
-	void	set_password(char *p);
+	void	set_player_name(const CString& p) { _player_name = p; }
+	void	set_password(const CString& p) { _password = p; }
 
 	int	queue_string(const char *, int show_literally = 0);
 	int	queue_string(const CString& s, int show_literally = 0)
@@ -1866,7 +1865,7 @@ int descriptor_data::set_terminal_type (const CString& termtype)
 {
 	char *terminal;
 
-	terminal = safe_strdup(termtype.c_str());
+	terminal = strdup(termtype.c_str());
 
 	for(int i = 0; terminal[i]; i++)
 		terminal[i] = tolower(terminal[i]);
@@ -1884,10 +1883,7 @@ int descriptor_data::set_terminal_type (const CString& termtype)
 		return 0;
 	}
 
-	if (terminal_type)
-		FREE(terminal_type);
-
-	terminal_type = safe_strdup(terminal);
+	terminal_type = terminal;
 	FREE(terminal);
 
 	if (terminal_width == 0)
@@ -1908,50 +1904,38 @@ int descriptor_data::set_terminal_type (const CString& termtype)
 /*	const char *const clearline = tigetstr("dl1");
  *	if (clearline != (char *)-1)
  *	{
- *		if (termcap.clearline)
- *			FREE(termcap.clearline);
- *		termcap.clearline = safe_strdup(clearline);
+ *		termcap.clearline = clearline;
  *	}
  *
  *	const char *const backspace = tigetstr("dch1");
  *	if (backspace != (char *)-1)
  *	{
- *		if (termcap.backspace)
- *			FREE (termcap.backspace);
- *		termcap.backspace = safe_strdup(backspace);
+ *		termcap.backspace = backspace;
  *	}
  */
 
 	const char *const bold = tigetstr(const_cast<char *>("bold"));
 	if (bold != (char *)-1)
 	{
-		if (termcap.bold_on)
-			FREE (termcap.bold_on);
-		termcap.bold_on = safe_strdup(bold);
+		termcap.bold_on = bold;
 	}
 
 	const char *const bold_off = tigetstr(const_cast<char *>("sgr0"));
 	if (bold_off != (char *)-1)
 	{
-		if (termcap.bold_off)
-			FREE(termcap.bold_off);
-		termcap.bold_off = safe_strdup(bold_off);
+		termcap.bold_off = bold_off;
 	}
 
 	const char *const underline = tigetstr(const_cast<char *>("smul"));
 	if (underline != (char *)-1)
 	{
-		if (termcap.underscore_on)
-			FREE(termcap.underscore_on);
-		termcap.underscore_on = safe_strdup(underline);
+		termcap.underscore_on = underline;
 	}
 
 	const char *const underscore_off = tigetstr(const_cast<char *>("rmul"));
 	if (underscore_off != (char *)-1)
 	{
-		if (termcap.underscore_off)
-			FREE(termcap.underscore_off);
-		termcap.underscore_off = safe_strdup(scratch);
+		termcap.underscore_off = scratch;
 	}
 
 	return 1;
@@ -1962,13 +1946,13 @@ int descriptor_data::set_terminal_type (const CString& termtype)
  * If you update this you should also check the version above!
  */
 int
-descriptor_data::set_terminal_type(const char *termtype)
+descriptor_data::set_terminal_type(const CString& termtype)
 {
 	static char ltermcap[1024];
 	char *terminal, *area;
 	int i;
 
-	terminal=safe_strdup(termtype);
+	terminal=strdup(termtype);
 
 	for(i=0; terminal[i]; i++)
 		terminal[i]=tolower(terminal[i]);
@@ -1982,10 +1966,7 @@ descriptor_data::set_terminal_type(const char *termtype)
 		return 0;
 	}
 
-	if(terminal_type)
-		FREE(terminal_type);
-
-	terminal_type=safe_strdup(terminal);
+	terminal_type=terminal;
 	FREE(terminal);
 
 	if(terminal_width == 0)
@@ -2006,49 +1987,37 @@ descriptor_data::set_terminal_type(const char *termtype)
 /*	area=scratch;
 	if(tgetstr("dl", &area))
 	{
-		if(termcap.clearline)
-			FREE(termcap.clearline);
-		termcap.clearline=safe_strdup(scratch);
+		termcap.clearline=scratch;
 	}
 
 	area=scratch;
 	if(tgetstr("dc", &area))
 	{
-		if(termcap.backspace)
-			FREE(termcap.backspace);
-		termcap.backspace=safe_strdup(scratch);
+		termcap.backspace=scratch;
 	}*/
 
 	area=scratch;
 	if(tgetstr("md", &area))
 	{
-		if(termcap.bold_on)
-			FREE(termcap.bold_on);
-		termcap.bold_on=safe_strdup(scratch);
+		termcap.bold_on=scratch;
 	}
 
 	area=scratch;
 	if(tgetstr("me", &area))
 	{
-		if(termcap.bold_off)
-			FREE(termcap.bold_off);
-		termcap.bold_off=safe_strdup(scratch);
+		termcap.bold_off=scratch;
 	}
 
 	area=scratch;
 	if(tgetstr("us", &area))
 	{
-		if(termcap.underscore_on)
-			FREE(termcap.underscore_on);
-		termcap.underscore_on=safe_strdup(scratch);
+		termcap.underscore_on=scratch;
 	}
 
 	area=scratch;
 	if(tgetstr("ue", &area))
 	{
-		if(termcap.underscore_off)
-			FREE(termcap.underscore_off);
-		termcap.underscore_off=safe_strdup(scratch);
+		termcap.underscore_off=scratch;
 	}
 
 
@@ -2092,37 +2061,6 @@ struct	in_addr	*a)
 		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
 	}
 	return (buffer);
-}
-
-void
-descriptor_data::clearstrings()
-{
-	if (_output_prefix)
-		FREE (_output_prefix);
-
-	if (_output_suffix)
-		FREE (_output_suffix);
-
-	if (terminal_type)
-		FREE (terminal_type);
-
-	if (termcap.bold_on)
-		FREE (termcap.bold_on);
-
-	if (termcap.bold_off)
-		FREE (termcap.bold_off);
-
-	if (termcap.backspace)
-		FREE (termcap.backspace);
-
-	if (termcap.clearline)
-		FREE (termcap.clearline);
-
-	if (_player_name)
-		FREE (_player_name);
-
-	if (_password)
-		FREE (_password);
 }
 
 void
@@ -2178,7 +2116,6 @@ descriptor_data::shutdownsock()
 	if (next)
 		next->prev = prev;
 
-	clearstrings ();
 	delete (this);
 	ndescriptors--;
 }
@@ -2201,12 +2138,8 @@ int			channel)
 	_descriptor		= s;
 	channel			= channel;
 	_player			= 0;
-	_player_name		= NULL;
-	_password		= NULL;
 	connect_attempts	= 3;
 	if(s) make_nonblocking (s);
-	_output_prefix		= NULL;
-	_output_suffix		= NULL;
 	output_size		= 0;
 	output.head		= NULL;
 	output.tail		= &output.head;
@@ -2741,7 +2674,7 @@ char *boldify(dbref player, const char *str)
 		return NULL;
 
 	if(d->termcap.bold_on && d->termcap.bold_off && d->terminal_type)
-		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.bold_on, str, d->termcap.bold_off);
+		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.bold_on.c_str(), str, d->termcap.bold_off.c_str());
 	else
 		strcpy(buf, str);
 
@@ -2762,7 +2695,7 @@ char *underscorify(dbref player, const char *str)
 		return NULL;
 
 //	if(d->termcap.underscore_on && d->termcap.underscore_off && d->terminal_type)
-//		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.underscore_on, str, d->termcap.underscore_off);
+//		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.underscore_on.c_str(), str, d->termcap.underscore_off.c_str());
 //	else
 		strcpy(buf, str);
 
@@ -2981,7 +2914,7 @@ descriptor_data::process_input (int len)
 					break;
 				*p-- = '\0';
 // Make sure the character is erased from the screen
-				do_write(termcap.backspace, strlen(termcap.backspace));
+				do_write(termcap.backspace.c_str(), termcap.backspace.length());
 				x = raw_input;
 				while(*x && (x < p))
 				{
@@ -2993,7 +2926,7 @@ descriptor_data::process_input (int len)
 				}
 				break;
 			case '\022':	// ^R
-				do_write((const char *)termcap.clearline, strlen(termcap.clearline));
+				do_write((const char *)termcap.clearline.c_str(), termcap.clearline.length());
 				x = p;
 				*p = '\0';
 				while(x > raw_input && (*x != '\n'))
@@ -3025,10 +2958,10 @@ descriptor_data::process_input (int len)
 
 				int l = (p - x);
 				char *bs = 0;
-				MALLOC(bs, char, (l * strlen(termcap.backspace) + 5));
+				MALLOC(bs, char, (l * termcap.backspace.length() + 5));
 				*bs = '\0';
 				for(; l > 0; l--)
-					strcat(bs, termcap.backspace);
+					strcat(bs, termcap.backspace.c_str());
 				do_write(bs, strlen(bs));
 				FREE(bs);
 				p = x;
@@ -3363,7 +3296,7 @@ descriptor_data::check_connect (const char *msg)
 				}
 				else
 				{
-					set_player_name(safe_strdup(command));
+					set_player_name(command);
 					dbref player = lookup_player(NOTHING, command);
 					if(NOTHING == player)
 					{
@@ -3457,7 +3390,7 @@ descriptor_data::check_connect (const char *msg)
 					if (player == NOTHING)
 					{
 						/* New player, password is ok too */
-						set_password(safe_strdup(command));	/* For confirmation */
+						set_password(command);	/* For confirmation */
 						queue_string (confirm_password);
 						set_echo(0);
 						set_connect_state(DESCRIPTOR_CONFIRM_PASSWORD);
@@ -3467,7 +3400,7 @@ descriptor_data::check_connect (const char *msg)
 						/* Invalid password */
 						queue_string (connect_fail);
 						Trace( "FAILED CONNECT |%s| on descriptor |%d\n",
-						get_player_name(), CHANNEL());
+						get_player_name().c_str(), CHANNEL());
 						if(--connect_attempts==0)
 						{
 							queue_string (too_many_attempts);
@@ -3496,7 +3429,8 @@ descriptor_data::check_connect (const char *msg)
 
 			case DESCRIPTOR_CONFIRM_PASSWORD:
 				set_echo (1);
-				if(strcmp(command, get_password())==0)
+				// Make sure that the password is IDENTICAL.
+				if(strcmp(command, get_password().c_str())==0)
 				{
 					player = create_player (get_player_name(), get_password());
 					if (player == NOTHING)
@@ -3591,8 +3525,7 @@ void close_sockets()
 	for (d = descriptor_list; d != NULL; d = d->next)
 	{
 		d->queue_string (message);
-//		d->process_output ();
-//		d->clearstrings ();
+		d->process_output ();
 		if (d->get_descriptor())
 		{
 			if (shutdown (d->get_descriptor(), 2) < 0)
@@ -4393,11 +4326,7 @@ descriptor_data::terminal_set_termtype (const CString& termtype, int)
 	{
 		if(string_compare(termtype, "none")==0)
 		{
-			if(terminal_type)
-			{
-				FREE(terminal_type);
-				terminal_type=NULL;
-			}
+			terminal_type.clear();
 			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Your terminal type is no longer set.");
 		}
 		else
@@ -4411,7 +4340,7 @@ descriptor_data::terminal_set_termtype (const CString& termtype, int)
 	else
 	{
 		if(terminal_type)
-			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is '%s'.", terminal_type);
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Terminal type is '%s'.", terminal_type.c_str());
 		else
 			notify_colour(get_player(),get_player(), COLOUR_MESSAGES, "Your terminal type is not set.");
 	}
@@ -4774,49 +4703,6 @@ descriptor_data::descriptor_data()
 {}
 
 void
-descriptor_data::set_output_prefix(const char *s)
-{
-	if(_output_prefix)
-	{
-		FREE(_output_prefix);
-	}
-
-	if(s && *s)
-	{
-		int l = strlen(s) + 3;
-		MALLOC(_output_prefix, char, l);
-		strcpy(_output_prefix, s);
-		strcat(_output_prefix, "\n");
-	}
-	else
-	{
-		_output_prefix = NULL;
-	}
-}
-
-
-void
-descriptor_data::set_output_suffix(const char *s)
-{
-	if(_output_suffix)
-	{
-		FREE(_output_suffix);
-	}
-
-	if(s && *s)
-	{
-		int l = strlen(s) + 3;
-		MALLOC(_output_suffix, char, l);
-		strcpy(_output_suffix, s);
-		strcat(_output_suffix, "\n");
-	}
-	else
-	{
-		_output_suffix = NULL;
-	}
-}
-
-void
 descriptor_data::output_prefix()
 {
 	myoutput = 1;
@@ -4824,7 +4710,8 @@ descriptor_data::output_prefix()
 		return;
 	if(_output_prefix)
 	{
-		queue_string(_output_prefix);
+		queue_string(_output_prefix.c_str());
+		queue_string("\n");
 	}
 }
 
@@ -4836,38 +4723,8 @@ descriptor_data::output_suffix()
 		return;
 	if(_output_suffix)
 	{
-		queue_string(_output_suffix);
+		queue_string(_output_suffix.c_str());
+		queue_string("\n");
 	}
 }
-
-void
-descriptor_data::set_player_name(char *p)
-{
-	if(_player_name)
-	{
-		free(_player_name);
-		_player_name = NULL;
-	}
-
-	if(p && *p)
-	{
-		_player_name = safe_strdup(p);
-	}
-}
-
-void
-descriptor_data::set_password(char *p)
-{
-	if(_password)
-	{
-		free(_password);
-		_password = NULL;
-	}
-
-	if(p && *p)
-	{
-		_password = safe_strdup(p);
-	}
-}
-
 
