@@ -13,7 +13,7 @@ include Makefile.os
 BUILDS_DIR:=builds
 BUILD_DIR:=$(BUILDS_DIR)/$(BUILD_ENVIRONMENT)
 
-by_default_just_make: $(BUILDS_DIR) $(BUILD_DIR) $(BUILD_DIR)/netmud
+by_default_just_make: $(BUILDS_DIR) $(BUILD_DIR) $(BUILD_DIR)/netmud$(EXESUFFIX)
 
 INCLUDE:=configs/$(BUILD_ENVIRONMENT)/include
 # Whatever you put in for $(CC) must be able to grok ANSI C.
@@ -21,6 +21,7 @@ CC:=gcc $(INCLUDE:%=-I%)
 CPLUSPLUS:=g++ $(INCLUDE:%=-I%) -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
 # TODO: Separate CPPFLAGS and CFLAGS in Makefile.os. PJC 12/4/03.
 CPPFLAGS:= $(CFLAGS)
+LIBUGLY:= $(BUILD_DIR)/libugly.a
 
 VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 
@@ -83,25 +84,7 @@ SOURCES:=\
 	variable.c \
 	wiz.c
 
-# C_OBJECTS are compiled with gcc, not g++
-C_OBJECTS = \
-	regexp.o \
-	scat.o \
-	concentrator.o 
-
-RAW_UTIL_OBJECTS:= \
-	db.o \
-	objects.o \
-	predicates.o \
-	unparse.o \
-	utils.o \
-	debug.o \
-	mudstring.o
-
-UTIL_OBJECTS:=$(RAW_UTIL_OBJECTS:%=$(BUILD_DIR)/%)
-
-RAW_OBJECTS:= \
-	$(RAW_UTIL_OBJECTS) \
+RAW_LIB_OBJECTS:= \
 	alarm.o \
 	boolexp.o \
 	channel.o \
@@ -110,6 +93,8 @@ RAW_OBJECTS:= \
 	container.o \
 	context.o \
 	create.o \
+	db.o \
+	debug.o \
 	decompile.o \
 	destroy.o \
 	fuses.o \
@@ -123,7 +108,10 @@ RAW_OBJECTS:= \
 	look.o \
 	match.o \
 	move.o \
+	mudstring.o \
+	objects.o \
 	player.o \
+	predicates.o \
 	regexp.o \
 	rob.o \
 	sanity-check.o \
@@ -131,10 +119,12 @@ RAW_OBJECTS:= \
 	smd.o \
 	speech.o \
 	stringutil.o \
+	unparse.o \
+	utils.o \
 	variable.o \
 	wiz.o 
 
-OBJECTS:=$(RAW_OBJECTS:%=$(BUILD_DIR)/%)
+LIB_OBJECTS:=$(RAW_LIB_OBJECTS:%=$(BUILD_DIR)/%)
 
 RAW_OUTFILES:= \
 	dump \
@@ -142,12 +132,15 @@ RAW_OUTFILES:= \
 	mondodestruct \
 	netmud \
 	paths \
-	sanity-check \
 	sadness \
 	stats \
 	concentrator
 
-OUTFILES:=$(RAW_OUTFILES:%=$(BUILD_DIR)/%)
+OUTFILES:=$(RAW_OUTFILES:%=$(BUILD_DIR)/%$(EXESUFFIX))
+
+# OUTERMEDIATES contains a list of intermediate output files - the .o files
+# needed to compile into the eventual binaries.  PJC 20/4/2003.
+OUTERMEDIATES:=$(RAW_OUTFILES:%=$(BUILD_DIR)/%.o)
 
 all: $(BUILDS_DIR) $(BUILD_DIR) $(OUTFILES)
 
@@ -157,55 +150,55 @@ $(BUILDS_DIR):
 $(BUILD_DIR): $(BUILDS_DIR)
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/netmud: $(OBJECTS) $(BUILD_DIR)/netmud.o
-	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/netmud.o $(OBJECTS) $(LIBS)
+$(LIBUGLY): $(LIB_OBJECTS)
+	ar rv $@ $(LIB_OBJECTS)
+	ranlib $@
 
-$(BUILD_DIR)/dump: $(BUILD_DIR)/dump.o $(UTIL_OBJECTS)
+$(BUILD_DIR)/netmud$(EXESUFFIX): $(LIBUGLY) $(BUILD_DIR)/netmud.o
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/dump.o $(UTIL_OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/netmud.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/sadness: $(BUILD_DIR)/sadness.o $(OBJECTS)
+$(BUILD_DIR)/dump$(EXESUFFIX): $(BUILD_DIR)/dump.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/sadness.o $(OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/dump.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/mondodestruct: $(BUILD_DIR)/mondodestruct.o $(OBJECTS)
+$(BUILD_DIR)/sadness$(EXESUFFIX): $(BUILD_DIR)/sadness.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/mondodestruct.o $(OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/sadness.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/trawl: $(BUILD_DIR)/trawl.o $(OBJECTS)
+$(BUILD_DIR)/mondodestruct$(EXESUFFIX): $(BUILD_DIR)/mondodestruct.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/trawl.o $(OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/mondodestruct.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/ashcheck: $(BUILD_DIR)/ashcheck.o $(OBJECTS)
+$(BUILD_DIR)/trawl$(EXESUFFIX): $(BUILD_DIR)/trawl.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/ashcheck.o $(OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/trawl.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/stats: $(BUILD_DIR)/stats.o $(UTIL_OBJECTS)
+$(BUILD_DIR)/ashcheck$(EXESUFFIX): $(BUILD_DIR)/ashcheck.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/stats.o $(UTIL_OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/ashcheck.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/sanity-check: $(BUILD_DIR)/sanity-check.o $(UTIL_OBJECTS)
+$(BUILD_DIR)/stats$(EXESUFFIX): $(BUILD_DIR)/stats.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/sanity-check.o $(UTIL_OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/stats.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/extract: $(BUILD_DIR)/extract.o $(UTIL_OBJECTS)
+$(BUILD_DIR)/extract$(EXESUFFIX): $(BUILD_DIR)/extract.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/extract.o $(UTIL_OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/extract.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/colouring: $(BUILD_DIR)/colouring.o $(OBJECTS)
+$(BUILD_DIR)/colouring$(EXESUFFIX): $(BUILD_DIR)/colouring.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/colouring.o $(OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/colouring.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/paths: $(BUILD_DIR)/paths.o $(UTIL_OBJECTS)
+$(BUILD_DIR)/paths$(EXESUFFIX): $(BUILD_DIR)/paths.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/paths.o $(UTIL_OBJECTS) $(LIBS)
+	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/paths.o $(LIBUGLY) $(LIBS)
 
-$(BUILD_DIR)/scat: $(BUILD_DIR)/scat.o
+$(BUILD_DIR)/scat$(EXESUFFIX): $(BUILD_DIR)/scat.o
 	-rm -f $@
 	$(CC) -o $@ $< $(LIBS)
 
-$(BUILD_DIR)/concentrator: $(BUILD_DIR)/concentrator.o 
+$(BUILD_DIR)/concentrator$(EXESUFFIX): $(BUILD_DIR)/concentrator.o 
 	-rm -f $@
 	$(CC) $(CFLAGS) -o $@ $<
 
@@ -213,17 +206,7 @@ clean:
 	-rm -f $(BUILD_DIR)/*
 
 
-$(C_OBJECTS):
-	-rm -f $@
-	$(CC) -c -o $@ $(CFLAGS) $<
-
-$(OBJECTS):
-	-rm -f $@
-	$(CPLUSPLUS) -c -o $@ $(CPPFLAGS) $<
-
-.SUFFIXES: .c .o
-
-.c.o:
+$(LIB_OBJECTS) $(OUTERMEDIATES):
 	-rm -f $@
 	$(CPLUSPLUS) -c -o $@ $(CPPFLAGS) $<
 
