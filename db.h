@@ -246,9 +246,9 @@ const typeof_type TYPE_SEMAPHORE	(16);
 #define Wizard(x)	(db[(x)].get_flag(FLAG_WIZARD))
 #define XBuilder(x)	(db[(x)].get_flag(FLAG_XBUILDER))
 #define NoForwardEmail(x)	(db[(x)].get_flag(FLAG_NO_EMAIL_FORWARD))
-#define	Created(x)	(db[(x)].set_ctime())
-#define	Modified(x)	(db[(x)].set_mtime())
-#define	Accessed(x)	(db[(x)].set_atime())
+#define	Created(x)	{if((x) != NOTHING) (db[(x)].set_ctime());}
+#define	Modified(x)	{if((x) != NOTHING) (db[(x)].set_mtime());}
+#define	Accessed(x)	{if((x) != NOTHING) (db[(x)].set_atime());}
 // God-like powers
 #define	SetGodPower(x)	(((x) == GOD_ID) || db[(x)].get_flag(FLAG_GOD_SET_GOD))
 #define	WriteAll(x)	(db[(x)].get_flag(FLAG_GOD_WRITE_ALL))
