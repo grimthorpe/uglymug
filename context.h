@@ -1,10 +1,8 @@
-// vi:ts=4:sw=4:ai:
 #ifndef	_CONTEXT_H
 #define	_CONTEXT_H
 
-#ifndef	_STACK_H
-#include "stack.h"
-#endif	/* !_STACK_H */
+#include <exception>
+#include <stack>
 
 #ifndef	_MATCH_H
 #include "match.h"
@@ -43,21 +41,39 @@ enum	Command_action
 class	String_pair
 {
     private:
-		String			name;
-		String			value;
+		String			m_name;
+		String			m_value;
     public:
 					String_pair	(const String& n, const String& v);
 					~String_pair	();
 		void			set_value	(const String& v);
-	const	String&			get_name	() 	const	{ return name; }
-	const	String&			get_value	()	const	{ return value; }
+	const	String&			get_name	() 	const	{ return m_name; }
+	const	String&			name	() 	const	{ return m_name; }
+	const	String&			get_value	()	const	{ return m_value; }
+	const	String&			value	()	const	{ return m_value; }
 };
 
-typedef	Link_stack <String_pair *>	String_pair_stack;
-typedef	Link_iterator <String_pair *>	String_pair_iterator;
 
+class context;
 
-/*
+class	Variable_stack
+{
+    private:
+		Variable_stack(const Variable_stack&); // DUMMY
+		Variable_stack& operator=(const Variable_stack&); // DUMMY
+
+		std::list <String_pair *> m_string_pair_stack;
+    public:
+				Variable_stack		()	{}
+	virtual			~Variable_stack		();
+		String_pair	*addarg			(const String& n, const String& v);
+		String_pair	*check_and_add_arg	(const String& n, const String& v);
+		bool		updatearg		(const String& n, const String& v);
+		String_pair	*locatearg		(const String& name)	const;
+
+};
+
+/**
  * Scope holds information to do with lexical scopes inside compound commands.
  *	Any kind of loop, or the inside of an if...elseif...endif, starts a
  *	new lexical scope.  A new compound command execution is also a new
@@ -72,25 +88,6 @@ typedef	Link_iterator <String_pair *>	String_pair_iterator;
  *
  * PJC, 26/12/96.
  */
-
-class context;
-
-class	Variable_stack
-{
-    private:
-		Variable_stack(const Variable_stack&); // DUMMY
-		Variable_stack& operator=(const Variable_stack&); // DUMMY
-
-		String_pair_stack variable_stack;
-    public:
-				Variable_stack		() : variable_stack() {}
-	virtual			~Variable_stack		();
-		String_pair	*addarg			(const String& n, const String& v);
-		String_pair	*check_and_add_arg	(const String& n, const String& v);
-		bool		updatearg		(const String& n, const String& v);
-		String_pair	*locatearg		(const String& name)	const;
-
-};
 
 class	Scope
 : public Variable_stack
@@ -116,7 +113,7 @@ private:
 			String_pair	*locate_stack_arg	(const String& name)	const;
 };
 
-typedef	Array_stack <Scope *>		Scope_stack;
+typedef	std::stack <Scope *>		Scope_stack;
 
 
 #ifdef	HELL_HAS_FROZEN_OVER
@@ -269,6 +266,7 @@ private:
 			dbref		cfail_cache;
 			Scope_stack	scope_stack;
 			bool		gagged; // Set true if this or previous compound commands 'Silent'
+			void		empty_scope_stack	();
     protected:
 	virtual	const	int		line_for_outer_scope	()	const	{ return current_line + 1; };
     public:
@@ -280,8 +278,8 @@ private:
 			void		set_effective_id	(dbref i)		{ effective_id = i; }
 		const	dbref		get_effective_id	()	const		{ return (effective_id); }
 			void		chpid			()			{ effective_id = db [command].get_owner (); }
-		const	bool		inside_subscope		()	const		{ return !scope_stack.is_empty(); }
-			bool		push_scope		(Scope *s)		{ return scope_stack.push (s); }
+		const	bool		inside_subscope		()	const		{ return !scope_stack.empty(); }
+			void		push_scope		(Scope *s)		{ scope_stack.push (s); }
 			Command_action	step_once	(context *);
 			void		do_at_elseif		(const bool ok);
 			void		do_at_end		(context &);
@@ -294,7 +292,7 @@ private:
 			bool		gagged_command		()	const	{ return gagged; }
 };
 
-typedef	Array_stack <Compound_command_and_arguments *>	Call_stack;
+typedef	std::stack <Compound_command_and_arguments *>	Call_stack;
 
 
 /* For later */
@@ -306,14 +304,15 @@ class	context
 : public Command_and_arguments
 , public Variable_stack
 {
+	// No default constructor implemented.
+	explicit context (const bool is_default);	///< Only here to allow the default context to be constructed.
+	context(const context&);	///< No copy constructor implemented.
+	context& operator=(const context&);	///< No operator= implemented.
 public:
 	static context	DEFAULT_CONTEXT;
     friend struct Scheduler;
     friend struct Dependency;
     private:
-	context(const context&);		// Dummy constructor.
-	context();				// Another dummy
-	context& operator=(const context&);	// Even more dummy.
 
 		dbref			player;
 		dbref			trace_command;
@@ -322,12 +321,12 @@ public:
 		int			commands_executed;
 		int			sneaky_executed_depth;
 		int			step_limit;
-		int			depth_limit;
+		size_t			depth_limit;
 		String			return_string;
 		Command_status		return_status;
 		bool			called_from_command;
 		const context&		creator;
-		bool			scheduled;
+		bool			m_scheduled;	///< true (false) if this job is (not) scheduled.
 		Dependency		*dependency;
     // friend Scheduler
 		void			clear_dependency	();
@@ -343,17 +342,17 @@ public:
 		void			execute_commands	();
 		void			command_executed	()	{ commands_executed++; }
 		void			set_step_limit		(int new_limit)	{ step_limit = new_limit; }
-		void			set_depth_limit		(int new_limit)	{ depth_limit = new_limit; }
+		void			set_depth_limit		(size_t new_limit)	{ depth_limit = new_limit; }
 	const	bool			set_effective_id	(dbref i);
 		void			set_unchpid_id		(dbref i)	{ unchpid_id = i; }
-		void			set_scheduled		(bool s)	{ scheduled = s; }
-	const	bool			get_scheduled		()	const	{ return scheduled; }
+		void			scheduled		(bool s)	{ m_scheduled = s; }	///< Set whether this context is currently scheduled.
+	const	bool			scheduled		()	const	{ return m_scheduled; }	///< Return whether this context is currently scheduled.
 		void			set_return_string	(const String& rs) { return_string = rs; }
 		void			calling_from_command	()		{ called_from_command = true; }
 	const	int			get_commands_executed	()	const	{ return (commands_executed); }
 	const	int			get_sneaky_executed_depth()	const	{ return (sneaky_executed_depth); }
 		void			set_sneaky_executed_depth(int d)	{ sneaky_executed_depth = d; }
-	const	int			get_depth_limit		()	const	{ return (depth_limit); }
+	const	size_t			get_depth_limit		()	const	{ return (depth_limit); }
 	const	dbref			get_player		()	const	{ return (player); }
 	const	dbref			get_unchpid_id		()	const	{ return (unchpid_id); }
 	const	Command_status		get_return_status	()	const	{ return (return_status); }
@@ -362,7 +361,7 @@ public:
 	const	bool			really_in_command	()	const;
 	const	bool			in_command		()	const;
 	const	dbref			get_current_command	()	const;
-	const	bool			gagged_command		()	const	{ return (call_stack.is_empty())?false:call_stack.top()->gagged_command(); }
+	const	bool			gagged_command		()	const	{ return (call_stack.empty())?false:call_stack.top()->gagged_command(); }
 	const	String&			get_return_string	()	const	{ return (return_string); }
 	const	dbref			get_effective_id	()	const;
 		void			copy_returns_from	(const context &source);
@@ -375,6 +374,7 @@ public:
 	String				sneakily_process_basic_command	(const String&, Command_status &);
 	bool				can_do_compound_command	(const String& command, const String& arg1, const String& arg2);
 	bool				can_override_command (const String& command, const String& arg1, const String& arg2);
+	Command_action			prepare_compound_command	(dbref command, const String& simple_command, const String& arg1, const String& arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
 	Command_action			do_compound_command	(dbref command, const String& simple_command, const String& arg1, const String& arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
 
 	/* Functions from move.c that needed to be inside a context */
@@ -618,7 +618,23 @@ public:
 };
 
 
-/*
+class Dependency
+{
+    private:
+	Dependency(const Dependency&); // DUMMY
+	Dependency& operator=(const Dependency&); // DUMMY
+
+			context		*blocker;
+			context		*blocked;
+			void		(context::*proceed_function) ();
+    public:
+					Dependency	(context *br, context *bd, void (context::*p) ())	: blocker (br), blocked (bd), proceed_function (p)	{}
+					~Dependency	()		{ blocked->execute (proceed_function); }
+		const	context		*get_blocker	()	const	{ return blocker; }
+};
+
+
+/**
  * Scheduler keeps track of who wants to do what to whom.  Each 'what' is a
  *	context, which is repeatedly single-stepped until it reports end-of-job.
  *
@@ -637,39 +653,25 @@ public:
  *	(top of the stack) to return control.
  */
 
-
-class Dependency
-{
-    private:
-	Dependency(const Dependency&); // DUMMY
-	Dependency& operator=(const Dependency&); // DUMMY
-
-			context		*blocker;
-			context		*blocked;
-			void		(context::*proceed_function) ();
-    public:
-					Dependency	(context *br, context *bd, void (context::*p) ())	: blocker (br), blocked (bd), proceed_function (p)	{}
-					~Dependency	()		{ blocked->execute (proceed_function); }
-		const	context		*get_blocker	()	const	{ return blocker; }
-};
-
-
-typedef	Link_stack <context *>	Context_stack;
-
 class	Scheduler
 {
     private:
-			Context_stack	contexts;
+			std::stack <context *>	contexts;
     public:
 					Scheduler	(): contexts()	{}
 					~Scheduler	()		{}
-		bool			runnable	()	const	{ return !contexts.is_empty (); }
+		bool			runnable	()	const	{ return !contexts.empty (); }
 		context			*step		();
-		void			push_job	(context *c)	{ c->set_scheduled (true); contexts.push (c); }
+		void			push_job	(context *c)	{ c->scheduled (true); contexts.push (c); }
 		context			*push_express_job	(context *c);
+		context			*push_new_express_job	(context *c);
 };
 
-/* The only one there is */
+
+/**
+ * The only one there is
+ */
+
 extern	Scheduler	mud_scheduler;
 
 #endif	/* _CONTEXT_H */

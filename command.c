@@ -157,8 +157,8 @@ const	String& arg2)
 }
 
 
-/*
- * This code is called to start a new compound command.  This context may or may
+/**
+ * Start a new compound command.  This context may or may
  *	not be a new context.  We get the command ready for starting, but it's
  *	up to the step() method to do the execution itself - this is required
  *	for scheduling.  We don't call step() at all; this separation of setup
@@ -167,7 +167,7 @@ const	String& arg2)
  */
 
 Command_action
-context::do_compound_command (
+context::prepare_compound_command (
 dbref		command,
 const	String& sc,
 const	String& a1,
@@ -179,13 +179,15 @@ Matcher		&matcher)
 	if (command < 0 || command >= db.get_top () || (Typeof(command) != TYPE_COMMAND))
 		return ACTION_STOP;
 	/* Push stack, with current EID if we already happen to be nested */
-	if ((call_stack.depth () >= depth_limit) || (!call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()))))
+	if (call_stack.size () >= depth_limit)
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Recursion in command");
 		log_recursion(player, db[player].get_name(), command, db[command].get_name(), reconstruct_message(get_arg1(), get_arg2()));
 		return_status= COMMAND_HALT;
 		return ACTION_HALT;
 	}
+
+	call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()));
 
 	if(Backwards(command))
 	{
@@ -200,10 +202,32 @@ Matcher		&matcher)
 		return ACTION_HALT;
 	}
 
-	/* Schedule ourselves */
-	if (!scheduled)
-		mud_scheduler.push_job (this);
 	return ACTION_CONTINUE;
+}
+
+
+/**
+ * Prepare a compound command, and schedule it if it prepares successfully.
+ */
+
+Command_action
+context::do_compound_command (
+dbref		command,
+const	String& sc,
+const	String& a1,
+const	String& a2,
+dbref		eid,
+Matcher		&matcher)
+{
+	Command_action ret = do_compound_command (command, sc, a1, a2, eid, matcher);
+	if (ret == ACTION_CONTINUE)
+	{
+		/* Schedule ourselves */
+		if (!m_scheduled)
+			mud_scheduler.push_job (this);
+	}
+
+	return ret;
 }
 
 
@@ -535,7 +559,7 @@ const	String&,
 const	String&)
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@chpid can only be used inside commands.");
 		return_status = COMMAND_FAIL;
@@ -556,7 +580,7 @@ const	String&,
 const	String&)
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@unchpid can only be used inside commands.");
 		return_status = COMMAND_FAIL;
@@ -901,11 +925,8 @@ const String&args)
 		return;
 	}
 
-	if (!call_stack.top()->push_scope (new With_loop (call_stack.top ()->innermost_scope (), target, arg1, cargs)))
-	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unable to set up loop - see a wizard.");
-		return;
-	}
+	call_stack.top()->push_scope (new With_loop (call_stack.top ()->innermost_scope (), target, arg1, cargs));
+
 	return_status= COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -972,11 +993,7 @@ const String&args)
 		return;
 	}
 
-	if (!call_stack.top()->push_scope (new For_loop (call_stack.top ()->innermost_scope (), start, end, step, countername)))
-	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unable to set up loop - see a wizard!");
-		return;
-	}
+	call_stack.top()->push_scope (new For_loop (call_stack.top ()->innermost_scope (), start, end, step, countername));
 
 	return_status=COMMAND_SUCC;
 	set_return_string (ok_return_string);

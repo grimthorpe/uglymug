@@ -1,4 +1,4 @@
-/*\file
+/** \file descriptor.h
  * Connection descriptors.
  */
 

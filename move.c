@@ -1,5 +1,4 @@
-/* static char SCCSid[] = "@(#) move.c 1.57@(#)"; */
-
+#include <stack>
 #include <math.h>
 #include "copyright.h"
 
@@ -9,12 +8,11 @@
 #include "match.h"
 #include "externs.h"
 #include "command.h"
-#include "stack.h"
 #include "context.h"
 #include "colour.h"
 #include "log.h"
 
-typedef Link_stack <dbref>	Simple_stack;
+typedef std::stack <dbref>	Simple_stack;
 
 
 void
@@ -369,8 +367,8 @@ dbref	loc)
 				/* Prevent the system recursing */
 				leave_context->set_depth_limit(depth_limit - 1);
 				if (could_doit (*leave_context, the_command))
-					leave_context->do_compound_command (the_command, ".leave", "", "", db[the_command].get_owner());
-				delete mud_scheduler.push_express_job (leave_context);
+					leave_context->prepare_compound_command (the_command, ".leave", "", "", db[the_command].get_owner());
+				delete mud_scheduler.push_new_express_job (leave_context);
 				leave_matcher.match_restart ();
 			}
 			/* go there */
@@ -395,18 +393,19 @@ dbref	loc)
 				enter_stack.push (the_command);
 				enter_matcher.match_restart ();
 			}
-			while (!enter_stack.is_empty ())		/* excute the .enter commands */
+			while (!enter_stack.empty ())		/* excute the .enter commands */
 			{
 				context *enter_context = new context (player, *this);
 
-				the_command = enter_stack.pop ();
+				the_command = enter_stack.top ();
+				enter_stack.pop ();
 				/* Make sure the command can't unchpid to the wrong level */
 				enter_context->set_unchpid_id(db[the_command].get_owner());
 				/* Prevent the system recursing */
 				enter_context->set_depth_limit(get_depth_limit() - 1);
 				if (could_doit (*enter_context, the_command))
-					enter_context->do_compound_command (the_command, ".enter", "", "", db[the_command].get_owner());
-				delete mud_scheduler.push_express_job (enter_context);
+					enter_context->prepare_compound_command (the_command, ".enter", "", "", db[the_command].get_owner());
+				delete mud_scheduler.push_new_express_job (enter_context);
 			}
 		}
 		else
@@ -438,8 +437,8 @@ dbref	loc)
 				/* Prevent the system recursing */
 				leave_context->set_depth_limit(get_depth_limit() - 1);
 				if (could_doit (*leave_context, the_command))
-					leave_context->do_compound_command (the_command, ".leave", "", "", db[the_command].get_owner());
-				delete mud_scheduler.push_express_job (leave_context);
+					leave_context->prepare_compound_command (the_command, ".leave", "", "", db[the_command].get_owner());
+				delete mud_scheduler.push_new_express_job (leave_context);
 				leave_matcher.match_restart ();
 			}
 
@@ -460,18 +459,19 @@ dbref	loc)
 				enter_stack.push (the_command);
 				enter_matcher.match_restart ();
 			}
-			while (!enter_stack.is_empty ())
+			while (!enter_stack.empty ())
 			{
 				context *enter_context = new context (player, *this);
 
-				the_command = enter_stack.pop ();
+				the_command = enter_stack.top ();
+				enter_stack.pop ();
 				/* Make sure the command can't unchpid to the wrong level */
 				enter_context->set_unchpid_id(db[the_command].get_owner());
 				/* Prevent the system recursing */
 				enter_context->set_depth_limit(get_depth_limit() - 1);
 				if (could_doit (*enter_context, the_command))
-					enter_context->do_compound_command (the_command, ".enter", "", "", db[the_command].get_owner());
-				delete mud_scheduler.push_express_job (enter_context);
+					enter_context->prepare_compound_command (the_command, ".enter", "", "", db[the_command].get_owner());
+				delete mud_scheduler.push_new_express_job (enter_context);
 			}
 		}
 
@@ -521,7 +521,7 @@ dbref	thing)
 					notify_colour(thing, thing, COLOUR_ERROR_MESSAGES, "A space-time distortion causes you to land in limbo");
 					thing_context->enter_room (LIMBO); /* home */
 				}
-				delete mud_scheduler.push_express_job (thing_context);
+				delete mud_scheduler.push_new_express_job (thing_context);
 			}
 
 			if(db[db[thing].get_destination()].get_inherited_drop_message())
@@ -1162,9 +1162,9 @@ const	String& command)
 	db[player].set_remote_location(loc);	// sets up the fudged location.
 //	moveto (player, loc);
 
-	const int old_depth = call_stack.depth();
+	const size_t old_depth = call_stack.size ();
 	process_basic_command (command.c_str());
-	while(call_stack.depth() > old_depth)
+	while(call_stack.size () > old_depth)
 		step();
 
 	/* Just make sure players don't pull silly stunts like zapping the thing they remoted out of */

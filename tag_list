@@ -18,6 +18,8 @@ information doesn't get lost.
 	Altered do_at_location (teleport code) so that it's possible to teleport Things to a Wizard owned room in a wiz-chpid. (CCW)
 	Added a pointer to ums_release_template.txt in the tag_list comments. (CCW)
 	Major changes to the make procedure, plus documentation in README, COMPILING, PORTING. (PJC)
+	Some alterations to start getting documentation into Doxygen (www.doxygen.org). (PJC)
+	Removed stack.[ch], memory.[ch] - necessitating some fixes to pushing jobs. (PJC)
 
 um1_044 - Time to roll in some more fixes
 	Added log_credit() function. (CCW)

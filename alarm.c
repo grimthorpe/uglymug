@@ -40,6 +40,7 @@ db_patch_alarms ()
 		if ((Typeof (i) == TYPE_PLAYER) && (Connected(i)))
 			mud_disconnect_player(i);
 
+		// Force an @connect for each connected puppet.
 		if ((Typeof (i) == TYPE_PUPPET) && (Connected(i)))
 		{
 			context *c = new context (GOD_ID, context::DEFAULT_CONTEXT);
@@ -47,7 +48,7 @@ db_patch_alarms ()
 			sprintf(tmpnum, "#%d", (int)i);
 			db[i].clear_flag(FLAG_CONNECTED);
 			c->do_at_connect(tmpnum, NULLSTRING);
-			delete mud_scheduler.push_express_job (c);
+			delete mud_scheduler.push_new_express_job (c);
 		}
 		if((Typeof(i) == TYPE_COMMAND) && (db[i].get_location() != NOTHING))
 		{

@@ -58,8 +58,8 @@ int	tom_fuse)
 					{
 						context	*fuse_context = new context (c.get_player (), c);
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
-						fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
-						delete mud_scheduler.push_express_job (fuse_context);
+						fuse_context->prepare_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
+						delete mud_scheduler.push_new_express_job (fuse_context);
 					}
 				}
 
@@ -82,8 +82,8 @@ int	tom_fuse)
 					{
 						context	*fuse_context = new context (c.get_player (), c);
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
-						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
-						delete mud_scheduler.push_express_job (fuse_context);
+						fuse_context->prepare_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
+						delete mud_scheduler.push_new_express_job (fuse_context);
 					}
 				}
 				sprintf (buf, "%d", value);
@@ -132,8 +132,8 @@ dbref	object)
 				{
 					context	*fuse_context = new context (c.get_player (), c);
 					fuse_context->set_unchpid_id (db [fuse].get_owner ());
-					fuse_context->do_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
-					mud_scheduler.push_express_job (fuse_context);
+					fuse_context->prepare_compound_command (db[fuse].get_csucc (), "SUCC", command_arg1.c_str(), command_arg2.c_str(), db [fuse].get_owner(), matcher);
+					mud_scheduler.push_new_express_job (fuse_context);
 
 					if (fuse_context->get_return_status () == COMMAND_FAIL)
 						abort_from_fuse = 1;
@@ -159,8 +159,8 @@ dbref	object)
 					{
 						context	*fuse_context = new context (c.get_player (), c);
 						fuse_context->set_unchpid_id (db [fuse].get_owner ());
-						fuse_context->do_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
-						delete mud_scheduler.push_express_job (fuse_context);
+						fuse_context->prepare_compound_command (db[fuse].get_cfail (), "FAIL", command_arg1.c_str(), command_arg2.c_str(), db[fuse].get_owner(), matcher);
+						delete mud_scheduler.push_new_express_job (fuse_context);
 					}
 				}
 				sprintf (buf, "%d", value);
@@ -234,8 +234,8 @@ context	&c)
 			else
 			{
 				context	*fuse_context = new context (c.get_player (), c);
-				fuse_context->do_compound_command (command_id, command.c_str(), arg1.c_str(), arg2.c_str(), db [get_object ()].get_owner (), matcher);
-				delete mud_scheduler.push_express_job (fuse_context);
+				fuse_context->prepare_compound_command (command_id, command.c_str(), arg1.c_str(), arg2.c_str(), db [get_object ()].get_owner (), matcher);
+				delete mud_scheduler.push_new_express_job (fuse_context);
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-/**\file
+/** \file dump.c
  * Print to stdout the objects owned by an owner whose ID is passed as the first parameter to the program.
  */
 

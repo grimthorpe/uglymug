@@ -1,4 +1,4 @@
-/**\file
+/** \file scat.c
  * scat - by Ian Chard
  *
  * This program works just like 'cat' with a few differences.

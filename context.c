@@ -27,7 +27,7 @@
 /* The only one there is */
 Scheduler	mud_scheduler;
 
-context context::DEFAULT_CONTEXT;
+context context::DEFAULT_CONTEXT (true);
 
 /************************************************************************/
 /*									*/
@@ -43,12 +43,19 @@ const	Scope	&os)
 }
 
 
+/**
+ * Delete any local variables
+ */
+
 Variable_stack::~Variable_stack()
 {
-	/* Lose any local variables */
-	while (!variable_stack.is_empty ())
-		delete variable_stack.pop ();
+	while (!m_string_pair_stack.empty ())
+	{
+		delete m_string_pair_stack.back ();
+		m_string_pair_stack.pop_back ();
+	}
 }
+
 
 String_pair *
 Variable_stack::addarg (
@@ -56,8 +63,8 @@ const	String& n,
 const	String& v)
 
 {
-	variable_stack.push (new String_pair (n, v));
-	return variable_stack.top ();
+	m_string_pair_stack.push_back (new String_pair (n, v));
+	return m_string_pair_stack.back ();
 }
 
 
@@ -98,10 +105,10 @@ const	String& name)
 const
 
 {
-	for (String_pair_iterator i (variable_stack); !i.finished (); i.step ())
+	for (std::list<String_pair *>::const_reverse_iterator i (m_string_pair_stack.rbegin ()); i != m_string_pair_stack.rend (); ++i)
 	{
-		if (!string_compare (i.current ()->get_name(), name))
-			return i.current ();
+		if (!string_compare ((*i)->name(), name))
+			return *i;
 	}
 
 	/* If we get here, we didn't find it on this stack*/
@@ -253,7 +260,6 @@ const	dbref	eid,
 , effective_id (eid)
 , csucc_cache (NOTHING)
 , cfail_cache (NOTHING)
-, scope_stack (MAX_NESTING)
 , gagged(silent)
 {
 	const	char	*err;
@@ -273,9 +279,23 @@ Compound_command_and_arguments::~Compound_command_and_arguments ()
 
 {
 	/* Delete any active scopes (may be left after recursion) */
+	empty_scope_stack ();
+}
 
-	while (!scope_stack.is_empty())
-		delete scope_stack.pop ();
+
+/**
+ * Remove and delete any remaining scopes.
+ */
+
+void
+Compound_command_and_arguments::empty_scope_stack ()
+
+{
+	while (!scope_stack.empty())
+	{
+		delete scope_stack.top ();
+		scope_stack.pop ();
+	}
 }
 
 
@@ -328,7 +348,7 @@ const	String& name)
 const
 
 {
-	if (scope_stack.is_empty ())
+	if (scope_stack.empty ())
 		return locatearg (name);
 	else
 		return scope_stack.top ()->locate_stack_arg (name);
@@ -340,7 +360,7 @@ Compound_command_and_arguments::innermost_scope ()
 const
 
 {
-	if (scope_stack.is_empty ())
+	if (scope_stack.empty ())
 		return *this;
 	else
 		return *scope_stack.top ();
@@ -371,8 +391,7 @@ context		*context)
 	if (!context->allow_another_step ())
 	{
 		// First nuke the scope stack
-		while (!scope_stack.is_empty())
-			delete scope_stack.pop();
+		empty_scope_stack ();
 		log_recursion(	player, db[player].get_name(),
 						command, db[command].get_name(),
 						reconstruct_message(get_arg1(), get_arg2())
@@ -384,8 +403,7 @@ context		*context)
 	/* Check for a parse error */
 	if (command == NOTHING)
 	{
-		while (!scope_stack.is_empty())
-			delete scope_stack.pop();
+		empty_scope_stack ();
 		notify_colour (context->get_player (), context->get_player (), COLOUR_ERROR_MESSAGES, "Parse failure in command");
 		return ACTION_STOP;
 	}
@@ -399,14 +417,13 @@ context		*context)
 	if ((current_line != -1) && (current_line <= (int)db[command].get_inherited_number_of_elements()))
 	{
 		if (action==ACTION_UNSET)
-			action= (scope_stack.is_empty() ? step_once (context) :  scope_stack.top ()->step_once (context));
+			action= (scope_stack.empty() ? step_once (context) :  scope_stack.top ()->step_once (context));
 		switch (action)
 		{
 			case ACTION_HALT:
 				/* This should never happen.. Deal with it anyway */
 				log_bug("ACTION_HALT returned to Compound_command_and_arguments::step()");
-				while (!scope_stack.is_empty())
-					delete scope_stack.pop();
+				empty_scope_stack ();
 				return ACTION_HALT;
 	
 			case ACTION_UNSET:
@@ -415,12 +432,13 @@ context		*context)
 
 			case ACTION_STOP:
 				/* The scope doesn't want to step again */
-				if (!scope_stack.is_empty ())
+				if (!scope_stack.empty ())
 				{
 					/* Let the next outermost scope do its stuff */
 					int	next_line = scope_stack.top ()->line_for_outer_scope ();
-					delete scope_stack.pop ();
-					if (scope_stack.is_empty ())
+					delete scope_stack.top ();
+					scope_stack.pop ();
+					if (scope_stack.empty ())
 						set_current_line (next_line);
 					else
 						scope_stack.top ()->set_current_line (next_line);
@@ -433,8 +451,7 @@ context		*context)
 				break;
 			case ACTION_RESTART:
 				/* We're restarting.  Clean up outstanding scopes. */
-				while (!scope_stack.is_empty ())
-					delete scope_stack.pop ();
+				empty_scope_stack ();
 				break;
 		}
 	}
@@ -444,8 +461,7 @@ context		*context)
 		 * Set up next command. First remove any cruft from this one
 		 *	(there might be some left if we've @returned)
 		 */
-		while (!scope_stack.is_empty())
-			delete scope_stack.pop();
+		empty_scope_stack ();
 
 		dbref	player = context->get_player ();
 		context->command_executed();
@@ -576,7 +592,7 @@ const	bool	if_ok)
 
 {
 #ifdef	DEBUG
-	if (scope_stack.is_empty ())
+	if (scope_stack.empty ())
 	{
 		log_bug ("Compound command do_at_elseif called with no if scope active");
 		return;
@@ -616,12 +632,11 @@ context	&c)
 /*									*/
 /************************************************************************/
 
-context::context ()
+context::context (const bool is_default)
 : Command_and_arguments (NULLSTRING, NULLSTRING, NULLSTRING, 0)
 , player (NOTHING)
 , trace_command (NOTHING)
 , unchpid_id (NOTHING)
-, call_stack (MAX_COMMAND_DEPTH)
 , commands_executed (0)
 , sneaky_executed_depth (0)
 , step_limit (COMPOUND_COMMAND_BASE_LIMIT)
@@ -631,10 +646,12 @@ context::context ()
 , return_status (COMMAND_SUCC)
 , called_from_command (false)
 , creator(*(context*)0)
-, scheduled (false)
+, m_scheduled (false)
 , dependency (0)
 
 {
+	if (!is_default)
+		throw "TODO: Better exception to say that is_default must be true for the default context (and there are no others constructed this way)";
 }
 
 context::context (
@@ -644,7 +661,6 @@ const context& your_maker)
 , player (new_player)
 , trace_command (NOTHING)
 , unchpid_id (new_player)
-, call_stack (MAX_COMMAND_DEPTH)
 , commands_executed (0)
 , sneaky_executed_depth (0)
 , step_limit (your_maker.step_limit)
@@ -654,7 +670,7 @@ const context& your_maker)
 , return_status (COMMAND_SUCC)
 , called_from_command (false)
 , creator(your_maker)
-, scheduled (false)
+, m_scheduled (false)
 , dependency (0)
 
 {
@@ -696,7 +712,7 @@ const bool
 context::really_in_command ()
 const
 {
-	return (!call_stack.is_empty () || (get_current_command() != NOTHING));
+	return (!call_stack.empty () || (get_current_command() != NOTHING));
 }
 
 const bool
@@ -713,7 +729,7 @@ const
 /* Oh, and some things want to check if we're *REALLY* in a command right now,
  * which really screws up with @force
  */
-	return (!call_stack.is_empty () || called_from_command || (get_current_command() != NOTHING));
+	return (!call_stack.empty () || called_from_command || (get_current_command() != NOTHING));
 }
 
 
@@ -722,7 +738,7 @@ context::get_innermost_arg1 ()
 const
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 		return get_arg1 ();
 	else
 		return call_stack.top ()->get_arg1 ();
@@ -734,7 +750,7 @@ context::get_innermost_arg2 ()
 const
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 		return get_arg2 ();
 	else
 		return call_stack.top ()->get_arg2 ();
@@ -746,7 +762,7 @@ context::get_current_command ()
 const
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 		return (NOTHING);
 	else
 		return (call_stack.top ()->get_command ());
@@ -758,7 +774,7 @@ context::set_effective_id (
 dbref	id)
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 		return (false);
 	else
 	{
@@ -773,7 +789,7 @@ context::get_effective_id ()
 const
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 		return (player);
 	else
 		return (call_stack.top ()->get_effective_id ());
@@ -792,7 +808,7 @@ const	String& name)
 const
 
 {
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 		return 0;
 	else
 		return call_stack.top ()->locate_innermost_arg (name);
@@ -824,7 +840,7 @@ context::step ()
 
 {
 	/* Are we running a command at all? - the outer context may not know and may call us anyway */
-	if (call_stack.is_empty ())
+	if (call_stack.empty ())
 	{
 		fire_sticky_fuses (*this);
 		return ACTION_STOP;
@@ -835,25 +851,29 @@ context::step ()
 	{
 		case ACTION_HALT:
 			/* IE Recursion */
-			if (!call_stack.is_empty())
+			if (!call_stack.empty())
 				call_stack.top ()->fire_sticky_fuses (*this);
-			while (!call_stack.is_empty())
-				delete call_stack.pop();
+			while (!call_stack.empty())
+			{
+				delete call_stack.top ();
+				call_stack.pop ();
+			}
 			fire_sticky_fuses(*this);
 			return_status=COMMAND_HALT;
 			return ACTION_STOP;
 		case ACTION_STOP:
 			/* The command chain has come to its end */
-			if (!call_stack.is_empty())
+			if (!call_stack.empty())
 			{
 				call_stack.top ()->fire_sticky_fuses (*this);
-				delete call_stack.pop ();
+				delete call_stack.top ();
+				call_stack.pop ();
 			}
 			else
 				log_bug("empty call stack when ACTION_STOP returned to context::step()");
 
 			/* If that's all we've got to do, we've finished */
-			if (call_stack.is_empty ())
+			if (call_stack.empty ())
 			{
 				fire_sticky_fuses (*this);
 				return ACTION_STOP;
@@ -865,7 +885,8 @@ context::step ()
 		case ACTION_RESTART:
 			/** Fix me **/
 			call_stack.top ()->fire_sticky_fuses (*this);
-			delete call_stack.pop ();
+			delete call_stack.top ();
+			call_stack.pop ();
 			return (ACTION_RESTART);
 		case ACTION_UNSET:
 			// When do we get this?
@@ -885,8 +906,8 @@ context::step ()
 String_pair::String_pair (
 const	String& n,
 const	String& v)
-: name (n)
-, value (v)
+: m_name (n)
+, m_value (v)
 
 {
 }
@@ -903,7 +924,7 @@ String_pair::set_value(
 const	String& v)
 
 {
-	value = v;
+	m_value = v;
 }
 
 
@@ -1271,8 +1292,9 @@ Scheduler::step ()
 			/* Treat a restart as a stop */
 			/* FALLTHROUGH */
 		case ACTION_STOP:
-			returned = contexts.pop ();
-			returned->set_scheduled (false);
+			returned = contexts.top ();
+			contexts.pop ();
+			returned->scheduled (false);
 			return returned;
 		case ACTION_UNSET:
 			// When do we get this?
@@ -1288,8 +1310,54 @@ Scheduler::step ()
 }
 
 
-/*
- * push_express_job: This job must be evaluated at a higher priority than all
+/**
+ * This job must be evaluated at a higher priority than all
+ *	non-express jobs and all previous express jobs.  It must then be executed
+ *	until it is complete.
+ */
+
+context *
+Scheduler::push_new_express_job (
+context	*c)
+
+{
+	// If the job is scheduled, scream
+	if (c->scheduled ())
+		log_bug("Scheduler::push_new_express_job: Job is already scheduled (and Peter doesn't think it should be)");
+
+	context	*returned;
+
+	// Push it on the queue at the top
+	size_t	old_depth = contexts.size ();
+	c->scheduled (true);
+	contexts.push (c);
+	/* Now keep going while the queue is deeper */
+// HACK: We might hit a loop here...
+static int loop = 1;
+int old_loop = loop;
+
+	while ((contexts.size () > old_depth) && (loop++ < 1500))
+		returned = step ();
+
+	while (contexts.size() > old_depth)
+	{
+		returned = contexts.top();
+		contexts.pop();
+	}
+
+	loop = old_loop; // We can safely reset it here, because we'll pop the jobs that cause the problem.
+		// I hope!
+
+	/* The last step that popped the queue must have returned something useful */
+	return returned;
+}
+
+
+// I don't think this is used - notably, I don't think any express job has ever
+// been pushed as a non-express job.  Hence removed, with a check in push_new_express_job.
+#if 0
+/**
+ * This job must be evaluated at a higher priority than all
  *	non-express jobs and all previous express jobs.  It must then be executed
  *	until it is complete.
  *
@@ -1301,32 +1369,10 @@ Scheduler::push_express_job (
 context	*c)
 
 {
-	context	*returned;
-
 	/* If the job is scheduled, zap it out of the queue */
-	if (c->get_scheduled ())
+	if (c->scheduled ())
 		contexts.remove (c);
 
-	/* Push it on the queue at the top, just to make sure */
-	int	old_depth = contexts.get_depth ();
-	c->set_scheduled (true);
-	contexts.push (c);
-	/* Now keep going while the queue is deeper */
-// HACK: We might hit a loop here...
-static int loop = 1;
-int old_loop = loop;
-
-	while ((contexts.get_depth () > old_depth) && (loop++ < 1500))
-		returned = step ();
-
-	while(contexts.get_depth() > old_depth)
-	{
-		returned = contexts.pop();
-	}
-
-	loop = old_loop; // We can safely reset it here, because we'll pop the jobs that cause the problem.
-		// I hope!
-
-	/* The last step that popped the queue must have returned something useful */
-	return returned;
+	return push_new_express_job (c);
 }
+#endif

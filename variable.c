@@ -240,7 +240,7 @@ const	String& val)
 	}
 
 	/* Check whether the argument exists in the top nesting */
-	if (call_stack.is_empty())
+	if (call_stack.empty())
 	{
 		log_bug("Trying to add a local to an empty call stack!");
 		return; /* Erm, where can we add it! This should never occur */

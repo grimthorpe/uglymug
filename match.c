@@ -1251,7 +1251,7 @@ const	String& arg)
 		pos = 0;
 	else
 		pos = atoi (arg.c_str());
-	if (pos >= call_stack.depth ())
+	if (pos >= call_stack.size ())
 	{
 		if (!gagged_command())
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: Not that many levels on stack");
@@ -1260,8 +1260,27 @@ const	String& arg)
 	}
 	else
 	{
-		if ((matcher = call_stack[pos]->get_matcher ()) == NULL)
-			return;
+		// Find the matcher that we're asking.  In the common case, this
+		// is the topmost frame's matcher, so there's an optimisation.
+		if (pos == 0)
+		{
+			if ((matcher = call_stack.top ()->get_matcher ()) == NULL)
+				return;
+		}
+		else
+		{
+			// Copy the stack...
+			Call_stack copied_call_stack (call_stack);
+
+			// ... and pop the appropriate number of frames off it so that the top frame is the one we want.
+			while (pos > 0)
+			{
+				copied_call_stack.pop ();
+				--pos;
+			}
+			if ((matcher = copied_call_stack.top ()->get_matcher ()) == NULL)
+				return;
+		}
 
 		return_status = COMMAND_SUCC;
 		if (!string_compare (type, "match"))

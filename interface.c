@@ -1,5 +1,5 @@
 /* static char SCCSid[] = "@(#)interface.c 1.155 00/06/29@(#)"; */
-/*\file
+/** \file interface.c
  * The socket interface, along with all the other grubbiness that means players can connect.
  *
  * This file is long overdue for splitting into a number of smaller files.

@@ -79,7 +79,6 @@ SOURCES:=\
 	set.c \
 	smd.c \
 	speech.c \
-	stack.c \
 	stats.c \
 	stringutil.c \
 	trawl.c \

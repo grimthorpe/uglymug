@@ -70,8 +70,8 @@ const
 					context *sub_context = new context (c.get_player(), c);
 					sub_context->set_unchpid_id (db[thing].get_owner());
 					sub_context->set_step_limit (COMPOUND_COMMAND_BASE_LIMIT - commands_executed);
-					sub_context->do_compound_command (thing, ".lockcheck", "", "", db[thing].get_owner(), matcher);
-					mud_scheduler.push_express_job (sub_context);
+					sub_context->prepare_compound_command (thing, ".lockcheck", "", "", db[thing].get_owner(), matcher);
+					mud_scheduler.push_new_express_job (sub_context);
 					commands_executed += sub_context->get_commands_executed ();
 					Command_status status = sub_context->get_return_status ();
 					delete sub_context;

@@ -1,4 +1,4 @@
-/*\file
+/** \file regexp_interface.h
  * Interface to regular expression stuff, to keep it in C with only one copy.
  */
 

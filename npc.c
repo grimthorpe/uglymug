@@ -121,7 +121,7 @@ static char *process_npc_command(dbref npc, const char *cmd, struct puppet::fsm_
 	
 	npc_context->calling_from_command();
 	npc_context->process_basic_command(semicolon+1);
-	mud_scheduler.push_express_job (npc_context);
+	mud_scheduler.push_new_express_job (npc_context);
 	status=npc_context->get_return_status();
 
 	delete npc_context;

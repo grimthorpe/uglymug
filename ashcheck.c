@@ -26,6 +26,7 @@
 	ofail message = total time connected
 */
 
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -39,7 +40,6 @@
 #include "interface.h"
 #include "match.h"
 #include "regexp_interface.h"
-#include "stack.h"
 
 
 #define dfprintf			if (debug && !silent) fprintf

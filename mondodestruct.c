@@ -18,6 +18,7 @@
  *
  */
 
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -37,7 +38,6 @@
 #include "destroy.h"
 #include "match.h"
 #include "regexp_interface.h"
-#include "stack.h"
 
 #define APPNAME				"Mondo Destruction"
 

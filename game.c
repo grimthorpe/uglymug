@@ -749,8 +749,8 @@ execute_startups(void)
 			if (Wizard(db[item].get_owner()))
 			{
 				context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
-				c->do_compound_command (item, ".startup", "", "");
-				delete mud_scheduler.push_express_job (c);
+				c->prepare_compound_command (item, ".startup", "", "");
+				delete mud_scheduler.push_new_express_job (c);
 			}
 			else
 				log_hack(GOD_ID, "non-wizard character %s(#%d) owns .startup command #%d in #%d",
@@ -775,8 +775,8 @@ execute_shutdown(void)
 			if (Wizard(db[item].get_owner()))
 			{
 				context *c = new context (db[item].get_owner(), context::DEFAULT_CONTEXT);
-				c->do_compound_command(item, ".shutdown", "", "");
-				delete mud_scheduler.push_express_job (c);
+				c->prepare_compound_command(item, ".shutdown", "", "");
+				delete mud_scheduler.push_new_express_job (c);
 			}
 			else
 				log_hack(GOD_ID, 	"%s(#%d) owns .shutdown command #%d in #%d",
@@ -859,7 +859,7 @@ const	char	*outfile)
 	/* read smd file */
 	context	*read_context = new context (GOD_ID, context::DEFAULT_CONTEXT);
 	read_context->do_at_smd("read", (char *)NULL); /* Read the SMD list */
-	delete mud_scheduler.push_express_job (read_context);
+	delete mud_scheduler.push_new_express_job (read_context);
 
 	/* Do startup comands */
 	execute_startups ();
@@ -878,7 +878,7 @@ Command_status	&sneaky_return_status)
 	String cached_return_string;
 	String sneaky_return_string;
 
-	int depth = get_sneaky_executed_depth();
+	size_t depth = get_sneaky_executed_depth();
 	if(depth > get_depth_limit()) // Give them a chance!
 	{
 		sneaky_return_string = error_return_string;
@@ -892,13 +892,13 @@ Command_status	&sneaky_return_status)
 		cached_return_string = return_string;
 
 		/* Remember how deeply nested we were before */
-		const	int	old_depth = call_stack.depth ();
+		const	size_t	old_depth = call_stack.size ();
 
 		/* Do the command */
 		process_basic_command (original_command.c_str());
 
 		/* If the call stack is deeper, we just ran a nested command.  Run it to completion. */
-		while (call_stack.depth () > old_depth)
+		while (call_stack.size () > old_depth)
 			step ();
 
 		/* Fill in our returns */
@@ -1064,7 +1064,7 @@ const	char	*original_command)
 	 *
 	 * PJC 18/2/97.
 	 */
-	if(!in_command() && LiteralInput(player) && (call_stack.depth() == 0))
+	if(!in_command() && LiteralInput(player) && call_stack.empty ())
 	{
 		strcpy(command, smashed_original);
 	}
@@ -1353,7 +1353,7 @@ const	char	*command)
 	context	*root_context = new context (player, context::DEFAULT_CONTEXT);
 	root_context->process_basic_command (command);
 	/* If the root context was never scheduled, it won't have had a chance to fire any sticky fuses, so... */
-	if (!root_context->get_scheduled ())
+	if (!root_context->scheduled ())
 		root_context->fire_sticky_fuses (*root_context);
 	while (mud_scheduler.runnable ())
 		if (mud_scheduler.step () == root_context && root_context)
@@ -1384,8 +1384,8 @@ void mud_run_dotcommand(dbref player, const String& command)
 		context *login_context = new context (player, context::DEFAULT_CONTEXT);
 		if (!Dark (the_command) && could_doit (*login_context, the_command))
 		{
-			login_context->do_compound_command (the_command, command, getname (player), "");
-			delete mud_scheduler.push_express_job (login_context);
+			login_context->prepare_compound_command (the_command, command, getname (player), "");
+			delete mud_scheduler.push_new_express_job (login_context);
 		}
 	}
 	Matcher area_matcher (player, command, TYPE_COMMAND, player);
@@ -1396,8 +1396,8 @@ void mud_run_dotcommand(dbref player, const String& command)
 		context *login_context = new context (player, context::DEFAULT_CONTEXT);
 		if (!Dark (the_command) && could_doit (*login_context, the_command))
 		{
-			login_context->do_compound_command (the_command, command, getname (player), "");
-			delete mud_scheduler.push_express_job (login_context);
+			login_context->prepare_compound_command (the_command, command, getname (player), "");
+			delete mud_scheduler.push_new_express_job (login_context);
 		}
 	}
 
@@ -1407,8 +1407,8 @@ void mud_run_dotcommand(dbref player, const String& command)
 			if (Wizard(db[the_command].get_owner()))
 			{
 				context *login_context = new context (player, context::DEFAULT_CONTEXT);
-				login_context->do_compound_command (the_command, command, getname(player), "");
-				delete mud_scheduler.push_express_job (login_context);
+				login_context->prepare_compound_command (the_command, command, getname(player), "");
+				delete mud_scheduler.push_new_express_job (login_context);
 			}
 			else
 				log_hack(GOD_ID, "Global .login command (#%d) not owned by a Wizard", the_command);
@@ -1525,8 +1525,8 @@ void mud_time_sync ()
 						a_location = db[a_location].get_location();
 					moveto (the_player, a_location);
 					context *alarm_context = new context (the_player, context::DEFAULT_CONTEXT);
-					alarm_context->do_compound_command (a_command, "ALARM", "", "");
-					delete mud_scheduler.push_express_job (alarm_context);
+					alarm_context->prepare_compound_command (a_command, "ALARM", "", "");
+					delete mud_scheduler.push_new_express_job (alarm_context);
 					moveto (the_player, cached_location);
 				}
 				else

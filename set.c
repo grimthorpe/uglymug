@@ -2519,7 +2519,7 @@ const	String& new_location_string)
 		{
 			context	*victim_context = new context (victim, *this);
 			victim_context->enter_room (new_location);
-			delete mud_scheduler.push_express_job (victim_context);
+			delete mud_scheduler.push_new_express_job (victim_context);
 		}
 		else
 		{

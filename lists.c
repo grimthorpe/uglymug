@@ -317,8 +317,8 @@ Player_list::trigger_command(const char *command, context &c)
 			// Maybe need to set commands_executed here...
 			if (!Dark (automatic) && could_doit (*new_context, automatic))
 			{
-				new_context->do_compound_command (automatic, command, getname_inherited (c.get_player()), "");
-				delete mud_scheduler.push_express_job(new_context);
+				new_context->prepare_compound_command (automatic, command, getname_inherited (c.get_player()), "");
+				delete mud_scheduler.push_new_express_job(new_context);
 			}
 		}
 	current=current->next;

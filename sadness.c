@@ -18,6 +18,7 @@
  *
  */
 
+#include <stack>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,7 +37,6 @@
 #include "interface.h"
 #include "match.h"
 #include "regexp_interface.h"
-#include "stack.h"
 
 /*
  * The define 'DIV' is used to determine in what size steps the player

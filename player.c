@@ -107,8 +107,8 @@ dbref create_player(const String& name, const String& password, bool effective_w
 		if(string_compare(db[create].get_name(), ".create") == 0)
 		{
 			context* c = new context(player, context::DEFAULT_CONTEXT);
-			c->do_compound_command(create, ".create", "", "");
-			delete mud_scheduler.push_express_job(c);
+			c->prepare_compound_command(create, ".create", "", "");
+			delete mud_scheduler.push_new_express_job(c);
 		}
 	}
 

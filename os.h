@@ -1,4 +1,4 @@
-/** \file
+/** \file os.h
  * Configurations that are specific to each operating system.
  */
 
