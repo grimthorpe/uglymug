@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <math.h>
+#include <time.h>
 #include "db.h"
 #include "colour.h"
 #include "config.h"

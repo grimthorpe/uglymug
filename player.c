@@ -2,6 +2,7 @@
 #include "copyright.h"
 
 #include <string.h>
+#include <time.h>
 #if defined (linux) || (sun)
   #include <crypt.h>
 #endif /* defined (linux) || (sun)*/

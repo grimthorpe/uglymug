@@ -6,6 +6,7 @@ Not done yet
 	Allow suppersistion of Unanimous and percentage
  */
 
+#include <time.h>
 #include "context.h"
 #include "command.h"
 #include "objects.h"

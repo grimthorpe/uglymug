@@ -4,6 +4,7 @@
 /* Commands that create new objects */
 
 #include <math.h>
+#include <time.h>
 
 #include "db.h"
 #include "objects.h"

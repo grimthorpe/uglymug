@@ -10,6 +10,7 @@
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <time.h>
 #include "db.h"
 #include "config.h"
 #include "game.h"

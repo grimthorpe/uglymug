@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include "db.h"
 #include "config.h"

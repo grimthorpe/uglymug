@@ -18,6 +18,7 @@
 #define MAX_IDLE_MESSAGE_LENGTH 70
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
 
 #include "colour.h"
 #include "context.h"
