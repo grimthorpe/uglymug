@@ -12,6 +12,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+    Finally fixed @remote so that it works properly;
+
 um1_028 - Grimthorpe, emergency release due to the NPC bug.
     Cleaned up the @recall code so that it uses 'String' instead of char*
     Fixed NPC code in queue_string so that it escapes $, \ and {.

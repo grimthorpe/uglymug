@@ -1150,7 +1150,7 @@ const	CString& command)
 //	copy_returns_from (*remote_context);
 //	delete remote_context;
 	process_basic_command (command.c_str());
-	mud_scheduler.push_express_job (this); 
+//	mud_scheduler.push_express_job (this); 
 	//copy_returns_from (*remote_context);
 
 	/* Just make sure players don't pull silly stunts like zapping the thing they remoted out of */
