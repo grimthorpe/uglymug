@@ -57,6 +57,7 @@ struct	flag_stuff	flag_list [] =
 	{"Wizard",	FLAG_WIZARD,		'W'},
 	{"Natter",	FLAG_NATTER,		'\0'},
 	{"XBuilder",	FLAG_XBUILDER,		'X'},
+	{"Retired",	FLAG_RETIRED,		'R'},
 
 	{"Male",	FLAG_MALE,		'\0'},
 	{"Female",	FLAG_FEMALE,		'\0'},
@@ -102,7 +103,7 @@ dbref	thing)
 			&& (flag_list [i].quick_flag != '\0'))
 			/* If they are god, don't display W flag */
 			&& (!((flag_list[i].flag == FLAG_WIZARD) &&
-			      (thing == GOD_ID))))
+			      ((thing == GOD_ID) || Retired(thing)))))
 			*p++ = flag_list [i].quick_flag;
 	*p = '\0';
 	return buf;

@@ -1520,7 +1520,8 @@ const	String& flag)
 
 	/* check for restricted flag */
 	if(!Wizard(get_effective_id ())
-		&& (f == FLAG_WIZARD))
+		&& ((f == FLAG_WIZARD)
+			|| (f == FLAG_RETIRED)))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only Wizards may set that flag.");
 		return;

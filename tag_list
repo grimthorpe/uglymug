@@ -14,6 +14,8 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Added the 'Retired' flag. It hides the Wizard/Apprentice flags in unparse_object and 'who'.
+	Modified 'who' so that it displays the 'X' flag for Wizards & Apprentices that are set XBuilder (compare to Welcomer flag). It never shows for GOD, but if required can be changed easily.
 	Fixed @boot so that if the target doesn't exist we don't crash the game.
 	Changed get code (do_get) so you can't get things from other players (aka theft).
 	Changed drop code (do_drop) so you can only drop things that you are carrying.
