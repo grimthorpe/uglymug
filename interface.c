@@ -3287,7 +3287,7 @@ descriptor_data::connect_a_player (
 	}
 	else
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please you @recall <number of lines to view>");
+		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please use '@recall <number of lines to view>'");
 	}
 
 }
