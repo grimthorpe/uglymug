@@ -1109,6 +1109,11 @@ const	char	*original_command)
 			command_done = True;
 		}
 	}
+	else if ((*a0 == '@')
+		&& can_override_command (a0, get_arg1 (), get_arg2 ()))
+	{
+		command_done = True;
+	}
 
 	/* We've bombed out everywhere else; is this a straight, simple command? */
 	if (!command_done && ((entry = find_basic_command (a0)) != NULL))
