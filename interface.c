@@ -4289,6 +4289,9 @@ void
 context::do_query_connectedplayers (const String& victim, const String& name)
 {
 struct	descriptor_data *d;
+// Variables stolen straight from 'dump_users'. 
+// These, plus associated routines really should be merged into one
+// Location
 	int	found_one=0;
 	int	want_me = 0;
 	int	want_wizards = 0;
@@ -4305,10 +4308,6 @@ struct	descriptor_data *d;
 	int 	wanted_location;
 // Max name length + ; + \0 and some leeway.
 static	char	buf[MAX_USERS*(MAX_NAME_LENGTH+2)];
-//static	char	*buf;
-
-// Max name length + ; + \0 and some leeway.
-//buf=(char *)malloc(MAX_USERS*(MAX_NAME_LENGTH+2)*sizeof(char));
 
 if (victim)
 {
@@ -4336,13 +4335,8 @@ if (victim)
 		want_welcomers = 1;
 	if (!(string_compare(victim, "npc")) || (!string_compare(victim, "npcs")))
 		want_npcs=1;
-	//if (victim[0] == '#')
-	//{
-	//	want_area_who = 1;
-	//	victim++; /* Go past the # */
-	//	wanted_location = atoi(victim); 
-/* Set up the location for area who */
-	//}
+// Don't worry about arguments starting with '#', makes no real
+// sense in this context.
 }
 // The remaining players separated with semi-colons.
 for (d = descriptor_list; d; d = d->next)
@@ -4391,6 +4385,8 @@ for (d = descriptor_list; d; d = d->next)
 			}
 			else
 			{
+				// snprintf straight into buffer to reset
+				// buffer from last time.
 				snprintf(buf, sizeof(buf), "#%d",d->get_player());
 				found_one=1;
 			}
@@ -4404,6 +4400,8 @@ for (d = descriptor_list; d; d = d->next)
 			}
 			else
 			{
+				// snprintf straight into buffer to reset
+				// buffer from last time.
 				snprintf(buf, sizeof(buf), db[d->get_player()].get_name().c_str());
 				found_one=1;
 			}
