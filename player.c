@@ -242,7 +242,7 @@ const	String& match)
 	if ( !match)
 	{
 		notify_norecall(player, "%s %d %s", "---------------Recalling",num_lines,"lines-----------------------------\n");
-		db[player].output_recall_conditional("\0",num_lines, this);
+		db[player].output_recall(num_lines, this);
 		notify_norecall(player, "%s %d %s", "---------------End Recall of", num_lines, "lines-------------------------\n");
 	}
 	else

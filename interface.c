@@ -862,7 +862,6 @@ void notify(dbref player, const char *fmt, ...)
 void notify_norecall_conditional(String match,dbref player, const char *fmt, ...)
 {
 
-	char    regexpbuf[ BUFFER_LEN ];
         struct descriptor_data *d;
         va_list vl;
 
@@ -871,10 +870,10 @@ void notify_norecall_conditional(String match,dbref player, const char *fmt, ...
         va_end (vl);
 	
 	// JPK *FIXME*
-	if (! (match.c_str()[0]) == '\0' )
+	if (match)
 	{
-		compile(match.c_str(), regexpbuf, regexpbuf+BUFFER_LEN, '\0');
-		if (step(vsnprintf_result, regexpbuf))
+		RegularExpression re(match);
+		if (re.Match(vsnprintf_result))
 		{
        	 		for (d = descriptor_list; d; d = d->next)
        	        		if (d->IS_CONNECTED() && d->get_player() == player)

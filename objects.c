@@ -4,7 +4,6 @@
 #include <math.h>
 #include <strings.h>
 #include <time.h>
-
 #pragma implementation "objects.h"
 
 #include "externs.h"
@@ -12,6 +11,7 @@
 #include "objects.h"
 #include "interface.h"
 #include "log.h"
+#include "regexp_interface.h"
 
 
 /* DB_GROWSIZE must be a power of 2 */
@@ -1691,6 +1691,8 @@ const context *	con)
 
         int line_to_output=recall->buffer_next - thelines;
 
+	RegularExpression re(match);
+
         if(line_to_output < 0)
         {
                 if(recall->buffer_wrapped)
@@ -1710,13 +1712,18 @@ const context *	con)
                         line_to_output = 0;
                 }
 
-                notify_norecall_conditional(match,con->get_player(), "%s", recall->buffer[line_to_output].c_str());
+		const String line = recall->buffer[line_to_output];
+		if(re.Match(line))
+		{
+			notify_norecall(con->get_player(), "%s", line.c_str());
+		}
                 line_to_output++;
         }
 
         if(recall->buffer_build)
         {
-                notify_norecall_conditional(match,con->get_player(), "%s", recall->buffer_build);
+		if(re.Match(recall->buffer_build))
+			notify_norecall(con->get_player(), "%s", recall->buffer_build);
         }
 
 }

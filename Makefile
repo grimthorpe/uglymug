@@ -15,6 +15,13 @@ include $(CONFIG_DIR)/Makefile.os
 BUILDS_DIR:=builds
 BUILD_DIR:=$(BUILDS_DIR)/$(BUILD_ENVIRONMENT)
 
+# Need to decide if we're using old regexp or new PCRE for regular expressions.
+# Use the following if you're using PCRE. NOTE: On something you will need to use -R as well.
+include $(BUILD_DIR)/Makefile.local
+
+LOCALLIBS=$(LD_REGEXP)
+LOCALCCFLAGS=$(CC_REGEXP)
+
 by_default_just_make: $(BUILDS_DIR) $(BUILD_DIR) $(BUILD_DIR)/netmud$(EXESUFFIX)
 
 checkenvironment:
@@ -22,8 +29,8 @@ checkenvironment:
 
 INCLUDE:=configs/$(BUILD_ENVIRONMENT)/include
 # Whatever you put in for $(CC) must be able to grok ANSI C.
-CC:=gcc $(INCLUDE:%=-I%)
-CPLUSPLUS:=g++ $(INCLUDE:%=-I%) -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion
+CC:=gcc $(INCLUDE:%=-I%) $(CC_REGEXP)
+CPLUSPLUS:=g++ $(INCLUDE:%=-I%) -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion $(CC_REGEXP)
 # TODO: Separate CPPFLAGS and CFLAGS in Makefile.os. PJC 12/4/03.
 CPPFLAGS:= $(CFLAGS)
 LIBUGLY:= $(BUILD_DIR)/libugly.a
@@ -164,47 +171,47 @@ $(LIBUGLY): $(LIB_OBJECTS)
 
 $(BUILD_DIR)/netmud$(EXESUFFIX): newversion $(LIBUGLY) $(BUILD_DIR)/netmud.o
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/netmud.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/netmud.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/dump$(EXESUFFIX): $(BUILD_DIR)/dump.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/dump.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/dump.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/sadness$(EXESUFFIX): $(BUILD_DIR)/sadness.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/sadness.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/sadness.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/mondodestruct$(EXESUFFIX): $(BUILD_DIR)/mondodestruct.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/mondodestruct.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/mondodestruct.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/trawl$(EXESUFFIX): $(BUILD_DIR)/trawl.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/trawl.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/trawl.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/ashcheck$(EXESUFFIX): $(BUILD_DIR)/ashcheck.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/ashcheck.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/ashcheck.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/stats$(EXESUFFIX): $(BUILD_DIR)/stats.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/stats.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/stats.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/extract$(EXESUFFIX): $(BUILD_DIR)/extract.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/extract.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/extract.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/colouring$(EXESUFFIX): $(BUILD_DIR)/colouring.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/colouring.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/colouring.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/paths$(EXESUFFIX): $(BUILD_DIR)/paths.o $(LIBUGLY)
 	-rm -f $@
-	$(CPLUSPLUS) $(CPPFLAGS) -o $@ $(BUILD_DIR)/paths.o $(LIBUGLY) $(LIBS)
+	$(CPLUSPLUS) $(CPPLDFLAGS) -o $@ $(BUILD_DIR)/paths.o $(LIBUGLY) $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/scat$(EXESUFFIX): $(BUILD_DIR)/scat.o
 	-rm -f $@
-	$(CPLUSPLUS) -o $@ $< $(LIBS)
+	$(CPLUSPLUS) -o $@ $< $(LOCALLIBS) $(LIBS)
 
 $(BUILD_DIR)/concentrator$(EXESUFFIX): $(BUILD_DIR)/concentrator.o 
 	-rm -f $@
@@ -238,6 +245,12 @@ $(BUILD_DIR)/%.d: %.c
 	$(CPLUSPLUS) -MM $(CPPFLAGS) $< > $@.$$$$; \
 	sed "s,\\($*\\)\\.o[ :]*,$(BUILD_DIR)/\\1.o $@ : ,g" < $@.$$$$ > $@; \
 	rm -f $@.$$$$
+
+$(BUILD_DIR)/Makefile.local: configure
+	sh ./configure $(BUILD_DIR)/Makefile.local
+
+# regexp_interface.h changes depending on the local configuration.
+regexp_interface.h: $(BUILD_DIR)/Makefile.local
 
 # Obtain dependencies for all our files
 include $(SOURCES:%.c=$(BUILD_DIR)/%.d)

@@ -8,7 +8,6 @@
 #ifndef _Config_h_
 #define _Config_h_
 
-
 /*
  * General bits and pieces for game debugging
  */

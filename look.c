@@ -1865,8 +1865,6 @@ const	String& string)
 	dbref	i;
 	dbref	room;
 
-	char	expbuf[ BUFFER_LEN ];
-
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 
@@ -1890,7 +1888,7 @@ const	String& string)
 		return;
 	}
 
-	compile(string.c_str(), expbuf, expbuf+BUFFER_LEN, '\0');
+	RegularExpression re(string);
 
 	if (string_prefix("me", descriptor))
 	/* Remind people about the code change */
@@ -1905,7 +1903,7 @@ const	String& string)
 				&& Typeof(i) != TYPE_EXIT
 				&& db[i].get_name()
 				&& controls_for_read(i)
-				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_name())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("description", descriptor))
@@ -1915,7 +1913,7 @@ const	String& string)
 				&& Typeof(i) != TYPE_EXIT
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_description())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("cname", descriptor))
@@ -1924,7 +1922,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_COMMAND
 				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_name())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("cdescription", descriptor))
@@ -1933,7 +1931,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_COMMAND
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_description())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("vname", descriptor))
@@ -1942,7 +1940,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_VARIABLE
 				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_name())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("vdescription", descriptor))
@@ -1951,7 +1949,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_VARIABLE
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_description())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("ename", descriptor))
@@ -1960,7 +1958,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_EXIT
 				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_name().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_name())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("edescription", descriptor))
@@ -1969,7 +1967,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_EXIT
 				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_description())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("edestination", descriptor))
@@ -2033,7 +2031,7 @@ const	String& string)
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_ALARM
 			&& controls_for_read (i)
-			&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
+			&& (!string || re.Match(db[i].get_description())))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("ashcan", descriptor))
@@ -2042,7 +2040,7 @@ const	String& string)
 			if((Typeof (i) != TYPE_FREE)
 				&& Ashcan(i)
 				&& controls_for_read (i)
-				&& (!string || ::step(db[i].get_description().c_str(), expbuf)))
+				&& (!string || re.Match(db[i].get_description())))
 					notify_censor_colour(player,  player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else

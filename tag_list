@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Put in support for using PCRE library. Should auto-detect it and build appropriately.
 	Re-set SO_REUSEADDR on listening sockets so we can restart the game quickly.
 
 um1_055
