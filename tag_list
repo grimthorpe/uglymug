@@ -12,6 +12,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_030 - Chisel; fixed showstopper with HALFQUIT
+    Fixed the Trace() call for HALFQUIT so that it doesn't try to use
+    now->foo, when now hasn't been initialised.
 
 um1_029 - Chisel; semi-emergency release to ReadOnly can be unset
     Changed the ReadOnly flag so that it can be unset.

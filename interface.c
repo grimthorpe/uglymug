@@ -2095,6 +2095,14 @@ descriptor_data::shutdownsock()
 	}
 	else
 	{
+		/* variables for timestamp */
+		time_t stamp;
+		struct tm *now;
+
+		/* get time info */
+		time (&stamp);
+		now = localtime (&stamp);
+
 		Trace( "HALFQUIT descriptor |%d|%d| player |%s|%d| at |%02d/%02d/%02d %02d:%02d\n",
 		CHANNEL(),
 		channel,
