@@ -778,11 +778,11 @@ const	CString& )
 }
 
 /*
- * do_property: creates a property called name.
+ * do_at_property: creates a property called name.
  */
 
 void
-context::do_property (
+context::do_at_property (
 const	CString& property_name,
 const	CString& value)
 {

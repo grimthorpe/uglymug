@@ -718,7 +718,7 @@ const	CString& arg2)
 }
 
 void
-context::do_pemote (
+context::do_at_pemote (
 const	CString& name,
 const	CString& what)
 

@@ -504,7 +504,7 @@ context::dump_email_addresses ()
 }
 
 void
-context::do_pcreate (
+context::do_at_pcreate (
 const	CString& name,
 const	CString& password)
 

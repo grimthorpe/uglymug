@@ -108,7 +108,7 @@ dbref create_player(const CString& name, const CString& password)
 }
 
 void
-context::do_password (
+context::do_at_password (
 const	CString& old,
 const	CString& newpw)
 

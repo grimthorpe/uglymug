@@ -258,7 +258,7 @@ const	CString& direction)
 }
 
 void
-context::do_peak
+context::do_at_peak
 (const	CString& number,
 const	CString& )
 {
@@ -807,7 +807,7 @@ const	CString& message)
 }
 
 void
-context::do_osuccess (
+context::do_at_osuccess (
 const	CString& name,
 const	CString& message)
 
@@ -861,7 +861,7 @@ const	CString& message)
 
 
 void
-context::do_ofail (
+context::do_at_ofail (
 const	CString& name,
 const	CString& message)
 
@@ -912,7 +912,7 @@ const	CString& message)
 }
 
 void
-context::do_odrop (
+context::do_at_odrop (
 const	CString& name,
 const	CString& message)
 
@@ -1154,7 +1154,7 @@ const	CString& )
 
 
 void
-context::do_owner (
+context::do_at_owner (
 const	CString& name,
 const	CString& newowner)
 
@@ -2550,7 +2550,7 @@ const	CString& keyname)
 }
 
 void
-context::do_parent (
+context::do_at_parent (
 const	CString& name,
 const	CString& parent_name)
 
