@@ -509,8 +509,10 @@ const	char	*part2)
 		return;
 	}
 
-	char *arg1=(part1==NULL)?NULL:strdup(part1);
-	char *arg2=(part2==NULL)?NULL:strdup(part2);
+	char* duparg1=(NULL==part1)?NULL:strdup(part1);
+	char* duparg2=(NULL==part2)?NULL:strdup(part2);
+	char *arg1=duparg1;
+	char *arg2=duparg2;
 
 	if (arg2==NULL)
 	{
@@ -568,8 +570,8 @@ const	char	*part2)
 			notify_colour(player, player, COLOUR_MESSAGES, "You didn't specify any valid names to page!");
 		else if (targets.get_realsize() > 1)
 			notify_colour(player, player, COLOUR_MESSAGES, "Those players are either set haven or are not connected.");
-		free(arg1);
-		free(arg2);
+		free(duparg1);
+		free(duparg2);
 		return;
 	}
 	else
@@ -631,8 +633,8 @@ const	char	*part2)
 
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
-	free (arg1);
-	free (arg2);
+	free (duparg1);
+	free (duparg2);
 
 }
 
