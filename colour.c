@@ -75,22 +75,22 @@ struct colour_table_type colour_table[] =
 	{"Back White",	"\033[47m"},	/* W */
 	{"Undefined",	""},		/* X */
 	{"Back Yellow",	"\033[43m"},	/* Y */
-	{"Revert",	"\033[0m"},	/* Z */
+	{"Revert",	"\033[0m", true},	/* Z */
 	{"Undefined",	""},		/* [ */
 	{"Undefined",	""},		/* \ */
 	{"Undefined",	""},		/* ] */
 	{"Undefined",	""},		/* ^ */
-	{"Undefined",	""},		/* _ */
+	{"Underline",	"\033[4m", true},	/* _ */ /* Underline */
 	{"Undefined",	""},		/* ` */
 	{"Undefined",	""},		/* a */
 	{"Blue",	"\033[34m"},	/* b */
 	{"Cyan",	"\033[36m"},	/* c */
-	{"Dim",		"\033[2m"},	/* d */
+	{"Dim",		"\033[2m", true},	/* d */
 	{"Undefined",	""},		/* e */
-	{"Flashing",	"\033[5m"},	/* f */
+	{"Flashing",	"\033[5m", true},	/* f */
 	{"Green",	"\033[32m"},	/* g */
-	{"Highlight",	"\033[1m"},	/* h */
-	{"Inverse",	"\033[7m"},	/* i */
+	{"Highlight",	"\033[1m", true},	/* h */
+	{"Inverse",	"\033[7m", true},	/* i */
 	{"Undefined",	""},		/* j */
 	{"Black (Key)",	"\033[30m"},	/* k */
 	{"Undefined",	""},		/* l */
@@ -108,6 +108,10 @@ struct colour_table_type colour_table[] =
 	{"Undefined",	""},		/* x */
 	{"Yellow",	"\033[33m"},	/* y */
 	{"Revert",	"\033[0m"},	/* z */
+	{"Undefined",	""},		/* { */
+	{"Undefined",	""},		/* | */
+	{"Undefined",	""},		/* } */
+	{"CancelEffects",	"\033[m", true},	/* ~ */ /* Cancel Effects */
 	{NULL,		NULL}
 };
 
@@ -460,7 +464,12 @@ const	CString& colour_codes)
 	
 	if(!cia_table[i].cia)
 	{
-		if((colour_player = lookup_player(player,cia)) == NOTHING)
+		CString target = cia;
+		if(target.c_str()[0] == '*')
+		{
+			target=cia.c_str()+1;
+		}
+		if((colour_player = lookup_player(player,target)) == NOTHING)
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "There isn't an attribute or player called \"%s\".", cia.c_str());
 			return;

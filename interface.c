@@ -277,6 +277,7 @@ public:
 	bool			terminal_lftocr;
 	bool			terminal_pagebell;
 	bool			terminal_recall;
+	bool			terminal_effects;
 	int			channel;
 
 	int			myoutput;
@@ -364,6 +365,7 @@ public:
 	Command_status	terminal_set_wrap(const CString& , int);
 	Command_status	terminal_set_echo(const CString& , int);
 	Command_status	terminal_set_recall(const CString& , int);
+	Command_status	terminal_set_effects(const CString& , int);
 	Command_status	really_do_terminal_set(const CString&, const CString&, int);
 	void	do_write(const char * c, int i)
 	{
@@ -456,6 +458,7 @@ struct terminal_set_command
 	{ "pagebell",	&descriptor_data::terminal_set_pagebell },
 	{ "echo",	&descriptor_data::terminal_set_echo },
 	{ "recall",	&descriptor_data::terminal_set_recall },
+	{ "effects",	&descriptor_data::terminal_set_effects },
 
 	{ NULL, NULL }
 };
@@ -2200,6 +2203,7 @@ int			channel)
 	terminal_pagebell	= true;
 	terminal_wrap		= true;
 	terminal_recall		= true;
+	terminal_effects	= false;
 	termcap.bold_on		= NULL;
 	termcap.bold_off	= NULL;
 	termcap.underscore_on	= NULL;
@@ -2537,16 +2541,20 @@ char *a,*a1,*b;
 				if(percent_loaded)
 				{
 					percent_loaded = 0;
-					if(colour)
+					if(colour || terminal_effects)
 					{
 						/* They want the colour codes transfered*/
 
-						if((b[bcount] >= 'A') && (b[bcount] <= 'z'))
+						if((b[bcount] >= 'A') && (b[bcount] <= '~'))
 						{
 							/* Find the entry in the colour table by
 							   directly referencing it. 'A' is 0 */
-							strcpy(&cobuf[cocount], colour_table[(b[bcount] - 65)].ansi);
-							cocount += strlen(colour_table[(b[bcount] - 65)].ansi);
+							colour_table_type& entry = colour_table[(b[bcount] - 65)];
+							if(colour || entry.is_effect)
+							{
+								strcpy(&cobuf[cocount], entry.ansi);
+								cocount += strlen(entry.ansi);
+							}
 						}
 					}
 				}
@@ -4380,6 +4388,32 @@ time_t get_idle_time (dbref player)
 
 	time(&now);
 	return (now - d->last_time);
+}
+
+Command_status
+descriptor_data::terminal_set_effects(const CString& toggle, int commands_executed)
+{
+	if(toggle)
+	{
+		if(string_compare(toggle, "on") == 0)
+		{
+			terminal_effects = true;
+		}
+		else if(string_compare(toggle, "off") == 0)
+		{
+			terminal_effects = false;
+		}
+		else
+		{
+			notify_colour(get_player(), get_player(), COLOUR_MESSAGES, "Usage:  '@terminal effects=on' or '@terminal effects=off'.");
+			return COMMAND_FAIL;
+		}
+	}
+	if(!commands_executed)
+	{
+		notify_colour(get_player(), get_player(), COLOUR_MESSAGES,"Effects are %s", terminal_effects?"on":"off");
+	}
+	return COMMAND_SUCC;
 }
 
 Command_status

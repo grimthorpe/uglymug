@@ -102,6 +102,7 @@ struct colour_table_type
 {
 	const char	*name;
 	const char	*ansi;
+	bool		is_effect;	// Set true if not really a colour, but something like highlight
 };
 
 extern struct colour_table_type	colour_table[];
