@@ -14,6 +14,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Re-added the 'help' hardcode command to make the game engine consistant.
 	.leave can no longer go infinitely-recursive any more.
 
 um1_041 - SWho did you mean?

@@ -1899,7 +1899,7 @@ descriptor_data::set_terminal_type(const String& termtype)
 
 #endif /* USE_TERMINFO */
 
-#define CACHE_ADDR_SIZE 256
+#define CACHE_ADDR_SIZE 4096
 
 struct cached_addr
 {
@@ -1973,31 +1973,38 @@ unsigned long addr)
 	{
 		return buffer;
 	}
-	if (smd_dnslookup (addr) && ((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL))
+	if (smd_dnslookup (addr))
 	{
-		char	*pos;
-
-		strcpy (buffer, he->h_name);
-		strcpy (compare_buffer, DOMAIN_STRING);
-		while (strchr (compare_buffer, '.') != NULL)
+		if((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL)
 		{
-			if ((pos = strstr (buffer, compare_buffer)) != NULL)
+			char	*pos;
+
+			strcpy (buffer, he->h_name);
+			strcpy (compare_buffer, DOMAIN_STRING);
+			while (strchr (compare_buffer, '.') != NULL)
 			{
-				*pos = '\0';
-				break;
+				if ((pos = strstr (buffer, compare_buffer)) != NULL)
+				{
+					*pos = '\0';
+					break;
+				}
+				else if ((pos = strchr (compare_buffer + 1, '.')) == NULL)
+					break;
+				else
+					strcpy (compare_buffer, pos);
 			}
-			else if ((pos = strchr (compare_buffer + 1, '.')) == NULL)
-				break;
-			else
-				strcpy (compare_buffer, pos);
 		}
+		else
+		{
+			snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+		}
+		set_cached_addr(addr, buffer);
 	}
 	else
 	{
 		/* Not local, or not found in db */
 		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (addr >> 24) & 0xff, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff);
 	}
-	set_cached_addr(addr, buffer);
 	return (buffer);
 }
 

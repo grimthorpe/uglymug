@@ -471,6 +471,7 @@ public:
 	void				do_at_alias		(const String&, const String&);
 	void				do_at_listaliases	(const String&, const String&);
 #endif /* ALIASES */
+	void				do_help		(const String&, const String&);
 	void				do_inventory		(const String&, const String&);
 	void				do_kill			(const String&, const String&);
 	void				do_ladd			(const String&, const String&);

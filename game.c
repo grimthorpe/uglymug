@@ -296,6 +296,7 @@ command_details			command_table [] =
 	{"give",		&context::do_give,		NO_COMMAND_FLAGS},
 	{"goto",		&context::do_move,		NO_COMMAND_FLAGS},
 	{"gripe",		&context::do_gripe,		NO_COMMAND_FLAGS},
+	{"help",		&context::do_help,		NO_COMMAND_FLAGS},
 	{"inventory",		&context::do_inventory,		NO_COMMAND_FLAGS},
 	{"l",			&context::do_look_at,		NO_COMMAND_FLAGS},
 	{"ladd",		&context::do_ladd,		NO_COMMAND_FLAGS},
@@ -427,6 +428,17 @@ const	char	*key)
 	return (NULL);
 }
 
+
+void
+context::do_help(
+const String&,
+const String&)
+{
+	return_status = COMMAND_SUCC;
+	set_return_string(ok_return_string);
+
+	notify_colour(player, player, COLOUR_MESSAGES, "There isn't much help at the moment.\nTry 'say' to talk to people in the same room as you, 'who' to find out who is connected at the moment, and 'page <name> = <message>' to talk to people not in the room.");
+}
 
 void
 context::do_at_version (
