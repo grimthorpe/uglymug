@@ -1378,26 +1378,27 @@ const	String& )
 	}
 
 	notify_colour(player, player, COLOUR_CONTENTS, "Analysis of refuse :-");
-	notify_colour(player, player, COLOUR_MESSAGES, "
-
-  Type:          Ashcanned  Obliterated
-     Rooms           %-5d      %-5d
-     Things          %-5d      %-5d
-     Exits           %-5d      %-5d
-     Commands        %-5d      %-5d
-
-     Fuses           %-5d      %-5d
-     Alarms          %-5d      %-5d
-
-     Properties      %-5d      %-5d
-     Arrays          %-5d      %-5d
-     Dictionaries    %-5d      %-5d
-     Variables       %-5d      %-5d
-
-     Players         %-5d      %-5d
-     Puppets         %-5d      %-5d
-     ------------------------------------------
-     Total           %-5d      %-5d",
+//	notify_colour(player, player, COLOUR_MESSAGES, "
+//
+//  Type:          Ashcanned  Obliterated
+//     Rooms           %-5d      %-5d
+//     Things          %-5d      %-5d
+//     Exits           %-5d      %-5d
+//     Commands        %-5d      %-5d
+//
+//     Fuses           %-5d      %-5d
+//     Alarms          %-5d      %-5d
+//
+//     Properties      %-5d      %-5d
+//     Arrays          %-5d      %-5d
+//     Dictionaries    %-5d      %-5d
+//     Variables       %-5d      %-5d
+//
+//     Players         %-5d      %-5d
+//     Puppets         %-5d      %-5d
+//     ------------------------------------------
+//     Total           %-5d      %-5d",
+        notify_colour(player, player, COLOUR_MESSAGES, "\n\n  Type:          Ashcanned  Obliterated\n     Rooms           %-5d      %-5d\n     Things          %-5d      %-5d\n     Exits           %-5d      %-5d\n     Commands        %-5d      %-5d\n     \n     Fuses           %-5d      %-5d\n     Alarms          %-5d      %-5d\n     \n     Properties      %-5d      %-5d\n     Arrays          %-5d      %-5d\n     Dictionaries    %-5d      %-5d\n     Variables       %-5d      %-5d\n     \n     Players         %-5d      %-5d\n     Puppets         %-5d      %-5d\n     ------------------------------------------\n     Total           %-5d      %-5d",
 		     arooms,rooms, 
 		     athings,things, 
 		     aexits, exits, 
