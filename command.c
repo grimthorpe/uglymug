@@ -219,7 +219,7 @@ const	String& a2,
 dbref		eid,
 Matcher		&matcher)
 {
-	Command_action ret = do_compound_command (command, sc, a1, a2, eid, matcher);
+	Command_action ret = prepare_compound_command (command, sc, a1, a2, eid, matcher);
 	if (ret == ACTION_CONTINUE)
 	{
 		/* Schedule ourselves */
