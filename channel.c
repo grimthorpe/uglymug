@@ -617,7 +617,7 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			"        @channel status\n"
 			"        @channel who\n"
 			"        @channel leave [ = <name> or 'all']\n"
-			"        @channel mode = public / private (Operator only)\n"
+			"        @channel mode = public / private / censor / uncensor (Operator only)\n"
 			"        @channel opadd = <player> (Operator only)\n"
 			"        @channel opdel = <player> (Operator only)\n"
 			"        @channel invite = <player> (Operator only)\n"
@@ -626,12 +626,13 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			"        @channel unban = <player> (Operator only)\n"
 			"        @channel boot = <player> (Operator only)\n"
 			"        @channel rename = <name> (Operator only)\n"
+			"        @channel notify = message (Operator only)\n"
 			"\nAll commands (except 'list' and 'join') apply to your current channel.\n"
 			"Type \"help @channel\" for more information.");
 		RETURN_FAIL;
 	}
 
-	enum ChannelCommand { Unknown, List, Join, Status, Who, Leave, Mode, Opadd, Opdel, Invite, Uninvite, Ban, Unban, Boot, Rename } command = Unknown;
+	enum ChannelCommand { Unknown, List, Join, Status, Who, Leave, Mode, Opadd, Opdel, Invite, Uninvite, Ban, Unban, Boot, Rename, Notify } command = Unknown;
 	static struct CommandEntry
 	{
 		const char*	cmd;
@@ -652,7 +653,8 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		{ "unban",	Unban },
 		{ "boot",	Boot },
 		{ "rename",	Rename },
-		{ "name",	Rename }
+		{ "name",	Rename },
+		{ "notify",	Notify }
 	};
 	for(unsigned int i = 0; i < (sizeof(Commands) / sizeof(Commands[0])); i++)
 	{
@@ -663,14 +665,15 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		}
 	}
 
-	if(Unknown == command)
+	switch(command)
+	{
+	case Unknown:
 	{
 		if(!gagged_command())
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "'%s' is not a valid @channel command", arg1.c_str());
 		RETURN_FAIL;
 	}
-
-	if(List == command)
+	case List:
 	{
 		if(!Channel::head())
 		{
@@ -712,8 +715,7 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		}
 		RETURN_SUCC;
 	}
-
-	if (Join == command)
+	case Join:
 	{
 		if(!arg2)
 		{
@@ -733,8 +735,7 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		notify_colour(player, player, COLOUR_MESSAGES, "Channel %s joined.", arg2.c_str());
 		RETURN_SUCC;
 	}
-
-	if (Leave == command)
+	case Leave:
 	{
 		Channel* channel = 0;
 		if(!arg2)
@@ -786,6 +787,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		}
 		RETURN_SUCC;
 	}
+	default:
+		break;
+	}
 
 	/*
 	 * At this point, all further commands require you to be on a channel.
@@ -794,7 +798,7 @@ context::do_at_channel (const String& arg1, const String& arg2)
 
 	if(!channel)
 	{
-			if(!gagged_command())
+		if(!gagged_command())
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You must belong to a channel to use this command.");
 		RETURN_FAIL;
 	}
@@ -967,6 +971,13 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		channel->send(player, scratch_buffer, 1);
 
 		channel->set_name(arg2);
+
+		RETURN_SUCC;
+	}
+
+	if(Notify == command)
+	{
+		channel->send(player, arg2, 1);
 
 		RETURN_SUCC;
 	}

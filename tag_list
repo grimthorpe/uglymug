@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added @channel notify so that operators can notify the channel with any message (Grimthorpe)
 	Tidied up the code so that we use enums instead of #define, and fixed all
 	the compilation errors. (Grimthorpe)
 	Got the channel code to respect DontAnnounce. (Grimthorpe)
