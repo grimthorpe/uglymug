@@ -13,6 +13,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	The chat channels now act as a public place, so if you are set CensorPublic they get censored, unless the channel is set private. If a channel is set censored, then everything on it is censored.
 	Allowed @pcreate to create players without a password, for the guest system.
 	Fixed up the String code so that it doesn't crash trawl on shutdown.
 	First attempt at making the Makefile truly cross-platform without having to edit it every time you get a new copy from CVS.

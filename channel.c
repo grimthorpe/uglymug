@@ -318,30 +318,28 @@ Channel::send(dbref player, const CString& msg, bool system)
 ChannelPlayer* iter;
 bool emote = false;
 const char* msgstart = msg.c_str();
-
+const char* censored = 0;
 	if(msgstart[0] == ':')
 	{
 		emote = true;
 	}
-	if(get_censored())
-	{
-		msgstart = censor(msg);
-	}
+	censored = censor(msg);
 
 	for(iter = Players; iter != 0; iter = iter->next())
 	{
 		const colour_at& ca = db[iter->player()].get_colour_at();
+		bool docensor = get_censored() || (!get_private() && Censorpublic(iter->player()));
 		if(system)
 		{
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], msgstart, COLOUR_REVERT);
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], docensor?censored:msgstart, COLOUR_REVERT);
 		}
 		else if(emote)
 		{
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s %s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), msgstart+1, COLOUR_REVERT);
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s %s%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), docensor?(censored+1):(msgstart+1), COLOUR_REVERT);
 		}
 		else
 		{
-			notify_censor(iter->player(), player, "%s[%s]%s  %s%s says \"%s\"%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), msgstart, COLOUR_REVERT);
+			notify_censor(iter->player(), player, "%s[%s]%s  %s%s says \"%s\"%s", ca[COLOUR_CHANNEL_NAMES], name().c_str(), COLOUR_REVERT, ca[COLOUR_CHANNEL_MESSAGES], db[player].get_name().c_str(), docensor?censored:msgstart, COLOUR_REVERT);
 		}
 	}
 }
