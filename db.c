@@ -3176,7 +3176,21 @@ const
 		else
 			return NOTHING;
 	}
-
+// Quick hack, cos I screwed this up.
+	for(dbref i = 0; i < db.get_top(); i++)
+	{
+		if(Typeof(i)==TYPE_PLAYER)
+		{
+			if(string_compare(name, db[i].get_name()) == 0)
+				return i;
+#ifdef ALIASES
+			for(dbref j = 0; j < 5; j++)
+				if(string_compare(name, db[i].get_alias(j)) == 0)
+					return i;
+#endif
+		}
+	}
+/*
 	for(struct changed_player_list_struct *current=changed_player_list; current; current=current->next)
 		if(string_compare(current->name, name)==0)
 			return current->player;
@@ -3191,7 +3205,7 @@ const
 
 		return pc->player;
 	}
-
+*/
 	return NOTHING;
 }
 
