@@ -12,6 +12,9 @@ about the changes in above the latest release tag.
 That way if someone else does a release, the change
 information doesn't get lost.
 
+    The connection code specifically looks for 'connect' or 'create', or
+    a prefix of them. If not found, it uses the *ENTIRE* input as a name
+    or password.
     Made the word-wrap closer to TinyFugue so we don't get horrible-looking
     word-wrap.
     Censorship now ignores colours.

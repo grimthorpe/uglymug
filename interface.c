@@ -3167,7 +3167,7 @@ descriptor_data::check_connect (const char *msg)
 
 	(void) time (&now);
 	the_time = localtime (&now);
-	if (!strncmp (command, "co", 2))
+	if ((strlen(command) >=2) && (string_prefix("connect", command)))
 	{
 		player = connect_player (luser, lpassword);
 		if (player == NOTHING || player == 0)
@@ -3194,7 +3194,7 @@ descriptor_data::check_connect (const char *msg)
 		}
 	}
 	#ifndef NEXUS
-	else if (!strncmp (command, "cr", 2))
+	else if ((strlen(command) >=2) && (string_prefix("create", command)))
 	{
 		if(smd_cantcreate(ntohl(address.sin_addr.s_addr)))
 		{
@@ -3223,7 +3223,7 @@ descriptor_data::check_connect (const char *msg)
 		}
 	}
 	#endif /* NEXUS */
-	else if (*command!='\0' && *luser=='\0' && *lpassword=='\0')
+	else if (*command!='\0')
 	{
 		switch(get_connect_state())
 		{
@@ -3236,7 +3236,7 @@ descriptor_data::check_connect (const char *msg)
 				}
 				else
 				{
-					set_player_name(command);
+					set_player_name(msg);
 					dbref player = lookup_player(NOTHING, command);
 					if(NOTHING == player)
 					{
@@ -3324,13 +3324,13 @@ descriptor_data::check_connect (const char *msg)
 			case DESCRIPTOR_PASSWORD:
 				set_echo(1);
 				queue_string ("\n");
-				if(ok_password(command))
+				if(ok_password(msg))
 				{
-					player = connect_player (get_player_name(), command);
+					player = connect_player (get_player_name(), msg);
 					if (player == NOTHING)
 					{
 						/* New player, password is ok too */
-						set_password(command);	/* For confirmation */
+						set_password(msg);	/* For confirmation */
 						queue_string (confirm_password);
 						set_echo(0);
 						set_connect_state(DESCRIPTOR_CONFIRM_PASSWORD);
@@ -3370,7 +3370,7 @@ descriptor_data::check_connect (const char *msg)
 			case DESCRIPTOR_CONFIRM_PASSWORD:
 				set_echo (1);
 				// Make sure that the password is IDENTICAL.
-				if(strcmp(command, get_password().c_str())==0)
+				if(strcmp(msg, get_password().c_str())==0)
 				{
 					player = create_player (get_player_name(), get_password());
 					if (player == NOTHING)
