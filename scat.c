@@ -1,5 +1,4 @@
-/* static char SCCSid[] = "@(#)scat.c	1.5\t6/9/95"; */
-/*
+/**\file
  * scat - by Ian Chard
  *
  * This program works just like 'cat' with a few differences.
@@ -30,11 +29,8 @@
 
 char *outputfile;
 char *cutfile;
-void handler();
+void handler (int);
 FILE *out=NULL;
-#ifdef sun
-extern char *sys_errlist[];
-#endif
 
 struct sigaction handle;
 
@@ -53,7 +49,7 @@ int tmp;
 	/* output process id */
 	if((pidfile=fopen(PIDFILE,"w"))==NULL)
 	{
-		fprintf(stderr,"scat: can't create process file '%s' (%s)",PIDFILE,sys_errlist[errno]);
+		fprintf(stderr,"scat: can't create process file '%s' (%s)",PIDFILE, strerror (errno));
 		exit(errno);
 	}
 	tmp=getpid();
@@ -72,7 +68,7 @@ int tmp;
 	cutfile = (char*)strdup(argv[2]);
 
 	/* Produce first file */
-	handler();
+	handler(0);
 
 	/* Let's go! */
 	while(fgets(l, sizeof(l), stdin) != NULL)
@@ -80,13 +76,13 @@ int tmp;
 		fputs(l, out);	
 	}
 	fflush(out);
-	handler();
+	handler(0);
 	fclose(out);
 	return 0;
 }
 
 
-void handler()
+void handler(int)
 {
 	char command[1024];
 
@@ -101,7 +97,7 @@ void handler()
 
 	if((out=fopen(outputfile,"a"))==NULL)
 	{
-		fprintf(stderr,"scat: can't create new output file '%s' (%s)",outputfile,sys_errlist[errno]);
+		fprintf(stderr,"scat: can't create new output file '%s' (%s)",outputfile, strerror (errno));
 		exit(errno);
 	}
 	sigaction(CHOPSIG, &handle, NULL);

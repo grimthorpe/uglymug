@@ -40,7 +40,8 @@ void remove_descriptor(int nuke)
 
 int main(int argc, char *argv[])
 {
-	int server, maxd, addr_len, ugly;
+	int server, maxd, ugly;
+	socklen_t	addr_len;
 	struct sockaddr_in addr;
 	struct hostent *h;
 	fd_set input_set, output_set;
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
 	if(argc!=2)
 	{
 		fprintf(stderr, "usage:  %s <uglymug's address>\n", argv[0]);
-		exit(1);
+		return 1;
 	}
 
 	if((addr.sin_addr.s_addr=inet_addr(argv[1]))==-1)
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
 		if((h=gethostbyname(argv[1]))==NULL)
 		{
 			fprintf(stderr, "%s:  unknown host '%s'\n", argv[0], argv[1]);
-			exit(1);
+			return 1;
 		}
 		addr.sin_addr.s_addr=(h->h_addr_list[0][0]<<24 | h->h_addr_list[0][1]<<16 | h->h_addr_list[0][2]<<8 | h->h_addr_list[0][3]);
 	}
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
 	if(connect(ugly, (struct sockaddr *) &addr, sizeof(addr))<0)
 	{
 		perror("connect");
-		exit(1);
+		return 1;
 	}
 
 	server=socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
@@ -83,12 +84,12 @@ int main(int argc, char *argv[])
 	if(bind(server, (struct sockaddr *) &addr, sizeof(addr))<0)
 	{
 		perror("bind");
-		exit(1);
+		return 1;
 	}
 	if(listen(server, 5)<0)
 	{
 		perror("listen");
-		exit(1);
+		return 1;
 	}
 
 	for(;;)
@@ -113,8 +114,8 @@ int main(int argc, char *argv[])
 			if(read(ugly, &msg, sizeof(msg))<1)
 			{
 				shutdown(ugly,2);
-				printf("Read error from Ugly - oh fuck we're shagged (dream)!\n");
-				exit();
+				printf("Read error from Ugly!\n");
+				return 1;
 			}
 			switch(msg.type)
 			{
@@ -138,26 +139,26 @@ int main(int argc, char *argv[])
 		{
 			/* New connection */
 
-			struct user *new;
+			struct user *newuser;
 
-			new=(struct user *) malloc(sizeof(struct user));
+			newuser=(struct user *) malloc(sizeof(struct user));
 
-			new->channel=accept(server, (struct sockaddr *) &addr, &addr_len);
-			if(new->channel>=maxd)
-				maxd=new->channel+1;
+			newuser->channel=accept(server, (struct sockaddr *) &addr, &addr_len);
+			if(newuser->channel>=maxd)
+				maxd=newuser->channel+1;
 
-			msg.channel=new->channel;
+			msg.channel=newuser->channel;
 			msg.type=CONC_CONNECT;
 			msg.len=0;
 			write(ugly, &msg, sizeof(msg));
-			write(new->channel, concentrator_connect_message, strlen(concentrator_connect_message));
+			write(newuser->channel, concentrator_connect_message, strlen(concentrator_connect_message));
 
 			if(user_list)
-				user_list->prev=&new->next;
+				user_list->prev=&newuser->next;
 
-			new->next=user_list;
-			new->prev=&user_list;
-			user_list=new;
+			newuser->next=user_list;
+			newuser->prev=&user_list;
+			user_list=newuser;
 		}
 
 		/* Now check for input from the users */
