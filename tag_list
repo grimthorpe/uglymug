@@ -13,6 +13,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed the 'who' list so that the B flag isn't shown for wizard/apprentices/retired
 	Added a template for adding Change Info to UMS in the game. (CCW)
 
 um1_043 - For a retired person he's working too much.

@@ -3908,24 +3908,28 @@ int			flags)
 				}
 				else
 				{
+					bool wantbuilder = true;
 					if (Retired(d->get_player()))
 					{
 						strcat (flag_buf, "R");
+						wantbuilder = false;
 					}
 					else if (Wizard(d->get_player()))
 					{
 						strcat (flag_buf, "W");
+						wantbuilder = false;
 						wizard++;
 					}
 					else if (Apprentice(d->get_player()))
 					{
 						strcat (flag_buf, "A");
+						wantbuilder = false;
 					}
 					if (XBuilder(d->get_player()))
 					{
 						strcat (flag_buf, "X");
 					}
-					else if (Builder(d->get_player()))
+					else if (wantbuilder && (Builder(d->get_player())))
 					{
 						strcat (flag_buf, "B");
 						builder++;
