@@ -3523,7 +3523,6 @@ descriptor_data::connect_a_player (
 			CHANNEL(),
 			the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 #else
-		Trace("*** We need NEW_LOGGING support for RECONNECT ***\n");
 		log_reconnect(player, db[player].get_name().c_str(), CHANNEL());
 #endif /* NEW_LOGGING */
 
@@ -3565,6 +3564,7 @@ descriptor_data::connect_a_player (
 	{
 		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please use '@recall <number of lines to view>'");
 		announce_player(ANNOUNCE_RECONNECT);
+		mud_run_dotcommand(get_player(), ".reconnect");
 	}
 
 }

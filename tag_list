@@ -14,6 +14,8 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+	Added .reconnect handling (runs when you RECONNECT)
+	Cleaned up .login/.logout handling (share common code)
 	More changes of char* -> String, this time in Command_and_arguments (and related)
 	Cleaned up @terminal, removed the never-working 'SET' command
 	Cleaned up checks for gagged_command()

@@ -1415,9 +1415,56 @@ const	char	*command)
 }
 
 
-void mud_connect_player (dbref player)
+void mud_run_dotcommand(dbref player, const CString& command)
 {
 	dbref the_command;
+	/** Needs to call can_do_compound_command **/
+	Matcher player_matcher (player, command, TYPE_COMMAND, player);
+	player_matcher.check_keys ();
+	player_matcher.match_player_command ();
+	if ((the_command = player_matcher.match_result ()) != NOTHING)
+	{
+		context *login_context = new context (player);
+		if (!Dark (the_command) && could_doit (*login_context, the_command))
+		{
+			login_context->do_compound_command (the_command, command, getname (player), "");
+			delete mud_scheduler.push_express_job (login_context);
+		}
+	}
+	Matcher area_matcher (player, command, TYPE_COMMAND, player);
+	area_matcher.check_keys ();
+	area_matcher.match_command_from_location (db[player].get_location());
+	if (((the_command = area_matcher.match_result ()) != NOTHING) && (db[the_command].get_location() != COMMAND_LAST_RESORT))
+	{
+		context *login_context = new context (player);
+		if (!Dark (the_command) && could_doit (*login_context, the_command))
+		{
+			login_context->do_compound_command (the_command, command, getname (player), "");
+			delete mud_scheduler.push_express_job (login_context);
+		}
+	}
+
+	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
+	{
+		if (!string_compare(db[the_command].get_name(),command))
+			if (Wizard(db[the_command].get_owner()))
+			{
+				context *login_context = new context (player);
+				login_context->do_compound_command (the_command, command, getname(player), "");
+				delete mud_scheduler.push_express_job (login_context);
+			}
+			else
+#ifndef NEW_LOGGING
+				Trace( "HACK: Global .login command not owned by a Wizard\n");
+#else
+				log_hack("Global .login command (#%d) not owned by a Wizard", the_command);
+#endif /* NEW_LOGGING */
+	}
+
+}
+
+void mud_connect_player (dbref player)
+{
 	time_t now;
 
 	if (!Connected (player))
@@ -1432,99 +1479,15 @@ void mud_connect_player (dbref player)
 
 	db [player].set_flag(FLAG_CONNECTED);
 
-	/** Needs to call can_do_compound_command **/
-	Matcher player_matcher (player, ".login", TYPE_COMMAND, player);
-	player_matcher.check_keys ();
-	player_matcher.match_player_command ();
-	if ((the_command = player_matcher.match_result ()) != NOTHING)
-	{
-		context *login_context = new context (player);
-		if (!Dark (the_command) && could_doit (*login_context, the_command))
-		{
-			login_context->do_compound_command (the_command, ".login", getname (player), "");
-			delete mud_scheduler.push_express_job (login_context);
-		}
-	}
-	Matcher area_matcher (player, ".login", TYPE_COMMAND, player);
-	area_matcher.check_keys ();
-	area_matcher.match_command_from_location (db[player].get_location());
-	if (((the_command = area_matcher.match_result ()) != NOTHING) && (db[the_command].get_location() != COMMAND_LAST_RESORT))
-	{
-		context *login_context = new context (player);
-		if (!Dark (the_command) && could_doit (*login_context, the_command))
-		{
-			login_context->do_compound_command (the_command, ".login", getname (player), "");
-			delete mud_scheduler.push_express_job (login_context);
-		}
-	}
-
-	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
-	{
-		if (!string_compare(db[the_command].get_name(),".login"))
-			if (Wizard(db[the_command].get_owner()))
-			{
-				context *login_context = new context (player);
-				login_context->do_compound_command (the_command, ".login", getname(player), "");
-				delete mud_scheduler.push_express_job (login_context);
-			}
-			else
-#ifndef NEW_LOGGING
-				Trace( "HACK: Global .login command not owned by a Wizard\n");
-#else
-				log_hack("Global .login command (#%d) not owned by a Wizard", the_command);
-#endif /* NEW_LOGGING */
-	}
-
+	mud_run_dotcommand(player, ".login");
 }
 
 
 void mud_disconnect_player (dbref player)
 {
-	dbref the_command;
 	time_t last, total, now;
 
-	/** Needs to call can_do_compound_command **/
-	Matcher player_matcher (player, ".logout", TYPE_COMMAND, player);
-	player_matcher.check_keys ();
-	player_matcher.match_player_command ();
-	if ((the_command = player_matcher.match_result ()) != NOTHING)
-	{
-		context *logout_context = new context (player);
-		if (!Dark (the_command) && could_doit (*logout_context, the_command))
-		{
-			logout_context->do_compound_command (the_command, ".logout", "", "");
-			delete mud_scheduler.push_express_job (logout_context);
-		}
-	}
-	Matcher area_matcher (player, ".logout", TYPE_COMMAND, player);
-	area_matcher.check_keys ();
-	area_matcher.match_command_from_location (db[player].get_location());
-	if ((the_command = area_matcher.match_result ()) != NOTHING)
-	{
-		context *logout_context = new context (player);
-		if (!Dark (the_command) && could_doit (*logout_context, the_command) && (db[the_command].get_location() != COMMAND_LAST_RESORT))
-		{
-			logout_context->do_compound_command (the_command, ".logout", "", "");
-			delete mud_scheduler.push_express_job (logout_context);
-		}
-	}
-
-	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
-	{
-		if (!string_compare(db[the_command].get_name(),".logout"))
-			if (Wizard(db[the_command].get_owner()))
-			{
-				context *logout_context = new context (player);
-				logout_context->do_compound_command (the_command, ".logout", getname(player), "");
-				delete mud_scheduler.push_express_job (logout_context);
-			}
-			else
-#ifndef NEW_LOGGING
-				Trace( "HACK: Global .logout command not owned by a Wizard\n");
-#else
-				log_hack("Global .logout command (#%d) not owned by a Wizard", the_command);
-#endif /* NEW_LOGGING */
-	}
+	mud_run_dotcommand(player, ".logout");
 
 	if (connection_count (player) == 0)
 	{
@@ -1545,7 +1508,6 @@ void mud_disconnect_player (dbref player)
 		total += (now - last);
 		sprintf (scratch_buffer, "%ld", (long int)total);
 		db [player].set_ofail (scratch_buffer);
-		
 
 		/* The following section will free the colour_at array which
 		   is only needed during connect time */
