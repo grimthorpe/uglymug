@@ -1223,6 +1223,8 @@ const	String& )
 							/* Try to keep building points in the game 'level' */
 							db[i].set_owner(player); // Important to stop the game from crashing.
 							db[player].add_pennies(db[i].get_pennies());
+							// 20031104: DJT - Accountability: money
+							db[GOD_ID].set_money(db[GOD_ID].get_money()+db[i].get_money());
 							trash_container (i);
 						break;
 					default:
