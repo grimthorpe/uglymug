@@ -9,11 +9,15 @@
 #ifdef linux
 #	define	NEEDS_CRYPT_H	1
 #	define	NEEDS_RESOURCES	0
+#	define	USE_WINSOCK2	0
+#	define	USE_BSD_SOCKETS	1
 #endif /* linux */ 
 
 // Sun
 #if sun
 #	define NEEDS_CRYPT_H	1
+#	define	USE_WINSOCK2	0
+#	define	USE_BSD_SOCKETS	1
 #endif /* sun */ 
 
 // MinGW
@@ -23,9 +27,11 @@
 #	define	NEEDS_CRYPT_H	1
 #	define	NEEDS_GETOPT	1
 #	define	NEEDS_RESOURCES	0
+#	define	USE_WINSOCK2	1
+#	define	USE_BSD_SOCKETS	0
 #endif
 
-// Defaults
+// Defaults - assume a UNIX of some kind.
 #ifndef	HAS_FORK
 #	define	HAS_FORK	1
 #endif
@@ -34,6 +40,12 @@
 #endif
 #ifndef	NEEDS_RESOURCES
 #	define	NEEDS_RESOURCES	1
+#endif
+#ifndef	USE_WINSOCK2
+#	define	USE_WINSOCK2	0
+#endif
+#ifndef	USE_BSD_SOCKETS
+#	define	USE_BSD_SOCKETS	1
 #endif
 
 #endif	/* OS_H_DEFINED */
