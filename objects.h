@@ -44,7 +44,7 @@ class	Array_storage
     		void		set_size		(const int value)	{ size = value; }
 		int		get_size		()			{ return size; }
 	const	bool		write			(FILE *f)		const;
-//	const	bool		read			(FILE *f, const int db_version, const int iformat);
+//	const	bool		read			(FILE* f);
 		void		sort_elements		(int);
 };
 
@@ -66,7 +66,7 @@ class	Dictionary
 	const	String&		get_index		(const int)		const;
 		void		set_index		(const int, const CString& );
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 	const	dbref		get_next		()			const;
 };
 
@@ -76,7 +76,7 @@ class	Array
 {
     public:
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 	const	dbref		get_next		()			const;
 };
 
@@ -93,7 +93,7 @@ class	Describable_object
     public:
 	virtual			~Describable_object	();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, int db_version, int iformat);
+	const	bool		read			(FILE* f);
 		void		set_description		(const CString&);
 	const	String&		get_description	()			const;
 };
@@ -114,7 +114,7 @@ class	Lockable_object
 				Lockable_object		();
 	virtual			~Lockable_object	();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 		void		set_key			(boolexp *);
 		void		set_key_no_free		(boolexp *k)			{ key = k; }
 		void		set_fail_message	(const CString& str);
@@ -142,7 +142,7 @@ class	Inheritable_object
     public:
 				Inheritable_object	()				{ parent = NOTHING; }
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 		void		set_parent		(const dbref p);
 		void		set_parent_no_check	(const dbref p)			{ parent = p; }
 	const	dbref		get_parent		()			const	{ return (parent); }
@@ -165,8 +165,7 @@ class	Old_object
     public:
 				Old_object		();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
-	const	bool		read_pre12		(FILE *, const int);
+	const	bool		read			(FILE* f);
 		void		set_destination		(const dbref o);
 		void		set_destination_no_check(const dbref o)			{ destination = o; }
 		void		set_contents		(const dbref o)			{ contents = o; }
@@ -201,7 +200,7 @@ class	Massy_object
     public:
 				Massy_object		();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 		void		set_gravity_factor	(const double g)		{ gravity_factor = g; }
 		void		set_mass		(const double m)		{ mass = m; }
 		void		set_volume		(const double v)		{ volume = v; }
@@ -305,7 +304,7 @@ class	puppet
 				puppet			();
 	virtual			~puppet			();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 		void		set_pennies		(const int i)			{ pennies=i; }
 		void		add_pennies		(const int i)			{ pennies+=i; }
 	const	dbref		get_build_id		()			const	{ return build_id; }
@@ -379,7 +378,7 @@ class	Player
 				Player			();
 	virtual			~Player			();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, int db_version, int iformat);
+	const	bool		read			(FILE* f);
 
 
 		void		add_recall_line		(const CString& strung);
@@ -447,7 +446,7 @@ class	Room
 				Room			();
 				~Room			();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 	const	bool		destroy			(const dbref);
 		void		set_last_entry_time	()				{ time (&last_entry_time); }
 		void		set_contents_string	(const CString& c);
@@ -473,7 +472,7 @@ class	Thing
 				Thing			();
 	virtual			~Thing			();
 	const	bool		write			(FILE *f)		const;
-	const	bool		read			(FILE *f, const int db_version, const int iformat);
+	const	bool		read			(FILE* f);
 		void		set_contents_string	(const CString& c);
 		void		set_lock_key		(boolexp *k);
 		void		set_lock_key_no_free	(boolexp *k)			{ lock_key=k; }
@@ -520,7 +519,7 @@ class Weapon
     public:
 				Weapon			();
 	const	bool		write			(FILE *)		const;
-	const	bool		read			(FILE *, const int, const int iformat);
+	const	bool		read			(FILE* f);
 	const	bool		destroy			(const dbref);
 		void		set_degradation(int i)		{degradation = i;}
 		int		get_degradation()		{return(degradation);}
@@ -546,7 +545,7 @@ class Ammunition
     public:
 				Ammunition();
 	const	bool		write			(FILE *)		const;
-	const	bool		read			(FILE *, const int, const int iformat);
+	const	bool		read			(FILE* f);
 	const	bool		destroy			(const dbref);
 		void		set_count(int i)	{count = i;}
 		int		get_count()		{return(count);}
@@ -562,7 +561,7 @@ class Armour
     public:
 				Armour();
 	const	bool		write			(FILE *)		const;
-	const	bool		read			(FILE *, const int, const int iformat);
+	const	bool		read			(FILE* f);
 	const	bool		destroy			(const dbref);
 		void		set_degradation(int i)	{degradation = i;}
 		int		get_degradation()	{return(degradation);}
