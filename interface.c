@@ -4328,6 +4328,13 @@ struct  descriptor_data *d;
 		return;
 	}
 
+	/* JPK hack to match softcode change */
+	if (Typeof(victim) != TYPE_PUPPET)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry, you can only queue commands for puppets.");
+		return;
+	}
+
         for (d = descriptor_list; d; d = d->next)
                 if (d->IS_CONNECTED() && (d->get_player() == victim))
                 {
