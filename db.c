@@ -1712,7 +1712,7 @@ const	int	iformat)
 		/* Controller set using direct assignment to avoid set_referenced() on an object that isn't read yet */
 			controller = getref (f);
 			if(version > 15)
-				set_build_id(getref (f));
+				reset_build_id(getref (f));
 			if(version > 17)
 			{
 				set_colour(getstring(f));
@@ -1872,7 +1872,7 @@ const	int	iformat)
 					controller = getref (f);
 					break;
 				case PLAYER_BUILDID:
-					set_build_id (getref (f));
+					reset_build_id (getref (f));
 					break;
 				case PLAYER_COLOUR:
 					set_colour(getstring(f));
@@ -2894,7 +2894,7 @@ FILE	*f)
 						break;
 					case TYPE_PUPPET:
 						obj = new (puppet);
-						obj->set_build_id(i);
+						obj->reset_build_id(i);
 						break;
 					case TYPE_ROOM:
 						obj = new (Room);

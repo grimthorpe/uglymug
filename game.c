@@ -784,9 +784,9 @@ Command_status	&sneaky_return_status)
 	const	char	*sneaky_return_string;
 
 	int depth = get_sneaky_executed_depth();
-	if(depth > (get_depth_limit() - call_stack.depth()))
+	if(depth > get_depth_limit()) // Give them a chance!
 	{
-		sneaky_return_string = 0;
+		sneaky_return_string = error_return_string;
 	}
 	else
 	{
