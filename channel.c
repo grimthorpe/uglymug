@@ -673,6 +673,10 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			int total = 0;
 			for(; iter != 0; iter = iter->next())
 			{
+				if((arg2) && (string_compare(arg2, iter->name()) != 0))
+				{
+					continue;
+				}
 				total++;
 				sprintf(scratch_buffer, "%-15.15s%s%s  ", iter->name().c_str(), iter->get_private()?"P":" ",iter->get_censored()?"C":" ");
 				for(ChannelPlayer* cit = iter->players(); cit != 0; cit = cit->next())
@@ -685,7 +689,17 @@ context::do_at_channel (const String& arg1, const String& arg2)
 				scratch_buffer[strlen(scratch_buffer) - 2] = 0;
 				notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
 			}
-			notify_colour(player, player, COLOUR_MESSAGES, "%d channel%s listed.", total, PLURAL(total));
+			if(arg2)
+			{
+				if(0 == total)
+				{
+					notify_colour(player, player, COLOUR_MESSAGES, "No such channel");
+				}
+			}
+			else
+			{
+				notify_colour(player, player, COLOUR_MESSAGES, "%d channel%s listed.", total, PLURAL(total));
+			}
 		}
 		RETURN_SUCC;
 	}
