@@ -3572,13 +3572,23 @@ int	sig)
 
 {
 	char message[1024];
-#if !defined (SYSV) // Fixing signal naming...
-	/* JPK extern char *sys_siglist[]; */
-
+#if defined (sun) // Sun's different
+ 	extern char *sys_siglist[];
+	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+#elif defined (SYSV)
 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
 #else
 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 #endif
+
+// #if !defined (SYSV) // Fixing signal naming...
+// 	extern char *sys_siglist[];
+//
+// 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, sys_siglist[sig]);
+// #else
+// 	sprintf (message, "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
+// #endif
+
 	panic(message);
 	_exit (7);
 }
