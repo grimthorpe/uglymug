@@ -40,6 +40,7 @@ struct	flag_stuff	flag_list [] =
 	{"Listen",	FLAG_LISTEN,		'L'},
 	{"Locked",	FLAG_LOCKED,		'\0'},
 	{"NoHuhLogs",	FLAG_NOHUHLOGS,		'\0'},
+	{"NoEmailForward",	FLAG_NO_EMAIL_FORWARD,		'\0'},
 	{"Number",	FLAG_NUMBER,		'\0'},
 	{"Officer",	FLAG_OFFICER,		'O'},
 	{"Open",	FLAG_OPEN,		'\0'},
