@@ -356,10 +356,10 @@ LogCommand* LastCommands[MAX_LAST_COMMANDS];
 int LastCommandsPtr = 0;
 
 
-#if	HAS_SIGNALS
 
 void set_signals()
 {
+#if	HAS_SIGNALS
 	/* we don't care about SIGPIPE, we notice it in select() and write() */
 	signal (SIGPIPE, SIG_IGN);
 
@@ -384,9 +384,8 @@ void set_signals()
 	signal (SIGXFSZ, bailout); 
 	signal (SIGVTALRM, bailout);
 	signal (SIGUSR2, bailout);
-}
-
 #endif	/* HAS_SIGNALS */
+}
 
 
 int
