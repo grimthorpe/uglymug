@@ -2283,15 +2283,15 @@ int make_socket(int port, unsigned long inaddr)
 		perror ("creating stream socket");
 		exit (3);
 	}
+
 	opt = 1;
-/*
+
 	if (setsockopt (s, SOL_SOCKET, SO_REUSEADDR, (char *) &opt, sizeof (opt)) < 0)
 	{
 		perror ("setsockopt");
 		exit (1);
 	}
- * Commented out by Adrian to see if it helps.
- */
+
 	server.sin_family = AF_INET;
 	server.sin_addr.s_addr = inaddr;
 	server.sin_port = htons (port);
