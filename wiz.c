@@ -498,6 +498,7 @@ context::dump_email_addresses ()
 
 		unlink(EMAIL_FILE); // Don't care if it fails.
 		link(EMAIL_FILE ".tmp", EMAIL_FILE);
+		unlink(EMAIL_FILE ".tmp"); // Remove the temporary file.
 //		notify_colour (player, player, COLOUR_MESSAGES, "Done.");
 	}
 
