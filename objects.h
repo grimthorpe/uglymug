@@ -284,7 +284,6 @@ class	puppet
 	String			who_string;
    	String			email_addr;		/* email address of the player */
 	int			money;
-	struct	descriptor_data	**connections;		/* pointer to array of descriptors interested in output */
 	struct	fsm_state
 	{
 		dbref		player;				/* who's talking to us... */
@@ -338,12 +337,16 @@ class	Player
 
 {
     private:
+	struct RecallBuffer
+	{
 	//Items for the circular buffer to store lines for @recall - Reaps
-	String*			recall_buffer;			// Pointer to the buffer
-	int			recall_buffer_next;		 //Next place to put a line
-	int			recall_buffer_wrapped;			 //Have we wrapped the buffer yet
-	char			recall_buffer_build[BUFFER_LEN]; //Buffer to build lines
-	
+		String	buffer[400];		// The buffer
+		int	buffer_next;		//Next place to put a line
+		bool	buffer_wrapped;		//Have we wrapped the buffer yet
+		char	buffer_build[BUFFER_LEN];//Buffer to build lines
+		RecallBuffer() { buffer_next = 0; buffer_wrapped = 0; buffer_build[0] = 0; }
+	};
+	RecallBuffer*		recall;
 
 #ifdef ALIASES
 	String			alias[MAX_ALIASES];

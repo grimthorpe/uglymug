@@ -1094,7 +1094,7 @@ const	CString& new_text)
 }
 
 static	char	buildbuf[BUFFER_LEN];
-static  String buildstring(buildbuf);
+static  String buildstring;
 
 const String&
 Describable_object::get_description()
@@ -1496,17 +1496,14 @@ Player::Player ()
 	channel = NULL;
 
 	//Recall Buffer things
-	recall_buffer = 0;
-	recall_buffer_next=0;
-	recall_buffer_build[0]='\0';
-	recall_buffer_wrapped=0;
+	recall=0;
 }
 
 
 Player::~Player ()
 
 {
-	delete[] recall_buffer;
+	ditch_recall();
 }
 
 
@@ -1525,9 +1522,9 @@ void
 Player::add_recall_line (
 const CString& strung)
 {
-	if(!recall_buffer)
+	if(!recall)
 	{
-		recall_buffer = new String[MAX_RECALL_LINES];
+		recall = new RecallBuffer;
 	}
         //Quick thing of what this does and why.
         //As things are notified we place things into the output_lines_build
@@ -1544,24 +1541,24 @@ const CString& strung)
 	char* nlpos = 0;
 	while((nlpos = strchr(string, '\n')) != 0)
 	{
-		if((nlpos == string) && (!*recall_buffer_build))
+		if((nlpos == string) && (!*(recall->buffer_build)))
 		{
 			string++;
 			continue; // Leave blank lines alone.
 		}
-		strncat(recall_buffer_build, string, (nlpos+1)-string);
-		recall_buffer[recall_buffer_next++] = recall_buffer_build;
-		recall_buffer_build[0] = '\0';
-		if(recall_buffer_next == MAX_RECALL_LINES)
+		strncat(recall->buffer_build, string, (nlpos+1)-string);
+		recall->buffer[recall->buffer_next++] = recall->buffer_build;
+		recall->buffer_build[0] = '\0';
+		if(recall->buffer_next == MAX_RECALL_LINES)
 		{
-			recall_buffer_next = 0;
-			recall_buffer_wrapped = 1;
+			recall->buffer_next = 0;
+			recall->buffer_wrapped = true;
 		}
 		string = nlpos+1;
 	}
 	if(*string)
 	{
-		strcat(recall_buffer_build, string);
+		strcat(recall->buffer_build, string);
 	}
 }
 
@@ -1572,31 +1569,27 @@ const context *	con)
 {
 
 	int thelines = lines;
-	if(!recall_buffer)
-	{
-		recall_buffer = new String[MAX_RECALL_LINES];
-	}
 
         //Return if there is nothing in the buffer yet
-        if(recall_buffer_next == 0 && recall_buffer_wrapped == 0)
+        if(!recall || (recall->buffer_next == 0 && recall->buffer_wrapped == 0))
         {
                 return;
         }
 
         //Check there is enough in the buffer already
-        if(!recall_buffer_wrapped)
+        if(!recall->buffer_wrapped)
         {
-                if(thelines > recall_buffer_next)
+                if(thelines > recall->buffer_next)
                 {
-                        thelines = recall_buffer_next;
+                        thelines = recall->buffer_next;
                 }
         }
 
-        int line_to_output=recall_buffer_next - thelines;
+        int line_to_output=recall->buffer_next - thelines;
 
         if(line_to_output < 0)
         {
-                if(recall_buffer_wrapped)
+                if(recall->buffer_wrapped)
                 {
                         line_to_output = MAX_RECALL_LINES + line_to_output;
                 }
@@ -1613,13 +1606,13 @@ const context *	con)
                         line_to_output = 0;
                 }
 
-                notify_norecall(con->get_player(), "%s", recall_buffer[line_to_output].c_str());
+                notify_norecall(con->get_player(), "%s", recall->buffer[line_to_output].c_str());
                 line_to_output++;
         }
 
-        if(recall_buffer_build)
+        if(recall->buffer_build)
         {
-                notify_norecall(con->get_player(), "%s", recall_buffer_build);
+                notify_norecall(con->get_player(), "%s", recall->buffer_build);
         }
 
 }
@@ -1628,11 +1621,8 @@ void
 Player::ditch_recall()
 {
 /* Get rid of the recall buffer, because it wastes memory. */
-	delete[] recall_buffer;
-	recall_buffer = 0;
-	recall_buffer_build[0] = 0;
-	recall_buffer_wrapped = 0;
-	recall_buffer_next = 0;
+	delete recall;
+	recall = 0;
 }
 
 void
