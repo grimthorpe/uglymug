@@ -179,7 +179,7 @@ OUTFILES = \
 	stats \
 	concentrator
 
-RELEASETAG = '$Release$'
+RELEASETAG = '$Name:  $'
 
 all: dump extract paths sanity-check netmud sadness stats colouring concentratormondodestruct
 
