@@ -149,6 +149,7 @@ command_details			command_table [] =
 	{"@?score",		&context::do_query_score,		LEGAL_COMMAND},
 	{"@?set",		&context::do_query_set,			LEGAL_COMMAND},
 	{"@?size",		&context::do_query_size,		LEGAL_COMMAND},
+	{"@?stepsleft",		&context::do_query_stepsleft,		LEGAL_COMMAND},
 	{"@?success",		&context::do_query_success,		LEGAL_COMMAND},
 	{"@?terminal",		&context::do_query_terminal,		LEGAL_COMMAND},
 	{"@?time",		&context::do_query_time,		LEGAL_COMMAND},
@@ -356,6 +357,16 @@ const	unsigned int	command_table_size = (sizeof (command_table) / sizeof (comman
 	set_return_string (buf);
 }
 
+/* JPK command to say how many steps left in the command */
+void
+context::do_query_stepsleft(const String&, const String&)
+{
+	char tmp[21];
+
+	sprintf(tmp, "%d", (step_limit - commands_executed));
+	return_status = COMMAND_SUCC;
+	set_return_string(tmp);
+}
 
 
 static int

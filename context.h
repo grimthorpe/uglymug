@@ -573,6 +573,7 @@ public:
 	void				do_query_score		(const String&, const String&);
 	void				do_query_set		(const String&, const String&);
 	void				do_query_size		(const String&, const String&);
+	void				do_query_stepsleft	(const String&, const String&);
 	void				do_query_success	(const String&, const String&);
 	void				do_query_terminal	(const String&, const String&);
 	void				do_query_time		(const String&, const String&);
