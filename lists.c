@@ -504,10 +504,14 @@ Player_list::include_if_unset(const int f)
 	for (int i=0; i<db.get_top(); i++)
 	{
 		if ( (Typeof(i) == TYPE_PLAYER) && !(db[i].get_flag(f)))
-			if ((temp=find_player(i)))	
+			if ((temp=find_player(i)))
+			{
 				set_included(temp, True);
+			}
 			else
+			{
 				add_player(i, True);
+			}
 	}
 	return filtered_size;
 }
@@ -520,9 +524,13 @@ Player_list::include_if_set(const int f)
 	{
 		if ( (Typeof(i) == TYPE_PLAYER) && (db[i].get_flag(f)))
 			if ((temp=find_player(i)))
+			{
 				set_included(temp, True);
+			}
 			else
+			{
 				add_player(i, True);
+			}
 	}
 	return filtered_size;
 }
@@ -571,7 +579,13 @@ Player_list::include_from_list(dbref player, int f)
 
 	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i)) & f) && (!find_player (atoi (db[lists].get_index(i)))))
-			add_player(atoi(db[lists].get_index(i)), True);
+		{
+			if(add_player(atoi(db[lists].get_index(i)), True) == False)
+			{
+				db[lists].destroy_element(i);
+				i--; // Hope that the compiler re-evaluates the number of elements each time...
+			}
+		}
 	return filtered_size;
 }
 
@@ -584,7 +598,13 @@ Player_list::include_from_reverse_list(dbref player, int f)
 
 	for (int i=1; i<=db[lists].get_number_of_elements(); i++)
 		if ((atoi (db[lists].get_element(i)) & f) && (!find_player (atoi (db[lists].get_index(i)))))
-			add_player(atoi(db[lists].get_index(i)), True);
+		{
+			if(add_player(atoi(db[lists].get_index(i)), True) == False)
+			{
+				db[lists].destroy_element(i);
+				i--; // Hope that the compiler re-evaluates the number of elements each time...
+			}
+		}
 	return filtered_size;
 }
 int
@@ -622,26 +642,29 @@ Player_list::include(int player)
 {
 	PLE *temp;
 	if (!(temp=find_player(player)))
-		temp=add_player(player);
+	{
+		add_player(player);
+		temp = get_list();
+	}
 
 	set_included(temp, True);
 
 	return filtered_size;
 }
 
-/* adds a player to a player_list, returns the head of the list. */
+/* adds a player to a player_list, returns True if we succeeded */
 
-PLE *
+Boolean
 Player_list::add_player(int player, Boolean fromlist=False)
 {
 	if (Typeof(player) != TYPE_PLAYER)
 	{
 		Trace( "BUG: Non-player %d on a player list.\n",player);
-		return list;
+		return False;
 	}
 
 	if ((_include_unconnected == False) && (!Connected(player)))
-		return list;
+		return True; // Ok, a lie, but it isn't a fatal non-add.
 	PLE *new_player=(PLE *) malloc(sizeof(PLE));
 
 	new_player->player=player;
@@ -656,7 +679,7 @@ Player_list::add_player(int player, Boolean fromlist=False)
 	list=new_player;
 	filtered_size++;
 	count++;
-	return list;
+	return True;
 }
 
 const char *
