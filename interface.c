@@ -4299,6 +4299,8 @@ buf=(char *)malloc(MAX_USERS*(MAX_NAME_LENGTH+2)*sizeof(char));
 // Set up 'victim' now to get the list 
 for (d = descriptor_list; d; d = d->next)
 {
+	if(d->IS_FAKED())
+		continue;
 	if(d->IS_CONNECTED()) /* Connected players and NPCs */
 	{
 		if (found_one)
