@@ -21,6 +21,7 @@ BUILD_ENVIRONMENT.Linux-i586:=linux
 BUILD_ENVIRONMENT.Linux-i686:=linux
 # Yes, some people are running this.
 BUILD_ENVIRONMENT.Linux-sparc:=linux
+BUILD_ENVIRONMENT.Linux-sparc64:=linux
 
 # FreeBSD
 BUILD_ENVIRONMENT.FreeBSD-i386:=freebsd
