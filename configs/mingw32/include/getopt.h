@@ -102,7 +102,7 @@ struct option
 extern int getopt (int argc, char *const *argv, const char *shortopts);
 #else /* not __GNU_LIBRARY__ */
 // However, MinGW32 doesn't, so we need it here.  PJC 20/4/2003.
-extern int getopt (int argc, char *const *argv, const char *shortopts);
+extern int getopt (int argc, char **argv, const char *shortopts);
 #endif /* __GNU_LIBRARY__ */
 extern int getopt_long (int argc, char *const *argv, const char *shortopts,
 		        const struct option *longopts, int *longind);
