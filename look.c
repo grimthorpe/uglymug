@@ -309,15 +309,6 @@ const	char	*contents_name)
 					{
 						switch(Typeof(thing))
 						{
-							case TYPE_WEAPON:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s (weapon)", ca[COLOUR_WEAPONS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
-								break;
-							case TYPE_ARMOUR:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s (armour)", ca[COLOUR_ARMOUR], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
-								break;
-							case TYPE_AMMUNITION:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s (ammo)", ca[COLOUR_AMMUNITION], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
-								break;
 							case TYPE_THING:
 								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
@@ -338,72 +329,6 @@ const	char	*contents_name)
 			break;		/* we're done */
 		}
 	}
-}
-
-static void
-look_weapon (
-dbref	player,
-dbref	thing)
-
-{
-	const colour_at& ca=db[player].get_colour_at();
-
-	if(db[thing].get_inherited_description())
-		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description().c_str());
-	else
-		notify_colour(player, player, COLOUR_DESCRIPTIONS, "A rather plain weapon.");
-	notify(player,  "%sDegredation     :%s %d%s\n%sDamage          :%s %d%s\n%sHit Probability :%s %%sd%s",
-	        ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
-		db[thing].get_degradation(), COLOUR_REVERT,
-	        ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
-	        db[thing].get_damage(), COLOUR_REVERT,
-		ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
-		db[thing].get_speed(), COLOUR_REVERT);
-
-	if(db[thing].get_range())
-		notify(player, "%sRange           :%s %d%s", 
-		       ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
-		       db[thing].get_range(), COLOUR_REVERT);
-
-	if(db[thing].get_ammo_parent() != NOTHING)
-		notify_public(player, player, "%sAmmunition      :%s %d%s\n%sAmmo Type      :%s %d%s",
-		       ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
-		       db[thing].get_ammunition(), COLOUR_REVERT,
-		       ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
-		       db[thing].get_ammo_parent(), COLOUR_REVERT);
-}
-
-static void
-look_armour (
-dbref	player,
-dbref	thing)
-
-{
-	const colour_at& ca=db[player].get_colour_at();
-	if(db[thing].get_inherited_description())
-		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description().c_str());
-	else
-		notify_colour(player, player, COLOUR_DESCRIPTIONS, "Pretty normal armour.");
-	notify(player, "%sDegredation :%s %d%s\n%sProtection  :%s %d%s",
-			ca[COLOUR_TITLES], ca[COLOUR_ARMOUR],
-			db[thing].get_degradation(), COLOUR_REVERT,
-			ca[COLOUR_TITLES], ca[COLOUR_ARMOUR],
-			db[thing].get_protection(), COLOUR_REVERT);
-}
-
-static void
-look_ammunition (
-dbref	player,
-dbref	thing)
-
-{
-	const colour_at& ca=db[player].get_colour_at();
-	if(db[thing].get_inherited_description())
-		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description().c_str());
-	else
-		notify_colour(player, player, COLOUR_DESCRIPTIONS, "Standard Ammunition.");
-
-	notify(player, "%sQuantity :%s %d%s", ca[COLOUR_TITLES], ca[COLOUR_AMMUNITION], db[thing].get_count(), COLOUR_REVERT);
 }
 
 static void
@@ -761,15 +686,6 @@ const	CString& )
 						}
 					}
 					break;
-				case TYPE_WEAPON:
-					look_weapon(player, thing);
-					break;
-				case TYPE_ARMOUR:
-					look_armour(player, thing);
-					break;
-				case TYPE_AMMUNITION:
-					look_ammunition(player, thing);
-					break;	
 				default:
 					look_simple(*this, thing);
 					break;
@@ -1176,10 +1092,6 @@ const	CString& )
 		case TYPE_ROOM:
 		case TYPE_THING:
 		case TYPE_VARIABLE:
-		case TYPE_WEAPON:
-		case TYPE_ARMOUR:
-		case TYPE_AMMUNITION:
-			if (db [thing].get_parent () != NOTHING)
 				notify_censor(player, player, "%sParent:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_parent ()));
 		default:
 			break;
@@ -1414,51 +1326,6 @@ const	CString& )
 		break;
 	}
 
-	/* Show weapon stats */
-		switch(Typeof(thing))
-		{
-			case TYPE_WEAPON:
-				notify(player, "%sDegredation     :%s %d%s\n%sDamage          :%s %d%s\n%sHit Probability :%s %d%s\n%sRange           :%s %d%s\n%sAmmunition      :%s %d%s\n%sAmmo Type       :%s %s%s",
-				ca[COLOUR_TITLES],
-				ca[COLOUR_WEAPONS],
-				db[thing].get_degradation(),
-				COLOUR_REVERT,
-				ca[COLOUR_TITLES],
-				ca[COLOUR_WEAPONS],
-				db[thing].get_damage(),
-				COLOUR_REVERT,
-				ca[COLOUR_TITLES],
-				ca[COLOUR_WEAPONS],
-				db[thing].get_speed(),
-				COLOUR_REVERT,
-				ca[COLOUR_TITLES],
-				ca[COLOUR_WEAPONS],
-				db[thing].get_range(),
-				COLOUR_REVERT,
-				ca[COLOUR_TITLES],
-				ca[COLOUR_AMMUNITION],
-				db[thing].get_ammunition(),
-				COLOUR_REVERT,
-				ca[COLOUR_TITLES],
-				ca[COLOUR_AMMUNITION],
-				unparse_object(*this, db[thing].get_ammo_parent()),
-				COLOUR_REVERT);
-				break;
-				/*
-				 * I wonder if all those args are right?
-				 * I CURSE USER DEFINABLE COLOURS WITH
-				 * EVERY OUNCE OF MY BEING!  - Dunk
-				 */
-			case TYPE_ARMOUR:
-				look_armour(player, thing);
-				break;
-			case TYPE_AMMUNITION:
-				look_ammunition(player, thing);
-				break;
-			default:
-				break;
-		}
-
 	/* show the contents */
 	if ((Typeof(thing) == TYPE_ROOM) && db[thing].get_contents_string())
 		notify_censor(player, player, "%sContents string:%s %s",
@@ -1484,15 +1351,6 @@ const	CString& )
 						{
 							case TYPE_PLAYER:
 								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), ca[rank_colour(thing)], unparse_object(*this, looper), COLOUR_REVERT);
-								break;
-							case TYPE_WEAPON:
-								notify_public_colour(player, player, COLOUR_WEAPONS, "  %s (weapon)", unparse_object_inherited(*this, looper));
-								break;
-							case TYPE_ARMOUR:
-								notify_public_colour(player, player, COLOUR_ARMOUR, "  %s (armour)", unparse_object_inherited(*this, looper));
-								break;
-							case TYPE_AMMUNITION:
-								notify_public_colour(player, player, COLOUR_AMMUNITION, "  %s (ammo)", unparse_object_inherited(*this, looper));
 								break;
 							default:
 								notify_public_colour(player, player, COLOUR_THINGS, "  %s", unparse_object(*this, looper));
@@ -1737,15 +1595,6 @@ const	CString& )
 		{
 			switch(Typeof(thing))
 			{
-				case TYPE_WEAPON:
-					notify_censor(player, player, "  %s%s%s (weapon)", ca[COLOUR_WEAPONS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
-					break;
-				case TYPE_ARMOUR:
-					notify_censor(player, player, "  %s%s%s (armour)", ca[COLOUR_ARMOUR], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
-					break;
-				case TYPE_AMMUNITION:
-					notify_censor(player, player, "  %s%s%s (ammunition)", ca[COLOUR_AMMUNITION], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
-					break;
 				case TYPE_THING:
 					notify_censor(player, player, "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
 					break;

@@ -170,9 +170,6 @@ dbref	where)
 		case TYPE_PLAYER:
 		case TYPE_THING:
 		case TYPE_PUPPET:
-		case TYPE_WEAPON:
-		case TYPE_ARMOUR:
-		case TYPE_AMMUNITION:
 			if (where == HOME)
 				where = db[what].get_destination();
 			if (where == NOTHING)
@@ -911,9 +908,6 @@ const	CString& where)
 			case TYPE_THING:
 				count_down_fuses (*this, thing, !TOM_FUSE);
 				/* FALLTHROUGH */
-			case TYPE_WEAPON:
-			case TYPE_ARMOUR:
-			case TYPE_AMMUNITION:
 				if (Typeof (container) == TYPE_THING)
 				{
 					if (!Container (container) || !Open (container))

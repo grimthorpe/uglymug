@@ -493,66 +493,6 @@ ARRAY_OWNER     = OBJECT_OWNER,
 ARRAY_ELEMENTS	= 133 
 };
 
-enum Weapon_fields { /* An extended Inheritable Object */
-WEAPON_FLAGS     = 128,
-WEAPON_NAME      = 129,
-WEAPON_LOCATION  = 130,
-WEAPON_NEXT      = 131,
-WEAPON_OWNER     = 132,
-WEAPON_DESC      = 133,
-WEAPON_KEY       = 134,
-WEAPON_FAIL      = 135,
-WEAPON_SUCC      = 136,
-WEAPON_DROP      = 137,
-WEAPON_OFAIL     = 138,
-WEAPON_OSUCC     = 139,
-WEAPON_ODROP     = 140,
-WEAPON_PARENT    = 141,
-WEAPON_DEGRAD	= 142,
-WEAPON_DAMAGE	= 143,
-WEAPON_SPEED	= 144,
-WEAPON_AMMO	= 145,
-WEAPON_RANGE	= 146,
-WEAPON_PAMMO	= 147
-};
-
-enum Armour_fields { /* An extended Inheritable Object */
-ARMOUR_FLAGS     = 128,
-ARMOUR_NAME      = 129,
-ARMOUR_LOCATION  = 130,
-ARMOUR_NEXT      = 131,
-ARMOUR_OWNER     = 132,
-ARMOUR_DESC      = 133,
-ARMOUR_KEY       = 134,
-ARMOUR_FAIL      = 135,
-ARMOUR_SUCC      = 136,
-ARMOUR_DROP      = 137,
-ARMOUR_OFAIL     = 138,
-ARMOUR_OSUCC     = 139,
-ARMOUR_ODROP     = 140,
-ARMOUR_PARENT    = 141,
-ARMOUR_DEGRAD	= 142,
-ARMOUR_PROTEC	= 143
-};
-
-enum Ammo_fields { /* An extended Inheritable Object */
-AMMO_FLAGS     = 128,
-AMMO_NAME      = 129,
-AMMO_LOCATION  = 130,
-AMMO_NEXT      = 131,
-AMMO_OWNER     = 132,
-AMMO_DESC      = 133,
-AMMO_KEY       = 134,
-AMMO_FAIL      = 135,
-AMMO_SUCC      = 136,
-AMMO_DROP      = 137,
-AMMO_OFAIL     = 138,
-AMMO_OSUCC     = 139,
-AMMO_ODROP     = 140,
-AMMO_PARENT    = 141,
-AMMO_COUNT	= 142
-};
-
 class	context;
 class	Pending_alarm;
 class	Pending_fuse;
@@ -699,27 +639,6 @@ class	object
 	virtual		void	event				(const dbref player, const dbref npc, const char *e);
 #endif
 
-	/* Player Combat Stats */
-	virtual	const	dbref	get_weapon			()			const	{return NOTHING;}
-	virtual	const	dbref	get_armour			()			const	{return NOTHING;}
-	virtual	const	int	get_strength			()			const	{return 0;}
-	virtual	const	int	get_dexterity			()			const	{return 0;}
-	virtual	const	int	get_constitution		()			const	{return 0;}
-	virtual	const	int	get_max_hit_points		()			const	{return 0;}
-	virtual	const	int	get_hit_points			()			const	{return 0;}
-	virtual	const	int	get_experience			()			const	{return 0;}
-	virtual	const	int	get_level			()			const	{return 0;}
-	virtual	const	int	get_last_attack_time		()			const	{return 0;}
-	virtual		void	set_weapon			(const dbref i);
-	virtual		void	set_armour			(const dbref i);
-	virtual		void	set_strength			(const int i);
-	virtual		void	set_dexterity			(const int i);
-	virtual		void	set_constitution		(const int i);
-	virtual		void	set_max_hit_points		(const int i);
-	virtual		void	set_hit_points			(const int i);
-	virtual		void	set_experience			(const int i);
-	virtual		void	set_last_attack_time		(const int i);
-
 	/* Thing */
 	virtual		void	set_contents_string		(const CString&);
 	virtual		void	set_lock_key			(boolexp *k);
@@ -822,27 +741,6 @@ class	object
     	virtual	const	int	exist_element			(const CString&)		const	{ return false; }
     	virtual		void	set_index			(const int, const CString&);
     	virtual	const	String&	get_index			(int)			const	{ return (NULLSTRING); }
-
-	/* Weapons */
-	virtual	void		set_degradation(int);
-	virtual	int		get_degradation()		{ return 0; }
-	virtual	void		set_damage(int);
-	virtual	int		get_damage()			{ return 0; }
-	virtual	void		set_speed(int);
-	virtual	int		get_speed()			{ return 0; }
-	virtual	void		set_range(int);
-	virtual	int		get_range()			{ return 0; }
-	virtual	void		set_ammunition(int);
-	virtual	int		get_ammunition()		{ return 0; }
-	virtual	void		set_ammo_parent(dbref);
-	virtual	dbref		get_ammo_parent()		{ return NOTHING; }
-	/* Armour */
-	virtual	void		set_protection(int);
-	virtual	int		get_protection()		{ return 0; }
-
-	/* Ammunition */
-	virtual	void		set_count	(int);
-	virtual	int		get_count	()		{ return 0; }
 };
 
 

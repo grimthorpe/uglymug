@@ -707,33 +707,6 @@ void object::set_last_name_change (const long)
 void object::set_who_string (const CString&)
 { IMPLEMENTATION_ERROR ("who_string") }
 
-void object::set_weapon (const dbref)
-{ IMPLEMENTATION_ERROR ("weapon") }
-
-void object::set_armour (const dbref)
-{ IMPLEMENTATION_ERROR ("armour") }
-
-void object::set_strength (const int)
-{ IMPLEMENTATION_ERROR ("strength") }
-
-void object::set_dexterity (const int)
-{ IMPLEMENTATION_ERROR ("dexterity") }
-
-void object::set_constitution (const int)
-{ IMPLEMENTATION_ERROR ("constitution") }
-
-void object::set_max_hit_points (const int)
-{ IMPLEMENTATION_ERROR ("max_hit_points") }
-
-void object::set_hit_points (const int)
-{ IMPLEMENTATION_ERROR ("hit_points") }
-
-void object::set_experience (const int)
-{ IMPLEMENTATION_ERROR ("experience") }
-
-void object::set_last_attack_time (const int)
-{ IMPLEMENTATION_ERROR ("last_attack_time") }
-
 #if 0	/* PJC 24/1/97 */
 void object::event (const dbref, const dbref, const char *)
 { IMPLEMENTATION_ERROR ("event") }
@@ -754,31 +727,6 @@ void object::set_csucc (const dbref)
 
 void object::set_cfail (const dbref)
 { IMPLEMENTATION_ERROR ("cfail") }
-
-/* Weapons */
-void object::set_degradation (const int)
-{ IMPLEMENTATION_ERROR ("degradation") }
-
-void object::set_damage (const int)
-{ IMPLEMENTATION_ERROR ("damage") }
-
-void object::set_speed (const int)
-{ IMPLEMENTATION_ERROR ("speed") }
-
-void object::set_range (const int)
-{ IMPLEMENTATION_ERROR ("range") }
-
-void object::set_ammunition (const int)
-{ IMPLEMENTATION_ERROR ("ammunition") }
-
-void object::set_ammo_parent (const dbref)
-{ IMPLEMENTATION_ERROR ("ammo_parent") }
-
-void object::set_protection (const int)
-{ IMPLEMENTATION_ERROR ("protection") }
-
-void object::set_count (const int)
-{ IMPLEMENTATION_ERROR ("count") }
 
 void object::sort_elements (const int)
 { IMPLEMENTATION_ERROR ("sort_elements") }
@@ -1703,49 +1651,6 @@ const	char	*new_colour)
 }
 
 
-const int
-Player::get_level()
-const
-
-{
-	int level=1, xp;
-
-	if((xp=experience)>=10)
-	{
-		xp /= 10;
-		do
-		{
-			level++;
-			xp = xp>>1;
-		}
-		while(xp>0);
-	}
-	return(level);
-}
-
-
-void
-Player::set_armour (
-const	dbref	o)
-
-{
-	armour = o;
-	if (o != NOTHING)
-		db [o].set_referenced ();
-}
-
-
-void
-Player::set_weapon (
-const	dbref	o)
-
-{
-	weapon = o;
-	if (o != NOTHING)
-		db [o].set_referenced ();
-}
-
-
 void
 Player::set_controller (
 const	dbref	o)
@@ -1970,98 +1875,6 @@ const
 		temp = db[temp].get_real_next();
 
 	return(temp);
-}
-
-
-/************************************************************************/
-/*									*/
-/*			class Weapon					*/
-/*									*/
-/************************************************************************/
-
-Weapon::Weapon()
-{
-	degradation = 100;
-	damage = 0;
-	speed = 0;
-	ammunition = 0;
-	range = 0;
-	parent_ammunition = NOTHING;
-}
-
-
-void
-Weapon::set_ammo_parent (
-const	dbref	i)
-
-{
-	parent_ammunition = i;
-	if(i != NOTHING)
-		db[i].set_referenced();
-}
-
-
-const bool
-Weapon::destroy (
-const	dbref	item)
-
-{
-	dbref	temp;
-
-	if (Typeof (temp = db[item].get_location()) != TYPE_FREE)
-		db[temp].set_contents(remove_first (db[temp].get_contents(), item));
-	return (db.delete_object (item));
-}
-
-
-/************************************************************************/
-/*									*/
-/*			class Armour					*/
-/*									*/
-/************************************************************************/
-
-Armour::Armour()
-{
-	degradation = 0;
-	protection = 0;
-}
-
-
-const bool
-Armour::destroy (
-const	dbref	item)
-
-{
-	dbref	temp;
-
-	if (Typeof (temp = db[item].get_location()) != TYPE_FREE)
-		db[temp].set_contents(remove_first (db[temp].get_contents(), item));
-	return (db.delete_object (item));
-}
-
-
-/************************************************************************/
-/*									*/
-/*			class Ammunition				*/
-/*									*/
-/************************************************************************/
-
-Ammunition::Ammunition()
-{
-	count = 0;
-}
-
-
-const bool
-Ammunition::destroy (
-const	dbref	item)
-
-{
-	dbref	temp;
-
-	if (Typeof (temp = db[item].get_location()) != TYPE_FREE)
-		db[temp].set_contents(remove_first (db[temp].get_contents(), item));
-	return (db.delete_object (item));
 }
 
 

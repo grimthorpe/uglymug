@@ -360,9 +360,6 @@ class	context
 		void			brace_substitute	(const char *&, char *&, unsigned int space_left);
 
 	void				do_alarm		(const CString&, const CString&);
-	void				do_ammo_type		(const CString&, const CString&);
-	void				do_ammunition		(const CString&, const CString&);
-	void				do_armour		(const CString&, const CString&);
 	void				do_array		(const CString&, const CString&);
 	void				do_at_censor		(const CString&, const CString&);
 	void				do_at_censorinfo	(const CString&, const CString&);
@@ -401,8 +398,6 @@ class	context
 	void				do_at_unlock		(const CString&, const CString&);
 	void				do_at_who		(const CString&, const CString&);
 	void				do_at_with		(const CString&, const CString&);
-	void				do_attack		(const CString&, const CString&);
-	void				do_attributes		(const CString&, const CString&);
 	void				do_beep			(const CString&, const CString&);
 	void				do_boot			(const CString&, const CString&);
 	void				do_cfailure		(const CString&, const CString&);
@@ -456,7 +451,6 @@ class	context
 	void				do_kill			(const CString&, const CString&);
 	void				do_ladd			(const CString&, const CString&);
 	void				do_leave		(const CString&, const CString&);
-	void				do_load			(const CString&, const CString&);
 	void				do_lftocr		(const CString&, const CString&);
 	void				do_link			(const CString&, const CString&);
 	void				do_llist		(const CString&, const CString&);
@@ -469,7 +463,6 @@ class	context
 	void				do_peak			(const CString&, const CString&);
 	void				do_mass			(const CString&, const CString&);
 	void				do_mass_limit		(const CString&, const CString&);
-	void				do_modify		(const CString&, const CString&);
 	void				do_move			(const CString&, const CString&);
 	void				do_name			(const CString&, const CString&);
 	void				do_natter		(const CString&, const CString&);
@@ -585,11 +578,8 @@ class	context
 	void				do_volume_limit		(const CString&, const CString&);
 	void				do_wall			(const CString&, const CString&);
 	void				do_at_warn		(const CString&, const CString&);
-	void				do_weapon		(const CString&, const CString&);
-	void				do_wear			(const CString&, const CString&);
 	void				do_welcome		(const CString&, const CString&);
 	void				do_whisper		(const CString&, const CString&);
-	void				do_wield		(const CString&, const CString&);
 	void				do_who			(const CString&, const CString&);
 #endif	/* !NO_GAME_CODE */
 };

@@ -413,26 +413,6 @@ class	Player
 	const	double		get_inherited_mass_limit ()			const;
 	const	double		get_inherited_volume_limit ()			const;
 	const	double		get_inherited_gravity_factor ()			const;
-
-	const	dbref		get_weapon		()			const	{return weapon;}
-	const	dbref		get_armour		()			const	{return armour;}
-	const	int		get_strength		()			const	{return strength;}
-	const	int		get_dexterity		()			const	{return dexterity;}
-	const	int		get_constitution	()			const	{return constitution;}
-	const	int		get_max_hit_points	()			const	{return max_hit_points;}
-	const	int		get_hit_points		()			const	{return hit_points;}
-	const	int		get_experience		()			const	{return experience;}
-	const	int		get_last_attack_time	()			const	{return last_attack_time;}
-	const	int		get_level		()			const;
-		void		set_weapon		(const dbref i);
-		void		set_armour		(const dbref i);
-		void		set_strength		(const int i)			{strength = i;}
-		void		set_dexterity		(const int i)			{dexterity = i;}
-		void		set_constitution	(const int i)			{constitution = i;}
-		void		set_max_hit_points	(const int i)			{max_hit_points = i;}
-		void		set_hit_points		(const int i)			{hit_points = i;}
-		void		set_experience		(const int i)			{experience = i;}
-		void		set_last_attack_time	(const int i)			{last_attack_time = i;}
 };
 
 
@@ -505,69 +485,4 @@ class	Property
 	const	bool		destroy			(const dbref);
 	const	dbref		get_next		()			const;
 };
-
-class Weapon
-: public Inheritable_object
-{
-    private:
-		int		degradation;
-		int		damage;
-		int		speed;
-		int		ammunition;
-		int		range;
-		dbref		parent_ammunition;
-
-    public:
-				Weapon			();
-	const	bool		write			(FILE *)		const;
-	const	bool		read			(FILE* f);
-	const	bool		destroy			(const dbref);
-		void		set_degradation(int i)		{degradation = i;}
-		int		get_degradation()		{return(degradation);}
-		void		set_damage(int i)		{damage = i;}
-		int		get_damage()			{return(damage);}
-		void		set_speed(int i)		{speed = i;}
-		int		get_speed()			{return(speed);}
-		void		set_ammunition(int i)		{ammunition = i;}
-		int		get_ammunition()		{return(ammunition);}
-		void		set_range(int i)		{range = i;}
-		int		get_range()			{return(range);}
-		void		set_ammo_parent(dbref i);
-		dbref		get_ammo_parent()		{return(parent_ammunition);}
-};
-
-
-class Ammunition
-: public Inheritable_object
-{
-    private:
-		int	count;
-
-    public:
-				Ammunition();
-	const	bool		write			(FILE *)		const;
-	const	bool		read			(FILE* f);
-	const	bool		destroy			(const dbref);
-		void		set_count(int i)	{count = i;}
-		int		get_count()		{return(count);}
-};
-
-class Armour
-: public Inheritable_object
-{
-    private:
-		int	degradation;
-		int	protection;
-
-    public:
-				Armour();
-	const	bool		write			(FILE *)		const;
-	const	bool		read			(FILE* f);
-	const	bool		destroy			(const dbref);
-		void		set_degradation(int i)	{degradation = i;}
-		int		get_degradation()	{return(degradation);}
-		void		set_protection(int i)	{protection = i;}
-		int		get_protection()	{return(protection);}
-};
-
 #endif	/* !_OBJECTS_H */

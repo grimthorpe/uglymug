@@ -86,7 +86,6 @@ SOURCES	= \
 	boolexp.c \
 	channel.c \
 	colouring.c \
-	combat.c \
 	command.c \
 	colour.c \
 	concentrator.c \
@@ -140,7 +139,6 @@ OBJECTS	= \
 	boolexp.o \
 	channel.o \
 	colour.o \
-	combat.o \
 	command.o \
 	container.o \
 	context.o \
@@ -315,12 +313,6 @@ colour.o: colour.c \
 	command.h \
 	externs.h \
 	interface.h \
-	log.h
-
-combat.o: combat.c \
-	db.h \
-	mudstring.h \
-	match.h \
 	log.h
 
 command.o: command.c \

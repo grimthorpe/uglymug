@@ -25,9 +25,6 @@
 
 static	bool			empty_an_object				(dbref, dbref);
 
-static	bool			check_and_destroy_weapon			(context &c, dbref);
-static	bool			check_and_destroy_armour			(context &c, dbref);
-static	bool			check_and_destroy_ammunition			(context &c, dbref);
 static	bool			check_and_destroy_alarm			(context &c, dbref);
 static	bool			check_and_destroy_array			(context &c, dbref);
 static	bool			check_and_destroy_command		(context &c, dbref);
@@ -221,15 +218,6 @@ const	CString& dummy)
 		case TYPE_ALARM:
 			ok = check_and_destroy_alarm (*this, object);
 			break;
-		case TYPE_WEAPON:
-			ok = check_and_destroy_weapon (*this, object);
-			break;
-		case TYPE_ARMOUR:
-			ok = check_and_destroy_armour (*this, object);
-			break;
-		case TYPE_AMMUNITION:
-			ok = check_and_destroy_ammunition (*this, object);
-			break;
 		default:
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "I don't know what type that object is, so I can't destroy it.");
 			return;
@@ -375,132 +363,6 @@ dbref	zap_room)
 	return (true);
 }
 
-
-static bool
-check_and_destroy_weapon (
-context &c,
-dbref	zap_weapon)
-{
-	context god_context (GOD_ID);
-	bool	ok = true;
-	dbref	i;
-
-	for (i = 0; i < db.get_top (); i++) 
-	{
-		switch(Typeof(i))
-		{
-			case TYPE_PLAYER:
-				if(db[i].get_weapon() == zap_weapon)
-				{
-					RefSet (zap_weapon)
-					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its weapon.", unparse_object (c, i));
-					ok = false;
-				}
-				break;
-					
-			case TYPE_WEAPON:
-				if(db[i].get_parent() == zap_weapon)
-				{
-					RefSet (zap_weapon)
-					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its parent.", unparse_object (c, i));
-					ok = false;
-				}	
-				break;
-			default:
-				break;
-		}
-	}
-
-	if(ok == false)
-		return(false);
-	db[zap_weapon].destroy(zap_weapon);
-
-	return (true);
-}
-
-static bool
-check_and_destroy_armour (
-context &c,
-dbref	zap_armour)
-{
-	context god_context (GOD_ID);
-	bool	ok = true;
-	dbref	i;
-
-	for (i = 0; i < db.get_top (); i++) 
-	{
-		switch(Typeof(i))
-		{
-			case TYPE_PLAYER:
-				if(db[i].get_armour() == zap_armour)
-				{
-					RefSet (zap_armour)
-					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its armour.", unparse_object (c, i));
-					ok = false;
-				}
-				break;
-					
-			case TYPE_ARMOUR:
-				if(db[i].get_parent() == zap_armour)
-				{
-					RefSet (zap_armour)
-					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,  "%s has that as its parent.", unparse_object (c, i));
-					ok = false;
-				}	
-				break;
-			default:
-				break;
-		}
-	}
-
-	if(ok == false)
-		return(false);
-	db[zap_armour].destroy(zap_armour);
-
-	return (true);
-}
-
-static bool
-check_and_destroy_ammunition (
-context &c,
-dbref	zap_ammo)
-{
-	context god_context (GOD_ID);
-	bool	ok = true;
-	dbref	i;
-
-	for (i = 0; i < db.get_top (); i++) 
-	{
-		switch(Typeof(i))
-		{
-			case TYPE_WEAPON:
-				if(db[i].get_ammo_parent() == zap_ammo)
-				{
-					RefSet (zap_ammo)
-					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its Ammo Type.", unparse_object (c, i));
-					ok = false;
-				}
-				break;
-					
-			case TYPE_AMMUNITION:
-				if(db[i].get_parent() == zap_ammo)
-				{
-					RefSet (zap_ammo)
-					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "%s has that as its parent.", unparse_object (c, i));
-					ok = false;
-				}	
-				break;
-			default:
-				break;
-		}
-	}
-
-	if(ok == false)
-		return(false);
-	db[zap_ammo].destroy(zap_ammo);
-
-	return (true);
-}
 
 static bool
 check_and_destroy_thing (
@@ -1150,13 +1012,6 @@ const	CString& )
 	int	alarms = 0;
 	int	aalarms = 0;
 	
-	int	weapons = 0;
-	int	aweapons = 0;
-	int	armour = 0;
-	int 	aarmour = 0;
-	int	ammunition = 0;
-	int	aammunition = 0;
-
 	int	frees = 0;
 
 	/*
@@ -1207,15 +1062,6 @@ const	CString& )
 					break;
 				case TYPE_PLAYER:
 					aplayers++;
-					break;
-				case TYPE_WEAPON:
-					aweapons++;
-					break;
-				case TYPE_ARMOUR:
-					aarmour++;
-					break;
-				case TYPE_AMMUNITION:
-					aammunition++;
 					break;
 				default:
 					break;
@@ -1275,15 +1121,6 @@ const	CString& )
 				break;
 			case TYPE_PLAYER:
 				players++;
-				break;
-			case TYPE_WEAPON:
-				weapons++;
-				break;
-			case TYPE_ARMOUR:
-				armour++;
-				break;
-			case TYPE_AMMUNITION:
-				ammunition++;
 				break;
 			default:
 				break;
@@ -1443,15 +1280,6 @@ const	CString& )
 			case TYPE_PLAYER:
 				players--;
 				break;
-			case TYPE_WEAPON:
-				weapons--;
-				break;
-			case TYPE_ARMOUR:
-				armour--;
-				break;
-			case TYPE_AMMUNITION:
-				ammunition--;
-				break;
 			default:
 				break;
 		}
@@ -1540,14 +1368,6 @@ const	CString& )
 					|| ((Typeof (db[i].get_destination()) != TYPE_ROOM)
 						&& (Typeof (db[i].get_destination()) != TYPE_THING)))
 					db[i].set_destination(LIMBO);
-				if((db[i].get_weapon() != NOTHING)
-					&& (Typeof(db[i].get_weapon() != TYPE_WEAPON)))
-					db[i].set_weapon(NOTHING);
-
-				if((db[i].get_armour() != NOTHING)
-					&& (Typeof(db[i].get_armour() != TYPE_ARMOUR)))
-					db[i].set_armour(NOTHING);
-
 				check_and_make_sane_lock (i);
 				break;
 			case TYPE_COMMAND:
@@ -1578,15 +1398,6 @@ const	CString& )
 			case TYPE_PROPERTY:
 			case TYPE_FREE:
 				break;
-			case TYPE_WEAPON:
-				if ((db[i].get_ammo_parent() != NOTHING)
-					&& (Typeof(db[i].get_ammo_parent()) == TYPE_FREE))
-					db[i].set_ammo_parent(NOTHING);
-				/*FALLTHROUGH*/
-			case TYPE_ARMOUR:
-			case TYPE_AMMUNITION:
-				if (db[i].get_parent() != NOTHING && Typeof(db[i].get_parent()) == TYPE_FREE)
-					db[i].set_parent(NOTHING);
 			default:
 				/* Got an unknown type here. Oops. */
 				break;
@@ -1632,12 +1443,9 @@ const	CString& )
 		     avariables,variables, 
 		     aplayers,players,
 		     apuppets,puppets,
-		     aweapons,weapons,
-		     aarmour,armour,
-		     aammunition,ammunition,
 
-(arooms+athings+aexits+acommands+afuses+aalarms+aproperties+aarrays+adictionaries+avariables+aplayers+apuppets+aweapons+aarmour+aammunition),
-(rooms+things+exits+commands+fuses+alarms+properties+arrays+dictionaries+variables+players+puppets+weapons+armour+ammunition));
+(arooms+athings+aexits+acommands+afuses+aalarms+aproperties+aarrays+adictionaries+avariables+aplayers+apuppets),
+(rooms+things+exits+commands+fuses+alarms+properties+arrays+dictionaries+variables+players+puppets));
 
 }
 

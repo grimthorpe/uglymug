@@ -155,12 +155,8 @@ command_details			command_table [] =
 #ifdef ALIASES
 	{"@alias",		&context::do_alias,		NO_COMMAND_FLAGS},
 #endif /* ALIASES */
-	{"@ammotype",		&context::do_ammo_type,		NO_COMMAND_FLAGS},
-	{"@ammunition",		&context::do_ammunition,	NO_COMMAND_FLAGS},
 	{"@areanotify",		&context::do_at_areanotify,	NO_COMMAND_FLAGS},
-	{"@armour",		&context::do_armour,		NO_COMMAND_FLAGS},
 	{"@array",		&context::do_array,		NO_COMMAND_FLAGS},
-	{"@attributes",		&context::do_attributes,	NO_COMMAND_FLAGS},
 	{"@beep",		&context::do_beep,		LEGAL_COMMAND},
 	{"@boot",		&context::do_boot,		NO_COMMAND_FLAGS},
 	{"@censor",		&context::do_at_censor,		NO_COMMAND_FLAGS},
@@ -223,7 +219,6 @@ command_details			command_table [] =
 	{"@lock",		&context::do_at_lock,		NO_COMMAND_FLAGS},
 	{"@mass",		&context::do_mass,		NO_COMMAND_FLAGS},
 	{"@masslimit",		&context::do_mass_limit,	NO_COMMAND_FLAGS},
-	{"@modify",		&context::do_modify,		NO_COMMAND_FLAGS},
 	{"@motd",		&context::do_at_motd,		NO_COMMAND_FLAGS},
 	{"@name",		&context::do_name,		NO_COMMAND_FLAGS},
 	{"@natter",		&context::do_natter,		NO_COMMAND_FLAGS},
@@ -280,12 +275,10 @@ command_details			command_table [] =
 	{"@volumelimit",	&context::do_volume_limit,	NO_COMMAND_FLAGS},
 	{"@wall",		&context::do_wall,		FULL_COMPARE},
 	{"@warn",		&context::do_at_warn,		FULL_COMPARE},
-	{"@weapon",		&context::do_weapon,		NO_COMMAND_FLAGS},
 	{"@welcomer",		&context::do_welcome,		NO_COMMAND_FLAGS},
 	{"@who",		&context::do_at_who,		NO_COMMAND_FLAGS},
 	{"@with",		&context::do_at_with,		NO_COMMAND_FLAGS},
 	/* Basic commands */
-	{"attack",		&context::do_attack,		NO_COMMAND_FLAGS},
 	{"chat",		&context::do_chat,		NO_COMMAND_FLAGS},
 	{"close",		&context::do_close,		NO_COMMAND_FLAGS},
 	{"cwho",		&context::do_channel_who,	NO_COMMAND_FLAGS},
@@ -304,7 +297,6 @@ command_details			command_table [] =
 	{"ladd",		&context::do_ladd,		NO_COMMAND_FLAGS},
 	{"leave",		&context::do_leave,		NO_COMMAND_FLAGS},
 	{"llist",		&context::do_llist,		NO_COMMAND_FLAGS},
-	{"load",		&context::do_load,		NO_COMMAND_FLAGS},
 	{"lock",		&context::do_lock,		NO_COMMAND_FLAGS},
 	{"look",		&context::do_look_at,		NO_COMMAND_FLAGS},
 	{"lremove",		&context::do_lremove,		NO_COMMAND_FLAGS},
@@ -324,10 +316,8 @@ command_details			command_table [] =
 	{"tell",		&context::do_tell,		NO_COMMAND_FLAGS},
 	{"throw",		&context::do_drop,		NO_COMMAND_FLAGS},
 	{"unlock",		&context::do_unlock,		NO_COMMAND_FLAGS},
-	{"wear",		&context::do_wear,		FULL_COMPARE},
 	{"whisper",		&context::do_whisper,		NO_COMMAND_FLAGS},
 	{"who",			&context::do_who,		FULL_COMPARE},
-	{"wield",		&context::do_wield,		NO_COMMAND_FLAGS},
 };
 
 

@@ -1626,32 +1626,12 @@ const	CString& flag)
 				return;
 			}
 		}
-		else if (Typeof(thing) == TYPE_PLAYER)
-		{
-			db[thing].set_dexterity(10+(lrand48() % 10));	
-			db[thing].set_strength(10+(lrand48() % 10));	
-			db[thing].set_constitution(10+(lrand48() % 10));	
-			db[thing].set_max_hit_points(10+(lrand48() % 10)+db[thing].get_constitution()/5);
-			db[thing].set_hit_points(db[thing].get_max_hit_points());
-		}	
-				
-#if 0	/* For soft-coded fighting... */
-		if (in_command())
-		{
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You cannot set the FIGHTING flag in a command");
-			return;
-		}
-#endif
 	}
 
 	if ((f == FLAG_DARK) && (!Wizard (get_effective_id ())))
 	{
 		switch (Typeof (thing))
 		{
-			case TYPE_THING:
-				if (Builder(player))
-					break;
-				/* FALLTHROUGH */
 			case TYPE_PLAYER:
 				notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Dark players are not allowed.");
 				return;
@@ -2365,9 +2345,6 @@ const	CString& new_location_string)
 			}
 			break;
 		case TYPE_THING:
-		case TYPE_WEAPON:
-		case TYPE_ARMOUR:
-		case TYPE_AMMUNITION:
 			if (!controls_for_write (new_location)
 				|| !(controls_for_write (victim) || db[victim].get_location() == NOTHING || controls_for_read (db [victim].get_location()))
 
@@ -2620,60 +2597,6 @@ const	CString& keyname)
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 	}
-}
-
-void
-context::do_ammo_type (
-const	CString& weapon_name,
-const	CString& parent_name)
-{
-	dbref	thing;
-	dbref	parent;
-	dbref	test_parent;
-
-	return_status = COMMAND_FAIL;
-	set_return_string (error_return_string);
-
-	if((thing = match_controlled (*this, weapon_name)) == NOTHING)
-		return;
-
-	if (Typeof(thing) == TYPE_AMMUNITION)
-	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "The Ammo Type must be of type Ammunition.");
-		return;
-	}
-
-	/* If the second arg is blank, unparent */
-	if (!parent_name)
-	{
-		db [thing].set_ammo_parent (NOTHING);
-		if (!in_command ())
-			notify_colour (player, player, COLOUR_MESSAGES, "Unlinked.");
-		return_status = COMMAND_SUCC;
-		set_return_string (ok_return_string);
-		return;
-	}
-
-	Matcher	parent_matcher (player, parent_name, TYPE_NO_TYPE, get_effective_id ());
-	parent_matcher.match_everything ();
-	if ((parent = parent_matcher.noisy_match_result ()) == NOTHING)
-		return;
-
-	/* Finally, we'd better check for whether we're about to create a loop of parents */
-	/* (this is one that *doesn't* happen in Real Life (TM)) */
-	for (test_parent = parent; test_parent != NOTHING; test_parent = db [test_parent].get_parent ())
-		if (thing == test_parent)
-		{
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES,  "Can't parent an object to something with itself as an ancestor.");
-			return;
-		}
-
-	/* Looks like it's all OK */
-	db [thing].set_ammo_parent (parent);
-	if (!in_command ())
-		notify_colour (player,  player, COLOUR_ERROR_MESSAGES, "Ammo Type set.");
-	return_status = COMMAND_SUCC;
-	set_return_string (ok_return_string);
 }
 
 void
