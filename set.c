@@ -35,13 +35,10 @@ const	CString&name)
 
 	if(match != NOTHING && !c.controls_for_write (match))
 	{
-		notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "You cannot modify an object with the ReadOnly flag set.");
-		return NOTHING;
-	}
-
-	if(match != NOTHING && !c.controls_for_write (match))
-	{
-		notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, permission_denied);
+		if(Readonly(match))
+			notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "You cannot modify an object with the ReadOnly flag set.");
+		else
+			notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, permission_denied);
 		return NOTHING;
 	}
 
