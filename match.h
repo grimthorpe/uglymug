@@ -154,6 +154,7 @@ private:
 	bool			match_index_attempt_result	();
 	dbref			choose_thing			(dbref, dbref);
 	dbref			get_leaf			()			{ return (thing); }
+	const String		get_match_name			() const { return match_name; }
 
 	/* The following exist to support @?my match and @?my leaf for bits of code that do their own matching. */
 	void			set_my_match			(dbref my_match)	{ exact_match = my_match; }

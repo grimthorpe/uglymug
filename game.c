@@ -332,23 +332,21 @@ context::do_query_hardcodecommands(const String&, const String&)
 {
 unsigned int i;
 const	unsigned int	command_table_size = (sizeof (command_table) / sizeof (command_details));
-char *buf;
 
 	notify_colour (player,  player, COLOUR_MESSAGES, "Number of hardcode commands: %d",command_table_size);
-	buf=(char *)malloc(sizeof(command_table));
 
 	// First command
-	strcat(buf,command_table[0].name);
+	String buf=command_table[0].name;
 
 	// The remaining commands separated with semi-colons.
 	for (i=1;i<command_table_size;i++)
 	{
 	//	notify_colour (player,  player, COLOUR_MESSAGES, "Command: %s",command_table[i].name);
-		strcat(buf,";");
-		strcat(buf,command_table[i].name);
+		buf += ";";
+		buf += command_table[i].name;
 	}
-                return_status = COMMAND_SUCC;
-                set_return_string (buf);
+	return_status = COMMAND_SUCC;
+	set_return_string (buf);
 }
 
 

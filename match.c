@@ -1244,7 +1244,7 @@ const	String& arg)
 	}
 	else
 	{
-		if ((matcher = call_stack [pos]->get_matcher ()) == NULL)
+		if ((matcher = call_stack[pos]->get_matcher ()) == NULL)
 			return;
 
 		return_status = COMMAND_SUCC;
@@ -1254,8 +1254,8 @@ const	String& arg)
 			set_return_string (unparse_for_return (*this, matcher->get_leaf ()));
 		else if(!string_compare (type, "self"))
 			set_return_string (unparse_for_return (*this, get_current_command()));
-//		else if(!string_compare (type, "name"))
-//			set_return_string(call_stack[pos]->simple_command);
+		else if(!string_compare (type, "name"))
+			set_return_string(matcher->get_match_name());
 		else
 		{
 			if (!gagged_command())
