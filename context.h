@@ -402,7 +402,6 @@ class	context
 	void				do_attributes		(const CString&, const CString&);
 	void				do_beep			(const CString&, const CString&);
 	void				do_boot			(const CString&, const CString&);
-	void				do_broadcast		(const CString&, const CString&);
 	void				do_cfailure		(const CString&, const CString&);
 	void				do_channel		(const CString&, const CString&);
 	void				do_channel_who		(const CString&, const CString&);

@@ -161,7 +161,6 @@ command_details			command_table [] =
 	{"@attributes",		&context::do_attributes,	NO_COMMAND_FLAGS},
 	{"@beep",		&context::do_beep,		LEGAL_COMMAND},
 	{"@boot",		&context::do_boot,		NO_COMMAND_FLAGS},
-	{"@broadcast",		&context::do_broadcast,		NO_COMMAND_FLAGS},
 	{"@censor",		&context::do_at_censor,		NO_COMMAND_FLAGS},
 	{"@cfailure",		&context::do_cfailure,		NO_COMMAND_FLAGS},
 	{"@channel",		&context::do_channel,		NO_COMMAND_FLAGS},

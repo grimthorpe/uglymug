@@ -378,35 +378,6 @@ const	CString& arg2)
 }
 
 void
-context::do_broadcast (
-const	CString& arg1,
-const	CString& arg2)
-
-{
-	const char *message;
-
-	return_status = COMMAND_FAIL;
-	set_return_string (error_return_string);
-	message = reconstruct_message(arg1, arg2);
-	if (Wizard (get_effective_id ()) || Apprentice (player))
-	{
-#ifdef	LOG_WALLS
-		Trace("BROADCAST from %s(%d): %s\n", getname_inherited (player), player, message);
-#endif	/* LOG_WALLS */
-		if(!blank(message))
-		{
-			notify_listeners (message);
-			return_status = COMMAND_SUCC;
-			set_return_string (ok_return_string);
-		}
-		else
-			notify_colour(player, player, COLOUR_MESSAGES,"Now try a message that isn't blank.");
-	}
-	else
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Only Wizards and Apprentices may use @broadcast.");
-}
-
-void
 context::do_at_note (
 const	CString& arg1,
 const	CString& arg2)
