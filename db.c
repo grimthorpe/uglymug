@@ -325,6 +325,18 @@ const	double	entry)
 static void
 putstring (
 	FILE	*f,
+const 	String& s)
+{
+	if(s)
+	{
+		fputs(s.c_str(), f);
+	}
+	putc(FIELD_SEPARATOR, f);
+}
+
+static void
+putstring (
+	FILE	*f,
 const	char	*s)
 
 {
@@ -3104,7 +3116,7 @@ static int compare_player_cache_entries(const void *p1, const void *p2)
 	const struct player_cache_struct *s1=(const struct player_cache_struct *) p1;
 	const struct player_cache_struct *s2=(const struct player_cache_struct *) p2;
 
-	return strcasecmp(s1->name, s2->name);
+	return s1->compare(s2);
 }
 
 
@@ -3112,49 +3124,52 @@ void Database::build_player_cache(int player_count)
 {
 	int cache_entry=0;
 
-	player_cache = (struct player_cache_struct *) calloc(sizeof(struct player_cache_struct), player_count);
+	player_cache = new player_cache_struct[player_count];
+	//player_cache = (struct player_cache_struct *) calloc(sizeof(struct player_cache_struct), player_count);
 
 	for(int i=0; i<top; i++)
+	{
 		if(Typeof(i)==TYPE_PLAYER)
 		{
 			player_cache[cache_entry].state = CACHE_VALID;
-			player_cache[cache_entry].name = (char *) strdup(db[i].get_name());
+			player_cache[cache_entry].name = db[i].get_name();
 			player_cache[cache_entry++].player = i;
 #ifdef ALIASES
 			for(int alias=0; alias<MAX_ALIASES; alias++)
 			{
-				const	char	*alias_name;
+				String alias_name;
 
-				if((alias_name=db[i].get_alias(alias)))
+				alias_name = db[i].get_alias(alias);
+				if(alias_name)
 				{
 					player_cache[cache_entry].state = CACHE_VALID;
-					player_cache[cache_entry].name = (char *) strdup(alias_name);
+					player_cache[cache_entry].name = alias_name;
 					player_cache[cache_entry++].player = i;
 				}
 			}
 #endif
 		}
-
+	}
 	qsort(player_cache, player_count, sizeof(struct player_cache_struct), compare_player_cache_entries);
 }
 
 
 const dbref
 Database::lookup_player (
-const	char	*const	name)
+const	CString&	name)
 const
 
 {
 	struct player_cache_struct *pc, key;
 
-	if(blank(name))
+	if(!name)
 		return NOTHING;
 
 	/* Check for #number */
 
-	if(*name=='#')
+	if(*name.c_str()=='#')
 	{
-		dbref result=atoi(name+1);
+		dbref result=atoi(name.c_str()+1);
 
 		if(Typeof(result)==TYPE_PLAYER)
 			return result;
@@ -3163,11 +3178,11 @@ const
 	}
 
 	for(struct changed_player_list_struct *current=changed_player_list; current; current=current->next)
-		if(strcasecmp(current->name, name)==0)
+		if(strcasecmp(current->name, name.c_str())==0)
 			return current->player;
 
 	key.state=CACHE_VALID;
-	key.name=name;
+	key.name=name.c_str();
 
 	if((pc=(struct player_cache_struct *) bsearch(&key, player_cache, player_count, sizeof(struct player_cache_struct), compare_player_cache_entries)))
 	{
@@ -3184,14 +3199,14 @@ const
 void
 Database::add_player_to_cache (
 	dbref	player,
-const	char	*name)
+const	CString& name)
 {
 	if(Typeof(player)!=TYPE_PLAYER)
 		return;
 
 	struct changed_player_list_struct *entry=(struct changed_player_list_struct *) malloc(sizeof(struct changed_player_list_struct));
 
-	entry->name=strdup(name);
+	entry->name=strdup(name.c_str());
 	entry->player=player;
 	entry->prev=NULL;
 	entry->next=changed_player_list;
@@ -3201,10 +3216,10 @@ const	char	*name)
 }
 
 
-void Database::remove_player_from_cache(const char *name)
+void Database::remove_player_from_cache(const CString& name)
 {
 	for(struct changed_player_list_struct *current=changed_player_list; current; )
-		if(strcasecmp(current->name, name)==0)
+		if(strcasecmp(current->name, name.c_str())==0)
 		{
 			struct changed_player_list_struct *old=current;
 
@@ -3230,6 +3245,6 @@ void Database::remove_player_from_cache(const char *name)
 			current=current->next;
 
 	for(int i=0; i<player_count; i++)
-		if(strcasecmp(player_cache[i].name, name)==0)
+		if(strcasecmp(player_cache[i].name.c_str(), name.c_str())==0)
 			player_cache[i].state=CACHE_INVALID;
 }

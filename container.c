@@ -149,7 +149,7 @@ const	char	*description)
 		if (!in_command ())
 		{
 			if (description != NULL && *description != '\0')
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "Contents string set to '%s'.", db [container].get_contents_string ());
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "Contents string set to '%s'.", db [container].get_contents_string ().c_str());
 			else
 				notify_colour (player, player, COLOUR_MESSAGES, "Contents string reset.");
 		}

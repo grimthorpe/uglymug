@@ -372,7 +372,7 @@ const	char	*newname)
 				}
 
 					
-				if (!ok_player_name(newname) && (strcasecmp(newname, db[thing].get_name()))) // Allow the same name, for re-caps
+				if (!ok_player_name(newname) && (strcasecmp(newname, db[thing].get_name().c_str()))) // Allow the same name, for re-caps
 				{
 					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't give a player that name.");
 					return;
@@ -408,7 +408,7 @@ const	char	*newname)
 				}
 				else
 				{
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\".", db[thing].get_name(), matcher.match_index_result());
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\".", db[thing].get_name().c_str(), matcher.match_index_result());
 					return;
 				}
 			else
@@ -478,6 +478,12 @@ const	char	*description)
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
+	if(!name || (name[0]=='\0'))
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to describe?");
+		return;
+	}
+		
 	Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
 	if (gagged_command () == True)
 		matcher.work_silent ();
@@ -2684,10 +2690,10 @@ void context::do_credit(const char *arg1, const char *arg2)
 
 	if(!in_command())
 	{
-		notify(player, "You give %d %s to %s.", amount, currency_name, db[victim].get_name());
-		notify(victim, "%s gives you %d %s.", db[player].get_name(), amount, currency_name);
+		notify(player, "You give %d %s to %s.", amount, currency_name, db[victim].get_name().c_str());
+		notify(victim, "%s gives you %d %s.", db[player].get_name().c_str(), amount, currency_name);
 	}
-	Trace( "CREDIT: %s(%d) gives %d to %s(%d)\n", db[player].get_name(), player, amount, db[victim].get_name(), victim);
+	Trace( "CREDIT: %s(%d) gives %d to %s(%d)\n", db[player].get_name().c_str(), player, amount, db[victim].get_name().c_str(), victim);
 
 	RETURN_SUCC;
 }
@@ -2778,10 +2784,10 @@ void context::do_debit(const char *arg1, const char *arg2)
 
 	if(!in_command())
 	{
-		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name());
-		notify(victim, "%s takes %d %s from you.", db[player].get_name(), amount, currency_name);
+		notify(player, "You take %d %s from %s.", amount, currency_name, db[victim].get_name().c_str());
+		notify(victim, "%s takes %d %s from you.", db[player].get_name().c_str(), amount, currency_name);
 	}
-	Trace( "CREDIT: %s(%d) gives -%d to %s(%d)\n", db[player].get_name(), player, amount, db[victim].get_name(), victim);
+	Trace( "CREDIT: %s(%d) gives -%d to %s(%d)\n", db[player].get_name().c_str(), player, amount, db[victim].get_name().c_str(), victim);
 
 	RETURN_SUCC;
 }

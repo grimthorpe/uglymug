@@ -41,7 +41,6 @@
 #include "interface.h"
 
 
-static	void	free_colour_play(const dbref, const cplay *);
 static	void	output_player_colours(const dbref player, const dbref victim);
 static	void	output_attribute_colours(const dbref player, const dbref victim);
 
@@ -134,7 +133,7 @@ static struct
 	const char	*cia;	/* Colour Information Attribute */
 	char		code;	/* storage code */
 	const char	*fbi;	/* First Brightness Information */
-} cia_table[] =
+} cia_table[NUMBER_OF_COLOUR_ATTRIBUTES] =
 {
 	{"Rooms",		'A',	"%z%h%y"},
 	{"Players",		'B',	"%z%w"},
@@ -217,29 +216,7 @@ static struct
 	{NULL,		0}
 };
 
-const char *default_colour_at[] =
-{
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string,
-	empty_string, empty_string, empty_string, empty_string, empty_string
-};
+colour_at default_colour_at;
 
 static char *find_cia(const char *colour_string, char* cia)
 {
@@ -313,13 +290,13 @@ const	dbref	player,
 const	dbref	victim)
 
 {
-	const	char	*colour_string;
-		char	search_buf[3];
-		char	colour_store[BUFFER_LEN];
-		char	*cia_store;
-		int	header = 0;
-		int	x = 0;
-		int	comma = 0;
+	CString		colour_string;
+	char	search_buf[3];
+	char	colour_store[BUFFER_LEN];
+	char	*cia_store;
+	int	header = 0;
+	int	x = 0;
+	int	comma = 0;
 
 	colour_string = db[victim].get_colour();
 
@@ -331,7 +308,7 @@ const	dbref	victim)
 		if(cia_table[x].cia)
 		{
 			search_buf[1] = cia_table[x].code;
-			cia_store = find_cia(colour_string, search_buf);
+			cia_store = find_cia(colour_string.c_str(), search_buf);
 			if(cia_store)
 			{
 				if(!header)
@@ -376,7 +353,7 @@ const	dbref	victim)
 		}
 		else
 		{
-			notify_colour(player, player, COLOUR_MESSAGES, "None of %s's colour attributes have been set", db[victim].get_name());
+			notify_colour(player, player, COLOUR_MESSAGES, "None of %s's colour attributes have been set", db[victim].get_name().c_str());
 		}
 	}
 }
@@ -388,7 +365,7 @@ const dbref victim
 {
 	const	cplay	*cplay_store = db[victim].get_colour_play();
 		char	colour_store[BUFFER_LEN];
-		char	*cia_store;
+	const	char	*cia_store;
 		int	header = 0;
 		int	comma = 0;
 		int	no_of_players = db[victim].get_colour_play_size();
@@ -402,7 +379,7 @@ const dbref victim
 		}
 		else
 		{
-			notify_colour(player, player, COLOUR_MESSAGES, "%s has no colours set for any players", db[victim].get_name());
+			notify_colour(player, player, COLOUR_MESSAGES, "%s has no colours set for any players", db[victim].get_name().c_str());
 		}
 		return;
 	}
@@ -417,7 +394,7 @@ const dbref victim
 
 		colour_store[0] = '\0';
 		comma = 0;
-		cia_store = cplay_store[player_count].output_string;
+		cia_store = cplay_store[player_count].output_string.c_str();
 
 		while((*cia_store != ' ') && *cia_store)
 		{
@@ -438,7 +415,7 @@ const dbref victim
 			}
 		}
 		notify_colour(player, player, COLOUR_MESSAGES, "%-23.23s%s",
-			db[cplay_store[player_count].player].get_name(),
+			db[cplay_store[player_count].player].get_name().c_str(),
 			colour_store);
 		player_count++;
 	}
@@ -494,7 +471,7 @@ const	char	*colour_codes)
 	   there is no easy way of testing them without doing
 	   the whole test twice */
 
-	colour_string = db[player].get_colour();
+	colour_string = db[player].get_colour().c_str();
 
 	/* We trust the CIA (probably foolish). */
 
@@ -578,51 +555,31 @@ const	char	*colour_codes)
 	/* Update the memory, colour array */
 	/* We delete the whole array and make a new one
 	   so that we know what attributes to override */
-	free_colour_at(db[player].get_colour_at());
-	db[player].set_colour_at (make_colour_at (new_colour));
+	db[player].set_colour_at (new colour_at(new_colour));
 
 	/* And do the same for the player colour array */
 #ifdef DEBUG_COLOUR
 	output_array(db[player].get_colour_play(),
 		db[player].get_colour_play_size());
 #endif
-	free_colour_play(player, db[player].get_colour_play());
 	db[player].set_colour_play(make_colour_play(player, new_colour));
 
 	if(colour_player ==NOTHING)
 		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia, blank(colour_codes)? " to default":"");
 	else
-		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name(), blank(colour_codes)? " to default":"");
+		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), blank(colour_codes)? " to default":"");
 
 	set_return_string (ok_return_string);
 	return_status=COMMAND_SUCC;
 }
 
-
-void
-free_colour_at (
-const	char	*const *const	ca)
-{
-	if(ca != default_colour_at)
-	{
-		if(ca != NULL)
-		{
-			for(int x = 0;x < NUMBER_OF_COLOUR_ATTRIBUTES; x++)
-			{
-				free ((void*)(ca[x]));
-			}
-			free((void*)ca);
-		}
-	}
-}
-
-
 const int
 find_number_of_players (
-const	char	*colour_string)
+const CString& cs)
 
 {
 	int 	count = 0;
+	const char* colour_string = cs.c_str();
 
 	while (colour_string)
 	{
@@ -639,28 +596,23 @@ const	char	*colour_string)
 }
 
 
-char **
-make_colour_at (
-const	char	*const	colour_string)
+colour_at::colour_at (
+const CString&	colour_string)
 
 {
-	char**	return_array;
 	int	x = 0;
 	char*	store;
 	char*	store_end;
 	char	search_buf[3] = "  ";
 	
-	/* Create the array that the player will use */
-	return_array = (char**) calloc(NUMBER_OF_COLOUR_ATTRIBUTES, sizeof(char*));
-
 	/* This while loop will set the colour attributes (underlines, rooms etc) */
 	while(cia_table[x].cia)
 	{
 		search_buf[1] = x+65;
-		store = find_cia(colour_string, search_buf);
+		store = find_cia(colour_string.c_str(), search_buf);
 
-		if((store == NULL) || (colour_string == NULL) || (*colour_string == '\0'))
-			return_array[x] = strdup(cia_table[x].fbi);
+		if((store == NULL) || (!colour_string) || (colour_string.c_str()[0] == '\0'))
+			colours[x] = cia_table[x].fbi;
 		else
 		{
 			store+=2;
@@ -668,20 +620,17 @@ const	char	*const	colour_string)
 			if(store_end == NULL)
 			{
 				/* We're at the end of the colour string */
-				return_array[x] = (char *)malloc(strlen(store) + 1);
-				strcpy(return_array[x], store);
+				colours[x] = store;
 			}
 			else
 			{
-				return_array[x] = (char *)malloc(store_end - store + 1);
-				strncpy(return_array[x], store, store_end - store);
-				return_array[x][store_end-store] = '\0';
+				*store_end = 0;
+				colours[x] = store;
+				*store_end = ' ';
 			}
 		}
 		x++;
 	}
-
-	return (return_array);
 }
 
 
@@ -697,13 +646,13 @@ const	void	*b)
 cplay *
 make_colour_play (
 const	dbref		player,
-const	char	*const	cs)
+const CString&	cs)
 
 {
-	if((cs == NULL) || (*cs == '\0'))
+	if((!cs) || (cs.c_str()[0] == '\0'))
 		return(NULL);
 
-	char 	*colour_string = strdup (cs);
+	char*	colour_string = strdup (cs.c_str());
 	char	*point = colour_string;
 	char	*begin;
 	int	count=0;
@@ -715,7 +664,7 @@ const	char	*const	cs)
 	db[player].set_colour_play_size(no_of_players);
 
 	/* Create the array that the player will use */
-	return_array = (cplay *) calloc(no_of_players, sizeof(cplay));
+	return_array = new cplay[no_of_players];
 
 	/* Now we add a list of players and their colours */
 	while(point)
@@ -730,7 +679,7 @@ const	char	*const	cs)
 			point = strchr(point, ' ');
 			if(point)
 				*point = '\0';
-			return_array[count].output_string = strdup(begin);
+			return_array[count].output_string = begin;
 			count++;
 		}
 		else
@@ -740,7 +689,7 @@ const	char	*const	cs)
 
 
 	/*Free the copy of the colour string we made*/
-	FREE(colour_string);
+	free(colour_string);
 
 	/* sort the array so that we can bsearch it */
 	qsort(return_array, no_of_players, sizeof(cplay), &compare);
@@ -749,29 +698,11 @@ const	char	*const	cs)
 }
 
 
-static void
-free_colour_play (
-const	dbref	player,
-const	cplay	*player_colours)
-{
-	int x;
-	int size = db[player].get_colour_play_size();
-
-	if(player_colours != NULL)
-	{
-		for(x=0; x < size; x++)
-		{
-			free (player_colours[x].output_string);
-		}
-	}
-}
-
-
 /*
  * Returns the colour string for a given player
  */
 
-const char *
+const char*
 player_colour (
 dbref	player,
 dbref	victim,
@@ -791,11 +722,11 @@ int	colour)
 			db[player].get_colour_play_size(),
 			sizeof(cplay),
 			&compare)) != 0)
-			return(item->output_string);
+			return(item->output_string.c_str());
 	}
 
 	if(colour == NO_COLOUR)
-		return("");
+		return "";
 	else
 		return(db[player].get_colour_at()[colour]);
 }
@@ -815,7 +746,7 @@ const	char	*dummy2)
 		dbref	victim;
 		dbref	colour_player = NOTHING;
 		int	i;
-	const	char	*const *const colour_at = db[player].get_colour_at();
+	const colour_at& ca = db[player].get_colour_at();
 
 	set_return_string (error_return_string);
 	return_status=COMMAND_FAIL;
@@ -842,7 +773,7 @@ const	char	*dummy2)
 		if(colour_player !=NOTHING)
 			set_return_string (player_colour(player, colour_player, NO_COLOUR));
 		else
-			set_return_string (colour_at[i]);
+			set_return_string (ca[i]);
 	}
 	else
 	{
@@ -866,7 +797,7 @@ const	char	*dummy2)
 		if(colour_player !=NOTHING)
 			set_return_string (player_colour(player, colour_player, NO_COLOUR));
 		else 
-			set_return_string (colour_at[i]);
+			set_return_string (ca[i]);
 	}
 
 	return_status=COMMAND_SUCC;

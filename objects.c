@@ -278,7 +278,7 @@ object::~object ()
 }
 
 
-const char *const
+const String&
 object::get_inherited_name ()
 const
 
@@ -286,7 +286,7 @@ const
 	if (name)
 		return name;
 	else if (get_parent () == NOTHING)
-		return 0;
+		return NULLSTRING;
 	else
 		return db [get_parent ()].get_inherited_name ();
 }
@@ -306,7 +306,7 @@ const
 }
 
 
-const char *
+const String&
 object::get_inherited_description ()
 const
 
@@ -314,13 +314,13 @@ const
 	if (get_description () != NULL)
 		return get_description ();
 	else if (get_parent () == NOTHING)
-		return 0;
+		return NULLSTRING;
 	else
 		return db [get_parent ()].get_inherited_description ();
 }
 
 
-const char *
+const String&
 object::get_inherited_fail_message ()
 const
 
@@ -328,13 +328,13 @@ const
 	if (get_fail_message () != NULL)
 		return get_fail_message ();
 	else if (get_parent () == NOTHING)
-		return 0;
+		return NULLSTRING;
 	else
 		return db [get_parent ()].get_inherited_fail_message ();
 }
 
 
-const char *
+const String&
 object::get_inherited_succ_message ()
 const
 
@@ -342,7 +342,7 @@ const
 	if (get_succ_message () != NULL)
 		return get_succ_message ();
 	else if (get_parent () == NOTHING)
-		return 0;
+		return NULLSTRING;
 	else
 		return (db [get_parent ()].get_inherited_succ_message ());
 }
@@ -376,7 +376,7 @@ const
 }
 
 
-const char *
+const String&
 object::get_inherited_drop_message ()
 const
 
@@ -384,13 +384,13 @@ const
 	if (get_drop_message () != NULL)
 		return (get_drop_message ());
 	else if (get_parent () == NOTHING)
-		return (NULL);
+		return NULLSTRING;
 	else
 		return (db [get_parent ()].get_inherited_drop_message ());
 }
 
 
-const char *
+const String&
 object::get_inherited_ofail ()
 const
 
@@ -398,13 +398,13 @@ const
 	if (get_ofail () != NULL)
 		return (get_ofail ());
 	else if (get_parent () == NOTHING)
-		return (NULL);
+		return NULLSTRING;
 	else
 		return (db [get_parent ()].get_inherited_ofail ());
 }
 
 
-const char *
+const String&
 object::get_inherited_osuccess ()
 const
 
@@ -412,13 +412,13 @@ const
 	if (get_osuccess () != NULL)
 		return (get_osuccess ());
 	else if (get_parent () == NOTHING)
-		return (NULL);
+		return NULLSTRING;
 	else
 		return (db [get_parent ()].get_inherited_osuccess ());
 }
 
 
-const char *
+const String&
 object::get_inherited_odrop ()
 const
 
@@ -426,7 +426,7 @@ const
 	if (get_odrop () != NULL)
 		return (get_odrop ());
 	else if (get_parent () == NOTHING)
-		return (NULL);
+		return NULLSTRING;
 	else
 		return (db [get_parent ()].get_inherited_odrop ());
 }
@@ -503,9 +503,9 @@ const
 
 void
 object::set_name (
-const	char	*str)
+const CString& str)
 {
-	ASSIGN_STRING (const_cast <char *> (name), str);
+	name = str;
 }
 
 
@@ -519,13 +519,16 @@ const	dbref	o)
 		db [o].set_referenced ();
 }
 
+void object::set_index(const int, const CString&)
+{ IMPLEMENTATION_ERROR("index"); }
+
 void object::set_size (const int)
 { IMPLEMENTATION_ERROR ("size"); }
 
 const Boolean object::destroy (const dbref)
 { IMPLEMENTATION_ERROR ("destroy"); return (True); }
 
-void object::set_description (const char *)
+void object::set_description (const CString&)
 { IMPLEMENTATION_ERROR ("description") }
 
 void object::set_destination (const dbref)
@@ -540,22 +543,22 @@ void object::set_contents (const dbref)
 void object::set_exits (const dbref)
 { IMPLEMENTATION_ERROR ("exits") }
 
-void object::set_fail_message (const char *)
+void object::set_fail_message (const CString&)
 { IMPLEMENTATION_ERROR ("fail_message") }
 
-void object::set_drop_message (const char *)
+void object::set_drop_message (const CString&)
 { IMPLEMENTATION_ERROR ("drop_message") }
 
-void object::set_succ_message (const char *)
+void object::set_succ_message (const CString&)
 { IMPLEMENTATION_ERROR ("succ_message") }
 
-void object::set_ofail (const char *)
+void object::set_ofail (const CString&)
 { IMPLEMENTATION_ERROR ("ofail") }
 
-void object::set_osuccess (const char *)
+void object::set_osuccess (const CString&)
 { IMPLEMENTATION_ERROR ("osuccess") }
 
-void object::set_odrop (const char *)
+void object::set_odrop (const CString&)
 { IMPLEMENTATION_ERROR ("odrop") }
 
 void object::set_pennies (const int)
@@ -587,8 +590,8 @@ void object::set_parent (const dbref)
 void object::set_parent_no_check (const dbref)
 { IMPLEMENTATION_ERROR ("parent_no_check") }
 
-const char *object::get_inherited_element(const int) const
-{ IMPLEMENTATION_ERROR ("get_inherited_element"); return 0; }
+const String& object::get_inherited_element(const int) const
+{ IMPLEMENTATION_ERROR ("get_inherited_element"); return NULLSTRING; }
 
 const int object::exist_inherited_element(const int) const
 { IMPLEMENTATION_ERROR ("exist_inherited_element"); return 0; }
@@ -641,7 +644,7 @@ void object::set_money (int)
 void object::set_colour (const char *)
 { IMPLEMENTATION_ERROR ("colour") }
 
-void object::set_colour_at (const char * const *)
+void object::set_colour_at (colour_at*)
 { IMPLEMENTATION_ERROR ("colour_at") }
 
 void object::set_colour_play (cplay *)
@@ -659,18 +662,18 @@ void object::set_build_id (const dbref)
 void object::reset_build_id (const dbref)
 { IMPLEMENTATION_ERROR ("build_id") }
 
-void object::set_email_addr (const char *)
+void object::set_email_addr (const CString&)
 { IMPLEMENTATION_ERROR ("email_addr") }
 
 #ifdef ALIASES
-void object::set_alias (const int, const char *)
+void object::set_alias (const int, const CString&)
 { IMPLEMENTATION_ERROR ("alias") }
 #endif /* ALIASES */
 
-void object::set_password (const char *)
+void object::set_password (const CString&)
 { IMPLEMENTATION_ERROR ("password") }
 
-void object::set_race (const char *)
+void object::set_race (const CString&)
 { IMPLEMENTATION_ERROR ("race") }
 
 void object::set_score (const long)
@@ -679,7 +682,7 @@ void object::set_score (const long)
 void object::set_last_name_change (const long)
 { IMPLEMENTATION_ERROR ("last_name_change") }
 
-void object::set_who_string (const char *)
+void object::set_who_string (const CString&)
 { IMPLEMENTATION_ERROR ("who_string") }
 
 void object::set_weapon (const dbref)
@@ -715,7 +718,7 @@ void object::event (const dbref, const dbref, const char *)
 #endif
 
 /* Thing */
-void object::set_contents_string (const char *)
+void object::set_contents_string (const CString&)
 { IMPLEMENTATION_ERROR ("contents_string") }
 
 void object::set_lock_key (struct boolexp *)
@@ -789,18 +792,7 @@ Dictionary::Dictionary()
 Dictionary::~Dictionary()
 
 {
-	for(number--;number >= 0;number--)
-	{
-		if(indices[number])
-			free(const_cast <char *> (indices[number]));
-		if(elements[number])
-			free(elements[number]);
-	}
-
-	if(indices)
-		free(indices);
-	if(elements)
-		free(elements);
+	empty_object();
 }
 
 
@@ -808,22 +800,33 @@ void
 Dictionary::empty_object()
 
 {
-	for(number--;number >= 0;number--)
-	{
-		if(indices[number])
-			free(const_cast <char *> (indices[number]));
-		if(elements[number])
-			free(elements[number]);
-	}
-
-	if(indices)
-		free(indices);
-	if(elements)
-		free(elements);
+	delete[] indices;
+	delete[] elements;
 
 	indices = NULL;
 	elements = NULL;
 	number = 0;
+}
+
+void
+Dictionary::resize(const int newsize)
+{
+	String* newelements = new String[newsize];
+	String* newindices = new String[newsize];
+
+	int upto = (newsize<number)?newsize:number; // Doesn't know min(x,y)
+	for(int i = 0; i < upto; i++)
+	{
+		newelements[i] = elements[i];
+		newindices[i] = indices[i];
+	}
+
+	delete[] elements;
+	delete[] indices;
+
+	elements = newelements;
+	indices = newindices;
+	number = newsize;
 }
 
 
@@ -835,32 +838,25 @@ Dictionary::empty_object()
 void
 Dictionary::set_element (
 const	int	element,
-const	char	*index,
-const	char	*string)
+const	CString&	index,
+const	CString&	string)
 
 {
 	if(element)
 	{
-		ASSIGN_STRING (elements[element - 1], string);
+		elements[element-1] = string;
 	}
 	else
 	{
-		number++;
-		if((REALLOC(const_cast <char **> (indices), sizeof(char *) * number)) == NULL)
-			panic("Realloc failed.");
-		if((REALLOC(elements, sizeof(char *) * number)) == NULL)
-			panic("Realloc failed.");
-
-		indices[number - 1] = NULL;
-		elements[number - 1] = NULL;
-
-		ASSIGN_STRING (const_cast <char *> (indices[number - 1]), index);
-		ASSIGN_STRING (elements[number - 1], string);
+		resize(number+1);// Resize the storage
+		// NOTE: resize() changes number...
+		elements[number-1] = string; // Add the new element at the end
+		indices[number-1] = index;
 	}
 }
 
 
-const char *
+const String&
 Dictionary::get_element(const int element)
 const
 
@@ -872,14 +868,14 @@ const
 void
 Dictionary::set_index (
 const	int	index,
-const	char	*value)
+const	CString& value)
 
 {
-	ASSIGN_STRING(const_cast <char *> (indices[index - 1]), value);
+	indices[index-1] = value;
 }
 
 
-const char *
+const String&
 Dictionary::get_index(const int element)
 const
 
@@ -890,7 +886,7 @@ const
 
 const int
 Dictionary::exist_element (
-const	char	*element)
+const	CString& element)
 const
 
 {
@@ -898,7 +894,7 @@ const
 
 	for(temp = 1; temp <= number; temp++)
 	{
-		if(semicolon_string_match (indices[temp - 1], element))
+		if(semicolon_string_match (indices[temp - 1].c_str(), element.c_str()))
 			return(temp);
 	}
 
@@ -911,23 +907,13 @@ Dictionary::destroy_element (
 const	int	element)
 
 {
-	if(indices[element - 1])
-		free(const_cast <char *> (indices[element - 1]));
-	if(elements[element - 1])
-		free(elements[element - 1]);
-
 	for(int shifted_element = element; shifted_element < number; shifted_element++)
 	{
 		indices[shifted_element - 1] = indices[shifted_element];
 		elements[shifted_element - 1] = elements[shifted_element];
 	}
 
-	number--;
-
-	if((REALLOC(const_cast <char **> (indices), sizeof(char *) * number)) == NULL && number)
-		panic("Realloc failed.");
-	if((REALLOC(elements, sizeof(char *) * number)) == NULL && number)
-		panic("Realloc failed.");
+	resize(number - 1);
 }
 
 
@@ -962,22 +948,34 @@ void
 Array_storage::empty_object()
 
 {
-	for (number--; number >= 0; number--)
-		if (elements[number])
-			free(elements[number]);
+	delete[] elements;
 
-	if(elements)
-		free(elements);
-	elements = NULL;
+	elements = 0;
 	number = 0;
 	size = 0;
 }
 
 
+void Array_storage::resize(
+const int newsize)
+{
+	int upto = (newsize < number)?newsize:number;
+	String* newelements = new String[newsize];
+
+	for(int i = 0; i < upto; i++)
+	{
+		newelements[i] = elements[i];
+	}
+
+	delete[] elements;
+	elements = newelements;
+	number = newsize;
+}
+
 void
 Array_storage::set_element (
 const	int	element,
-const	char	*string)
+const	CString& string)
 
 {
 	int this_size;
@@ -989,32 +987,23 @@ const	char	*string)
 	if(element > MAX_WIZARD_ARRAY_ELEMENTS) return;
 
 	//NULL pointer is not a zero length string
-	this_size = string ? strlen(string) : 0;
+	this_size = string.length();
 	if(element > number)
 	{
-		if((REALLOC(elements, sizeof(char *) * element)) == NULL)
-			panic("Realloc failed inside Array_storage::set_element. Bugger!");
-		while(element > number)
-		{
-			elements[number] = NULL;
-			number++;
-		}
+		resize(element);
 	}
 // size is a total counter of how big the array is so it doesn't go silly
 	if (size)
-		if (elements [element - 1])
-			size = size - strlen(elements[element -1]) + this_size;
-		else
-			size = size + this_size;
+		size = size - elements[element -1].length() + this_size;
 	else
 		set_size(this_size);
 
 
-	ASSIGN_STRING ((elements[element - 1]), string);
+	elements[element - 1] = string;
 }
 
 
-const char *
+const String&
 Array_storage::get_element (
 const	int	element)
 const
@@ -1023,7 +1012,7 @@ const
 	if (element <= number)
 		return elements [element - 1];
 	else
-		return 0;
+		return NULLSTRING;
 }
 
 
@@ -1032,16 +1021,10 @@ Array_storage::destroy_element (
 const	int	element)
 
 {
-	if(elements[element - 1])
-		free (elements[element - 1]);
-
 	for (int copy_element = element; copy_element < number; copy_element++)
 		elements [copy_element - 1] = elements[copy_element];
 
-	number--;
-
-	if((REALLOC(elements, sizeof(char *) * number)) == NULL && number)
-			panic("Realloc failed.");
+	resize(number -1);
 }
 
 
@@ -1061,31 +1044,20 @@ const
 void
 Array_storage::insert_element (
 const	int	index,
-const	char	*element)
+const	CString& element)
 {
 	if(index > number)
 	{
-		if((REALLOC(elements, sizeof(char *) * index)) == NULL)
-			panic("Realloc failed inside Array_storage::insert_element. Bugger!");
-		while(index > number)
-		{
-			elements[number] = NULL;
-			number++;
-		}
-		ASSIGN_STRING (elements[index - 1], element);
+		resize(index);
 	}
 	else
 	{
-		if((REALLOC(elements, sizeof(char *) * ++number)) == NULL)
-			panic("Realloc failed inside Array_storage::insert_element. Bugger!");
-		elements[number-1] = NULL;
 		int count;
 		for(count = number -1;count >= index;count--)
 			elements[count] = elements[count - 1];
-		elements[index-1]=alloc_string(element);
+		elements[index-1]=element;
 	}
-	if(element) //NULL pointer not zero length string
-		size += strlen(element);
+	size += element.length();
 }
 
 
@@ -1100,13 +1072,7 @@ Array_storage::Array_storage ()
 Array_storage::~Array_storage ()
 
 {
-	for(number--;number >= 0;number--)
-		if(elements[number])
-			free(elements[number]);
-
-	if(elements)
-		free(elements);
-
+	delete[] elements;
 }
 
 /************************************************************************/
@@ -1145,7 +1111,7 @@ Describable_object::~Describable_object ()
 
 void
 Describable_object::set_description (
-const	char	*new_text)
+const	CString& new_text)
 {
 	char	*copy=NULL;
 	char	*begin=NULL;
@@ -1153,11 +1119,11 @@ const	char	*new_text)
 
 	empty_object ();
 
-	if (blank (new_text))
+	if (!new_text)
 		return;
 
-	set_size (strlen (new_text));
-	copy = strdup (new_text);
+	set_size( new_text.length());
+	copy = strdup (new_text.c_str());
 	begin = copy;
 
 	while (begin && *begin)
@@ -1173,9 +1139,10 @@ const	char	*new_text)
 	free (copy);
 }
 
-char	buildbuf[BUFFER_LEN];
+static	char	buildbuf[BUFFER_LEN];
+static  String buildstring(buildbuf);
 
-const char *
+const String&
 Describable_object::get_description()
 const
 {
@@ -1184,18 +1151,19 @@ const
 	*p = '\0';
 
 	if (number==0)
-		return(NULL);
+		return NULLSTRING;
 	for(x = 0;x < number;x++)
 	{
 		if(x!=0)
 			strcat(p, "\n");
 		if(elements[x])		/* NULL pointer not null string */
-			strcat(p, elements[x]);
+			strcat(p, elements[x].c_str());
 		else
 			if(x==(number-1))	/* for trailing blank lines */
 				strcat(p, "\n");
 	}
-	return(buildbuf);
+	buildstring = buildbuf;
+	return buildstring;
 }
 
 /************************************************************************/
@@ -1265,55 +1233,55 @@ struct	boolexp	*k)
 
 void
 Lockable_object::set_fail_message (
-const	char	*str)
+const	CString& str)
 
 {
-	ASSIGN_STRING (const_cast <char *> (fail_message), str);
+	fail_message = str;
 }
 
 
 void
 Lockable_object::set_drop_message (
-const	char	*str)
+const	CString& str)
 
 {
-	ASSIGN_STRING (const_cast <char *> (drop_message), str);
+	drop_message = str;
 }
 
 
 void
 Lockable_object::set_succ_message (
-const	char	*str)
+const	CString& str)
 
 {
-	ASSIGN_STRING (const_cast <char *> (succ_message), str);
+	succ_message = str;
 }
 
 
 void
 Lockable_object::set_ofail (
-const	char	*str)
+const	CString& str)
 
 {
-	ASSIGN_STRING (const_cast <char *> (ofail), str);
+	ofail = str;
 }
 
 
 void
 Lockable_object::set_osuccess (
-const	char	*str)
+const	CString& str)
 
 {
-	ASSIGN_STRING (const_cast <char *> (osuccess), str);
+	osuccess = str;
 }
 
 
 void
 Lockable_object::set_odrop (
-const	char	*str)
+const	CString& str)
 
 {
-	ASSIGN_STRING (const_cast <char *> (odrop), str);
+	odrop = str;
 }
 
 
@@ -1333,7 +1301,8 @@ const	dbref	p)
 		db [p].set_referenced ();
 }
 
-const char *Inheritable_object::get_inherited_element(int element_to_get) const
+const String&
+Inheritable_object::get_inherited_element(int element_to_get) const
 {
 	if(get_number_of_elements() || (parent==NOTHING))
 		return get_element(element_to_get);
@@ -1458,10 +1427,10 @@ Room::~Room()
 
 void
 Room::set_contents_string (
-const	char	*c)
+const	CString& c)
 
 {
-	ASSIGN_STRING (const_cast <char *> (contents_string), c);
+	contents_string = c;
 }
 
 
@@ -1516,27 +1485,27 @@ puppet::~puppet ()
 
 void
 puppet::set_email_addr (
-const	char	*addr)
+const	CString& addr)
 {
-	ASSIGN_STRING (email_addr, addr);
+	email_addr = addr;
 }
 
 
 void
 puppet::set_race (
-const	char	*r)
+const	CString& r)
 
 {
-	ASSIGN_STRING (race, r);
+	race = r;
 }
 
 
 void
 puppet::set_who_string (
-const	char	*s)
+const	CString& s)
 
 {
-	ASSIGN_STRING (who_string, s);
+	who_string = s;
 }
 
 
@@ -1551,14 +1520,14 @@ Player::Player ()
 {
 	int	i;
 
-	password 	= NULL;
+	password 	= NULLSTRING;
 	colour		= NULL;
-	colour_at	= default_colour_at;
+	col_at		= NULL;
 	colour_play	= NULL;
 	colour_play_size= 0;
 #ifdef ALIASES
 	for (i = 0; i < MAX_ALIASES; i++)
-		alias[i]	= NULL;
+		alias[i]	= NULLSTRING;
 
 #endif
 	/* Init Combat Stats */
@@ -1577,13 +1546,6 @@ Player::Player ()
 Player::~Player ()
 
 {
-	int	i;
-
-	set_password		(NULL);
-#ifdef ALIASES
-	for (i = 0; i < MAX_ALIASES; i++)
-		set_alias(i, NULL);
-#endif
 }
 
 
@@ -1591,10 +1553,10 @@ Player::~Player ()
 void
 Player::set_alias(
 const	int	which,
-const	char	*what)
+const	CString& what)
 
 {
-	ASSIGN_STRING (alias[which], what);
+	alias[which] = what;
 }
 #endif
 
@@ -1684,16 +1646,16 @@ const	dbref	o)
 
 void
 Player::set_password (
-const	char	*p)
+const	CString& p)
 {
-	ASSIGN_STRING (password, p);
+	password = p;
 }
 
 
 #ifdef ALIASES
 const int
 Player::look_at_aliases (
-const	char	*string)
+const	CString& string)
 const
 
 {
@@ -1718,9 +1680,9 @@ const
 	{
 		if (i == MAX_ALIASES)
 			break;
-		if ((alias[i] == NULL) && (foundempty == 0))
+		if ((!alias[i]) && (foundempty == 0))
 			foundempty = (i + 1);
-		if ((string_compare(alias[i], string)) == 0)
+		if ((string_compare(alias[i].c_str(), string.c_str())) == 0)
 			return (i + 1);
 	}
 	return (-foundempty);
@@ -1729,14 +1691,14 @@ const
 
 const int
 Player::remove_alias (
-const	char	*string)
+const	CString& string)
 
 {
 	int	test;
 
 	if ((test = look_at_aliases(string)) > 0)
 	{
-		set_alias((test - 1), NULL);
+		set_alias((test - 1), NULLSTRING);
 		return 1;
 	}
 	return 0;
@@ -1745,7 +1707,7 @@ const	char	*string)
 
 const int
 Player::add_alias (
-const	char	*string)
+const	CString& string)
 
 {
 	int	test;
@@ -1764,7 +1726,7 @@ const	char	*string)
 
 const int
 Player::has_alias(
-const	char	*string)
+const	CString& string)
 const
 
 {
@@ -1776,7 +1738,7 @@ const
 
 const int
 Player::has_partial_alias(
-const	char	*string)
+const	CString& string)
 const
 
 {
@@ -1784,7 +1746,7 @@ const
 
 	for (i = 0; i < MAX_ALIASES; i++)
 	{
-		if (string_prefix(alias[i], string))
+		if (string_prefix(alias[i].c_str(), string.c_str()))
 			return 1;
 	}
 	return 0;
@@ -1994,10 +1956,10 @@ Thing::~Thing ()
 
 void
 Thing::set_contents_string (
-const	char	*c)
+const	CString& c)
 
 {
-	ASSIGN_STRING (const_cast <char *> (contents_string), c);
+	contents_string = c;
 }
 
 
@@ -2425,7 +2387,7 @@ unsigned Command::lines_in_command_block(const unsigned start_line) const
 	while((current_line<=unsigned(get_number_of_elements())) && (backslash_primed))
 	{
 		backslash_primed=False;
-		const char *const line_start=get_element(current_line);
+		const char *const line_start=get_element(current_line).c_str();
 		if(line_start)
 		{
 			const char *sliding_ptr=line_start+strlen(line_start);
@@ -2474,10 +2436,10 @@ unsigned Command::reconstruct_command_block(char *const command_block, const uns
 			first=False;
 		if(get_element(current_line))
 		{
-			if(strlen(get_element(current_line))<=space_left)
+			if(get_element(current_line).length()<=space_left)
 			{
-				strcat(command_block,get_element(current_line));
-				space_left-=strlen(get_element(current_line));
+				strcat(command_block,get_element(current_line).c_str());
+				space_left-=get_element(current_line).length();
 			}
 			else
 			{
@@ -2612,7 +2574,7 @@ const	unsigned short	value)
 
 void
 Command::set_description (
-const	char	*desc)
+const	CString& desc)
 
 {
 	if (parse_helper)

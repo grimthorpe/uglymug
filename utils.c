@@ -143,8 +143,6 @@ getname (
 dbref	loc)
 
 {
-	const	char	*name;
-
 	switch(loc)
 	{
 		case NOTHING:
@@ -158,9 +156,10 @@ dbref	loc)
 				return ("*OUTOFBOUNDS*");
 			if(Typeof(loc) == TYPE_FREE)
 				return("*FREEOBJECT*");
-			name = db[loc].get_name ();
-			if (name != NULL)
-				return (name);
+			if(db[loc].get_name())
+			{
+				return db[loc].get_name().c_str();
+			}
 			else
 				return ("*NONAME*");
 	}
@@ -172,8 +171,6 @@ getname_inherited (
 dbref	loc)
 
 {
-	const	char	*name;
-
 	switch(loc)
 	{
 		case NOTHING:
@@ -187,9 +184,10 @@ dbref	loc)
 				return ("*OUTOFBOUNDS*");
 			if(Typeof(loc) == TYPE_FREE)
 				return("*FREEOBJECT*");
-			name = db[loc].get_inherited_name ();
-			if (name != NULL)
-				return (name);
+			if(db[loc].get_inherited_name())
+			{
+				return db[loc].get_inherited_name().c_str();
+			}
 			else
 				return ("*NONAME*");
 	}

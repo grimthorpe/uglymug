@@ -69,11 +69,9 @@ extern	dbref		command_pending		(int time);
 
 /* From colour.c */
 extern		int	rank_colour		(dbref);
-extern		char	**make_colour_at	(const char *const);
-extern		void	free_colour_at		(const char *const *const);
-extern		cplay	*make_colour_play	(const dbref, const char *const);
-extern	const	char	*player_colour		(dbref, dbref, int);
-extern	const	int	find_number_of_players	(const char *colour_string);
+extern		cplay	*make_colour_play	(const dbref, const CString&);
+extern	const	char*	player_colour		(dbref, dbref, int);
+extern	const	int	find_number_of_players	(const CString&);
 
 /* From create.c */
 extern	dbref		parse_linkable_room	(dbref player, const char *room_name);

@@ -289,7 +289,7 @@ const	char	*reason)
 {
 	int allow = 0;
 	dbref recipient;
-	strcpy(player_booting, db[player].get_name());
+	strcpy(player_booting, db[player].get_name().c_str());
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 	if (blank(victim))
@@ -448,12 +448,12 @@ const	char	*email_addr)
 				if (i == victim)
 					continue;
 				if (Typeof (i)==TYPE_PLAYER && db[i].get_email_addr ())
-					if (strncasecmp (email_addr, db[i].get_email_addr (), MIN(strlen(email_addr),strlen(db[i].get_email_addr ())))==0)
-						notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning:  %s has identical email address (%s).", getname (i), db[i].get_email_addr ());
+					if (strncasecmp (email_addr, db[i].get_email_addr ().c_str(), MIN(strlen(email_addr),db[i].get_email_addr ().length()))==0)
+						notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Warning:  %s has identical email address (%s).", getname (i), db[i].get_email_addr ().c_str());
 			}
 		if(victim != player)
 			notify_colour(player, player, COLOUR_MESSAGES,"Email address changed.");
-		notify_colour(victim, victim, COLOUR_ERROR_MESSAGES, "Your email address has been changed to %s", db[victim].get_email_addr ());
+		notify_colour(victim, victim, COLOUR_ERROR_MESSAGES, "Your email address has been changed to %s", db[victim].get_email_addr ().c_str());
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 
@@ -466,10 +466,10 @@ const	char	*email_addr)
                                 if (Typeof (i) == TYPE_PLAYER)
 					fprintf (fp,
 						"%s|%d|%s\n",
-						db [i].get_name (),
+						db [i].get_name ().c_str(),
 						i,
 						(db [i].get_email_addr ())
-							? db [i].get_email_addr ()
+							? db [i].get_email_addr ().c_str()
 							: "NO_MAIL_ADDRESS");
                         fclose(fp);
                         notify_colour (player, player, COLOUR_MESSAGES, "Done.");

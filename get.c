@@ -381,7 +381,7 @@ context::do_query_cstring (const char *const name, const char *const)
 		return_status = COMMAND_FAIL;
 		return;
 	}
-	set_return_string (db[thing].get_contents_string ());
+	set_return_string (db[thing].get_contents_string ().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -465,7 +465,7 @@ context::do_query_description (const char *const name, const char *const)
 			{
 				if((value = db[thing].exist_element (atoi (value_or_empty (matcher.match_index_result())))) > 0)
 				{
-					set_return_string (db[thing].get_element(value));
+					set_return_string (db[thing].get_element(value).c_str());
 					return_status = COMMAND_SUCC;
 				}
 				else
@@ -478,7 +478,7 @@ context::do_query_description (const char *const name, const char *const)
 			}
 			else
 			{
-				set_return_string (db[thing].get_description());
+				set_return_string (db[thing].get_description().c_str());
 				return_status = COMMAND_SUCC;
 			}
 			break;
@@ -486,7 +486,7 @@ context::do_query_description (const char *const name, const char *const)
 			if(matcher.match_index_attempt_result())
 				if((value = db[thing].exist_element(matcher.match_index_result())))
 				{
-					set_return_string (db[thing].get_element(value));
+					set_return_string (db[thing].get_element(value).c_str());
 					return_status = COMMAND_SUCC;
 				}
 				else
@@ -510,7 +510,7 @@ context::do_query_description (const char *const name, const char *const)
 			{
 				if((value = db[thing].exist_element (atoi (value_or_empty (matcher.match_index_result())))) > 0)
 				{
-					set_return_string (db[thing].get_element(value));
+					set_return_string (db[thing].get_element(value).c_str());
 					return_status = COMMAND_SUCC;
 				}
 				else
@@ -530,7 +530,7 @@ context::do_query_description (const char *const name, const char *const)
 			}
 			break;
 		default:
-			set_return_string (db[thing].get_description());
+			set_return_string (db[thing].get_description().c_str());
 			return_status = COMMAND_SUCC;
 			break;
 	}
@@ -570,7 +570,7 @@ context::do_query_drop (const char *const name, const char *const)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?drop used with a variable. This is a deprecated command");
 		Trace( "BUG: @?drop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
-	set_return_string (db[thing].get_drop_message());
+	set_return_string (db[thing].get_drop_message().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -589,7 +589,7 @@ context::do_query_elements (const char *const name, const char *const)
 		{
 			case TYPE_DICTIONARY:
 				if(db[thing].get_number_of_elements() > 0)
-					set_return_string (db[thing].get_index(1));
+					set_return_string (db[thing].get_index(1).c_str());
 				else
 					set_return_string ("NOTHING");
 
@@ -627,7 +627,7 @@ context::do_query_email (const char *const name, const char *const)
 		else
 		{
 			return_status = COMMAND_SUCC;
-			set_return_string (db[victim].get_email_addr ());
+			set_return_string (db[victim].get_email_addr ().c_str());
 		}
 	}
 }
@@ -777,7 +777,7 @@ context::do_query_fail (const char *const name, const char *const)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?fail used with a variable. This is a deprecated command");
 		Trace( "BUG: @?fail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
-	set_return_string (db[thing].get_fail_message());
+	set_return_string (db[thing].get_fail_message().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -1133,7 +1133,7 @@ context::do_query_next (const char *const name, const char *const)
 						if(db[thing].get_number_of_elements() >= value + 1)
 						{
 							return_status = COMMAND_SUCC;
-							set_return_string (db[thing].get_index (value + 1));
+							set_return_string (db[thing].get_index (value + 1).c_str());
 						}
 						else
 						{
@@ -1246,7 +1246,7 @@ context::do_query_odrop (const char *const name, const char *const)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?odrop used with a variable. This is a deprecated command");
 		Trace( "BUG: @?odrop used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
-	set_return_string (db[thing].get_odrop());
+	set_return_string (db[thing].get_odrop().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -1264,7 +1264,7 @@ context::do_query_ofail (const char *const name, const char *const)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?ofail used with a variable. This is a deprecated command");
 		Trace( "BUG: @?ofail used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
-	set_return_string (db[thing].get_ofail());
+	set_return_string (db[thing].get_ofail().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -1282,7 +1282,7 @@ context::do_query_osuccess (const char *const name, const char *const)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?osuccess used with a variable. This is a deprecated command");
 		Trace( "BUG: @?osuccess used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
-	set_return_string (db[thing].get_osuccess());
+	set_return_string (db[thing].get_osuccess().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -1333,19 +1333,17 @@ dbref	thing)
 
 {
 	static char	alias_buffer[(MAX_ALIASES * MAX_ALIAS_LENGTH)];
-	char 		const *temp;
 	int		i;
 	int		gotone = 0;
 
 	alias_buffer[0] = '\0';
 	for (i = 0; i < MAX_ALIASES; i++)
 	{
-		temp = db[thing].get_alias(i);
-		if (temp != NULL)
+		if(db[thing].get_alias(i))
 		{
 			if (gotone != 0)
 				strcat(alias_buffer, ";");
-			strcat(alias_buffer, temp);
+			strcat(alias_buffer, db[thing].get_alias(i).c_str());
 			gotone = 1;
 		}
 	}
@@ -1379,7 +1377,7 @@ context::do_query_race (const char *const name, const char *const)
 	if (thing == NOTHING)
 		return;
 	return_status = COMMAND_SUCC;
-	set_return_string (db[thing].get_race ());
+	set_return_string (db[thing].get_race ().c_str());
 }
 
 
@@ -1497,7 +1495,7 @@ context::do_query_success (const char *const name, const char *const)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning: @?success used with a variable. This is a deprecated command");
 		Trace( "BUG: @?success used with variable #%d by player #%d in command #%d\n", thing, player, get_current_command());
 	}
-	set_return_string (db[thing].get_succ_message());
+	set_return_string (db[thing].get_succ_message().c_str());
 	return_status = COMMAND_SUCC;
 }
 
@@ -1765,7 +1763,7 @@ context::do_query_who (const char *const name, const char *const)
 		return;
 
 	return_status = COMMAND_SUCC;
-	set_return_string (db[victim].get_who_string ());
+	set_return_string (db[victim].get_who_string ().c_str());
 }
 
 

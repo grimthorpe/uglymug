@@ -512,11 +512,11 @@ dbref   thing)
                         }
 
                         if(db[db[thing].get_destination()].get_inherited_drop_message())
-                                notify_public_colour(thing, thing,  COLOUR_DROP, "%s", db[db[thing].get_destination()].get_inherited_drop_message());
+                                notify_public_colour(thing, thing,  COLOUR_DROP, "%s", db[db[thing].get_destination()].get_inherited_drop_message().c_str());
 
                         if(db[db[thing].get_destination()].get_inherited_odrop() && !(Dark(thing)))
                         {
-                                pronoun_substitute(scratch_buffer, BUFFER_LEN, thing, db[db[thing].get_destination()].get_inherited_odrop());
+                                pronoun_substitute(scratch_buffer, BUFFER_LEN, thing, db[db[thing].get_destination()].get_inherited_odrop().c_str());
                                 notify_except(db[db[thing].get_destination()].get_contents(), thing, thing, scratch_buffer);
                         }
                         break;
@@ -605,14 +605,14 @@ const   char    *)
                                         }
                                         enter_room (db[exit].get_destination());
                                         if (db[exit].get_inherited_drop_message())
-                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[exit].get_inherited_drop_message());
+                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[exit].get_inherited_drop_message().c_str());
                                         if (db[exit].get_destination() != HOME)
                                         {
                                                 if (!Dark(player))
                                                 {
                                                         if (db[exit].get_inherited_odrop())
                                                         {
-                                                                pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[exit].get_inherited_odrop());
+                                                                pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[exit].get_inherited_odrop().c_str());
                                                                 notify_except(db[db[player].get_location()].get_contents(), player, player, scratch_buffer);
                                                         }
                                                         if(!Dark(db[exit].get_destination()))
@@ -628,7 +628,7 @@ const   char    *)
                                                 {
                                                         if (db[exit].get_inherited_odrop())
                                                         {
-                                                                pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[exit].get_inherited_odrop());
+                                                                pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[exit].get_inherited_odrop().c_str());
                                                                 notify_except(db[db[player].get_destination()].get_contents(), player, player, scratch_buffer);
                                                         }
                                                         if(!Dark(db[player].get_destination()))
@@ -928,7 +928,7 @@ const   char    *where)
                                         {
                                                 moveto (thing, container);
                                                 if(db[thing].get_inherited_drop_message())
-                                                        notify_public_colour(player, player, COLOUR_DROP, "%s", db[thing].get_inherited_drop_message());
+                                                        notify_public_colour(player, player, COLOUR_DROP, "%s", db[thing].get_inherited_drop_message().c_str());
                                                 else if (!in_command())
                                                         notify_colour(player, player, COLOUR_DROP, "Dropped.");
                                         }
@@ -937,7 +937,7 @@ const   char    *where)
                                 {
                                         send_home(thing);
                                         if(db[thing].get_inherited_drop_message())
-                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[thing].get_inherited_drop_message());
+                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[thing].get_inherited_drop_message().c_str());
                                         else if (!in_command())
                                                 notify_colour(player, player, COLOUR_DROP, "Dropped.");
                                 }
@@ -970,22 +970,22 @@ const   char    *where)
                                                 }
                                         }
                                         if(db[thing].get_inherited_drop_message())
-                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[thing].get_inherited_drop_message());
+                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[thing].get_inherited_drop_message().c_str());
                                         else if (!in_command())
                                                 notify_colour(player, player,  COLOUR_DROP, "Dropped.");
 
                                         if (db[loc].get_inherited_drop_message())
-                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[loc].get_inherited_drop_message());
+                                                notify_public_colour(player, player, COLOUR_DROP, "%s", db[loc].get_inherited_drop_message().c_str());
                                         if (!(Dark(thing)))
                                         {
                                                 if (db[thing].get_inherited_odrop())
-                                                        pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[thing].get_inherited_odrop());
+                                                        pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[thing].get_inherited_odrop().c_str());
                                                 else
                                                         sprintf(scratch_buffer, "%s dropped %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
                                                 notify_except(db[loc].get_contents(), player, player, scratch_buffer);
                                                 if (db[loc].get_inherited_odrop() && !(Dark(loc)))
                                                 {
-                                                        pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[loc].get_inherited_odrop());
+                                                        pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[loc].get_inherited_odrop().c_str());
                                                         notify_except(db[loc].get_contents(), player, player, scratch_buffer);
                                                 }
                                         }

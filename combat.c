@@ -151,12 +151,12 @@ const	char	*)
 		{
 			db[weapon].set_degradation(db[weapon].get_degradation()-temp);
 			notify(player, "You miss your target and as a result your weapon degrades");
-			notify_public(victim, player, "%s tries to hit you, but misses, damaging their weapon.", db[player].get_name());
+			notify_public(victim, player, "%s tries to hit you, but misses, damaging their weapon.", db[player].get_name().c_str());
 		}
 		else
 		{
 			notify(player, "You miss your target");
-			notify_censor(victim, player, "%s tries to hit you, but misses.", db[player].get_name());
+			notify_censor(victim, player, "%s tries to hit you, but misses.", db[player].get_name().c_str());
 		}
 		return;
 	}
@@ -172,7 +172,7 @@ const	char	*)
 		if(db[victim].get_hit_points() < 1)
 		{
 			/* It's worse than that, he's dead Jim. */
-			notify_censor(victim, player,  "You have been hit by %s for %d hit points of damage, killing you.", db[player].get_name(), temp);
+			notify_censor(victim, player,  "You have been hit by %s for %d hit points of damage, killing you.", db[player].get_name().c_str(), temp);
 			temp=(level_a - level_v);
 			if(temp<1)
 			{
@@ -218,7 +218,7 @@ const	char	*)
 		else 
 		{
 			notify(player, "You hit your victim.");
-			notify_censor(victim, player, "You have been hit by %s for %d hit points of damage.", db[player].get_name(), temp);
+			notify_censor(victim, player, "You have been hit by %s for %d hit points of damage.", db[player].get_name().c_str(), temp);
 		}
 
 	}
@@ -269,7 +269,7 @@ const	char	*)
 			notify(player, "Degradation     : %d\%", db[item].get_degradation());
 			if(db[item].get_ammo_parent() != NOTHING)
 			{
-				notify(player, "Ammunition Left: %d %s", db[item].get_ammunition(), db[db[item].get_ammo_parent()].get_name());
+				notify(player, "Ammunition Left: %d %s", db[item].get_ammunition(), db[db[item].get_ammo_parent()].get_name().c_str());
 				notify(player, "Range          : %d", db[item].get_range());
 			}
 			break;
@@ -278,7 +278,7 @@ const	char	*)
 			notify(player, "Degradation      : %d\%", db[item].get_degradation());
 			break;
 		case TYPE_AMMUNITION:
-			notify_censor(player, player, "There are %d %s", db[item].get_count(), db[db[item].get_parent()].get_name());
+			notify_censor(player, player, "There are %d %s", db[item].get_count(), db[db[item].get_parent()].get_name().c_str());
 			break;
 		default:
 			notify(player, "I don't know how to deal with that type of combat item. Tell a wizard.");
@@ -421,7 +421,7 @@ const	char	*)
 	else
 		db[item].set_count(0);
 	db[weapon].set_ammunition(temp);
-	notify_public(player, player, "Ammunition loaded, Weapon now has %d %s.", temp,db[db[weapon].get_ammo_parent()].get_name());
+	notify_public(player, player, "Ammunition loaded, Weapon now has %d %s.", temp,db[db[weapon].get_ammo_parent()].get_name().c_str());
 	db[item].set_flag(FLAG_ASHCAN);
 
 	set_return_string (ok_return_string);

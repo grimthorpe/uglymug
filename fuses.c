@@ -43,8 +43,8 @@ int	tom_fuse)
 			&& (!Abort (fuse))
 			&& (db[fuse].get_description () != NULL))
 		{
-			value = atoi(db[fuse].get_description ()) - 1;
-			db[fuse].set_description (NULL);
+			value = atoi(db[fuse].get_description ().c_str()) - 1;
+			db[fuse].set_description (NULLSTRING);
 			if (value <= 0)
 			{
 				/* BANG! */
@@ -121,8 +121,8 @@ dbref	object)
 			&& (Abort (fuse))
 			&& (db[fuse].get_description () != NULL))
 		{
-			value = atoi(db[fuse].get_description ()) - 1;
-			db[fuse].set_description (NULL);
+			value = atoi(db[fuse].get_description ().c_str()) - 1;
+			db[fuse].set_description (NULLSTRING);
 			if (value <= 0)
 			{
 				/* BANG! */

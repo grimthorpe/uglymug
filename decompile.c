@@ -54,21 +54,27 @@ const	char	*string)
 	return return_string;
 }
 
+static char*
+decompile_string(const String& string)
+{
+	return decompile_string(string.c_str());
+}
 
 static void
 decompile_mass_and_volume (dbref object, dbref player)
 
 {
- char *object_name = decompile_string(db[object].get_name());
+const char* object_name = decompile_string(db[object].get_name());
 
- if (db[object].get_gravity_factor() != 1)
-	notify (player, "@gravityfactor %s = %.9g", object_name, db[object].get_gravity_factor());
-
- notify (player, "@mass %s = %.9g", object_name, db[object].get_mass ());
- notify (player, "@volume %s = %.9g", object_name, db[object].get_volume ());
+	if (db[object].get_gravity_factor() != 1)
+	{
+		notify (player, "@gravityfactor %s = %.9g", object_name, db[object].get_gravity_factor());
+	}
+	notify (player, "@mass %s = %.9g", object_name, db[object].get_mass ());
+	notify (player, "@volume %s = %.9g", object_name, db[object].get_volume ());
  
- if (db[object].get_mass_limit () >= HUGE_VAL)
-	notify(player, "@masslimit %s = None", object_name);
+	if (db[object].get_mass_limit () >= HUGE_VAL)
+		notify(player, "@masslimit %s = None", object_name);
  else
 	notify(player, "@masslimit %s = %.9g", object_name, db[object].get_mass_limit ());
 
@@ -168,12 +174,10 @@ dbref	player)
 
 {
 		int	i;
-	const	char	*buf;
-
 	for (i = 0; i < MAX_ALIASES; i++)
 	{
-		if ((buf = db[object].get_alias(i)) != NULL)
-			notify (player, "@alias %s = %s", decompile_string(db[object].get_name()), buf);
+		if (db[object].get_alias(i))
+			notify (player, "@alias %s = %s", decompile_string(db[object].get_name()), db[object].get_alias(i).c_str());
 	}
 }
 
@@ -245,9 +249,9 @@ const	char	*args)
 		case TYPE_COMMAND:
                 case TYPE_EXIT:
 		case TYPE_FUSE:
-			if (db[object].get_drop_message() != NULL)
+			if (db[object].get_drop_message())
 			    /* It makes more sense to set the drop message first - not affect ticks on fuses */
-			    notify (player, "@drop %s = %s", decompiled_name, db[object].get_drop_message());
+			    notify (player, "@drop %s = %s", decompiled_name, db[object].get_drop_message().c_str());
 		case TYPE_PLAYER:
 		case TYPE_PROPERTY:
 		case TYPE_PUPPET:
@@ -262,9 +266,9 @@ const	char	*args)
 			{
 				for (temp= 1 ; temp <= number ; temp++)
 					if(db[object].get_element(temp) != NULL)
-						notify (player, "@describe %s[%s] = %s", decompiled_name, db[object].get_index(temp),	decompile_string(db[object].get_element(temp)));
+						notify (player, "@describe %s[%s] = %s", decompiled_name, db[object].get_index(temp).c_str(),	decompile_string(db[object].get_element(temp).c_str()));
 					else
-						notify (player, "@describe %s[%s]", decompiled_name, db[object].get_index(temp));
+						notify (player, "@describe %s[%s]", decompiled_name, db[object].get_index(temp).c_str());
 			}
 			break;
 		case TYPE_ARRAY:

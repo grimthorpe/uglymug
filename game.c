@@ -667,7 +667,7 @@ execute_startups(void)
 
 	DOLIST (item, db[COMMAND_LAST_RESORT].get_commands())
 	{
-		if (!string_compare(db[item].get_name(),".startup"))
+		if (!string_compare(db[item].get_name().c_str(),".startup"))
 			if (Wizard(db[item].get_owner()))
 			{
 				context *c = new context (db[item].get_owner());
@@ -689,7 +689,7 @@ execute_shutdown(void)
 
         DOLIST (item, db[COMMAND_LAST_RESORT].get_commands())
         {
-		if (!string_compare(db[item].get_name(),".shutdown"))
+		if (!string_compare(db[item].get_name().c_str(),".shutdown"))
 			if (Wizard(db[item].get_owner()))
 			{
 				context *c = new context (db[item].get_owner());
@@ -838,7 +838,7 @@ const	char	*original_command)
 	dbref		tracer;
 	//time_t		dumptime = 0;
 	command_details	*entry;
-	const	char	*const *const colour_at= db[get_player()].get_colour_at();
+	const colour_at& ca= db[get_player()].get_colour_at();
 
 	if(original_command == NULL)
 		return;
@@ -894,19 +894,19 @@ const	char	*original_command)
 	if (tracer != NOTHING)
 	{
 		notify(tracer, "%s[%s, %s]%s %s%s",
-			colour_at[COLOUR_TITLES],
+			ca[COLOUR_TITLES],
 			value_or_empty(getname (player)),
 			in_command() ?
 				value_or_empty(getname (get_current_command ())) :
 				"(top): ",
-			colour_at[COLOUR_TRACING],
+			ca[COLOUR_TRACING],
 			value_or_empty(original_command),
 			COLOUR_REVERT);
 	}
 	else if (Debug(player) && ( !in_command() || (trace_command != get_current_command())))
 	{
 		trace_command= get_current_command();
-		notify(effective_player, "%s[%s: %s%s]%s", colour_at[COLOUR_TITLES], getname (player), in_command() ? "" : "(top) ", in_command() ? getname (get_current_command ()) : original_command, COLOUR_REVERT);
+		notify(effective_player, "%s[%s: %s%s]%s", ca[COLOUR_TITLES], getname (player), in_command() ? "" : "(top) ", in_command() ? getname (get_current_command ()) : original_command, COLOUR_REVERT);
 	}
 
 	/* eat extra white space */
@@ -995,7 +995,7 @@ const	char	*original_command)
 	/* Tracing */
 	if (tracer != NOTHING)
 	{
-		notify(tracer, "%s[exec]%s %s%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_TRACING], command, COLOUR_REVERT);
+		notify(tracer, "%s[exec]%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_TRACING], command, COLOUR_REVERT);
 	}
 
 	if (strlen (command) >= MAX_COMMAND_LEN)
@@ -1124,10 +1124,10 @@ const	char	*original_command)
 		{
 			sprintf (scratch_buffer,
 				"%sCan't find basic command in %s%s%s. Full command line was:%s",
-				 colour_at[COLOUR_ERROR_MESSAGES],
-				 colour_at[COLOUR_TRACING],
+				 ca[COLOUR_ERROR_MESSAGES],
+				 ca[COLOUR_TRACING],
 				 unparse_object (*this, get_current_command ()),
-				 colour_at[COLOUR_ERROR_MESSAGES],
+				 ca[COLOUR_ERROR_MESSAGES],
 				 COLOUR_REVERT);
 
 			notify(player, "%s", scratch_buffer);
@@ -1184,9 +1184,9 @@ const	char	*original_command)
 	{
 
 		notify(tracer, "%s[%s]%s %s%s", 
-		       (return_status == COMMAND_SUCC) ? colour_at[COLOUR_SUCCESS] : colour_at[COLOUR_FAILURE],
+		       (return_status == COMMAND_SUCC) ? ca[COLOUR_SUCCESS] : ca[COLOUR_FAILURE],
 		       (return_status == COMMAND_SUCC) ? "succ" : "fail", 
-		       colour_at[COLOUR_TRACING],
+		       ca[COLOUR_TRACING],
 		       return_string,
 		       COLOUR_REVERT);
 	}
@@ -1260,7 +1260,7 @@ void mud_connect_player (dbref player)
 
 	if (!Connected (player))
 	{
-		db[player].set_colour_at(make_colour_at(db[player].get_colour()));
+		db[player].set_colour_at(new colour_at(db[player].get_colour()));
 		db[player].set_colour_play(make_colour_play(player, db[player].get_colour()));
 		db[player].set_colour_play_size(find_number_of_players(db[player].get_colour()));
 		time(&now);
@@ -1298,7 +1298,7 @@ void mud_connect_player (dbref player)
 
 	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
 	{
-		if (!string_compare(db[the_command].get_name(),".login"))
+		if (!string_compare(db[the_command].get_name().c_str(),".login"))
 			if (Wizard(db[the_command].get_owner()))
 			{
 				context *login_context = new context (player);
@@ -1345,7 +1345,7 @@ void mud_disconnect_player (dbref player)
 
 	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
 	{
-		if (!string_compare(db[the_command].get_name(),".logout"))
+		if (!string_compare(db[the_command].get_name().c_str(),".logout"))
 			if (Wizard(db[the_command].get_owner()))
 			{
 				context *logout_context = new context (player);
@@ -1363,11 +1363,11 @@ void mud_disconnect_player (dbref player)
 		db [player].clear_flag(FLAG_CONNECTED);
 
 		if (db [player].get_ofail() != NULL)
-			total = atol (db [player].get_ofail());
+			total = atol (db [player].get_ofail().c_str());
 		else
 			total = 0;
 		if (db [player].get_fail_message() != NULL)
-			last = atol (db [player].get_fail_message());
+			last = atol (db [player].get_fail_message().c_str());
 		else
 			last = 0;
 
@@ -1379,7 +1379,7 @@ void mud_disconnect_player (dbref player)
 
 		/* The following section will free the colour_at array which
 		   is only needed during connect time */
-		free_colour_at(db[player].get_colour_at());
+		db[player].set_colour_at(0);
 	}
 }
 

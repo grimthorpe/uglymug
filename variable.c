@@ -504,11 +504,11 @@ const	int	depth,
 	}
 	else if (in_command() && (arg = locate_innermost_arg (name_start)))
 		/* Matched a local variable */
-		value = arg->get_value ();
+		value = arg->get_value ().c_str();
 
 	else if (in_command() && (arg = locatearg (name_start)))
 		/* Matched a global variable */
-		value= arg->get_value ();
+		value= arg->get_value ().c_str();
 	else
 	{
 		/* Match... */
@@ -528,15 +528,15 @@ const	int	depth,
 			case TYPE_VARIABLE:
 			case TYPE_PROPERTY:
 				if (db[variable].get_description() != NULL)
-					value = value_or_empty (db[variable].get_description());
+					value = db[variable].get_description().c_str();
 				break;
 			case TYPE_ARRAY:
 				if(db[variable].exist_element (atoi (value_or_empty (matcher.match_index_result()))))
-					value = value_or_empty (db[variable].get_element (atoi (value_or_empty (matcher.match_index_result()))));
+					value = db[variable].get_element (atoi (value_or_empty (matcher.match_index_result()))).c_str();
 				break;
 			case TYPE_DICTIONARY:
 				if(db[variable].exist_element(matcher.match_index_result()))
-					value = value_or_empty (db[variable].get_element(db[variable].exist_element(matcher.match_index_result())));
+					value = db[variable].get_element(db[variable].exist_element(matcher.match_index_result())).c_str();
 				break;
 		}
 	}
@@ -1609,11 +1609,11 @@ unsigned int	space_left)
 						return (COMMAND_FAIL);
 					}
 					for (i = 1; i <= db [dic].get_number_of_elements (); i++)
-						if (string_match (results[1].string, db [dic].get_index (i)) != NULL)
+						if (string_match (results[1].string, db [dic].get_index (i).c_str()) != NULL)
 						{
 							if (final.string [0] != '\0')
 								strcat (final.string, ";");
-							strcat (final.string, value_or_empty (db [dic].get_element (i)));
+							strcat (final.string, db [dic].get_element (i).c_str());
 						}
 				}
 				break;

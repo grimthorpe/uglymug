@@ -89,7 +89,7 @@ dbref	alarm)
 {
 	Pending_alarm	*new_entry;
 	
-	new_entry = new Pending_alarm (alarm, time_of_next_cron (db[alarm].get_description ()));
+	new_entry = new Pending_alarm (alarm, time_of_next_cron (db[alarm].get_description ().c_str()));
 	new_entry->insert_into ((Pending **) &alarms);
 }
 

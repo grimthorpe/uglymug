@@ -580,24 +580,24 @@ dbref	first)
 			return;
 		}
 #ifdef ALIASES
-		else if((!string_compare(db[first].get_name(), match_name)) || (db[first].has_alias(match_name)))
+		else if((!string_compare(db[first].get_name().c_str(), match_name)) || (db[first].has_alias(match_name)))
 #else
-		else if(!string_compare(db[first].get_name(), match_name))
+		else if(!string_compare(db[first].get_name().c_str(), match_name))
 #endif
 		{
 			/* if there are multiple exact matches, choose one */
 			exact_match = choose_thing(exact_match, first);
 		}
 #ifdef ALIASES
-		else if((string_match(db[first].get_name(), match_name)) || (db[first].has_alias(match_name)))
+		else if((string_match(db[first].get_name().c_str(), match_name)) || (db[first].has_alias(match_name)))
 #else
-		else if(string_match(db[first].get_name(), match_name))
+		else if(string_match(db[first].get_name().c_str(), match_name))
 #endif
 		{
 			last_match = first;
 			if ((first_match == NOTHING) && (match_count == 0))
 				first_match = first;
-			if ((first_match != NOTHING) && (string_compare(db[first].get_name(), db[first_match].get_name())))
+			if ((first_match != NOTHING) && (string_compare(db[first].get_name().c_str(), db[first_match].get_name().c_str())))
 				first_match = NOTHING;
 
 			match_count++;
@@ -619,7 +619,7 @@ dbref	first)
         {
 		if (!Dark(first) || controls_for_read (effective_who, first, effective_who));
 		{
-			if (semicolon_string_match (db [first].get_name (), match_name))
+			if (semicolon_string_match (db [first].get_name ().c_str(), match_name))
 				exact_match = first;
 		}
         }
@@ -719,7 +719,7 @@ dbref	loc)
 			if (exit == absolute)
 				exact_match = exit;
 			else
-				if (semicolon_string_match (db [exit].get_name(), match_name))
+				if (semicolon_string_match (db [exit].get_name().c_str(), match_name))
 					exact_match = choose_thing (exact_match, exit);
 		}
 		if (exact_match != NOTHING)
@@ -743,7 +743,7 @@ Matcher::match_command_internal ()
 			internal_restart = db [internal_inheritance_restart].get_commands ();
 		DOLIST (internal_restart, internal_restart)
 		{
-			if (semicolon_string_match (db[internal_restart].get_name(), match_name))
+			if (semicolon_string_match (db[internal_restart].get_name().c_str(), match_name))
 			{
 				exact_match = internal_restart;
 				return (True);

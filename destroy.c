@@ -624,7 +624,7 @@ remove_player_from_any_lists_he_is_on(dbref zap_player, int errors = 1)
 		i=1;
 		while(i<=db[mylist].get_number_of_elements())
 		{
-			who=atoi(db[mylist].get_index(i));
+			who=atoi(db[mylist].get_index(i).c_str());
 			if(Typeof(who) != TYPE_PLAYER)
 			{
 				if(errors)
@@ -666,7 +666,7 @@ Trace( "Player list updated\n");
 		i=1;
 		while(i<=db[mylist].get_number_of_elements())
 		{
-			who=atoi(db[mylist].get_index(i));
+			who=atoi(db[mylist].get_index(i).c_str());
 			if(Typeof(who) != TYPE_PLAYER)
 			{
 				i++;
@@ -678,21 +678,21 @@ Trace( "Player list updated\n");
 				i++;
 				continue;
 			}
-			sanity_count=atoi(value_or_empty(db[mylist].get_element(i)));
+			sanity_count=atoi(db[mylist].get_element(i).c_str());
 			int j=1;
 			deadlists=0;
 	/* Now go thru his custom list dictionary, removing me from it */
 			while (j<=db[hislist].get_number_of_elements())
 			{
 				newlist[0]='\0';
-				strcpy(scratch_buffer, value_or_empty(db[hislist].get_element(j)));
+				strcpy(scratch_buffer, db[hislist].get_element(j).c_str());
 				for (char *number=strtok(scratch_buffer,";"); number; number=strtok(NULL,";"))
 				{
 					if(atoi(number)==zap_player)
 					{
 						if (nowarning)
 						{
-							notify_colour(who, who, COLOUR_MESSAGES, "[Player '%s' has just been destroyed, and removed from your custom lists]", getname(zap_player), db[hislist].get_index(j));
+							notify_colour(who, who, COLOUR_MESSAGES, "[Player '%s' has just been destroyed, and removed from your custom lists]", getname(zap_player), db[hislist].get_index(j).c_str());
 							nowarning=0;
 						}
 						sanity_count--;
@@ -955,7 +955,7 @@ const	char	*elem)
 		notify_colour(c.get_player (), c.get_player(),
 			COLOUR_ERROR_MESSAGES,
 			"Array \"%s\" only has %d elements.",
-			db[zap_array].get_name(),
+			db[zap_array].get_name().c_str(),
 			db[zap_array].get_number_of_elements());
 		return (False);
 	}
@@ -986,7 +986,7 @@ const	char	*elem)
 	if((temp = db[zap_dictionary].exist_element(elem)) == 0)
 	{
 		if (c.gagged_command() == False)
-			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\"", db[zap_dictionary].get_name(), elem);
+			notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Dictionary \"%s\" does not contain element \"%s\"", db[zap_dictionary].get_name().c_str(), elem);
 		return (False);
 	}
 

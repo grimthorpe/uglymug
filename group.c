@@ -233,7 +233,7 @@ const	char	*player_string)
 				/* Let's note what time we ate so we don't get fat */
 				db[members].set_element(tmp, idstring, time_string);
 
-				notify(player, "You are now building for %s.", db[group].get_name());
+				notify(player, "You are now building for %s.", db[group].get_name().c_str());
 			}
 			else
 			{
@@ -257,7 +257,7 @@ const	char	*player_string)
 						/* Add to group */
 						db[members].set_element(0, idstring, time_string);
 						create_support_list(player, group, members);
-						notify(player, "You are now a member of: %s.", db[group].get_name());
+						notify(player, "You are now a member of: %s.", db[group].get_name().c_str());
 						db[player].set_build_id(group);
 						return;
 					}
@@ -273,7 +273,7 @@ const	char	*player_string)
 						/* Add to group */
 						db[members].set_element(0, idstring, time_string);
 						create_support_list(player, group, members);
-						notify(player, "You are now a member of: %s.", db[group].get_name());
+						notify(player, "You are now a member of: %s.", db[group].get_name().c_str());
 						db[player].set_build_id(group);
 						return;
 					}
@@ -471,7 +471,7 @@ int add_up_votes(dbref	members,
 	for(i = 1; i <= db[members].get_number_of_elements(); i++)
 	{
 		/*Check existence of member*/
-		sscanf(db[members].get_index(i),"#%d", &current_member);
+		sscanf(db[members].get_index(i).c_str(),"#%d", &current_member);
 		if(Typeof(current_member) != TYPE_PLAYER)
 		{
 			/*Delete current_member from list*/
@@ -492,10 +492,10 @@ int add_up_votes(dbref	members,
 				if((tmp = db[support_list].exist_element(idstring)))
 				{
 				/*Add to total*/
-					woo = atoi(value_or_empty(db[support_list].get_element(tmp)));
+					woo = atoi(db[support_list].get_element(tmp).c_str());
 					support += woo;
 				/*Otherwise that member has not supported this new person*/
-					notify(GOD_ID, "Support is: %d (%s)", support, db[support_list].get_element(tmp));
+					notify(GOD_ID, "Support is: %d (%s)", support, db[support_list].get_element(tmp).c_str());
 				}
 		}
 	}

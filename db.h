@@ -3,8 +3,11 @@
 #define _DB_H
 #pragma interface
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+
+#include "mudstring.h"
 #include "config.h"
 #include "colour.h"
 typedef	int	dbref;		/* offset into db */
@@ -676,15 +679,15 @@ extern		char		*alloc_string		(const char *);
 class	object
 {
     private:
-	const	char		*name;			
+	String			name;			
 	dbref			location;	/* pointer to container */
 	dbref			next;		/* pointer to next in contents/exits/etc chain */
 	unsigned char		flags[FLAGS_WIDTH];	/* Flag list (bits) */
 //	typeof_type		type;		/*Type of object*/
 	dbref			owner;		/* who controls this object */
 #ifdef ALIASES
-			void	set_alias			(const int which, const char *what);
-			int	look_at_aliases			(const char *)	const	{ return 0; }
+			void	set_alias			(const int which, const CString& what);
+			int	look_at_aliases			(const CString&)	const	{ return 0; }
 #endif /* ALIASES */
     public:
 				object				();
@@ -707,27 +710,27 @@ class	object
 
 
 			void	set_referenced			()				{ set_flag(FLAG_REFERENCED); }
-			void	set_name			(const char *str);
+			void	set_name			(const CString& str);
 			void	set_location			(const dbref o)			{ location = o; }
 			void	set_next			(const dbref o)			{ next = o; }
 			void	set_owner_no_check		(const dbref o)			{ owner = o; }
 			void	set_owner			(const dbref o);
 	virtual		void	empty_object			()				{ return;}
 	/* Describable_object */
-	virtual		void	set_description			(const char *str);
+	virtual		void	set_description			(const CString& str);
 	/* Lockable_object */
 	virtual		void	set_key				(boolexp *);
 	virtual		void	set_key_no_free			(boolexp *k);
-	virtual		void	set_fail_message		(const char *str);
-	virtual		void	set_drop_message		(const char *str);
-	virtual		void	set_succ_message		(const char *str);
-	virtual		void	set_ofail			(const char *str);
-	virtual		void	set_osuccess			(const char *str);
-	virtual		void	set_odrop			(const char *str);
+	virtual		void	set_fail_message		(const CString& str);
+	virtual		void	set_drop_message		(const CString& str);
+	virtual		void	set_succ_message		(const CString& str);
+	virtual		void	set_ofail			(const CString& str);
+	virtual		void	set_osuccess			(const CString& str);
+	virtual		void	set_odrop			(const CString& str);
 	/* Inheritable_object */
 	virtual		void	set_parent			(const dbref p);
 	virtual		void	set_parent_no_check		(const dbref p);
-	virtual	const char 	*get_inherited_element		(const int)	const;
+	virtual	const String& 	get_inherited_element		(const int)	const;
 	virtual	const int	exist_inherited_element		(const int)	const;
 	virtual const int	get_inherited_number_of_elements(void)	const;
 	/* Old_object */
@@ -743,8 +746,8 @@ class	object
 	virtual		void	set_cfail			(const dbref o);
 	virtual		void	set_size			(const int);
 	virtual		int	get_size			()			const	{return 0;}
-	virtual unsigned	inherited_lines_in_cmd_blk(const unsigned) const;
-	virtual	unsigned	reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line)	const;
+	virtual unsigned int	inherited_lines_in_cmd_blk(const unsigned) const;
+	virtual	unsigned int	reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line)	const;
 	/* Massy_object */
 	virtual		void	set_gravity_factor		(const double g);
 	virtual		void	set_mass			(const double m);
@@ -757,9 +760,9 @@ class	object
 	virtual	const	int	get_money			()			const	{return 0;}
 	virtual		void	set_money			(const int);
 	virtual		void	set_colour			(const char *);
-	virtual	const	char *	get_colour			()			const	{return NULL;}
-	virtual		void	set_colour_at			(const char * const*);
-	virtual	const	char *const *const get_colour_at	()			const	{return NULL;}
+	virtual		CString	get_colour			()			const	{return NULL;}
+	virtual		void	set_colour_at			(colour_at*);
+	virtual	const	colour_at&	get_colour_at	()			const	{return default_colour_at;}
 	virtual		void	set_colour_play			(cplay *);
 	virtual	const	cplay 	*get_colour_play		()			const	{return NULL;}
 	virtual		void	set_colour_play_size		(const int);
@@ -769,12 +772,12 @@ class	object
 	virtual		void	set_build_id			(const dbref c);
 	virtual		void	reset_build_id			(const dbref c);
 	virtual		void	set_controller			(const dbref c);
-	virtual		void	set_email_addr			(const char *addr);
-	virtual		void	set_password			(const char *p);
-	virtual		void	set_race			(const char *r);
+	virtual		void	set_email_addr			(const CString&);
+	virtual		void	set_password			(const CString&);
+	virtual		void	set_race			(const CString&);
 	virtual		void	set_score			(const long v);
 	virtual		void	set_last_name_change		(const long v);
-	virtual		void	set_who_string			(const char *r);
+	virtual		void	set_who_string			(const CString&);
 #if 0	/* PJC 24/1/97 */
 	virtual		void	event				(const dbref player, const dbref npc, const char *e);
 #endif
@@ -801,35 +804,35 @@ class	object
 	virtual		void	set_last_attack_time		(const int i);
 
 	/* Thing */
-	virtual		void	set_contents_string		(const char *const c);
+	virtual		void	set_contents_string		(const CString&);
 	virtual		void	set_lock_key			(boolexp *k);
 	virtual		void	set_lock_key_no_free		(boolexp *k);
 
-		const	char	*const	get_name		()			const	{ return (name); }
-		const	char	*const	get_inherited_name	()			const;
+		const	String& get_name		()			const	{ return (name); }
+		const	String&	get_inherited_name	()			const;
 		const	dbref	get_location			()			const	{ return location; }
 		const	dbref	get_next			()			const	{ return next; }
 		const	dbref	get_real_next			()			const	{ return next; }
 		const	dbref	get_owner			()			const	{ return owner; }
 	/* Describable_object */
-	virtual	const	char	*get_description		()			const	{ return NULL; }
-		const	char	*get_inherited_description	()			const;
+	virtual	const	String& get_description		()			const	{ return NULLSTRING; }
+		const	String& get_inherited_description	()			const;
 	/* Lockable_object */
 	virtual	const	boolexp	*get_key			()			const	{ return (TRUE_BOOLEXP); }
 	virtual		boolexp	*get_key_for_edit		()			const	{ return (TRUE_BOOLEXP); }
 		const	boolexp	*get_inherited_key		()			const;
-	virtual	const	char	*get_fail_message		()			const	{ return (NULL); }
-		const	char	*get_inherited_fail_message	()			const;
-	virtual	const	char	*get_drop_message		()			const	{ return (NULL); }
-		const	char	*get_inherited_drop_message	()			const;
-	virtual	const	char	*get_succ_message		()			const	{ return (NULL); }
-		const	char	*get_inherited_succ_message	()			const;
-	virtual	const	char	*get_ofail			()			const	{ return (NULL); }
-		const	char	*get_inherited_ofail		()			const;
-	virtual	const	char	*get_osuccess			()			const	{ return (NULL); }
-		const	char	*get_inherited_osuccess		()			const;
-	virtual	const	char	*get_odrop			()			const	{ return (NULL); }
-		const	char	*get_inherited_odrop		()			const;
+	virtual	const	String&	get_fail_message		()			const	{ return (NULLSTRING); }
+		const	String&	get_inherited_fail_message	()			const;
+	virtual	const	String&	get_drop_message		()			const	{ return (NULLSTRING); }
+		const	String&	get_inherited_drop_message	()			const;
+	virtual	const	String&	get_succ_message		()			const	{ return (NULLSTRING); }
+		const	String&	get_inherited_succ_message	()			const;
+	virtual	const	String&	get_ofail			()			const	{ return (NULLSTRING); }
+		const	String&	get_inherited_ofail		()			const;
+	virtual	const	String&	get_osuccess			()			const	{ return (NULLSTRING); }
+		const	String&	get_inherited_osuccess		()			const;
+	virtual	const	String&	get_odrop			()			const	{ return (NULLSTRING); }
+		const	String&	get_inherited_odrop		()			const;
 	/* Inheritable_object */
 	virtual	const	dbref	get_parent			()			const	{ return (NOTHING); }
 	/* Old_object */
@@ -865,23 +868,23 @@ class	object
 	virtual	const	double	get_inherited_volume_limit	()			const;
 	/* Player */
 #ifdef ALIASES
-	virtual	const	char	*get_alias			(int)			const	{ return 0; }
-	virtual	const	int	remove_alias			(const char *)		{ return 0; }
-	virtual	const	int	add_alias			(const char *)		{ return 0; }
-	virtual	const	int	has_alias			(const char *)		const	{ return 0; }
-	virtual	const	int	has_partial_alias		(const char *)		const	{ return 0; }
+	virtual	const	String&	get_alias			(int)			const	{ return NULLSTRING; }
+	virtual	const	int	remove_alias			(const CString&	)		{ return 0; }
+	virtual	const	int	add_alias			(const CString&	)		{ return 0; }
+	virtual	const	int	has_alias			(const CString&	)		const	{ return 0; }
+	virtual	const	int	has_partial_alias		(const CString&	)		const	{ return 0; }
 #endif /* ALIASES */
 	virtual	const	int	get_pennies			()			const	{ return (0); }
 	virtual	const	dbref	get_controller			()			const	{ return (NOTHING); }
 	virtual	const	dbref	get_build_id			()			const	{ return (NOTHING); }
-	virtual	const	char	* const get_email_addr		()			const	{ return (NULL); }
-	virtual	const	char	*get_password			()			const	{ return (NULL); }
-	virtual	const	char	* const get_race		()			const	{ return (NULL); }
+	virtual	const	String&	get_email_addr		()			const	{ return (NULLSTRING); }
+	virtual	const	String&	get_password			()			const	{ return (NULLSTRING); }
+	virtual	const	String&	get_race		()			const	{ return (NULLSTRING); }
 	virtual	const	long	get_score			()			const	{ return (0); }
 	virtual	const	long	get_last_name_change		()			const	{ return (0); }
-	virtual	const	char	* const get_who_string		()			const	{ return (NULL); }
+	virtual	const	String&	get_who_string		()			const	{ return (NULLSTRING); }
 	/* Thing */
-	virtual	const	char	*get_contents_string		()			const	{ return (NULL); }
+	virtual	const	String&	get_contents_string		()			const	{ return (NULLSTRING); }
 	virtual	const	boolexp	*get_lock_key			()			const	{ return (TRUE_BOOLEXP); }
 	virtual		boolexp	*get_lock_key_for_edit		()			const	{ return (TRUE_BOOLEXP); }
 	/* Room */
@@ -889,19 +892,19 @@ class	object
 	virtual	const	time_t	get_last_entry_time		()			const	{ return 0; }
 	/* Information */
     	virtual	const	int	get_number_of_elements		()			const	{ return 0; }
-    	virtual	const	char	*get_element			(int)			const	{ return (NULL); }
+    	virtual	const	String&	get_element			(int)			const	{ return (NULLSTRING); }
     	virtual		void	destroy_element			(int)				{ return; }
-    	virtual		void	insert_element			(int, const char *)		{ return; }
+    	virtual		void	insert_element			(int, const CString&)		{ return; }
     	/* Array_storage */
     	virtual		void	sort_elements			(int);
 	/* Array */
-    	virtual		void	set_element			(int, const char *const)	{ return; }
+    	virtual		void	set_element			(int, const CString&)	{ return; }
     	virtual	const	int	exist_element			(int)			const	{ return 0; }
     	/* Dictionary */
-    	virtual		void	set_element			(int, const char *, const char *){ return; }
-    	virtual	const	int	exist_element			(const char *)		const	{ return False; }
-    	virtual		void	set_index			(int, const char *)		{ return; }
-    	virtual	const	char	*get_index			(int)			const	{ return (NULL); }
+    	virtual		void	set_element			(int, const CString&, const CString&){ return; }
+    	virtual	const	int	exist_element			(const CString&)		const	{ return False; }
+    	virtual		void	set_index			(const int, const CString&);
+    	virtual	const	String&	get_index			(int)			const	{ return (NULLSTRING); }
 
 	/* Weapons */
 	virtual	void		set_degradation(int);
@@ -950,9 +953,16 @@ class	object_and_flags
 
 struct player_cache_struct
 {
-	const char	*name;
+	String		name;
 	dbref		player;
 	int		state;
+
+	int compare(const player_cache_struct* other) const
+	{
+		if(other)
+			return strcasecmp(name.c_str(), other->name.c_str());
+		return -1;
+	}
 };
 
 
@@ -995,9 +1005,9 @@ class	Database
 		void		unpend		(dbref i);
 		dbref		alarm_pending	(time_t now);
 		Pending_alarm	*get_alarms	()			const	{ return (alarms); }
-	const	dbref		lookup_player	(const char *)		const;
-		void		add_player_to_cache(const dbref, const char *);
-		void		remove_player_from_cache(const char *);
+	const	dbref		lookup_player	(const CString&)	const;
+		void		add_player_to_cache(const dbref, const CString&);
+		void		remove_player_from_cache(const CString&);
 };
 
 extern	Database		db;

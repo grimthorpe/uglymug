@@ -82,7 +82,7 @@ const	char	*password)
 	if ((player = lookup_player (NOTHING, name)) == NOTHING)
 		return NOTHING;
 	if(db[player].get_password ()
-		&& string_compare(db[player].get_password (), (char *) (crypt(password, password) +2)))
+		&& string_compare(db[player].get_password ().c_str(), (char *) (crypt(password, password) +2)))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with password '%s'.", password);
 		return 0;
@@ -153,7 +153,7 @@ const	char	*newpw)
 		notify_colour(player, player, COLOUR_MESSAGES, "Whats your old password?");
 		return;
 	}
-	if(string_compare((char *) (crypt(old, old) + 2), db[player].get_password ()))
+	if(string_compare((char *) (crypt(old, old) + 2), db[player].get_password ().c_str()))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry");
 		return;
@@ -209,12 +209,12 @@ const	char	*)
 	 * Okay, so owner is the person we're examining, and we're
 	 * reporting to 'player'.
    	 */
-	const char *const *const colour_at=db[player].get_colour_at();
-	notify_censor_colour(player, player, COLOUR_MESSAGES, "Full name: %s", db[owner].get_inherited_name());
+	const colour_at& ca=db[player].get_colour_at();
+	notify_censor_colour(player, player, COLOUR_MESSAGES, "Full name: %s", db[owner].get_inherited_name().c_str());
 	for (i = 0; i < MAX_ALIASES; i++)
 	{
-		buf = db [owner].get_alias (i);
-		notify_censor(player, player, "%sAlias %d:%s %s", colour_at[COLOUR_TITLES],(i + 1), COLOUR_REVERT, (buf ? buf : "<not set>"));
+		buf = db [owner].get_alias (i).c_str();
+		notify_censor(player, player, "%sAlias %d:%s %s", ca[COLOUR_TITLES],(i + 1), COLOUR_REVERT, (buf ? buf : "<not set>"));
 	}
 
 	return_status = COMMAND_SUCC;
@@ -260,7 +260,7 @@ const	char	*string)
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Invalid alias string");
 				return;
 			}
-			notify_censor_colour(player, player, COLOUR_ERROR_MESSAGES, "That name/alias is already in use by %s", db[test].get_name());
+			notify_censor_colour(player, player, COLOUR_ERROR_MESSAGES, "That name/alias is already in use by %s", db[test].get_name().c_str());
 		}
 		return;
 	}
@@ -342,7 +342,7 @@ const	char	*string)
 	}
 
 	return_status = COMMAND_SUCC;
-	set_return_string (db[victim].get_who_string ());
+	set_return_string (db[victim].get_who_string ().c_str());
 }
 #endif /* ALIASES */
 
@@ -393,7 +393,7 @@ const	char	*string)
 
 
 	return_status = COMMAND_SUCC;
-	set_return_string (db[victim].get_who_string ());
+	set_return_string (db[victim].get_who_string ().c_str());
 }
 
 

@@ -253,7 +253,7 @@ const	char	*str)
 	static const char *possessive[4] = { "", "its", "her", "his" };
 	static const char *objective[4] = { "", "it", "her", "him" };
 
-	strcpy(result, db[player].get_name());
+	strcpy(result, db[player].get_name().c_str());
 	if (buffer_length > strlen(result))
 	{
 		buffer_length -= strlen(result);
@@ -280,9 +280,9 @@ const	char	*str)
 					case 'O':
 					case 's':
 					case 'S':
-						if (buffer_length > strlen(db[player].get_name()))
+						if (buffer_length > db[player].get_name().length())
 						{
-							strcat(result, db[player].get_name());
+							strcat(result, db[player].get_name().c_str());
 						}
 						else
 						{
@@ -291,9 +291,9 @@ const	char	*str)
 						break;
 					case 'p':
 					case 'P':
-						if (buffer_length > (strlen(db[player].get_name())+2)) 
+						if (buffer_length > (db[player].get_name().length()+2)) 
 						{
-							strcat(result, db[player].get_name());
+							strcat(result, db[player].get_name().c_str());
 							strcat(result, "'s");
 						}
 						else
@@ -351,9 +351,9 @@ const	char	*str)
 						break;
 					case 'n':
 					case 'N':
-						if (buffer_length > strlen(db[player].get_name()))
+						if (buffer_length > db[player].get_name().length())
 						{
-							strcat(result, db[player].get_name());
+							strcat(result, db[player].get_name().c_str());
 						}
 						else
 						{

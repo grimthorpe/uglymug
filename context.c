@@ -101,7 +101,7 @@ const
 {
 	for (String_pair_iterator i (variable_stack); !i.finished (); i.step ())
 	{
-		if (!strcasecmp (i.current ()->get_name(), name))
+		if (!strcasecmp (i.current ()->get_name().c_str(), name))
 			return i.current ();
 	}
 
@@ -457,10 +457,10 @@ context		*context)
 				if (Typeof (command) != TYPE_FREE)
 				{
 					if (db [command].get_inherited_fail_message ())
-						notify_public_colour (player, player, COLOUR_FAILURE, "%s", db[command].get_inherited_fail_message ());
+						notify_public_colour (player, player, COLOUR_FAILURE, "%s", db[command].get_inherited_fail_message ().c_str());
 					if ((!Silent (player)) && db [command].get_inherited_ofail ())
 					{
-						pronoun_substitute (scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_ofail ());
+						pronoun_substitute (scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_ofail ().c_str());
 						notify_except (db[db[player].get_location ()].get_contents (), player, player, scratch_buffer);
 					}
 				}
@@ -490,10 +490,10 @@ context		*context)
 				if (Typeof (command) != TYPE_FREE)
 				{
 					if(db[command].get_inherited_succ_message ())
-						notify_public_colour(player, player, COLOUR_SUCCESS, "%s", db[command].get_inherited_succ_message ());
+						notify_public_colour(player, player, COLOUR_SUCCESS, "%s", db[command].get_inherited_succ_message ().c_str());
 					if((!Silent (player)) && db[command].get_inherited_osuccess () && !Dark(player))
 					{
-						pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_osuccess ());
+						pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_osuccess ().c_str());
 						notify_except(db[db[player].get_location ()].get_contents (), player, player, scratch_buffer);
 					}
 				}
@@ -889,8 +889,8 @@ const	char	*rs)
 String_pair::String_pair (
 const	char	*n,
 const	char	*v)
-: name (alloc_string (n))
-, value (alloc_string (v))
+: name (n)
+, value (v)
 
 {
 }
@@ -899,17 +899,15 @@ const	char	*v)
 String_pair::~String_pair ()
 
 {
-	ASSIGN_STRING(name, (const char *) 0);
-	ASSIGN_STRING(value, (const char *) 0);
 }
 
 
 void
 String_pair::set_value(
-const	char	*v)
+const	String& v)
 
 {
-	ASSIGN_STRING(value, v);
+	value = v;
 }
 
 
@@ -1117,7 +1115,7 @@ const	char	*element_name)
 		switch (Typeof (dict))
 		{
 			case TYPE_DICTIONARY:
-				index->set_value (value_or_empty (db [dict].get_index (1)));
+				index->set_value (db [dict].get_index (1));
 				break;
 			case TYPE_ARRAY:
 				index->set_value ("1");
@@ -1126,7 +1124,7 @@ const	char	*element_name)
 				/* Should never happen */
 				;
 		}
-		element->set_value (value_or_empty (db [dict].get_element (1)));
+		element->set_value (db [dict].get_element (1));
 	}
 }
 

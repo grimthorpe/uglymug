@@ -84,7 +84,7 @@ const	char	*arg2)
 		int	length;
 	const	char	*say;
 	const	char	*says;
-	const	char *const *const colour_at=db[player].get_colour_at();
+	const	colour_at& ca=db[player].get_colour_at();
 	if((loc = getloc(player)) == NOTHING)
 		return;
 
@@ -103,7 +103,7 @@ const	char	*arg2)
 		if ((prop=matcher_prop.match_result()) == NOTHING || (prop == AMBIGUOUS))
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't speak in a silent room!");
 		else
-			notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description() );
+			notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description().c_str() );
 		return;
 	}
 
@@ -138,7 +138,7 @@ const	char	*arg2)
 			says = "says";
 			break;
 	}
-	notify_public(player, player, "%sYou %s \"%s%s%s\"", colour_at[rank_colour(player)], say, colour_at[COLOUR_SAYS], value_or_empty(message), colour_at[rank_colour(player)]);
+	notify_public(player, player, "%sYou %s \"%s%s%s\"", ca[rank_colour(player)], say, ca[COLOUR_SAYS], value_or_empty(message), ca[rank_colour(player)]);
 
 	sprintf(scratch_buffer, "%s %s ", getname_inherited (player),says);
 	notify_except_colour(db[loc].get_contents(),
@@ -195,7 +195,7 @@ const	char	*arg2)
 		}
 		else
 		{
-				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, value_or_empty(db[prop].get_inherited_description()) );
+				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, value_or_empty(db[prop].get_inherited_description().c_str()) );
 		}
 		return;
 	}
@@ -325,7 +325,7 @@ const	char	*arg2)
 		if ((prop=matcher_prop.match_result()) == NOTHING || (prop == AMBIGUOUS))
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't emote in a silent room!");
 		else
-			notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description() );
+			notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description().c_str() );
 		return;
 	  }
 
@@ -603,21 +603,20 @@ const	char	*part2)
 	
 		dbref target=targets.get_first();
 
-		const	char *const *colour_at;
 		while (target != NOTHING)
 		{
 
-			colour_at=db[target].get_colour_at();
+			const colour_at& ca=db[target].get_colour_at();
 			context	unparse_context (target);
 			strcpy (scratch_buffer, unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE));
 			strcat (scratch_buffer, ", ");
-			strcat (scratch_buffer, colour_at[rank_colour(player)]);
+			strcat (scratch_buffer, ca[rank_colour(player)]);
 			strcat (scratch_buffer, unparse_object_inherited (unparse_context, player));
 
 			if (howmany > 1)
-				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z to %s from %s%s %s%s", targets.generate_courtesy_string(player, target), colour_at[COLOUR_ROOMNAME], scratch_buffer, colour_at[COLOUR_PAGES], boldify(target, suffix));
+				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z to %s from %s%s %s%s", targets.generate_courtesy_string(player, target), ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));
 			else
-				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z from %s%s%s %s", colour_at[COLOUR_ROOMNAME], scratch_buffer, colour_at[COLOUR_PAGES], boldify(target, suffix));
+				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z from %s%s%s %s", ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));
 
 			target=targets.get_next();
 		}
@@ -851,9 +850,9 @@ const	char	*arg2)
 	targets.include(player);
 	const char *output=reconstruct_message(arg1, arg2);
 	if (*output == ':')
-		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s%s%s", db[player].get_name(), (output[1] == '\'') ? "" : " ", output+1); 	
+		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s%s%s", db[player].get_name().c_str(), (output[1] == '\'') ? "" : " ", output+1); 	
 	else
-		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s says \"%s\"", db[player].get_name(), output); 	
+		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s says \"%s\"", db[player].get_name().c_str(), output); 	
 	dbref target=targets.get_first();
 
 	while (target != NOTHING)
@@ -893,16 +892,15 @@ int		colour)
 		mymsg=msg;
 	}
 
-	const	char *const *colour_at;
 	DOLIST (first, first)
 		if ((Connected (first) ) && (first != exception))
 		{
 
-			colour_at=db[first].get_colour_at();
+			const colour_at& ca=db[first].get_colour_at();
 			if (speechmarks==True)
-				notify_public(first, talker, "%s%s\"%s%s%s\"%%z", colour_at[rank_colour(talker)], myprefix, colour_at[colour],  mymsg, colour_at[rank_colour(talker)]);
+				notify_public(first, talker, "%s%s\"%s%s%s\"%%z", ca[rank_colour(talker)], myprefix, ca[colour],  mymsg, ca[rank_colour(talker)]);
 			else
-				notify_public(first, talker, "%s%s%s%s%%z", colour_at[rank_colour(talker)], myprefix, colour_at[colour],  mymsg);
+				notify_public(first, talker, "%s%s%s%s%%z", ca[rank_colour(talker)], myprefix, ca[colour],  mymsg);
 			
 		}
 	if (docensor)
@@ -1067,25 +1065,24 @@ really_do_tell(char *arg1, char *arg2, Boolean force_emote, context &c)
 
 
 	dbref target= targets.get_first();
-	const	char *const *colour_at;
 	while (target != NOTHING)
 	{
 
-		colour_at=db[target].get_colour_at();
+		const colour_at& ca=db[target].get_colour_at();
 		if ((*arg2==':') || (force_emote==True))
-			notify_censor (target, player, "%s[To %s] %s %s%s", colour_at[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name(), colour_at[COLOUR_TELLMESSAGES], (force_emote==True)?arg2:arg2+1);
+			notify_censor (target, player, "%s[To %s] %s %s%s", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==True)?arg2:arg2+1);
 		else
-			notify_censor (target, player, "%s[To %s] %s tells you \"%s%s%s\"", colour_at[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name(), colour_at[COLOUR_TELLMESSAGES], arg2, colour_at[COLOUR_TELLS]);
+			notify_censor (target, player, "%s[To %s] %s tells you \"%s%s%s\"", ca[COLOUR_TELLS], targets.generate_courtesy_string(player, target), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
 		target= targets.get_next();
 	}
 
 	all_targets.trigger_command(".tell", c);
 
-	colour_at=db[player].get_colour_at();
+	const colour_at& ca=db[player].get_colour_at();
 	if ((*arg2==':') || (force_emote==True))
-		notify(player,"%s[To %s] %s %s%s",colour_at[COLOUR_TELLS], targets.generate_courtesy_string(player, player, True), db[player].get_name(), colour_at[COLOUR_TELLMESSAGES], (force_emote==True)?arg2:arg2+1);
+		notify(player,"%s[To %s] %s %s%s",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, True), db[player].get_name().c_str(), ca[COLOUR_TELLMESSAGES], (force_emote==True)?arg2:arg2+1);
 	else
-		notify(player,"%sYou tell %s \"%s%s%s\"",colour_at[COLOUR_TELLS], targets.generate_courtesy_string(player, player, True), colour_at[COLOUR_TELLMESSAGES], arg2, colour_at[COLOUR_TELLS]);
+		notify(player,"%sYou tell %s \"%s%s%s\"",ca[COLOUR_TELLS], targets.generate_courtesy_string(player, player, True), ca[COLOUR_TELLMESSAGES], arg2, ca[COLOUR_TELLS]);
 
 	return True;
 }

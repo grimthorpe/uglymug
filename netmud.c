@@ -12,6 +12,7 @@
 #include <time.h>
 #include <sys/resource.h>
 
+#include "mudstring.h"
 #include "db.h"
 #include "interface.h"
 #include "game.h"
@@ -38,6 +39,8 @@ extern	int	fix_things;
 	int	dump_interval=DUMP_INTERVAL;
 const	char	*version=VERSION " Release: $Name:  $";
 
+String NULLSTRING;
+CString NULLCSTRING;
 
 int
 main (

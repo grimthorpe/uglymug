@@ -327,6 +327,10 @@ public:
 	void	set_password(char *p);
 
 	int	queue_string(const char *, int show_literally = 0);
+	int	queue_string(const CString& s, int show_literally = 0)
+	{
+		return queue_string(s.c_str(), show_literally);
+	}
 	int	queue_write(const char *, int len);
 
 	void	send_telnet_option(unsigned char command, unsigned char option);
@@ -2757,33 +2761,33 @@ descriptor_data::announce_player (announce_states state)
 	switch (state)
 	{
 		case ANNOUNCE_CONNECTED :
-			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name ());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has connected from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name ().c_str());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has connected from %s]\n", db[get_player()].get_name ().c_str(), hostname);
 			break;
 		case ANNOUNCE_CREATED :
-			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been created from %s]\n", db[get_player()].get_name (), hostname);
-			snprintf (admin_buffer, sizeof(admin_buffer), "[%s has been created]\n", db[get_player()].get_name());
+			snprintf (scratch, sizeof(scratch), "[%s has connected]\n", db[get_player()].get_name().c_str());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been created from %s]\n", db[get_player()].get_name ().c_str(), hostname);
+			snprintf (admin_buffer, sizeof(admin_buffer), "[%s has been created]\n", db[get_player()].get_name().c_str());
 			break;
 		case ANNOUNCE_BOOTED :
-			snprintf (scratch, sizeof(scratch), "[%s has been booted by %s%s%s]\n", db[get_player()].get_name (), player_booting, blank (boot_reason)?"":" ", boot_reason);
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been booted from %s by %s%s%s]\n", db[get_player()].get_name (), hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (scratch, sizeof(scratch), "[%s has been booted by %s%s%s]\n", db[get_player()].get_name ().c_str(), player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has been booted from %s by %s%s%s]\n", db[get_player()].get_name ().c_str(), hostname, player_booting, blank (boot_reason)?"":" ", boot_reason);
 			break;
 		case ANNOUNCE_DISCONNECTED :
-			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ().c_str());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s]\n", db[get_player()].get_name ().c_str(), hostname);
 			break;
 		case ANNOUNCE_SMD :
-			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s due to an SMD read]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ().c_str());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has disconnected from %s due to an SMD read]\n", db[get_player()].get_name ().c_str(), hostname);
 			break;
 		case ANNOUNCE_TIMEOUT :
-			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has timed out from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has disconnected]\n", db[get_player()].get_name ().c_str());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has timed out from %s]\n", db[get_player()].get_name ().c_str(), hostname);
 			break;
 		case ANNOUNCE_PURGE :
-			snprintf (scratch, sizeof(scratch), "[%s has purged an idle connection]\n", db[get_player()].get_name ());
-			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has purged an idle connection from %s]\n", db[get_player()].get_name (), hostname);
+			snprintf (scratch, sizeof(scratch), "[%s has purged an idle connection]\n", db[get_player()].get_name ().c_str());
+			snprintf (scratch_return_string, sizeof(scratch_return_string), "[%s has purged an idle connection from %s]\n", db[get_player()].get_name ().c_str(), hostname);
 			break;
 		default :
 			Trace( "BUG: Unknown state (%d) encounted in announce_player()\n", state);
@@ -3291,7 +3295,7 @@ descriptor_data::check_connect (const char *msg)
 			else
 			{
 				Trace( "CONNECTED |%s|%d| on descriptor |%d|at |%02d/%02d/%02d %02d:%02d\n",
-				 db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+				 db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 				set_connect_state(DESCRIPTOR_CONNECTED);
 				set_player( player );
 				mud_connect_player (get_player());
@@ -3320,7 +3324,7 @@ descriptor_data::check_connect (const char *msg)
 			else
 			{
 				Trace( "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-				db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+				db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 				set_connect_state(DESCRIPTOR_CONNECTED);
 				set_player( player );
 				mud_connect_player (player);
@@ -3453,7 +3457,7 @@ descriptor_data::check_connect (const char *msg)
 					else
 					{
 						Trace( "CONNECTED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-						db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+						db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 						set_connect_state(DESCRIPTOR_CONNECTED);
 						set_player( player );
 						mud_connect_player (player);
@@ -3480,7 +3484,7 @@ descriptor_data::check_connect (const char *msg)
 					else
 					{
 						Trace( "CREATED |%s|%d| on descriptor |%d| at |%02d/%02d/%02d %02d:%02d\n",
-						db[player].get_name(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
+						db[player].get_name().c_str(), player, CHANNEL(), the_time->tm_year, the_time->tm_mon + 1, the_time->tm_mday, the_time->tm_hour, the_time->tm_min);
 						set_connect_state(DESCRIPTOR_CONNECTED);
 						set_player ( player );
 						mud_connect_player (player);
@@ -3773,11 +3777,11 @@ int			flags)
 #ifdef ALIASES
 		if ((victim == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
 		    (!want_me && !want_wizards && !want_apprentices &&
-			  ((strncasecmp(victim, db[d->get_player()].get_name(), strlen(victim))==0) ||
+			  ((strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0) ||
 				(db[d->get_player()].has_alias(victim)))) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_me && (strcasecmp(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
+		    (want_me && (strcasecmp(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
 			(want_xbuilders && XBuilder(d->get_player())) ||
@@ -3787,10 +3791,10 @@ int			flags)
 #else
 		if ((victim == NULL) || ((want_npcs==1) && (d->IS_FAKED())) ||
 		    (!want_me && !want_wizards && !want_apprentices &&
-			(strncasecmp(victim, db[d->get_player()].get_name(), strlen(victim))==0)) ||
+			(strncasecmp(victim, db[d->get_player()].get_name().c_str(), strlen(victim))==0)) ||
 		    (want_wizards && Connected(d->get_player()) && Wizard(d->get_player())) ||
 		    (want_apprentices && Connected(d->get_player()) && Apprentice(d->get_player())) ||
-		    (want_me && (strcasecmp(db[get_player()].get_name(), db[d->get_player()].get_name()) == 0)) ||
+		    (want_me && (strcasecmp(db[get_player()].get_name().c_str(), db[d->get_player()].get_name().c_str()) == 0)) ||
 			(want_guests && is_guest(d->get_player())) ||
 			(want_builders && Builder(d->get_player())) ||
 			(want_xbuilders && XBuilder(d->get_player())) ||
@@ -3874,11 +3878,11 @@ int			flags)
 				}
 				if (want_npcs)
 				{
-					snprintf(flag_buf, sizeof(flag_buf), "(%s)", db[db[d->get_player()].get_owner()].get_name());
-					snprintf(scratch, sizeof(scratch), "%-20s %-22s", db[d->get_player()].get_name(), flag_buf);
+					snprintf(flag_buf, sizeof(flag_buf), "(%s)", db[db[d->get_player()].get_owner()].get_name().c_str());
+					snprintf(scratch, sizeof(scratch), "%-20s %-22s", db[d->get_player()].get_name().c_str(), flag_buf);
 				}
 				else
-					snprintf(scratch, sizeof(scratch), "%s", db[d->get_player()].get_name());
+					snprintf(scratch, sizeof(scratch), "%s", db[d->get_player()].get_name().c_str());
 
 				strcat(buf, scratch);
 
@@ -3886,7 +3890,7 @@ int			flags)
 
 				if (db[d->get_player()].get_who_string ())
 				{
-					firstchar = db[d->get_player()].get_who_string()[0];
+					firstchar = db[d->get_player()].get_who_string().c_str()[0];
 					if (!(firstchar == ' '
 					|| firstchar == ','
 					|| firstchar == ';'
@@ -3944,11 +3948,11 @@ int			flags)
 				if (want_npcs)
 					remaining-=18 + strlen(flag_buf) + 43;
 				else
-					remaining-=18 + strlen(flag_buf) + strlen(db[d->get_player()].get_name());
+					remaining-=18 + strlen(flag_buf) + strlen(db[d->get_player()].get_name().c_str());
 				if (get_player())
 					strcat(buf, player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS));
 				if (db[d->get_player()].get_who_string())
-					strcat(buf, chop_string(db[d->get_player()].get_who_string (), remaining));
+					strcat(buf, chop_string(db[d->get_player()].get_who_string ().c_str(), remaining));
 				else
 					strcat(buf, chop_string("", remaining)); // Lazy
 
@@ -4263,7 +4267,7 @@ descriptor_data::dump_swho()
 			snprintf(linebuf, sizeof(linebuf), " %c%s%-23s%s", 
 				(Wizard(d->get_player())?'*':(Apprentice(d->get_player())?'~':' ')),
 				player_colour (get_player(), get_player(), colour),
-				value_or_empty (db[d->get_player()].get_name()),
+				db[d->get_player()].get_name().c_str(),
 				COLOUR_REVERT);
 			queue_string(linebuf);
 			if((++num % numperline) == 0)

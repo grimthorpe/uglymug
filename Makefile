@@ -41,6 +41,7 @@ HEADERS = \
 	interface.h \
 	match.h \
 	memory.h \
+	mudstring.h \
 	objects.h \
 	regexp_interface.h \
 	debug.h
@@ -258,6 +259,7 @@ alarm.o : alarm.c \
 	context.h \
 	copyright.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	match.h \
 	interface.h
@@ -266,6 +268,7 @@ boolexp.o: boolexp.c \
 	context.h \
 	copyright.h \
 	db.h \
+	mudstring.h \
 	match.h \
 	externs.h \
 	config.h \
@@ -279,10 +282,12 @@ channel.o: channel.c \
 	interface.h \
 	objects.h \
 	db.h \
+	mudstring.h \
 	command.h
 
 colour.o: colour.c \
 	db.h \
+	mudstring.h \
 	colour.h \
 	context.h \
 	command.h \
@@ -291,10 +296,12 @@ colour.o: colour.c \
 
 combat.o: combat.c \
 	db.h \
+	mudstring.h \
 	match.h
 
 command.o: command.c \
 	db.h \
+	mudstring.h \
 	interface.h \
 	command.h \
 	context.h \
@@ -302,6 +309,7 @@ command.o: command.c \
 
 container.o: container.c \
 	db.h \
+	mudstring.h \
 	config.h \
 	interface.h \
 	externs.h \
@@ -312,11 +320,13 @@ context.o: context.c \
 	command.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h
 
 create.o: create.c \
 	db.h \
+	mudstring.h \
 	config.h \
 	interface.h \
 	externs.h \
@@ -326,6 +336,7 @@ create.o: create.c \
 
 db.o: db.c \
 	db.h \
+	mudstring.h \
 	externs.h \
 	config.h \
 	interface.h \
@@ -333,6 +344,7 @@ db.o: db.c \
 
 decompile.o: decompile.c \
 	db.h \
+	mudstring.h \
 	config.h \
 	interface.h \
 	externs.h \
@@ -341,6 +353,7 @@ decompile.o: decompile.c \
 
 destroy.o: destroy.c \
 	db.h \
+	mudstring.h \
 	config.h \
 	interface.h \
 	externs.h \
@@ -350,15 +363,18 @@ destroy.o: destroy.c \
 
 dump.o: dump.c \
 	db.h \
+	mudstring.h \
 	copyright.h
 
 extract.o: extract.c \
+	mudstring.h \
 	db.h
 
 fuses.o: fuses.c \
 	alarm.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	interface.h \
 	externs.h \
 	command.h \
@@ -366,6 +382,7 @@ fuses.o: fuses.c \
 
 game.o: game.c \
 	db.h \
+	mudstring.h \
 	config.h \
 	context.h \
 	game.h \
@@ -378,6 +395,7 @@ game_predicates.o: game_predicates.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	interface.h \
 	externs.h
 
@@ -386,6 +404,7 @@ get.o: get.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	game_predicates.h \
 	interface.h \
@@ -399,6 +418,7 @@ group.o: group.c \
 interface.o: interface.c \
 	colour.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	config.h \
@@ -415,6 +435,7 @@ lists.o: lists.c \
 	context.h \
 	command.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	objects.h
@@ -430,6 +451,7 @@ look.o: look.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	match.h \
@@ -437,6 +459,7 @@ look.o: look.c \
 
 match.o: match.c \
 	db.h \
+	mudstring.h \
 	command.h \
 	config.h \
 	context.h \
@@ -448,6 +471,7 @@ move.o: move.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	match.h \
@@ -458,6 +482,7 @@ netmud.o: netmud.c \
 	config.h \
 	copyright.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	game.h \
 	interface.h \
@@ -467,12 +492,14 @@ npc.o:	npc.c \
 	command.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	objects.h
 
 objects.o: objects.c \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	objects.h
@@ -480,11 +507,13 @@ objects.o: objects.c \
 paths.o: paths.c \
 	config.h \
 	db.h \
+	mudstring.h \
 	interface.h
 
 player.o: player.c \
 	config.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	objects.h
@@ -493,6 +522,7 @@ predicates.o: predicates.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h
 
 regexp.o: regexp.c
@@ -502,6 +532,7 @@ rob.o: rob.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	match.h
@@ -509,6 +540,7 @@ rob.o: rob.c \
 sanity-check.o: sanity-check.c \
 	externs.h \
 	db.h \
+	mudstring.h \
 	config.h
 
 scat.o: scat.c
@@ -518,6 +550,7 @@ set.o: set.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	match.h
@@ -527,6 +560,7 @@ smd.o: smd.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h
 
@@ -536,29 +570,35 @@ speech.o: speech.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	lists.h \
 	match.h
 
 stringutil.o: stringutil.c \
-	externs.h
+	externs.h \
+	db.h
+	mudstring.h \
 
 unparse.o: unparse.c \
 	config.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	colour.h
 
 utils.o: utils.c \
 	db.h \
+	mudstring.h \
 	interface.h \
 	externs.h
 
 variable.o: variable.c\
 	db.h\
+	mudstring.h \
 	externs.h\
 	config.h\
 	command.h\
@@ -569,6 +609,7 @@ wiz.o: wiz.c \
 	command.h \
 	context.h \
 	db.h \
+	mudstring.h \
 	externs.h \
 	interface.h \
 	match.h
@@ -579,7 +620,8 @@ concentrator.o: concentrator.c \
 
 alarm.h: match.h
 
-command.h: db.h
+command.h: db.h \
+	mudstring.h
 
 config.h: copyright.h
 
@@ -588,14 +630,18 @@ context.h: command.h \
 	stack.h
 
 db.h: copyright.h \
-	colour.h
+	colour.h \
+	mudstring.h
 
 externs.h: db.h \
+	mudstring.h \
 	context.h \
 	copyright.h
 
 interface.h: db.h \
+	mudstring.h \
 	copyright.h
 
 match.h: db.h \
+	mudstring.h \
 	copyright.h

@@ -64,7 +64,7 @@ dbref	player)
 
 	while(line <= (unsigned)db[command].get_inherited_number_of_elements())
 	{
-		text = db[command].get_inherited_element(line);
+		text = db[command].get_inherited_element(line).c_str();
 		what = what_is_next(text);
 
 		switch(what)
@@ -89,9 +89,9 @@ dbref	player)
 		for(;line<block_end;line++)
 		{
 			if (linenumbers)
-				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces[tab_level], value_or_empty(db[command].get_inherited_element(line)));
+				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces[tab_level], db[command].get_inherited_element(line).c_str());
 			else
-				notify_censor(player, player, "%s%s", spaces[tab_level], value_or_empty(db[command].get_inherited_element(line)));
+				notify_censor(player, player, "%s%s", spaces[tab_level], db[command].get_inherited_element(line).c_str());
 		}
 
 		if (force_outdent)
@@ -152,7 +152,7 @@ int		level)
 			{
 				/* Otherwise, output the 'contents' field (if any)... */
 				if (db[object].get_contents_string () != NULL)
-					strcpy (scratch_buffer + level, db [object].get_contents_string ());
+					strcpy (scratch_buffer + level, db [object].get_contents_string ().c_str());
 				else
 					strcpy (scratch_buffer + level, contents_name);
 				notify_public_colour(c.get_player (), c.get_player(), COLOUR_CONTENTS, "%s", scratch_buffer);
@@ -189,7 +189,7 @@ int		level)
 {
 	dbref	thing;
 	int	level_count;
-	const char *const *const colour_at=db[c.get_player()].get_colour_at();
+	const colour_at& ca=db[c.get_player()].get_colour_at();
 
 	/* If it's opaque, closed, and you don't control it, you can't see in. */
 	if (!(((Open (object)) || (Opaque (object))) || c.controls_for_read (object)))
@@ -198,7 +198,7 @@ int		level)
 			scratch_buffer [level_count] = ' ';
 
 		sprintf (scratch_buffer + level_count, "%sYou cannot see inside it%s",
-							colour_at[COLOUR_ERROR_MESSAGES],
+							ca[COLOUR_ERROR_MESSAGES],
 							COLOUR_REVERT);
 		notify (c.get_player (), scratch_buffer);
 		return;
@@ -208,7 +208,7 @@ int		level)
 	for (level_count = 0; level_count < level; level_count++)
 		scratch_buffer [level_count] = ' ';
 	sprintf (scratch_buffer + level_count, "%sLock Key:%s %s", 
-			colour_at[COLOUR_TITLES],
+			ca[COLOUR_TITLES],
 			COLOUR_REVERT,
 			db[object].get_lock_key ()->unparse (c));
 
@@ -218,13 +218,13 @@ int		level)
 	if (db [object].get_contents_string () != NULL)
 	{
 		sprintf(scratch_buffer + level_count, "%sContents string:%s ",
-				colour_at[COLOUR_CONTENTS],
+				ca[COLOUR_CONTENTS],
 				COLOUR_REVERT);
-		strcat (scratch_buffer + level_count, db [object].get_contents_string ());
+		strcat (scratch_buffer + level_count, db [object].get_contents_string ().c_str());
 	}
 	else
 		sprintf (scratch_buffer + level_count, "%sContents:%s",
-					colour_at[COLOUR_CONTENTS],
+					ca[COLOUR_CONTENTS],
 					COLOUR_REVERT);
 
 	notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
@@ -271,7 +271,7 @@ int		prettyprint_is_on,
 const	char	*contents_name)
 
 {
-	const char *const *const 	colour_at = db[c.get_player()].get_colour_at();
+	const colour_at& ca = db[c.get_player()].get_colour_at();
 	dbref thing;
 	dbref can_see_loc;
 	int had_it;
@@ -292,32 +292,32 @@ const	char	*contents_name)
 				{
 					if (!had_it)
 					{
-						notify_public(c.get_player(), c.get_player (), "%s%s%s", colour_at[COLOUR_CONTENTS], contents_name, COLOUR_REVERT);
+						notify_public(c.get_player(), c.get_player (), "%s%s%s", ca[COLOUR_CONTENTS], contents_name, COLOUR_REVERT);
 						had_it = 1;
 						if (prettyprint_is_on)
-							notify(c.get_player(), "%s%s%s",colour_at[COLOUR_UNDERLINES], underline(colour_strlen(contents_name)), COLOUR_REVERT) ;
+							notify(c.get_player(), "%s%s%s",ca[COLOUR_UNDERLINES], underline(colour_strlen(contents_name)), COLOUR_REVERT) ;
 					}
 					if((Typeof(thing) != TYPE_PLAYER) || c.controls_for_read(loc) || Connected (thing))
 					{
 						switch(Typeof(thing))
 						{
 							case TYPE_WEAPON:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s (weapon)", colour_at[COLOUR_WEAPONS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s (weapon)", ca[COLOUR_WEAPONS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
 							case TYPE_ARMOUR:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s (armour)", colour_at[COLOUR_ARMOUR], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s (armour)", ca[COLOUR_ARMOUR], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
 							case TYPE_AMMUNITION:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s (ammo)", colour_at[COLOUR_AMMUNITION], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s (ammo)", ca[COLOUR_AMMUNITION], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
 							case TYPE_THING:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s", colour_at[COLOUR_THINGS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
 							case TYPE_PLAYER:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s%s",  (Connected (thing) ? "*" : ""), colour_at[rank_colour(thing)], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s%s",  (Connected (thing) ? "*" : ""), ca[rank_colour(thing)], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
 							case TYPE_PUPPET:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s", colour_at[COLOUR_PLAYERS], Connected(thing)?"+":"", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_PLAYERS], Connected(thing)?"+":"", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
 								break;
 
 							default:
@@ -338,30 +338,30 @@ dbref	player,
 dbref	thing)
 
 {
-	const char *const *const colour_at=db[player].get_colour_at();
+	const colour_at& ca=db[player].get_colour_at();
 
 	if(db[thing].get_inherited_description())
-		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description());
+		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description().c_str());
 	else
 		notify_colour(player, player, COLOUR_DESCRIPTIONS, "A rather plain weapon.");
 	notify(player,  "%sDegredation     :%s %d%s\n%sDamage          :%s %d%s\n%sHit Probability :%s %%sd%s",
-	        colour_at[COLOUR_TITLES], colour_at[COLOUR_WEAPONS],
+	        ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
 		db[thing].get_degradation(), COLOUR_REVERT,
-	        colour_at[COLOUR_TITLES], colour_at[COLOUR_WEAPONS],
+	        ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
 	        db[thing].get_damage(), COLOUR_REVERT,
-		colour_at[COLOUR_TITLES], colour_at[COLOUR_WEAPONS],
+		ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
 		db[thing].get_speed(), COLOUR_REVERT);
 
 	if(db[thing].get_range())
 		notify(player, "%sRange           :%s %d%s", 
-		       colour_at[COLOUR_TITLES], colour_at[COLOUR_WEAPONS],
+		       ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
 		       db[thing].get_range(), COLOUR_REVERT);
 
 	if(db[thing].get_ammo_parent() != NOTHING)
 		notify_public(player, player, "%sAmmunition      :%s %d%s\n%sAmmo Type      :%s %d%s",
-		       colour_at[COLOUR_TITLES], colour_at[COLOUR_WEAPONS],
+		       ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
 		       db[thing].get_ammunition(), COLOUR_REVERT,
-		       colour_at[COLOUR_TITLES], colour_at[COLOUR_WEAPONS],
+		       ca[COLOUR_TITLES], ca[COLOUR_WEAPONS],
 		       db[thing].get_ammo_parent(), COLOUR_REVERT);
 }
 
@@ -371,15 +371,15 @@ dbref	player,
 dbref	thing)
 
 {
-	const char *const *const colour_at=db[player].get_colour_at();
+	const colour_at& ca=db[player].get_colour_at();
 	if(db[thing].get_inherited_description())
-		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description());
+		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description().c_str());
 	else
 		notify_colour(player, player, COLOUR_DESCRIPTIONS, "Pretty normal armour.");
 	notify(player, "%sDegredation :%s %d%s\n%sProtection  :%s %d%s",
-			colour_at[COLOUR_TITLES], colour_at[COLOUR_ARMOUR],
+			ca[COLOUR_TITLES], ca[COLOUR_ARMOUR],
 			db[thing].get_degradation(), COLOUR_REVERT,
-			colour_at[COLOUR_TITLES], colour_at[COLOUR_ARMOUR],
+			ca[COLOUR_TITLES], ca[COLOUR_ARMOUR],
 			db[thing].get_protection(), COLOUR_REVERT);
 }
 
@@ -389,13 +389,13 @@ dbref	player,
 dbref	thing)
 
 {
-	const char *const *const colour_at=db[player].get_colour_at();
+	const colour_at& ca=db[player].get_colour_at();
 	if(db[thing].get_inherited_description())
-		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description());
+		notify_public_colour(player, player, COLOUR_DESCRIPTIONS, "%s", db[thing].get_inherited_description().c_str());
 	else
 		notify_colour(player, player, COLOUR_DESCRIPTIONS, "Standard Ammunition.");
 
-	notify(player, "%sQuantity :%s %d%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_AMMUNITION], db[thing].get_count(), COLOUR_REVERT);
+	notify(player, "%sQuantity :%s %d%s", ca[COLOUR_TITLES], ca[COLOUR_AMMUNITION], db[thing].get_count(), COLOUR_REVERT);
 }
 
 static void
@@ -406,7 +406,7 @@ dbref	thing)
 {
 	dbref	looper;
 	int	colour;
-	const char	*const *const colour_at=db[c.get_player()].get_colour_at();
+	const colour_at& ca=db[c.get_player()].get_colour_at();
 
 	switch (Typeof(thing))
 	{
@@ -427,13 +427,13 @@ dbref	thing)
 	
 	if(db[thing].get_inherited_description())
 	{
-		notify_public_colour(c.get_player (), c.get_player(), colour, "%s%s", db[thing].get_inherited_description(),COLOUR_REVERT);
+		notify_public_colour(c.get_player (), c.get_player(), colour, "%s%s", db[thing].get_inherited_description().c_str(),COLOUR_REVERT);
 		DOLIST(looper, db[thing].get_properties())	/* Visible Properties are displayed as <name>: <desc> */
 		{
 			if (Visible(looper))
 				notify_censor(c.get_player(), c.get_player(), "%s%s: %s%s%s", 
-				colour_at[COLOUR_TITLES], db[looper].get_name(), 
-				colour_at[COLOUR_PROPERTIES],value_or_empty(db[looper].get_description()), COLOUR_REVERT);
+				ca[COLOUR_TITLES], db[looper].get_name().c_str(), 
+				ca[COLOUR_PROPERTIES],db[looper].get_description().c_str(), COLOUR_REVERT);
 		}
 		if (Container(thing) && (db[thing].get_contents() != NOTHING))
 			look_container (c, thing, "Contents:", 1);
@@ -445,8 +445,8 @@ dbref	thing)
 		{
 			if (Visible(looper))
 				notify_censor(c.get_player(), c.get_player(), "%s%s: %s%s%s", 
-				colour_at[COLOUR_TITLES], db[looper].get_name(), 
-				colour_at[COLOUR_PROPERTIES],db[looper].get_description(), COLOUR_REVERT);
+				ca[COLOUR_TITLES], db[looper].get_name().c_str(), 
+				ca[COLOUR_PROPERTIES],db[looper].get_description().c_str(), COLOUR_REVERT);
 		}
 		if (Container(thing) && (db[thing].get_contents() != NOTHING))
 			look_container (c, thing, "But it contains:", 0);
@@ -473,7 +473,7 @@ int 	prettylook_is_on
 	char	namebuf [BUFFER_LEN];
 	char	*name_end;
 	int	seen = 0;
-	const char	*const *const colour_at = db[c.get_player()].get_colour_at();
+	const colour_at& ca = db[c.get_player()].get_colour_at();
 	while (loc != NOTHING)
 	{
 		DOLIST (exit, db[loc].get_exits())
@@ -496,30 +496,30 @@ int 	prettylook_is_on
 					seen = 1;
 					notify_colour (c.get_player (), c.get_player(), COLOUR_CONTENTS, "Obvious exits:");
 					if (prettylook_is_on)
-						notify (c.get_player(), "%s~~~~~~~~~~~~~~%s",colour_at[COLOUR_UNDERLINES], COLOUR_REVERT);
+						notify (c.get_player(), "%s~~~~~~~~~~~~~~%s",ca[COLOUR_UNDERLINES], COLOUR_REVERT);
 				}
 				/* If it's unlinked, print its name and ref */
 				if (db[exit].get_destination() == NOTHING)
 					if (!(Number(c.get_player())))
-						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",colour_at[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit);
+						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit);
 					else
-						sprintf (scratch_buffer, "  %s%s%s is unlinked.", colour_at[COLOUR_EXITS],namebuf, COLOUR_REVERT);
+						sprintf (scratch_buffer, "  %s%s%s is unlinked.", ca[COLOUR_EXITS],namebuf, COLOUR_REVERT);
 				else
 				{
 					if (c.controls_for_read (exit) && !(Number(c.get_player())))
 					{
 						if (Opaque(exit))
-							sprintf(scratch_buffer, "  %s%s%s(#%d E).", colour_at[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit);
+							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit);
 						else
 						{
 							if (!strcmp("some ",getarticle(exit,ARTICLE_LOWER_INDEFINITE)))
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) lead to %s%s%s.",
-									 colour_at[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit, colour_at[COLOUR_ROOMNAME], 
+									 ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, exit, ca[COLOUR_ROOMNAME], 
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
 									 COLOUR_REVERT);
 							else
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) leads to %s%s%s.",
-									 colour_at[COLOUR_EXITS],namebuf,COLOUR_REVERT, exit, colour_at[COLOUR_ROOMNAME],
+									 ca[COLOUR_EXITS],namebuf,COLOUR_REVERT, exit, ca[COLOUR_ROOMNAME],
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
 									 COLOUR_REVERT);
 						}
@@ -528,11 +528,11 @@ int 	prettylook_is_on
 					else
 					{
 						if ((Opaque(exit)) || (db[exit].get_destination() == HOME))
-							sprintf(scratch_buffer, "  %s%s%s.", colour_at[COLOUR_EXITS], namebuf,COLOUR_REVERT);
+							sprintf(scratch_buffer, "  %s%s%s.", ca[COLOUR_EXITS], namebuf,COLOUR_REVERT);
 						else
 							sprintf (scratch_buffer, "  %s%s%s leads to %s%s%s%s.",
-								colour_at[COLOUR_EXITS],namebuf,COLOUR_REVERT,
-								colour_at[COLOUR_ROOMNAME],
+								ca[COLOUR_EXITS],namebuf,COLOUR_REVERT,
+								ca[COLOUR_ROOMNAME],
 								getarticle (db[exit].get_destination (), ARTICLE_LOWER_INDEFINITE),
 								getname_inherited (db[exit].get_destination ()),
 								COLOUR_REVERT);
@@ -552,25 +552,25 @@ look_room (
 context	&c,
 dbref	loc)
 {
-	const char *const *const 	colour_at = db[c.get_player()].get_colour_at();
+	const colour_at& ca = db[c.get_player()].get_colour_at();
 	dbref looper;
 	int   prettylook= Prettylook(c.get_player()) ;
 
 	/* tell hir the name, and the number if he can link to it */
 	notify_public(c.get_player(), c.get_player (), "%s%s%s",
-			colour_at[COLOUR_ROOMNAME],
+			ca[COLOUR_ROOMNAME],
 			unparse_objectandarticle_inherited (c, loc, ARTICLE_UPPER_INDEFINITE),
 			COLOUR_REVERT);
 	if (prettylook)
 		notify(c.get_player(), "%s%s%s",
-				colour_at[COLOUR_UNDERLINES],
+				ca[COLOUR_UNDERLINES],
 				underline(colour_strlen(unparse_objectandarticle_inherited (c, loc, ARTICLE_UPPER_INDEFINITE))),
 				COLOUR_REVERT);
 
 
 	/* tell hir the description */
 	if( db[loc].get_inherited_description() ) 
-		notify_public(c.get_player(), c.get_player (), "%s%s%s", colour_at[COLOUR_ROOMDESCRIPTION], db[loc].get_inherited_description(), COLOUR_REVERT);
+		notify_public(c.get_player(), c.get_player (), "%s%s%s", ca[COLOUR_ROOMDESCRIPTION], db[loc].get_inherited_description().c_str(), COLOUR_REVERT);
 	
 	/* tell hir the appropriate messages if he has the key */
 	can_doit(c, loc, NULL);
@@ -579,7 +579,7 @@ dbref	loc)
 	DOLIST(looper, db[loc].get_properties())	/* Visible Properties are displayed as <name>: <desc> */
 	{
 		if (Visible(looper))
-			notify_public(c.get_player(), c.get_player(), "%s%s:%s %s", colour_at[COLOUR_PROPERTIES], db[looper].get_name(), COLOUR_REVERT, db[looper].get_description());
+			notify_public(c.get_player(), c.get_player(), "%s%s:%s %s", ca[COLOUR_PROPERTIES], db[looper].get_name().c_str(), COLOUR_REVERT, db[looper].get_description().c_str());
 	}
 
 	if (prettylook)
@@ -595,7 +595,7 @@ dbref	loc)
 		if (!db[loc].get_contents_string())
 			look_contents(c, loc, prettylook, "Contents:");
 		else
-			look_contents(c, loc, prettylook, db[loc].get_contents_string());
+			look_contents(c, loc, prettylook, db[loc].get_contents_string().c_str());
 	}
 
 }
@@ -610,7 +610,7 @@ const	char	*)
 	dbref		thing;
 	int		number;
 	int		temp;
-	const char		*const *const colour_at = db[player].get_colour_at();
+	const colour_at& ca = db[player].get_colour_at();
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -661,7 +661,7 @@ const	char	*)
 							PLURAL (db[thing].get_score ()));
 					}
 					notify_public(player, player, "Race: %s.%s",
-						value_or_empty (db[thing].get_race ()), COLOUR_REVERT);
+						db[thing].get_race ().c_str(), COLOUR_REVERT);
 					look_contents (*this, thing, Prettylook(player), "Carrying:");
 					break;
 				case TYPE_COMMAND:
@@ -689,7 +689,7 @@ const	char	*)
 								if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
 									if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 									{
-															notify(player, "[%d] : %s", value, value_or_empty(db[thing].get_element(value)));
+															notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
 										return;
 									}
 									else
@@ -707,11 +707,11 @@ const	char	*)
 					
 					
 						number = db[thing].get_number_of_elements();
-						notify(player, "%sElement%s:%s %d", colour_at[COLOUR_TITLES], PLURAL(number), COLOUR_REVERT, number);
+						notify(player, "%sElement%s:%s %d", ca[COLOUR_TITLES], PLURAL(number), COLOUR_REVERT, number);
 						if(number > 0)
 						{
 							for(temp = 1;temp <= number;temp++)
-								notify_censor(player, player, "  [%d] :%s %s", temp, (temp<10)?"  ":(temp<100)?" ":"", value_or_empty(db[thing].get_element(temp)));
+								notify_censor(player, player, "  [%d] :%s %s", temp, (temp<10)?"  ":(temp<100)?" ":"", db[thing].get_element(temp).c_str());
 						}
 					}
 					break;
@@ -724,7 +724,7 @@ const	char	*)
 						{
 							if((value=db[thing].exist_element(matcher.match_index_result())))
 							{
-								notify(player, "[%s] : %s", db[thing].get_index(value) , value_or_empty(db[thing].get_element(value)));
+								notify(player, "[%s] : %s", db[thing].get_index(value).c_str() , db[thing].get_element(value).c_str());
 								return;
 							}
 							else
@@ -735,20 +735,20 @@ const	char	*)
 								if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
 									if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 									{
-															notify(player, "[%d] : %s", value, value_or_empty(db[thing].get_element(value)));
+															notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
 										return;
 									}
 						}
 						number = db[thing].get_number_of_elements();
-							notify(player, "%sElement%s:%s %d", colour_at[COLOUR_TITLES], PLURAL(number), COLOUR_REVERT, number);
+							notify(player, "%sElement%s:%s %d", ca[COLOUR_TITLES], PLURAL(number), COLOUR_REVERT, number);
 						if(number > 0)
 						{
 							if(Opaque(thing))
 								for(temp = 1;temp <= number;temp++)
-									notify_censor(player, player, "  [%s]", db[thing].get_index(temp));
+									notify_censor(player, player, "  [%s]", db[thing].get_index(temp).c_str());
 							else
 								for(temp = 1;temp <= number;temp++)
-									notify_censor(player, player, "  [%s] : %s", db[thing].get_index(temp), value_or_empty(db[thing].get_element(temp)));
+									notify_censor(player, player, "  [%s] : %s", db[thing].get_index(temp).c_str(), db[thing].get_element(temp).c_str());
 						}
 					}
 					break;
@@ -798,7 +798,7 @@ const	char	*name,
 const	char	*)
 
 {
-	const char 	*const *const colour_at = db[player].get_colour_at();
+	const colour_at& ca = db[player].get_colour_at();
 	int	number;
 	int	temp;
 	int	had_title;
@@ -826,14 +826,14 @@ const	char	*)
 
 	if((!can_link (*this, thing)) && (!controls_for_read (thing)))
 	{
-		notify (player, "%sOwner:%s %s.", colour_at[COLOUR_TITLES], COLOUR_REVERT, unparse_object_inherited (*this, db[thing].get_owner()));
+		notify (player, "%sOwner:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object_inherited (*this, db[thing].get_owner()));
 		return;
 	}
 
 	return_status = COMMAND_SUCC;
 	set_return_string (unparse_for_return (*this, thing));
 
-	if(!blank(db[thing].get_name()))
+	if(db[thing].get_name())
 		notify_censor(player, player, "%s", unparse_object(*this, thing));
 	else
 		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing));
@@ -844,10 +844,10 @@ const	char	*)
 		case TYPE_DICTIONARY:
 		case TYPE_PROPERTY:
 			notify(player, "%sOwner:%s %s; %sFlags:%s%s",
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					stored_owner,
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
 			break;
@@ -855,26 +855,26 @@ const	char	*)
 			if((db[thing].get_key() == TRUE_BOOLEXP) && (db[thing].get_parent() != NOTHING) && (db[thing].get_inherited_key() != TRUE_BOOLEXP))
 			{
 				notify(player, "%sOwner:%s %s; %sKey [INHERITED]:%s %s; %sFlags:%s%s",
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					stored_owner,
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					db[thing].get_inherited_key()->unparse (*this),
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
 			}
 			else
 			{
 				notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					stored_owner,
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					db[thing].get_key()->unparse (*this),
-					colour_at[COLOUR_TITLES],
+					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
 			}
@@ -885,31 +885,31 @@ const	char	*)
 	{
 		case TYPE_FUSE:
 			if (( !db[thing].get_description ()) && (db[thing].get_parent() != NOTHING))
-				notify (player, "%sTicks [INHERITED]:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, value_or_empty(db[thing].get_inherited_description ()));
+				notify (player, "%sTicks [INHERITED]:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_inherited_description ().c_str());
 			else
-				notify (player, "%sTicks:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, value_or_empty(db[thing].get_description()));
+				notify (player, "%sTicks:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_description().c_str());
 			break;
 
 		case TYPE_COMMAND:
 			if(db[thing].get_description())
 			{
-				notify(player, "%sDescription:%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_DESCRIPTIONS]);
+				notify(player, "%sDescription:%s", ca[COLOUR_TITLES], ca[COLOUR_DESCRIPTIONS]);
 				output_command(thing, player);
 			}
 			else
 				if (db[thing].get_inherited_description ())
 				{
-					notify (player, "%sDescription [INHERITED]:%s", colour_at[COLOUR_TITLES],  colour_at[COLOUR_DESCRIPTIONS]);
+					notify (player, "%sDescription [INHERITED]:%s", ca[COLOUR_TITLES],  ca[COLOUR_DESCRIPTIONS]);
 					output_command(thing, player);
 				}
 			break;
 
 		default:
 			if(db[thing].get_description())
-				notify(player, "%sDescription:%s %s%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_DESCRIPTIONS], value_or_empty(db[thing].get_description()), COLOUR_REVERT);
+				notify(player, "%sDescription:%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_DESCRIPTIONS], db[thing].get_description().c_str(), COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_description ())
-					notify (player, "%sDescription [INHERITED]:%s %s%s", colour_at[COLOUR_TITLES],  colour_at[COLOUR_DESCRIPTIONS], value_or_empty(db[thing].get_inherited_description ()), COLOUR_REVERT);
+					notify (player, "%sDescription [INHERITED]:%s %s%s", ca[COLOUR_TITLES],  ca[COLOUR_DESCRIPTIONS], db[thing].get_inherited_description ().c_str(), COLOUR_REVERT);
 			break;
 	}
 
@@ -919,10 +919,10 @@ const	char	*)
 		case TYPE_PLAYER:
 #ifdef ALIASES
 			if (*format_alias_string (thing) != '\0')
-				notify_public(player, player, "%sAliases:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, value_or_empty (format_alias_string(thing)));
+				notify_public(player, player, "%sAliases:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, value_or_empty (format_alias_string(thing)));
 #endif
 		case TYPE_PUPPET:
-			notify(player, "%sRace:%s %s.", colour_at[COLOUR_TITLES], COLOUR_REVERT, value_or_empty (db[thing].get_race ()));
+			notify(player, "%sRace:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_race ().c_str());
 			break;
 	}
 
@@ -933,10 +933,10 @@ const	char	*)
 			if(db[thing].get_fail_message())
 			{
 
-				last = atol(db[thing].get_fail_message());
+				last = atol(db[thing].get_fail_message().c_str());
 				sprintf(scratch_buffer, "%sLast time connected:%s %s%s", 
-					colour_at[COLOUR_TITLES], 
-					colour_at[COLOUR_LAST_CONNECTED], 
+					ca[COLOUR_TITLES], 
+					ca[COLOUR_LAST_CONNECTED], 
 					(last==0) ? "Unknown" : ctime(&last), 
 					COLOUR_REVERT);
 
@@ -958,16 +958,16 @@ const	char	*)
 		case TYPE_VARIABLE:
 			if (db[thing].get_fail_message ())
 				notify_censor (player, player, "%sFail:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_FAILURE],
-								db[thing].get_fail_message (),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_FAILURE],
+								db[thing].get_fail_message ().c_str(),
 								COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_fail_message ())
 					notify_censor(player, player, "%sFail [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_FAILURE],
-								db[thing].get_inherited_fail_message(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_FAILURE],
+								db[thing].get_inherited_fail_message().c_str(),
 								COLOUR_REVERT);
 			break;
 		default:
@@ -987,16 +987,16 @@ const	char	*)
 		case TYPE_VARIABLE:
 			if(db[thing].get_succ_message())
 				notify_censor(player, player, "%sSuccess:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_SUCCESS],
-								db[thing].get_succ_message(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_SUCCESS],
+								db[thing].get_succ_message().c_str(),
 								COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_succ_message ())
 					notify_censor (player, player, "%sSuccess [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_SUCCESS],
-								db[thing].get_inherited_succ_message (),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_SUCCESS],
+								db[thing].get_inherited_succ_message ().c_str(),
 								COLOUR_REVERT);
 			break;
 		default:
@@ -1009,16 +1009,16 @@ const	char	*)
 		case TYPE_FUSE:
 			if (db[thing].get_drop_message())
 				notify(player, "%sReset:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_DROP],
-								db[thing].get_drop_message(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_DROP],
+								db[thing].get_drop_message().c_str(),
 								COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_drop_message ())
 					notify(player, "%sReset [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_DROP],
-								db[thing].get_inherited_drop_message(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_DROP],
+								db[thing].get_inherited_drop_message().c_str(),
 								COLOUR_REVERT);
 			break;
 
@@ -1032,16 +1032,16 @@ const	char	*)
 		case TYPE_VARIABLE:
 			if (db[thing].get_drop_message())
 				notify_censor(player, player, "%sDrop:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_DROP],
-								db[thing].get_drop_message(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_DROP],
+								db[thing].get_drop_message().c_str(),
 								COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_drop_message ())
 					notify_censor (player, player, "%sDrop [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_DROP],
-								db[thing].get_inherited_drop_message(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_DROP],
+								db[thing].get_inherited_drop_message().c_str(),
 								COLOUR_REVERT);
 			break;
 		default:
@@ -1060,31 +1060,31 @@ const	char	*)
 		case TYPE_VARIABLE:
 			if(db[thing].get_ofail())
 				notify_censor(player, player, "%sOfail:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_OFAILURE],
-								db[thing].get_ofail(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_OFAILURE],
+								db[thing].get_ofail().c_str(),
 								COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_ofail ())
 					notify_censor (player, player, "%sOfail [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_OFAILURE],
-								db[thing].get_inherited_ofail(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_OFAILURE],
+								db[thing].get_inherited_ofail().c_str(),
 								COLOUR_REVERT);
 			break;
 		case TYPE_PLAYER:
 			if(db[thing].get_ofail())
 			{
-				total = atol(db[thing].get_ofail());
+				total = atol(db[thing].get_ofail().c_str());
 				if(Connected(thing))
 				{
 					time(&now);
-					last = atol(db[thing].get_fail_message());
+					last = atol(db[thing].get_fail_message().c_str());
 					total += (now - last);
 				}
 				notify(player, "%sTotal time connected:%s %s%s.",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_TOTAL_CONNECTED],
+								ca[COLOUR_TITLES],
+								ca[COLOUR_TOTAL_CONNECTED],
 								(last==0) ? "Unknown" : time_string (total),
 								COLOUR_REVERT);
 			}
@@ -1107,16 +1107,16 @@ const	char	*)
 		case TYPE_VARIABLE:
 			if(db[thing].get_osuccess())
 				notify_censor(player, player, "%sOsuccess:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_OSUCCESS],
-								db[thing].get_osuccess(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_OSUCCESS],
+								db[thing].get_osuccess().c_str(),
 								COLOUR_REVERT);
 			else
 				if(db[thing].get_inherited_osuccess())
 					notify_censor(player, player, "%sOsuccess [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_OSUCCESS],
-								db[thing].get_inherited_osuccess(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_OSUCCESS],
+								db[thing].get_inherited_osuccess().c_str(),
 								COLOUR_REVERT);
 			break;
 		default:
@@ -1137,16 +1137,16 @@ const	char	*)
 		case TYPE_VARIABLE:
 			if (db[thing].get_odrop())
 				notify_censor(player, player, "%sOdrop:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_ODROP],
-								db[thing].get_odrop(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_ODROP],
+								db[thing].get_odrop().c_str(),
 								COLOUR_REVERT);
 			else
 				if (db[thing].get_inherited_odrop())
 					notify_censor(player, player, "%sOdrop [INHERITED]:%s %s%s",
-								colour_at[COLOUR_TITLES],
-								colour_at[COLOUR_ODROP],
-								db[thing].get_inherited_odrop(),
+								ca[COLOUR_TITLES],
+								ca[COLOUR_ODROP],
+								db[thing].get_inherited_odrop().c_str(),
 								COLOUR_REVERT);
 		default:
 			break;
@@ -1154,7 +1154,7 @@ const	char	*)
 
 	if((db[thing].get_location() != NOTHING)
 		&& (controls_for_read (db[thing].get_location()) || can_link_to (*this, db[thing].get_location())))
-		notify_censor(player, player, "%sLocation:%s %s%s", colour_at[COLOUR_TITLES], colour_at[COLOUR_ROOMNAME], unparse_object(*this, db[thing].get_location()), COLOUR_REVERT);
+		notify_censor(player, player, "%sLocation:%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_ROOMNAME], unparse_object(*this, db[thing].get_location()), COLOUR_REVERT);
 
 	switch(Typeof(thing))
 	{
@@ -1171,7 +1171,7 @@ const	char	*)
 		case TYPE_ARMOUR:
 		case TYPE_AMMUNITION:
 			if (db [thing].get_parent () != NOTHING)
-				notify_censor(player, player, "%sParent:%s %s", colour_at[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_parent ()));
+				notify_censor(player, player, "%sParent:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_parent ()));
 		default:
 			break;
 	}
@@ -1186,100 +1186,100 @@ const	char	*)
 			if (db[thing].get_gravity_factor () != 1)
 				if (db[thing].get_gravity_factor () == NUM_INHERIT)
 					notify (player, "%sGravity factor [INHERITED]:%s %.9g",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
 						db[thing].get_inherited_gravity_factor ());
 				else
 					notify (player, "%sGravity factor:%s %.9g",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
 						db[thing].get_gravity_factor ());
 			if (db[thing].get_mass () == NUM_INHERIT)
 				notify (player, "%sMass [INHERITED]:%s %s%.9g kilos%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_MASS],
+						ca[COLOUR_MASS],
 					db[thing].get_inherited_mass(),
 						COLOUR_REVERT);
 
 			else
 				notify (player, "%sMass:%s %s%.9g kilos%s", 
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_MASS],
+						ca[COLOUR_MASS],
 					db[thing].get_mass (),
 						COLOUR_REVERT);
 
 			if (db[thing].get_volume () == NUM_INHERIT)
 				notify(player, "%sVolume [INHERITED]:%s %s%.9g litres%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_VOLUME],
+						ca[COLOUR_VOLUME],
 					db[thing].get_inherited_volume (),
 						COLOUR_REVERT);
 			else
 				notify(player, "%sVolume:%s %s%.9g litres%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_VOLUME],
+						ca[COLOUR_VOLUME],
 					db[thing].get_volume (),
 						COLOUR_REVERT);
 
 			if (db[thing].get_mass_limit () == NUM_INHERIT)
 				if (db[thing].get_inherited_mass_limit () == HUGE_VAL)
 					notify(player, "%sMass Limit [INHERITED]:%s %sNone%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_MASS],
+						ca[COLOUR_MASS],
 						COLOUR_REVERT);
 				else
 					notify(player, "%sMass Limit [INHERITED]:%s %s%.9g kilos%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_MASS],
+						ca[COLOUR_MASS],
 						db[thing].get_inherited_mass_limit (),
 						COLOUR_REVERT);
 			else
 				if (db[thing].get_mass_limit () == HUGE_VAL)
 					notify(player, "%sMass Limit:%s %sNone%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_MASS],
+						ca[COLOUR_MASS],
 						COLOUR_REVERT);
 				else
 					notify(player, "%sMass Limit:%s %s%.9g kilos%s", 
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_MASS],
+						ca[COLOUR_MASS],
 						db[thing].get_mass_limit (),
 						COLOUR_REVERT);
 
 			if (db[thing].get_volume_limit () == NUM_INHERIT)
 				if (db[thing].get_inherited_volume_limit () == HUGE_VAL)
 					notify(player, "%sVolume Limit [INHERITED]:%s %sNone%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_VOLUME],
+						ca[COLOUR_VOLUME],
 						COLOUR_REVERT);
 				else
 					notify(player, "%sVolume Limit [INHERITED]:%s %s%.9g litres%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_VOLUME],
+						ca[COLOUR_VOLUME],
 						db[thing].get_inherited_volume_limit (),
 						COLOUR_REVERT);
 			else
 				if (db[thing].get_volume_limit () == HUGE_VAL)
 					notify(player, "%sVolume Limit:%s %sNone%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_VOLUME],
+						ca[COLOUR_VOLUME],
 						COLOUR_REVERT);
 				else
 					notify(player, "%sVolume Limit:%s %s%.9g litres%s",
-						colour_at[COLOUR_TITLES],
+						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
-						colour_at[COLOUR_VOLUME],
+						ca[COLOUR_VOLUME],
 						db[thing].get_volume_limit (),
 						COLOUR_REVERT);
 			break;
@@ -1295,54 +1295,54 @@ const	char	*)
 		/* print dropto if present */
 		if(db[thing].get_destination() != NOTHING)
 			notify_censor(player, player, "%sDropped objects go to:%s %s",
-					colour_at[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_destination()));
+					ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_destination()));
 		/* print last entry time */
 		if(db[thing].get_last_entry_time() == 0)
-			notify(player, "%sLast entry time:%s %sUnknown%s", colour_at[COLOUR_TITLES], COLOUR_REVERT, colour_at[COLOUR_LAST_CONNECTED], COLOUR_REVERT);
+			notify(player, "%sLast entry time:%s %sUnknown%s", ca[COLOUR_TITLES], COLOUR_REVERT, ca[COLOUR_LAST_CONNECTED], COLOUR_REVERT);
 		else
 		{
 			time_t last_entry_time = db[thing].get_last_entry_time();
 			strcpy(scratch_buffer, ctime(&last_entry_time));
 			*strchr(scratch_buffer, '\n') = '\0';
-			notify(player, "%sLast entry time:%s %s%s%s",  colour_at[COLOUR_TITLES], COLOUR_REVERT, colour_at[COLOUR_LAST_CONNECTED], scratch_buffer, COLOUR_REVERT);
+			notify(player, "%sLast entry time:%s %s%s%s",  ca[COLOUR_TITLES], COLOUR_REVERT, ca[COLOUR_LAST_CONNECTED], scratch_buffer, COLOUR_REVERT);
 		}
 		break;
 	  case TYPE_PLAYER:
 	  case TYPE_PUPPET:
-		notify (player, "%sBuilding points:%s %d", colour_at[COLOUR_TITLES],COLOUR_REVERT,db [thing].get_pennies ());
-		notify (player, "%sScore:%s %d", colour_at[COLOUR_TITLES],COLOUR_REVERT,db[thing].get_score ());
-		notify (player, "%s%s:%s %d", colour_at[COLOUR_TITLES], currency_name, COLOUR_REVERT,db[thing].get_money ());
-		notify_censor(player, player, "%sHome:%s %s", colour_at[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
+		notify (player, "%sBuilding points:%s %d", ca[COLOUR_TITLES],COLOUR_REVERT,db [thing].get_pennies ());
+		notify (player, "%sScore:%s %d", ca[COLOUR_TITLES],COLOUR_REVERT,db[thing].get_score ());
+		notify (player, "%s%s:%s %d", ca[COLOUR_TITLES], currency_name, COLOUR_REVERT,db[thing].get_money ());
+		notify_censor(player, player, "%sHome:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
 		if (db[thing].get_controller () != NOTHING)
-			notify_censor(player, player, "%sController:%s %s", colour_at[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_controller ()));
+			notify_censor(player, player, "%sController:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_controller ()));
 		break;
 	  case TYPE_THING:
 		/* print home */
-		notify_censor(player, player, "%sHome:%s %s", colour_at[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
+		notify_censor(player, player, "%sHome:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
 		break;
 	  case TYPE_EXIT:
 		/* print destination */
 		if (db[thing].get_destination() != NOTHING)
-			notify_censor(player, player, "%sDestination:%s %s", colour_at[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
+			notify_censor(player, player, "%sDestination:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
 		break;
 	  case TYPE_COMMAND:
 	  case TYPE_FUSE:
 		/* Print success and fail destinations */
-		notify_censor(player, player, "%sOn success, go to:%s %s%s%s", colour_at[COLOUR_TITLES],COLOUR_REVERT,
-					colour_at[COLOUR_CSUCCESS],unparse_object (*this, db [thing].get_csucc ()), COLOUR_REVERT);
-		notify_censor(player, player, "%sOn failure, go to:%s %s%s%s", colour_at[COLOUR_TITLES],COLOUR_REVERT,
-					colour_at[COLOUR_CFAILURE],unparse_object (*this, db [thing].get_cfail ()), COLOUR_REVERT);
+		notify_censor(player, player, "%sOn success, go to:%s %s%s%s", ca[COLOUR_TITLES],COLOUR_REVERT,
+					ca[COLOUR_CSUCCESS],unparse_object (*this, db [thing].get_csucc ()), COLOUR_REVERT);
+		notify_censor(player, player, "%sOn failure, go to:%s %s%s%s", ca[COLOUR_TITLES],COLOUR_REVERT,
+					ca[COLOUR_CFAILURE],unparse_object (*this, db [thing].get_cfail ()), COLOUR_REVERT);
 		break;
 	  case TYPE_ALARM:
 		/* print alarm fire command */
-		notify_censor(player, player, "%sFire:%s %s", colour_at[COLOUR_TITLES],COLOUR_REVERT,unparse_object (*this, db [thing].get_csucc ()));
+		notify_censor(player, player, "%sFire:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object (*this, db [thing].get_csucc ()));
 		break;
 	  case TYPE_DICTIONARY:
 		if (matcher.match_index_attempt_result())
 		{
 			if((value=db[thing].exist_element(matcher.match_index_result())))
 			{
-				notify(player, "[%s] : %s", db[thing].get_index(value) , value_or_empty(db[thing].get_element(value)));
+				notify(player, "[%s] : %s", db[thing].get_index(value).c_str() , db[thing].get_element(value).c_str());
 				break;
 			}
 			else
@@ -1353,17 +1353,17 @@ const	char	*)
 		}
 	  	/* list elements */
 	  	number = db[thing].get_number_of_elements();
-			notify(player, "%sElements:%s %d", colour_at[COLOUR_TITLES],COLOUR_REVERT,number);
+			notify(player, "%sElements:%s %d", ca[COLOUR_TITLES],COLOUR_REVERT,number);
 	  	if(number > 0)
 	  	{
 	  		/* If a dictionary is set opaque then it doesn't show its elements
 	  		   on examine, just its indexes */
 	  		if(Opaque(thing))
 				for(temp = 1;temp <= number;temp++)
-					notify_censor(player, player, "  %s[%s]%s", colour_at[COLOUR_MESSAGES], db[thing].get_index(temp), COLOUR_REVERT);
+					notify_censor(player, player, "  %s[%s]%s", ca[COLOUR_MESSAGES], db[thing].get_index(temp).c_str(), COLOUR_REVERT);
 	  		else
 				for(temp = 1;temp <= number;temp++)
-					notify_censor(player, player, "  %s[%s]%s : %s", colour_at[COLOUR_MESSAGES], value_or_empty(db[thing].get_index(temp)), COLOUR_REVERT, value_or_empty(db[thing].get_element(temp)));
+					notify_censor(player, player, "  %s[%s]%s : %s", ca[COLOUR_MESSAGES], db[thing].get_index(temp).c_str(), COLOUR_REVERT, db[thing].get_element(temp).c_str());
 		}
 		break;
 
@@ -1375,7 +1375,7 @@ const	char	*)
 				if ((value=atoi(value_or_empty(matcher.match_index_result()))) > 0)
 					if (value <= ((Wizard(thing)) ? MAX_WIZARD_ARRAY_ELEMENTS:MAX_MORTAL_ARRAY_ELEMENTS))
 					{
-						notify(player, "[%d] : %s", value, value_or_empty(db[thing].get_element(value)));
+						notify(player, "[%d] : %s", value, db[thing].get_element(value).c_str());
 						break;
 					}
 					else
@@ -1393,11 +1393,11 @@ const	char	*)
 					
 	  	/* list elements */
 	  	number = db[thing].get_number_of_elements();
-		notify_censor(player, player, "%sElements:%s %d", colour_at[COLOUR_TITLES],COLOUR_REVERT,number);
+		notify_censor(player, player, "%sElements:%s %d", ca[COLOUR_TITLES],COLOUR_REVERT,number);
 	  	if(number > 0)
 	  	{
 			for(temp = 1;temp <= number;temp++)
-				notify_censor(player, player, "  %s[%d]%s %s: %s", colour_at[COLOUR_TITLES],  temp, COLOUR_REVERT, (temp<10)?"  ":(temp<100)?" ":"", value_or_empty(db[thing].get_element(temp)));
+				notify_censor(player, player, "  %s[%d]%s %s: %s", ca[COLOUR_TITLES],  temp, COLOUR_REVERT, (temp<10)?"  ":(temp<100)?" ":"", db[thing].get_element(temp).c_str());
 		}
 		break;
 	  default:
@@ -1410,28 +1410,28 @@ const	char	*)
 		{
 			case TYPE_WEAPON:
 				notify(player, "%sDegredation     :%s %d%s\n%sDamage          :%s %d%s\n%sHit Probability :%s %d%s\n%sRange           :%s %d%s\n%sAmmunition      :%s %d%s\n%sAmmo Type       :%s %s%s",
-				colour_at[COLOUR_TITLES],
-				colour_at[COLOUR_WEAPONS],
+				ca[COLOUR_TITLES],
+				ca[COLOUR_WEAPONS],
 				db[thing].get_degradation(),
 				COLOUR_REVERT,
-				colour_at[COLOUR_TITLES],
-				colour_at[COLOUR_WEAPONS],
+				ca[COLOUR_TITLES],
+				ca[COLOUR_WEAPONS],
 				db[thing].get_damage(),
 				COLOUR_REVERT,
-				colour_at[COLOUR_TITLES],
-				colour_at[COLOUR_WEAPONS],
+				ca[COLOUR_TITLES],
+				ca[COLOUR_WEAPONS],
 				db[thing].get_speed(),
 				COLOUR_REVERT,
-				colour_at[COLOUR_TITLES],
-				colour_at[COLOUR_WEAPONS],
+				ca[COLOUR_TITLES],
+				ca[COLOUR_WEAPONS],
 				db[thing].get_range(),
 				COLOUR_REVERT,
-				colour_at[COLOUR_TITLES],
-				colour_at[COLOUR_AMMUNITION],
+				ca[COLOUR_TITLES],
+				ca[COLOUR_AMMUNITION],
 				db[thing].get_ammunition(),
 				COLOUR_REVERT,
-				colour_at[COLOUR_TITLES],
-				colour_at[COLOUR_AMMUNITION],
+				ca[COLOUR_TITLES],
+				ca[COLOUR_AMMUNITION],
 				unparse_object(*this, db[thing].get_ammo_parent()),
 				COLOUR_REVERT);
 				break;
@@ -1453,8 +1453,8 @@ const	char	*)
 	/* show the contents */
 	if ((Typeof(thing) == TYPE_ROOM) && db[thing].get_contents_string())
 		notify_censor(player, player, "%sContents string:%s %s",
-				colour_at[COLOUR_CONTENTS],
-				COLOUR_REVERT, db[thing].get_contents_string());
+				ca[COLOUR_CONTENTS],
+				COLOUR_REVERT, db[thing].get_contents_string().c_str());
 
 	if (Container (thing))
 		examine_container (*this, thing, 0);
@@ -1474,7 +1474,7 @@ const	char	*)
 						switch(Typeof(looper))
 						{
 							case TYPE_PLAYER:
-								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), colour_at[rank_colour(thing)], unparse_object(*this, looper), COLOUR_REVERT);
+								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), ca[rank_colour(thing)], unparse_object(*this, looper), COLOUR_REVERT);
 								break;
 							case TYPE_WEAPON:
 								notify_public_colour(player, player, COLOUR_WEAPONS, "  %s (weapon)", unparse_object_inherited(*this, looper));
@@ -1508,7 +1508,7 @@ const	char	*)
 				notify_colour(player, player, COLOUR_CONTENTS, "Exits:");
 				DOLIST(looper, db[thing].get_exits())
 				{
-					notify_public(player, player,"  %s%s%s",  colour_at[COLOUR_EXITS], unparse_object(*this, looper), COLOUR_REVERT);
+					notify_public(player, player,"  %s%s%s",  ca[COLOUR_EXITS], unparse_object(*this, looper), COLOUR_REVERT);
 				}
 			}
 			break;
@@ -1527,7 +1527,7 @@ const	char	*)
 				notify_colour(player, player, COLOUR_CONTENTS, "Commands:");
 				DOLIST(looper, db[thing].get_commands())
 				{
-					notify_public(player, player,  "  %s%s%s",  colour_at[COLOUR_COMMANDS], unparse_object(*this, looper), COLOUR_REVERT);
+					notify_public(player, player,  "  %s%s%s",  ca[COLOUR_COMMANDS], unparse_object(*this, looper), COLOUR_REVERT);
 				}
 			}
 			break;
@@ -1562,12 +1562,12 @@ const	char	*)
 								notify_colour(player, player, COLOUR_CONTENTS, "Variables:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s%s", colour_at[COLOUR_PROPERTIES],unparse_object(*this, looper));
+							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES],unparse_object(*this, looper));
 							{
 								if (!Dark(looper) && controls_for_read (looper))
 								{
 									strcat (scratch_buffer, " = ");
-									strcat (scratch_buffer, value_or_empty (db[looper].get_description()));
+									strcat (scratch_buffer, db[looper].get_description().c_str());
 								}
 								notify_public(player, player, "%s%s", scratch_buffer, COLOUR_REVERT);
 							}
@@ -1589,11 +1589,11 @@ const	char	*)
 								notify_colour(player, player, COLOUR_CONTENTS, "Properties:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s%s", colour_at[COLOUR_PROPERTIES], unparse_object(*this, looper));
+							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES], unparse_object(*this, looper));
 							if (!Dark(looper) && controls_for_read (looper))
 							{
 								strcat (scratch_buffer, " = ");
-								strcat (scratch_buffer, value_or_empty (db[looper].get_description()));
+								strcat (scratch_buffer, db[looper].get_description().c_str());
 							}
 							notify_public(player, player, "%s%s", scratch_buffer, COLOUR_REVERT);
 						}
@@ -1616,9 +1616,9 @@ const	char	*)
 							}
 							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper));
 							if (!Dark(looper) && controls_for_read (looper))
-								notify_public(player, player, "%s%s : %s%d element%s", colour_at[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
+								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
 							else
-								notify_public(player, player, "%s%s%s", colour_at[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT);
+								notify_public(player, player, "%s%s%s", ca[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT);
 						}
 					}
 				}
@@ -1639,7 +1639,7 @@ const	char	*)
 							}
 							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper));
 							if (!Dark(looper) && controls_for_read (looper))
-								notify_public(player, player, "%s%s : %s%d element%s", colour_at[COLOUR_DICTIONARIES], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
+								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_DICTIONARIES], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
 							else
 								notify_public_colour(player, player, COLOUR_DICTIONARIES, "%s",  scratch_buffer);
 						}
@@ -1667,7 +1667,7 @@ const	char	*)
 							notify_colour(player, player, COLOUR_CONTENTS, "Fuses:");
 							had_title = 1;
 						}
-						notify_public (player, player, "  %s%s%s", colour_at[COLOUR_FUSES], unparse_object(*this, looper), COLOUR_REVERT);
+						notify_public (player, player, "  %s%s%s", ca[COLOUR_FUSES], unparse_object(*this, looper), COLOUR_REVERT);
 					}
 				}
 				had_title = 0;
@@ -1680,7 +1680,7 @@ const	char	*)
 							notify_colour (player, player, COLOUR_CONTENTS, "Alarms:");
 							had_title = 1;
 						}
-						notify_public(player, player, "  %s%s%s", colour_at[COLOUR_ALARMS], unparse_object(*this, looper), COLOUR_REVERT);
+						notify_public(player, player, "  %s%s%s", ca[COLOUR_ALARMS], unparse_object(*this, looper), COLOUR_REVERT);
 					}
 				}
 			}
@@ -1717,7 +1717,7 @@ const	char	*,
 const	char	*)
 {
 	dbref thing;
-	const char *const *const colour_at = db[player].get_colour_at();
+	const colour_at& ca = db[player].get_colour_at();
 
 	if((thing = db[player].get_contents()) == NOTHING)
 		notify_colour(player, player, COLOUR_MESSAGES, "You aren't carrying anything.");
@@ -1729,16 +1729,16 @@ const	char	*)
 			switch(Typeof(thing))
 			{
 				case TYPE_WEAPON:
-					notify_censor(player, player, "  %s%s%s (weapon)", colour_at[COLOUR_WEAPONS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
+					notify_censor(player, player, "  %s%s%s (weapon)", ca[COLOUR_WEAPONS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
 					break;
 				case TYPE_ARMOUR:
-					notify_censor(player, player, "  %s%s%s (armour)", colour_at[COLOUR_ARMOUR], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
+					notify_censor(player, player, "  %s%s%s (armour)", ca[COLOUR_ARMOUR], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
 					break;
 				case TYPE_AMMUNITION:
-					notify_censor(player, player, "  %s%s%s (ammunition)", colour_at[COLOUR_AMMUNITION], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
+					notify_censor(player, player, "  %s%s%s (ammunition)", ca[COLOUR_AMMUNITION], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
 					break;
 				case TYPE_THING:
-					notify_censor(player, player, "  %s%s%s", colour_at[COLOUR_THINGS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
+					notify_censor(player, player, "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
 					break;
 				default:
 					notify_censor(player, player, "  %s", unparse_objectandarticle(*this, thing, ARTICLE_LOWER_INDEFINITE));
@@ -1978,7 +1978,7 @@ const	char	*string)
 				&& Typeof(i) != TYPE_EXIT
 				&& db[i].get_name() != NULL
 				&& controls_for_read(i)
-				&& (!*string || ::step(db[i].get_name(), expbuf)))
+				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("description", descriptor))
@@ -1988,61 +1988,61 @@ const	char	*string)
 				&& Typeof(i) != TYPE_EXIT
 				&& db[i].get_description() != NULL
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description(), expbuf)))
+				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("cname", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_COMMAND
-				&& db[i].get_name() != NULL
+				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_name(), expbuf)))
+				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("cdescription", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_COMMAND
-				&& db[i].get_description() != NULL
+				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description(), expbuf)))
+				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("vname", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_VARIABLE
-				&& db[i].get_name() != NULL
+				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_name(), expbuf)))
+				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("vdescription", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_VARIABLE
-				&& db[i].get_description() != NULL
+				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description(), expbuf)))
+				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("ename", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_EXIT
-				&& db[i].get_name() != NULL
+				&& db[i].get_name()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_name(), expbuf)))
+				&& (!*string || ::step(db[i].get_name().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("edescription", descriptor))
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_EXIT
-				&& db[i].get_description() != NULL
+				&& db[i].get_description()
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description(), expbuf)))
+				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("edestination", descriptor))
@@ -2106,7 +2106,7 @@ const	char	*string)
 		for(i = 0; i < db.get_top (); i++)
 			if(Typeof(i) == TYPE_ALARM
 			&& controls_for_read (i)
-			&& (!*string || ::step(db[i].get_description(), expbuf)))
+			&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else if (string_prefix("ashcan", descriptor))
@@ -2115,7 +2115,7 @@ const	char	*string)
 			if((Typeof (i) != TYPE_FREE)
 				&& Ashcan(i)
 				&& controls_for_read (i)
-				&& (!*string || ::step(db[i].get_description(), expbuf)))
+				&& (!*string || ::step(db[i].get_description().c_str(), expbuf)))
 					notify_censor_colour(player,  player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
 	}
 	else

@@ -116,13 +116,13 @@ const	char	*default_fail_msg)
 		/* can't do it */
 
 		if(db[thing].get_inherited_fail_message())
-			notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, "%s", db[thing].get_inherited_fail_message());
+			notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, "%s", db[thing].get_inherited_fail_message().c_str());
 		else if(default_fail_msg)
 			notify_public_colour(c.get_player (), c.get_player(), COLOUR_FAILURE, default_fail_msg);
 		
 		if(db[thing].get_inherited_ofail() && !Dark(c.get_player ()))
 		{
-			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ());
+			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ().c_str());
 			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
 		}
 
@@ -132,11 +132,11 @@ const	char	*default_fail_msg)
 	{
 		/* can do it */
 		if(db[thing].get_inherited_succ_message())
-			notify_public_colour(c.get_player (), c.get_player(), COLOUR_SUCCESS, "%s", db[thing].get_inherited_succ_message());
+			notify_public_colour(c.get_player (), c.get_player(), COLOUR_SUCCESS, "%s", db[thing].get_inherited_succ_message().c_str());
 
 		if(db[thing].get_inherited_osuccess() && !Dark(c.get_player ()))
 		{
-			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_osuccess());
+			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_osuccess().c_str());
 			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
 		}
 

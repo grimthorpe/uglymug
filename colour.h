@@ -1,20 +1,7 @@
 #ifndef COLOUR_H_INCLUDED
 #define COLOUR_H_INCLUDED
 
-
-
-#ifdef DEBUG
-#define FREE(x) { if((x)==NULL) \
-			fprintf(stderr, "WARNING:  attempt to free NULL pointer (%s, line %d)\n", __FILE__, __LINE__); \
-		  else \
-		  { \
-		  	free((x)); \
-		  	(x)=NULL; \
-		  } \
-	  	}
-#else
-#define FREE(x) free((x))
-#endif /* DEBUG */
+#include "mudstring.h"
 
 /* The next number is the *MAXIMUM* number of colour attributes in
  * the cia_table. Remember that arrays start at index 0!
@@ -117,14 +104,34 @@ struct colour_table_type
 
 extern struct colour_table_type	colour_table[];
 
-extern const char *default_colour_at[];
 
 typedef struct cplay
 {
 		int		player;
-		char 		*output_string;
+		String		output_string;
 };
 
+class colour_at
+{
+	String colours[NUMBER_OF_COLOUR_ATTRIBUTES];
+	colour_at(const colour_at&);
+	colour_at& operator=(const colour_at& c);
+public:
+	colour_at() {}
+	colour_at(const CString&);
+
+	const char* operator[](unsigned int i) const
+	{
+		if(i < NUMBER_OF_COLOUR_ATTRIBUTES)
+		{
+			return colours[i].c_str();
+		}
+		return "";
+	}
+
+};
+
+extern colour_at default_colour_at;
 
 #endif
 

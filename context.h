@@ -42,14 +42,14 @@ enum	Command_action
 class	String_pair
 {
     private:
-		char			*name;
-		char			*value;
+		String			name;
+		String			value;
     public:
 					String_pair	(const char *n, const char *v);
 					~String_pair	();
-		void			set_value	(const char *v);
-	const	char			*get_name	() 	const	{ return name; }
-	const	char			*get_value	()	const	{ return value; }
+		void			set_value	(const String& v);
+	const	String&			get_name	() 	const	{ return name; }
+	const	String&			get_value	()	const	{ return value; }
 };
 
 typedef	Link_stack <String_pair *>	String_pair_stack;

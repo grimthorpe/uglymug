@@ -344,7 +344,7 @@ const	char	*arg2)
 {
 	struct smd *a;
 	return_status = COMMAND_FAIL;
-	const   char *const *const      ca = db[get_player()].get_colour_at();
+	const  colour_at&      ca = db[get_player()].get_colour_at();
 	Boolean		matched = False;
 
 	set_return_string (error_return_string);

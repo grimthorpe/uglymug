@@ -285,7 +285,7 @@ const	dbref	thing)
 				return buf;
 			}
 			else
-				return db[thing].get_inherited_name ();
+				return db[thing].get_inherited_name ().c_str();
 	}
 }
 
@@ -312,6 +312,6 @@ const	dbref	thing)
 				return buf;
 			}
 			else
-				return db[thing].get_name ();
+				return db[thing].get_name ().c_str();
 	}
 }
