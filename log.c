@@ -70,8 +70,7 @@ const	CString&	arg2)
 		getname_inherited (player), player,
 		log_time(),
 		step_limit,
-		//getname_inherited (command), command, value_or_empty (arg1), value_or_empty (arg2));
-		getname_inherited (command), command, arg1, arg2);
+		getname_inherited (command), command, arg1.c_str(), arg2.c_str());
 #endif
 	set_return_string (recursion_return_string);
 	return_status = COMMAND_FAIL;

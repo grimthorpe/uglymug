@@ -1400,7 +1400,7 @@ context::do_query_bps (const CString& name, const CString&)
 
 
 #ifdef ALIASES
-const char *const 
+String
 format_alias_string (
 dbref	thing)
 

@@ -843,11 +843,15 @@ const	CString& )
 	{
 		case TYPE_PLAYER:
 #ifdef ALIASES
-			if (*format_alias_string (thing) != '\0')
-				notify_public(player, player, "%sAliases:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, value_or_empty (format_alias_string(thing)));
+			{
+				const String& aliases = format_alias_string(thing);
+				if (aliases)
+					notify_public(player, player, "%sAliases:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, aliases.c_str());
+			}
+			// FALLTHROUGH
 #endif
 		case TYPE_PUPPET:
-			notify(player, "%sRace:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_race ().c_str());
+			notify_public(player, player, "%sRace:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, db[thing].get_race ().c_str());
 			break;
 	}
 

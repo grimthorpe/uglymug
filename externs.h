@@ -87,7 +87,7 @@ extern void		count_down_abort_fuses	(context &c, dbref fuse);
 #endif
 
 /* From get.c */
-extern	const	char	*const format_alias_string	(dbref thing);
+extern	String		format_alias_string	(dbref thing);
 /* From game.c */
 extern	void		mud_time_sync		();
 extern	void		mud_command		(dbref player, const char *command);

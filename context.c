@@ -466,7 +466,7 @@ context		*context)
 
 #ifdef LOG_COMMANDS
 #ifndef NEW_LOGGING
-		Trace( "COMPOUND: %s(%d)\n", value_or_empty (db [get_current_command ()].get_name ()), get_current_command ());
+		Trace( "COMPOUND: %s(%d)\n", db [get_current_command ()].get_name ().c_str(), get_current_command ());
 #else
 		//log_command("COMPOUND: %s(#%d)", db[get_current_command()].get_name().c_str(), get_current_command());
 		log_command(player,											/* playerid */
