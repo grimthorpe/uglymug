@@ -1255,6 +1255,7 @@ const	char	*)
 	else
 		db[thing].set_destination (db[player].get_destination());
 	db[thing].set_owner (ID);
+	db[thing].set_build_id(thing);
 	Settypeof(thing, TYPE_PUPPET);
 
 	/* and we're done */

@@ -1590,6 +1590,9 @@ const	int	iformat)
 				case ARRAY_STORAGE_ELEMENTS:
 					get_array_elements(f, this);
 					break;
+				case PUPPET_BUILDID:
+					build_id = getref (f);
+					break;
 				default:
 					Trace( "Something has gone seriously wrong in Puppet::read\n");
 					Trace( "Field Type: %d\n", fieldtype);
@@ -1638,6 +1641,8 @@ const
 		putfieldtype(f, PUPPET_MONEY);
 		putint		(f, money);
 	}
+	putfieldtype(f, PLAYER_BUILDID);
+	putref		(f, get_build_id());
 	return (True);
 }
 
@@ -1661,7 +1666,7 @@ const
 	putfieldtype(f, PLAYER_CONTROLLER);
 	putref		(f, controller);
 	putfieldtype(f, PLAYER_BUILDID);
-	putref		(f, build_id);
+	putref		(f, get_build_id());
 	/* Combat Stats */
 #if 0
 	putref		(f, weapon);
@@ -1707,7 +1712,7 @@ const	int	iformat)
 		/* Controller set using direct assignment to avoid set_referenced() on an object that isn't read yet */
 			controller = getref (f);
 			if(version > 15)
-				build_id = getref (f);
+				set_build_id(getref (f));
 			if(version > 17)
 			{
 				set_colour(getstring(f));
@@ -1867,7 +1872,7 @@ const	int	iformat)
 					controller = getref (f);
 					break;
 				case PLAYER_BUILDID:
-					build_id = getref (f);
+					set_build_id (getref (f));
 					break;
 				case PLAYER_COLOUR:
 					set_colour(getstring(f));
@@ -2889,6 +2894,7 @@ FILE	*f)
 						break;
 					case TYPE_PUPPET:
 						obj = new (puppet);
+						obj->set_build_id(i);
 						break;
 					case TYPE_ROOM:
 						obj = new (Room);
@@ -2931,7 +2937,8 @@ FILE	*f)
 						array [i].get_obj ()->read_pre12 (f, version);
 					else
 						array [i].get_obj ()->read (f, version, iformat);
-					if(Typeof(i) == TYPE_PLAYER)
+					if((Typeof(i) == TYPE_PLAYER)
+						|| (Typeof(i) == TYPE_PUPPET))
 						db[i].reset_build_id(i);
 				}
 				else

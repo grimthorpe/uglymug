@@ -1502,6 +1502,7 @@ puppet::puppet ()
 	email_addr	= NULL;
 	fsm_states	= NULL;
 	money		= 0;
+	build_id	= NOTHING;
 }
 
 
@@ -1662,7 +1663,7 @@ const	dbref	o)
 
 
 void
-Player::set_build_id(
+puppet::set_build_id(
 const	dbref	o)
 
 {
@@ -1673,7 +1674,7 @@ const	dbref	o)
 
 
 void
-Player::reset_build_id(
+puppet::reset_build_id(
 const	dbref	o)
 
 {

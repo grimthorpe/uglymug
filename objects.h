@@ -276,6 +276,7 @@ class	puppet
 	int			pennies;
 	long			score;
 	long			last_name_change;	/*Last time they changed their name*/
+	int			build_id;		/*The build id*/
 	char			*race;
 	char			*who_string;
    	char			*email_addr;		/* email address of the player */
@@ -303,6 +304,9 @@ class	puppet
 	const	Boolean		read			(FILE *f, const int db_version, const int iformat);
 		void		set_pennies		(const int i)			{ pennies=i; }
 		void		add_pennies		(const int i)			{ pennies+=i; }
+	const	dbref		get_build_id		()			const	{ return build_id; }
+		void		set_build_id		(dbref c);
+		void		reset_build_id		(dbref c);
 		void		set_email_addr		(const char *addr);
 		void		set_score		(const long v)			{ score = v; }
 		void		set_last_name_change	(const long v)			{ last_name_change = v; }
@@ -335,7 +339,6 @@ class	Player
 	char			*alias[MAX_ALIASES];
 #endif
 	char			*password;
-	dbref			build_id;
 	dbref			controller;
 #ifdef ALIASES
 		void		set_alias		(const int which, const char *what);
@@ -374,8 +377,6 @@ class	Player
 	const	cplay *		get_colour_play		()			const	{return colour_play;}
 		void		set_colour_play_size	(int c)				{colour_play_size=c;}
 	const	int		get_colour_play_size	()			const	{return colour_play_size;}
-		void		set_build_id		(dbref c);
-		void		reset_build_id		(dbref c);
 		void		set_controller		(dbref c);
 		void		set_password		(const char *p);
 		void		set_channel		(struct channel *c)		{channel = c;}
@@ -389,7 +390,6 @@ class	Player
 	const	int		has_partial_alias	(const char *string)	const;
 #endif /* ALIASES */
 
-	const	dbref		get_build_id		()			const	{ return build_id; }
 	const	dbref		get_controller		()			const	{ return (controller); }
 	const	char		*get_password		()			const	{ return (password); }
 	const	double		get_inherited_mass	()			const;
