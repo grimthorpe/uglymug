@@ -1397,39 +1397,6 @@ Trace( "new_connection returned %d, errno=%d\nThe old code would have ABORTED he
 							d->warning_level ++;
 					}
 					break;
-				case 1:	/* 30 mins */
-					if (diff > 30 * 60)
-					{
-						d->queue_string ("You are now officially idle.\n\n");
-
-						*(d->prev) = d->next;
-						if (d->next)
-							d->next->prev = d->prev;
-
-						d->warning_level++;
-
-						if (descriptor_list)
-							descriptor_list->prev = &(d->next);
-						d->next	= descriptor_list;
-						d->prev	= &descriptor_list;
-						descriptor_list = d;
-					}
-
-					break;
-				case 2:	/* every 30 mins */
-					if (diff % (30 * 60) == 0)
-					{
-						*(d->prev) = d->next;
-						if (d->next)
-							d->next->prev = d->prev;
-
-						if (descriptor_list)
-							descriptor_list->prev = &(d->next);
-						d->next	= descriptor_list;
-						d->prev	= &descriptor_list;
-						descriptor_list = d;
-					}
-					break;
 			}
 		}
 	}
