@@ -492,14 +492,14 @@ context::do_query_description (const char *const name, const char *const)
 				else
 				{
 					if (gagged_command () == False)
-						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result());
+						notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", value_or_empty(matcher.match_index_result()));
 					set_return_string (error_return_string);
 					return_status = COMMAND_FAIL;
 				}
 			else
 			{
 				if (gagged_command () == False)
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", matcher.match_index_result());
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\"", value_or_empty(matcher.match_index_result()));
 				set_return_string (error_return_string);
 				return_status = COMMAND_FAIL;
 			}
@@ -1143,7 +1143,7 @@ context::do_query_next (const char *const name, const char *const)
 					}
 					else
 					{
-						notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\".", matcher.match_index_result());
+						notify_colour(get_player(), get_player(), COLOUR_ERROR_MESSAGES, "Dictionary doesn't contain element \"%s\".", value_or_empty(matcher.match_index_result()));
 					}
 					return;
 				}
