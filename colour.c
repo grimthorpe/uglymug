@@ -493,7 +493,7 @@ const	String& arg2)
 	*/
 		dbref	victim;
 		dbref	colour_player = NOTHING;
-		int	i;
+	unsigned int	i;
 	const colour_at& ca = db[player].get_colour_at();
 
 	set_return_string (error_return_string);
@@ -507,11 +507,11 @@ const	String& arg2)
 
 	if(!arg2)
 	{
-		for(i=0; cia_table[i].cia; i++)
+		for(i = 0; i < countof(cia_table); i++)
 			if(string_prefix(cia_table[i].cia, arg1)!=0)
 				break;
 
-		if(!cia_table[i].cia)
+		if(i == countof(cia_table))
 			if((colour_player = lookup_player(player,arg1)) == NOTHING)
 			{
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't an attribute or player called \"%s\".", arg1.c_str());
@@ -531,11 +531,11 @@ const	String& arg2)
 			return;
 		}
 
-		for(i=0; cia_table[i].cia; i++)
+		for(i = 0; i < countof(cia_table); i++)
 			if(string_prefix(cia_table[i].cia, arg2)!=0)
 				break;
 
-		if(!cia_table[i].cia)
+		if(i == countof(cia_table))
 			if((colour_player = lookup_player(player,arg2)) == NOTHING)
 			{
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "There isn't an attribute or player called \"%s\".", arg2.c_str());

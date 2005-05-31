@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed @?colour to use the new style cia_table for-loop instead of the old one (Grimthorpe)
+
 um1_061
 	Added #include <ctype.h> to colour.c
 um1_060
