@@ -1348,3 +1348,88 @@ const	String& )
 	sprintf (scratch_return_string, "#%d", (int)thing);
 	set_return_string (scratch_return_string);
 }
+/*
+void
+context::do_at_clone(const String& newname, const String& original)
+{
+	dbref newthing = NOTHING;
+	return_status = COMMAND_FAIL;
+	set_return_string (error_return_string);
+
+	if(newthing == NOTHING)
+		return;
+
+	return_status = COMMAND_SUCC;
+	sprintf (scratch_return_string, "#%d", (int)newthing);
+	set_return_string (scratch_return_string);
+}
+
+dbref
+context::really_do_at_clone(const dbref original, const dbref location, bool copyDescription)
+{
+	// At this point we assume that you have permission to clone the object, and to place it in the new location.
+	dbref owner = db[original].get_owner();
+	dbref thing = NOTHING;
+
+	switch(Typeof(original))
+	{
+	case TYPE_PROPERTY:
+		if(!payfor(owner, PROPERTY_COST))
+		{
+			return NOTHING;
+		}
+		thing = db.new_object(*new (Property));
+		break;
+	case TYPE_ARRAY:
+		if(!payfor(owner, ARRAY_COST))
+		{
+			return NOTHING;
+		}
+		thing = db.new_object(*new (Array));
+		break;
+	case TYPE_DICTIONARY:
+		if(!payfor(owner, DICTIONARY_COST))
+		{
+			return NOTHING;
+		}
+		thing = db.new_object(*new (Dictionary));
+		break;
+	default:
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Unable to clone an object of that type");
+		return NOTHING;
+	}
+
+	if(thing == NOTHING)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Something strange happened whilst trying to clone an object");
+		return NOTHING;
+	}
+
+	// initialize everything
+	// Well, not everything.
+	// We need a 'clone' method on all classes, otherwise this will get messy.
+	db[thing].set_name (db[original].get_name());
+	db[thing].set_location (location);
+	db[thing].set_owner (owner);
+	Settypeof(thing, Typeof(original));
+	Created(thing);
+
+	// link it in
+	PUSH (thing, location, info_items);
+
+	if(copyDescription)
+	{
+		switch(Typeof(thing))
+		{
+			case TYPE_PROPERTY:
+				db[thing].set_description(db[original].get_description());
+				break;
+			case TYPE_ARRAY:
+			case TYPE_DICTIONARY:
+				break;
+		}
+	}
+	// and we're done
+	return thing;
+}
+*/

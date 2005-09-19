@@ -14,6 +14,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed the look code so you can see things that you carry again (Grimthorpe)
+	Fixed the code so it compiles under GCC v4.0.1. (Grimthorpe)
+	Started to add the new language - it'll probably change lots (Grimthorpe)
+	Started to add create-on-write for inherited properties (Grimthorpe)
+	Fixed @force so that you can't blow up the stack. (Grimthorpe)
 	Fixed @?colour to use the new style cia_table for-loop instead of the old one (Grimthorpe)
 
 um1_061

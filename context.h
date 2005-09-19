@@ -309,7 +309,8 @@ class	context
 	context(const context&);	///< No copy constructor implemented.
 	context& operator=(const context&);	///< No operator= implemented.
 public:
-	static context	DEFAULT_CONTEXT;
+	static const context	DEFAULT_CONTEXT;
+	static const context	UNPARSE_CONTEXT;
     friend struct Scheduler;
     friend struct Dependency;
     private:
@@ -368,6 +369,7 @@ public:
 	const	bool			controls_for_read	(const dbref what) const;
 	const	bool			controls_for_write	(const dbref what) const;
 	const	bool			controls_for_private	(const dbref what) const;
+	const	bool			controls_for_look	(const dbref what) const;
 		String_pair		*locate_innermost_arg	(const String& name)	const;
 #ifndef	NO_GAME_CODE
 	bool				allow_another_step	();
@@ -392,6 +394,8 @@ public:
 	void				do_at_alarm		(const String&, const String&);
 	void				do_at_array		(const String&, const String&);
 	void				do_at_censor		(const String&, const String&);
+//	void				do_at_clone		(const String&, const String&);
+//	dbref				really_do_at_clone	(const dbref original, const dbref location, bool copyDescription = true);
 	void				do_at_censorinfo	(const String&, const String&);
 	void				do_at_command		(const String&, const String&);
 	void				do_at_connect		(const String&, const String&);

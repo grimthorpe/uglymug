@@ -32,6 +32,7 @@ class	Pending
     protected:
 	virtual	bool		operator<	(Pending &rhs)	{ return (object < rhs.object); }	///< Default comparison operator; override in subclasses.
 				Pending		(dbref object);
+	virtual			~Pending	() {}
     public:
 	void			insert_into	(Pending **list);
 	Pending			*remove_from	(Pending **list);

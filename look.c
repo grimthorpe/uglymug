@@ -384,7 +384,7 @@ dbref	thing)
 				ca[COLOUR_PROPERTIES],db[looper].get_description().c_str(), COLOUR_REVERT);
 		}
 		if (Container(thing) && (db[thing].get_contents() != NOTHING))
-			look_container (c, thing, "But it contains:", 0);
+			look_container (c, thing, "But it contains:", 1);
 	}
 }
 
@@ -578,7 +578,7 @@ const	String& )
 				return;
 			}
 
-			if((!Visible(thing)) && (!can_link (*this, thing)) && (!controls_for_read (thing)))
+			if((!Visible(thing)) && (!can_link (*this, thing)) && (!controls_for_look (thing)))
 			{
 				switch(Typeof(thing))
 				{

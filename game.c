@@ -1346,7 +1346,7 @@ const String&	command)
 	}
 	if ((db[player].get_location() < 0) && (db[player].get_location() >= db.get_top ()))
 	{
-		log_bug("Player #%s at location #%d", unparse_object (context (UNPARSE_ID, context::DEFAULT_CONTEXT), player), db[player].get_location());
+		log_bug("Player #%s at location #%d", unparse_object (context::UNPARSE_CONTEXT, player), db[player].get_location());
 		return;
 	}
 
@@ -1524,17 +1524,20 @@ void mud_time_sync ()
 					moveto (the_player, cached_location);
 				}
 				else
+				{
+					context alarm_context(the_player, context::DEFAULT_CONTEXT);
 					notify_colour(the_player, the_player,
 						      COLOUR_ERROR_MESSAGES,
 						"Alarm %s failed to execute, due to lack of money.",
-						unparse_object (context (the_player, context::DEFAULT_CONTEXT), an_alarm));
+						unparse_object (alarm_context, an_alarm));
+				}
 			}
 			if (db[an_alarm].get_description())
 				db.pend (an_alarm);
 		}
 		else
 		{
-			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context (UNPARSE_ID, context::DEFAULT_CONTEXT), an_alarm));
+			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context::UNPARSE_CONTEXT, an_alarm));
 			alarm_block--;
 			return;
 		}

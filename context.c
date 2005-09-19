@@ -27,7 +27,8 @@
 /* The only one there is */
 Scheduler	mud_scheduler;
 
-context context::DEFAULT_CONTEXT (true);
+const context context::DEFAULT_CONTEXT (true);
+const context context::UNPARSE_CONTEXT (UNPARSE_ID, context::DEFAULT_CONTEXT);
 
 /************************************************************************/
 /*									*/

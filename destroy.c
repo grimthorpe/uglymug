@@ -17,7 +17,7 @@
 #include "colour.h"
 #include "log.h"
 
-#define CheckRefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {log_bug("%s has REF cleared",unparse_object(context(UNPARSE_ID, context::DEFAULT_CONTEXT),(x)));}}
+#define CheckRefSet(x)	{if (!db[(x)].get_flag(FLAG_REFERENCED)) {log_bug("%s has REF cleared",unparse_object(context::UNPARSE_CONTEXT,(x)));}}
 
 static	bool			empty_an_object				(dbref, dbref);
 

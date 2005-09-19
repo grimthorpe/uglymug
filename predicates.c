@@ -44,7 +44,7 @@ unsigned char flag_map[][64] =
 
 /*TYPE_PUPPET*/
 	{FLAG_ASHCAN, FLAG_CHOWN_OK, FLAG_CONNECTED, FLAG_FEMALE, FLAG_FIGHTING,
-	 FLAG_DEBUG,
+	 FLAG_DEBUG, FLAG_BUILDER,
 	 FLAG_INHERITABLE, FLAG_LISTEN, FLAG_MALE, FLAG_NEUTER, FLAG_TRACING,
 	 FLAG_REFERENCED, FLAG_READONLY, FLAG_VISIBLE,
 	 FLAG_ARTICLE_PLURAL, FLAG_ARTICLE_SINGULAR_VOWEL,
@@ -92,17 +92,17 @@ unsigned char flag_map[][64] =
 /*TYPE_PROPERTY*/
 	{FLAG_ASHCAN, FLAG_CHOWN_OK, FLAG_DARK,
 	 FLAG_PRIVATE,
-	 FLAG_READONLY, FLAG_VISIBLE, FLAG_WIZARD, 0},
+	 FLAG_READONLY, FLAG_VISIBLE, FLAG_WIZARD, FLAG_ERIC, 0},
 
 /*TYPE_ARRAY*/
 	{FLAG_ASHCAN, FLAG_CHOWN_OK, FLAG_DARK, FLAG_OPAQUE,
 	 FLAG_PRIVATE,
-	 FLAG_READONLY, FLAG_VISIBLE, FLAG_WIZARD, 0},
+	 FLAG_READONLY, FLAG_VISIBLE, FLAG_WIZARD, FLAG_ERIC, 0},
 
 /*TYPE_DICTIONARY*/
 	{FLAG_ASHCAN, FLAG_CHOWN_OK, FLAG_DARK, FLAG_OPAQUE,
 	 FLAG_PRIVATE,
-	 FLAG_READONLY, FLAG_VISIBLE, FLAG_WIZARD, 0},
+	 FLAG_READONLY, FLAG_VISIBLE, FLAG_WIZARD, FLAG_ERIC, 0},
 
 /*TYPE_ALARM*/
 	{FLAG_ASHCAN, FLAG_CHOWN_OK, FLAG_INHERITABLE, FLAG_LOCKED, 
@@ -265,5 +265,19 @@ context::controls_for_private(const dbref what) const
 	return (get_effective_id() == owner)
 		|| (player == owner)
 		|| (db[player].get_build_id() == owner);
+}
+
+const bool
+context::controls_for_look(const dbref what) const
+{
+	dbref whatloc = db[what].get_location();
+
+	return	Visible(what) ||				// Its visible
+		controls_for_read(what) ||			// You control it
+		controls_for_read(whatloc) ||			// You control its location
+		(what == player) ||				// Looking at yourself
+		(whatloc == player) ||				// Something you hold
+		(what == db[player].get_location()) ||		// Looking where you are
+		(whatloc == db[player].get_location());		// Looking at something in the same place as you
 }
 

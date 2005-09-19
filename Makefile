@@ -42,7 +42,6 @@ SOURCES:=\
 	ashcheck.c \
 	boolexp.c \
 	channel.c \
-	chat.c \
 	colour.c \
 	colouring.c \
 	command.c \
@@ -92,7 +91,8 @@ SOURCES:=\
 	unparse.c \
 	utils.c \
 	variable.c \
-	wiz.c
+	wiz.c \
+	expression.c
 
 RAW_LIB_OBJECTS:= \
 	alarm.o \
@@ -132,7 +132,8 @@ RAW_LIB_OBJECTS:= \
 	unparse.o \
 	utils.o \
 	variable.o \
-	wiz.o 
+	wiz.o \
+	expression.o
 
 RAW_OUTFILES:= \
 	trawl \

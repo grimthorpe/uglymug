@@ -93,11 +93,13 @@ const	String& player_string)
 				unparse_object(*this, db[player].get_build_id()));
 			if(members !=NOTHING)
 			{
+				tmp = add_up_votes(members, db[player].get_build_id(), idstring);
 				sprintf(idstring, "#%d", (int)player);
 				notify(player, "The group contains %d member%s, of which %d support%s you.",
-				db[members].get_number_of_elements(),
-				PLURAL(db[members].get_number_of_elements()),
-				(tmp = add_up_votes(members, db[player].get_build_id(), idstring)), tmp==1?"s":"");
+					db[members].get_number_of_elements(),
+					PLURAL(db[members].get_number_of_elements()),
+					tmp,
+					tmp==1?"s":"");
 			}
 		}
 		else

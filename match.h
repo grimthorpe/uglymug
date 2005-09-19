@@ -161,6 +161,7 @@ private:
 	void			set_my_leaf			(dbref my_leaf)		{ thing = my_leaf; }
 
 	bool			was_absolute			()			{ return (absolute != NOTHING) || (absolute_loc != NOTHING); }
+	dbref			get_location			()			{ return absolute_loc; }
 };
 
 #endif	/* _MATCH_H */

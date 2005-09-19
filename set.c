@@ -211,7 +211,7 @@ const	String& array,
 const	String& direction)
 {
 	dbref	thing;
-	int	direct;
+	directions	direct = ASCEND;
 
 	/* First find what we are looking for */
 	Matcher what_matcher (player, array, TYPE_NO_TYPE, get_effective_id());
@@ -226,7 +226,16 @@ const	String& direction)
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Object not found");
 		return;
 	}
-
+	else if(thing == AMBIGUOUS)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "I don't know which one you mean");
+		return;
+	}
+	else if(thing < 0)
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Thats not a valid thing to sort");
+		return;
+	}
 
 	/*
 	 * A more meaningful message when trying to describe a read-only object
@@ -527,6 +536,19 @@ const	String& description)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't describe something you don't own or control.");
 		return;
+	}
+
+	if(Eric(thing))
+	{
+		// Inheritable thing?
+		dbref matchloc = matcher.get_location();
+		if((matchloc != NOTHING) && (matchloc != db[thing].get_location()))
+		{
+			// The location of the found object is not the same as the location we started searching on.
+			// So as long as this is a variable, we should be OK.
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Need to create new variable here (%d).", matcher.get_location());
+			return;
+		}
 	}
 
 	switch (Typeof (thing))
@@ -1400,9 +1422,9 @@ const	String& flag)
 				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That flag can't be set by a user.");
 				return;
 			}
-			if ((flag_list[i].flag == FLAG_ERIC) || (flag_list[i].flag == FLAG_OFFICER))
+			if (flag_list[i].flag == FLAG_OFFICER)
 			{
-				notify_colour(player,player,COLOUR_ERROR_MESSAGES, "The Eric flag is obsolete. Please don't try to set it.");
+				notify_colour(player,player,COLOUR_ERROR_MESSAGES, "The Officer flag is obsolete. Please don't try to set it.");
 				return;
 			}
 			else
