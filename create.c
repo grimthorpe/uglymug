@@ -1335,6 +1335,12 @@ const	String& )
 		db[thing].set_destination (db[player].get_destination());
 	db[thing].set_owner (ID);
 	db[thing].set_build_id(thing);
+
+	db[thing].set_mass(STANDARD_PLAYER_MASS);	/* Lee TC	*/
+	db[thing].set_volume(STANDARD_PLAYER_VOLUME);
+	db[thing].set_mass_limit(STANDARD_PLAYER_MASS_LIMIT);
+	db[thing].set_volume_limit(STANDARD_PLAYER_VOLUME_LIMIT);
+				
 	Settypeof(thing, TYPE_PUPPET);
 	Created (thing);
 

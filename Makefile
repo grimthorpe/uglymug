@@ -91,8 +91,7 @@ SOURCES:=\
 	unparse.c \
 	utils.c \
 	variable.c \
-	wiz.c \
-	expression.c
+	wiz.c 
 
 RAW_LIB_OBJECTS:= \
 	alarm.o \
@@ -132,8 +131,7 @@ RAW_LIB_OBJECTS:= \
 	unparse.o \
 	utils.o \
 	variable.o \
-	wiz.o \
-	expression.o
+	wiz.o 
 
 RAW_OUTFILES:= \
 	trawl \

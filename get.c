@@ -1030,6 +1030,7 @@ context::do_query_mass (const String& name, const String&)
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
 			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_mass ());
@@ -1054,6 +1055,7 @@ context::do_query_mass_limit (const String& name, const String&)
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
 			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_mass_limit ());
@@ -1826,6 +1828,7 @@ context::do_query_volume (const String& name, const String&)
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
 			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_volume ());
@@ -1850,6 +1853,7 @@ context::do_query_volume_limit (const String& name, const String&)
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
+		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
 			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_volume_limit ());

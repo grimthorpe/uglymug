@@ -14,6 +14,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixes do_query_mass/volume/etc to work with puppets. (Lee TC)
+	Fixed puppets to have normal player mass/volume/limits when created
+(Lee TC)
 	Fixed the look code so you can see things that you carry again (Grimthorpe)
 	Fixed the code so it compiles under GCC v4.0.1. (Grimthorpe)
 	Started to add the new language - it'll probably change lots (Grimthorpe)
