@@ -26,7 +26,18 @@ for i in /usr /usr/local /opt/pcre; do
   fi
 done
 
+# Lua has its own configuration detection program, so we'll just use that.
+LD_LUA=`lua-config --libs 2>/dev/null`
+CC_LUA=`lua-config --include 2>/dev/null`
+
+# Only define LUA if we found it.
+if [ "$CC_LUA" != "" ]; then
+  CC_LUA="$CC_LUA -DLUA"
+fi
+
 echo '# Local machine configuration.' > $1
 echo LD_REGEXP=$LD_LIBPCRE >> $1
 echo CC_REGEXP=$CC_LIBPCRE >> $1
+echo LD_LUA=$LD_LUA >> $1
+echo CC_LUA=$CC_LUA >> $1
 

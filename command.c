@@ -193,7 +193,6 @@ Matcher		&matcher)
 	}
 
 	Accessed (command);
-	call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()));
 
 	if(Backwards(command))
 	{
@@ -206,6 +205,15 @@ Matcher		&matcher)
 		);
 		return_status = COMMAND_HALT;
 		return ACTION_HALT;
+	}
+
+	if(db[command].get_codelanguage() == "lua")
+	{
+		call_stack.push (new Lua_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()));
+	}
+	else
+	{
+		call_stack.push (new Compound_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()));
 	}
 
 	return ACTION_CONTINUE;
@@ -901,7 +909,7 @@ const String&args)
 
 	if(Private(target) && !controls_for_private(target))
 	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Permission Denied");
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
 		return;
 	}
 
@@ -1015,3 +1023,57 @@ const String&args)
 	return_status=COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
+
+void
+context::do_at_codelanguage(
+const String&commandname,
+const String&language)
+{
+	return_status=COMMAND_FAIL;
+	set_return_string(error_return_string);
+
+	Matcher matcher(player, commandname, TYPE_NO_TYPE, get_effective_id());
+	if(gagged_command())
+		matcher.work_silent();
+	matcher.match_command();
+	matcher.match_absolute();
+
+	dbref command;
+	if((command = matcher.noisy_match_result()) != NOTHING)
+	{
+		if(Typeof(command) != TYPE_COMMAND)
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Command '%s' not found", commandname.c_str());
+			return;
+		}
+		if(!controls_for_write(command))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, permission_denied.c_str());
+			return;
+		}
+		if((!language)	// Default -> UglyCODE
+			|| (language == "lua"))
+		{
+			db[command].set_codelanguage(language);
+
+			return_status = COMMAND_SUCC;
+			set_return_string(ok_return_string);
+
+			if(!language)
+			{
+				notify_colour(player, player, COLOUR_MESSAGES, "Command '%s' language unset", commandname.c_str());
+			}
+			else
+			{
+				notify_colour(player, player, COLOUR_MESSAGES, "Command '%s' language set to %s", commandname.c_str(), language.c_str());
+			}
+			return;
+		}
+		else
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Command language '%s' not recognised.", language.c_str());
+		}
+	}
+}
+
+

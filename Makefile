@@ -19,8 +19,8 @@ BUILD_DIR:=$(BUILDS_DIR)/$(BUILD_ENVIRONMENT)
 # Use the following if you're using PCRE. NOTE: On something you will need to use -R as well.
 include $(BUILD_DIR)/Makefile.local
 
-LOCALLIBS=$(LD_REGEXP)
-LOCALCCFLAGS=$(CC_REGEXP)
+LOCALLIBS=$(LD_REGEXP) $(LD_LUA)
+LOCALCCFLAGS=$(CC_REGEXP) $(CC_LUA)
 
 by_default_just_make: $(BUILDS_DIR) $(BUILD_DIR) $(BUILD_DIR)/netmud$(EXESUFFIX)
 
@@ -29,8 +29,8 @@ checkenvironment:
 
 INCLUDE:=configs/$(BUILD_ENVIRONMENT)/include
 # Whatever you put in for $(CC) must be able to grok ANSI C.
-CC:=gcc $(INCLUDE:%=-I%) $(CC_REGEXP)
-CPLUSPLUS:=g++ $(INCLUDE:%=-I%) -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion $(CC_REGEXP)
+CC:=gcc $(INCLUDE:%=-I%) $(CC_REGEXP) $(CC_LUA)
+CPLUSPLUS:=g++ $(INCLUDE:%=-I%) -Wall -Wcast-qual -Wparentheses -Wwrite-strings -Wconversion $(CC_REGEXP) $(CC_LUA)
 # TODO: Separate CPPFLAGS and CFLAGS in Makefile.os. PJC 12/4/03.
 CPPFLAGS:= $(CFLAGS)
 LIBUGLY:= $(BUILD_DIR)/libugly.a
@@ -91,7 +91,8 @@ SOURCES:=\
 	unparse.c \
 	utils.c \
 	variable.c \
-	wiz.c 
+	wiz.c \
+	luainterp.c
 
 RAW_LIB_OBJECTS:= \
 	alarm.o \
@@ -131,7 +132,8 @@ RAW_LIB_OBJECTS:= \
 	unparse.o \
 	utils.o \
 	variable.o \
-	wiz.o 
+	wiz.o \
+	luainterp.o
 
 RAW_OUTFILES:= \
 	trawl \

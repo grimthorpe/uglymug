@@ -292,6 +292,20 @@ private:
 			bool		gagged_command		()	const	{ return gagged; }
 };
 
+class	Lua_command_and_arguments :
+		public Compound_command_and_arguments
+{
+private:
+	Lua_command_and_arguments(const Lua_command_and_arguments&); // DUMMY
+	Lua_command_and_arguments& operator=(const Lua_command_and_arguments&); // DUMMY
+
+    public:
+					Lua_command_and_arguments	(dbref c, context *co, const String& sc, const String& a1, const String& a2, dbref eid, Matcher *m, bool silent);
+	virtual				~Lua_command_and_arguments	();
+			Command_action	step			(context *co);
+	virtual		Command_action	step_once		(context *);
+};
+
 typedef	std::stack <Compound_command_and_arguments *>	Call_stack;
 
 
@@ -379,7 +393,7 @@ public:
 	bool				can_override_command (const String& command, const String& arg1, const String& arg2);
 	Command_action			prepare_compound_command	(dbref command, const String& simple_command, const String& arg1, const String& arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
 	Command_action			do_compound_command	(dbref command, const String& simple_command, const String& arg1, const String& arg2, dbref effective_id = NOTHING, Matcher &matcher = *(Matcher *) NULL);
-
+	Command_action			do_lua_command	(dbref command, const String& simple_command, const String& arg1, const String& arg2);
 	/* Functions from move.c that needed to be inside a context */
 	void				enter_room              (dbref loc);
 	void				send_home		(dbref thing);
@@ -412,6 +426,7 @@ public:
 	void				do_at_if		(const String&, const String&);
 	void				do_at_insert		(const String&, const String&);
 	void				do_at_key		(const String&, const String&);
+	void				do_at_codelanguage	(const String&, const String&);
 	void				do_at_list		(const String&, const String&);
 	void				do_at_listcolours	(const String&, const String&);
 	void				do_at_local		(const String&, const String&);

@@ -356,6 +356,7 @@ class	object
 	virtual		void	set_info_items			(const dbref o);
 	virtual		void	set_fuses			(const dbref o);
 	/* Command */
+	virtual		void	set_codelanguage		(const String&);
 	virtual		void	set_csucc			(const dbref o);
 	virtual		void	set_cfail			(const dbref o);
 	virtual		void	set_size			(const int);
@@ -450,6 +451,8 @@ class	object
 	virtual	const	dbref	get_arrays			()			const	{ return NOTHING; }
 	virtual	const	dbref	get_dictionaries		()			const	{ return NOTHING; }
 	/* Command */
+	virtual const	String&	get_codelanguage		()			const	{ return NULLSTRING; }
+	virtual const	String&	get_inherited_codelanguage	()			const	{ return NULLSTRING; }
 	virtual	const	dbref	get_csucc			()			const	{ return NOTHING; }
 		const	dbref	get_inherited_csucc		()			const;
 	virtual	const	dbref	get_cfail			()			const	{ return NOTHING; }

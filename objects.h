@@ -278,6 +278,7 @@ private:
 		unsigned short	*parse_helper;
 		unsigned	lines_in_command_block(const unsigned) const;
 		unsigned	reconstruct_command_block(char *const, const unsigned, const unsigned)	const;
+	String			codelanguage;	/* The language the command is written in */
     public:
 				Command			()	: parse_helper (0)	{}
 	virtual			~Command		();
@@ -295,6 +296,9 @@ private:
 		void		flush_parse_helper	();
 		unsigned	inherited_lines_in_cmd_blk(const unsigned) const;
 		unsigned	reconstruct_inherited_command_block(char *const, const unsigned, const unsigned)	const;
+	const	String&		get_codelanguage	()			const	{ return codelanguage; }
+	const	String&		get_inherited_codelanguage()			const;
+		void		set_codelanguage	(const String& l)		{ codelanguage = l; }
 };
 
 

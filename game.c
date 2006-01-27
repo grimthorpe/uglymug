@@ -173,6 +173,7 @@ command_details			command_table [] =
 	{"@cfailure",		&context::do_at_cfailure,	NO_COMMAND_FLAGS},
 	{"@channel",		&context::do_at_channel,		NO_COMMAND_FLAGS},
 	{"@chpid",		&context::do_at_chpid,		LEGAL_COMMAND},
+	{"@codelanguage",	&context::do_at_codelanguage,	NO_COMMAND_FLAGS},
 	{"@color",		&context::do_at_colour,		NO_COMMAND_FLAGS},
 	{"@colour",		&context::do_at_colour,		NO_COMMAND_FLAGS},
 	{"@command",		&context::do_at_command,	NO_COMMAND_FLAGS},
@@ -1552,8 +1553,8 @@ void mud_time_sync ()
  */
 void
 context::do_at_rem(
-const String&,
-const String&)
+const String& arg1,
+const String& arg2)
 {
 	return;		// Do nothing.
 }

@@ -733,6 +733,9 @@ void object::set_lock_key (struct boolexp *)
 void object::set_lock_key_no_free (struct boolexp *)
 { IMPLEMENTATION_ERROR ("lock_key") }
 
+void object::set_codelanguage (const String&)
+{ IMPLEMENTATION_ERROR ("codelanguage") }
+
 void object::set_csucc (const dbref)
 { IMPLEMENTATION_ERROR ("csucc") }
 
@@ -2640,4 +2643,15 @@ const	String& desc)
 	}
 
 	Describable_object::set_description (desc);
+}
+
+const String&
+Command::get_inherited_codelanguage() const
+{
+	if(codelanguage)
+		return codelanguage;
+	else if (get_parent () == NOTHING)
+		return NULLSTRING;
+	else
+		return db [get_parent ()].get_inherited_codelanguage ();
 }
