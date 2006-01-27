@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Supress wisps of smoke in rooms where drop message exists. (Lee TC)
 	Removed the new language and added support for lua instead. (Grimthorpe)
 	Fixes do_query_mass/volume/etc to work with puppets. (Lee TC)
 	Fixed puppets to have normal player mass/volume/limits when created

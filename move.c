@@ -989,7 +989,10 @@ const	String& where)
 						/* location has an immediate dropto - test to see if it will fit first */
 						if (will_fit(thing, db[loc].get_destination())==SUCCESS)
 						{
-							notify_colour(player, player, COLOUR_MESSAGES, "As the object vanishes there is a faint wisp of red smoke");
+							if (!db[loc].get_inherited_drop_message())
+								{
+								notify_colour(player, player, COLOUR_MESSAGES, "As the object vanishes there is a faint wisp of red smoke");
+								}
 							moveto(thing, db[loc].get_destination());
 						}
 						else
