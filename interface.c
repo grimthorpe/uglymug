@@ -2933,6 +2933,24 @@ descriptor_data::process_input (int len)
 						backslash_pending = false;
 				}
 				break;
+			case '\014':	// ^L
+				do_write("^L\r\n", 4);
+				if(terminal.recall)
+				{
+					if(get_player() != 0)
+					{
+						int redrawlines = terminal.height;
+						if(redrawlines <= 0)
+							redrawlines = 25;	// Default to 25 lines redraw
+						db[get_player()].output_recall(redrawlines, get_player());
+					}
+				}
+				*p = 0;
+				// Need to queue_string this, otherwise we go out before the recall buffer.
+				queue_string((const char*)raw_input, 0, 0);
+				if(backslash_pending)
+					queue_string("\\", 0, 0);
+				break;
 			case '\022':	// ^R
 				do_write("^R", 2);
 				do_write(termcap.clearline.c_str(), termcap.clearline.length());
@@ -2984,6 +3002,7 @@ descriptor_data::process_input (int len)
 				p = raw_input;
 				*p = 0;
 				backslash_pending = false;
+				break;
 			}
 			default:
 				if ((p < pend)&& is_printable (*q))
