@@ -239,7 +239,7 @@ const	String& name)
 		return (false);
 
 	for(scan = name.c_str(); *scan; scan++)
-		if(!(valid_char(*scan) || isspace(*scan)))
+		if(!(valid_char(*scan) || (*scan == ' ')))
 			return (false);
 
 	return (true);
