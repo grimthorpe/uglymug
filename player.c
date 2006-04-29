@@ -244,13 +244,13 @@ const	String& match)
 	if ( !match)
 	{
 		notify_norecall(player, "%s %d %s", "---------------Recalling",num_lines,"lines-----------------------------\n");
-		db[player].output_recall(num_lines, this);
+		db[player].output_recall(num_lines, player);
 		notify_norecall(player, "%s %d %s", "---------------End Recall of", num_lines, "lines-------------------------\n");
 	}
 	else
 	{
 		notify_norecall(player, "%s %d %s %s %s", "----------Recalling",num_lines,"lines, showing matches to:", match.c_str(),"-------------\n");
-		db[player].output_recall_conditional(match,num_lines, this);
+		db[player].output_recall_conditional(match,num_lines, player);
 		notify_norecall(player, "%s %d %s %s %s", "----------End Recall of", num_lines, "lines showing matches to:",match.c_str(),"----------\n");
 	}
 

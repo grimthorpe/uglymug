@@ -55,6 +55,7 @@ void StringBuffer::resize(unsigned int newsize, bool copy)
 	//while(newsize > _capacity)
 	//	_capacity += STRINGBUFFER_GROWSIZE;
 	char* tmp = new char[_capacity+2]; // Allow for slight overrun (JIC)
+	memset(tmp, '\0', _capacity + 2); // Ensure the buffer is completely empty.
 	if(_buf && copy)
 	{
 		// We use memcpy because the regions will not overlap.

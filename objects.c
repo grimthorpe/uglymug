@@ -694,10 +694,10 @@ void object::set_alias (const int, const String&)
 void object::add_recall_line (const String&)
 { IMPLEMENTATION_ERROR ("add_recall_line") }
 
-void object::output_recall_conditional (const String match, const int lines, const context * con)
+void object::output_recall_conditional (const String match, const int lines, dbref player)
 { IMPLEMENTATION_ERROR ("output_recall_conditional") }
 
-void object::output_recall (const int lines, const context * con)
+void object::output_recall (const int lines, dbref player)
 { IMPLEMENTATION_ERROR ("output_recall") }
 
 void object::ditch_recall ()
@@ -1606,7 +1606,7 @@ const String& strung)
 void
 Player::output_recall (
 const int	lines,
-const context *	con)
+dbref player)
 {
 
 	int thelines = lines;
@@ -1647,13 +1647,13 @@ const context *	con)
                         line_to_output = 0;
                 }
 
-                notify_norecall(con->get_player(), "%s", recall->buffer[line_to_output].c_str());
+                notify_norecall(player, "%s", recall->buffer[line_to_output].c_str());
                 line_to_output++;
         }
 
         if(recall->buffer_build)
         {
-                notify_norecall(con->get_player(), "%s", recall->buffer_build);
+                notify_norecall(player, "%s", recall->buffer_build);
         }
 
 }
@@ -1662,7 +1662,7 @@ void
 Player::output_recall_conditional (
 const String	match,
 const int	lines,
-const context *	con)
+dbref		player)
 {
 
 	int thelines = lines;
@@ -1708,7 +1708,7 @@ const context *	con)
 		const String line = recall->buffer[line_to_output];
 		if(re.Match(line))
 		{
-			notify_norecall(con->get_player(), "%s", line.c_str());
+			notify_norecall(player, "%s", line.c_str());
 		}
                 line_to_output++;
         }
@@ -1716,7 +1716,7 @@ const context *	con)
         if(recall->buffer_build)
         {
 		if(re.Match(recall->buffer_build))
-			notify_norecall(con->get_player(), "%s", recall->buffer_build);
+			notify_norecall(player, "%s", recall->buffer_build);
         }
 
 }

@@ -441,8 +441,8 @@ private:
 
 
 		void		add_recall_line		(const String& strung);
-		void		output_recall		(const int lines, const context * con);
-		void		output_recall_conditional (String match, const int lines, const context * con);
+		void		output_recall		(const int lines, dbref player);
+		void		output_recall_conditional (String match, const int lines, dbref player);
 		void		ditch_recall		();
 
 		void		set_colour_string	(const String&);

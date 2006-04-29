@@ -294,8 +294,8 @@ class	object
 	void			set_id				(dbref i)	{ id = i; }
 
 	virtual		void	add_recall_line			(const String& string);
-	virtual		void	output_recall			(const int lines, const context * con);
-	virtual		void	output_recall_conditional	(String match, const int lines, const context * con);
+	virtual		void	output_recall			(const int lines, dbref player);
+	virtual		void	output_recall_conditional	(String match, const int lines, dbref player);
 	virtual		void	ditch_recall			();
 
 	virtual	const	bool	write				(FILE *)		const;
