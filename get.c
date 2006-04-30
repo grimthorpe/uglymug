@@ -353,6 +353,7 @@ context::do_query_contents (const String& name, const String&)
 			case TYPE_ROOM:
 			case TYPE_THING:
 			case TYPE_PLAYER:
+			case TYPE_PUPPET:
 				thing = db[thing].get_contents();
 				Accessed (thing);
 				set_return_string (unparse_for_return (*this, thing));
