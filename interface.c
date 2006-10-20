@@ -3128,7 +3128,15 @@ descriptor_data::do_command (String command, time_t now)
 	FILE		*fp;
 	if(strcmp (command.c_str(), IDLE_COMMAND) == 0)
 	{
-		queue_string ("Idle time not modified.\n");
+		if((now - last_time) < 180)
+		{
+			last_time = now - 180;
+			queue_string("Idle time increase to 3 minutes.\n");
+		}
+		else
+		{
+			queue_string ("Idle time not modified.\n");
+		}
 		return 1;
 	}
 
