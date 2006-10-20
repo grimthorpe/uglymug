@@ -290,7 +290,7 @@ static	SOCKET			conc_listensock, conc_sock, conc_connected;
 static	int			ndescriptors = 0;
 static	int			outgoing_conc_data_waiting = 0;
 
-void				process_commands	(void);
+void				process_commands	(time_t now);
 void				make_nonblocking	(int s);
 const	char			*convert_addr 		(unsigned long);
 struct	descriptor_data		*new_connection		(SOCKET sock);
@@ -1106,7 +1106,8 @@ void mud_main_loop(int argc, char** argv)
 		gettimeofday(&current_time, (struct timezone *) NULL);
 		last_slice = update_quotas (last_slice, current_time);
 
-		process_commands();
+		(void) time (&now);
+		process_commands(now);
 
 		// We're going to mark the decriptors for termination inside
 		// the functions and then destroy them in this little
@@ -1166,7 +1167,6 @@ void mud_main_loop(int argc, char** argv)
 				FD_SET (ListenPorts[i], &input_set);
 			}
 		}
-		(void) time (&now);
 		for (d = descriptor_list; d; d=d->next)
 		{
 			if ((d->get_descriptor())	/* Don't want to watch concentrator descriptors */
@@ -1272,7 +1272,6 @@ void mud_main_loop(int argc, char** argv)
 				{
 					if (FD_ISSET (d->get_descriptor(), &input_set))
 					{
-						d->last_time = now;
 						if(d->warning_level > 1)
 						{
 							d->time_since_idle=now;
@@ -3051,7 +3050,7 @@ descriptor_data::process_input (int len)
 
 
 void
-process_commands()
+process_commands(time_t now)
 {
 	int			nprocessed;
 	struct	descriptor_data	*d, *dnext;
@@ -3068,7 +3067,7 @@ process_commands()
 				nprocessed++;
 				String command = d->input.front();
 				d->input.pop_front();
-				if (!d->do_command (command))
+				if (!d->do_command (command, now))
 				{
 					if (d->get_connect_state() == DESCRIPTOR_CONNECTED)
 						d->announce_player (ANNOUNCE_DISCONNECTED);
@@ -3124,9 +3123,16 @@ const	String& )
 
 	
 int
-descriptor_data::do_command (String command)
+descriptor_data::do_command (String command, time_t now)
 {
 	FILE		*fp;
+	if(strcmp (command.c_str(), IDLE_COMMAND) == 0)
+	{
+		queue_string ("Idle time not modified.\n");
+		return 1;
+	}
+
+	last_time = now;
 
 	if(strcmp (command.c_str(), QUIT_COMMAND) == 0)
 	{
@@ -3159,11 +3165,6 @@ descriptor_data::do_command (String command)
 		output_prefix();
 		dump_users (NULL, (IS_CONNECTED() && (db[get_player()].get_flag(FLAG_HOST))) ? DUMP_WIZARD : 0);
 		output_suffix();
-	}
-	else if(strcmp (command.c_str(), IDLE_COMMAND) == 0)
-	{
-		queue_string ("Idle time increased to 3 minutes.\n");
-		last_time = (time_t) time(NULL) - IDLE_TIME_INCREASE;
 	}
 	else if(strcmp (command.c_str(), INFO_COMMAND) == 0)
 	{

@@ -275,7 +275,7 @@ public:
 	void	announce_player(announce_states state);
 
 	void save_command (String command);
-	int	do_command(String command);
+	int	do_command(String command, time_t now);
 
 	void	dump_users(const char *victim, int flags);
 private:
