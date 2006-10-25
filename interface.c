@@ -3131,7 +3131,7 @@ descriptor_data::do_command (String command, time_t now)
 		if((now - last_time) < 180)
 		{
 			last_time = now - 180;
-			queue_string("Idle time increase to 3 minutes.\n");
+			queue_string("Idle time increased to 3 minutes.\n");
 		}
 		else
 		{
