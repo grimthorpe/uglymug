@@ -1254,6 +1254,9 @@ const	String& arg)
 	unsigned int		pos;
 	Matcher			*matcher = (Matcher *) NULL;
 
+	return_status = COMMAND_FAIL;
+	set_return_string (error_return_string);
+
 	if (!arg)
 		pos = 0;
 	else
@@ -1262,8 +1265,6 @@ const	String& arg)
 	{
 		if (!gagged_command())
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?my: Not that many levels on stack");
-		return_status = COMMAND_FAIL;
-		set_return_string (error_return_string);
 	}
 	else
 	{
