@@ -142,6 +142,7 @@ command_details			command_table [] =
 	{"@?owner",		&context::do_query_owner,		LEGAL_COMMAND},
 	{"@?parent",		&context::do_query_parent,		LEGAL_COMMAND},
 	{"@?pending",		&context::do_query_pending,		LEGAL_COMMAND},
+	{"@?playerid",		&context::do_query_pid,			LEGAL_COMMAND},
 	{"@?properties",	&context::do_query_properties,		LEGAL_COMMAND},
 	{"@?race",		&context::do_query_race,		LEGAL_COMMAND},
 	{"@?rand",		&context::do_query_rand,		LEGAL_COMMAND},

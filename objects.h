@@ -299,6 +299,7 @@ private:
 	const	String&		get_codelanguage	()			const	{ return codelanguage; }
 	const	String&		get_inherited_codelanguage()			const;
 		void		set_codelanguage	(const String& l)		{ codelanguage = l; }
+	const	bool		write			(FILE *f)		const;
 };
 
 

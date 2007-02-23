@@ -149,4 +149,6 @@ namespace std {
 /** Output a string to a stream */
 extern std::ostream &operator<< (std::ostream &os, const String &s);
 
+/* Output a string to a maximum length (or pad to the length with spaces) */
+const char* chop_string(const char*, int length);
 #endif /* _MUDSTRING_H */

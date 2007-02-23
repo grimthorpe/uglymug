@@ -72,7 +72,9 @@ enum	eval_ops
 	EVAL_OP_TAIL		= 43,
 	EVAL_OP_REPLACE		= 44,
 	EVAL_OP_DICMATCH	= 45,
-	EVAL_OP_TYPEOF		= 46
+	EVAL_OP_TYPEOF		= 46,
+	EVAL_OP_TOLOWER		= 47,
+	EVAL_OP_TOUPPER		= 48
 };
 
 enum	eval_types
@@ -161,7 +163,9 @@ struct	operation
 	{2,	{EV_STRING,				EV_STRING},						0},	/* TAIL */
 	{4,	{EV_NUMERIC | EV_STRING,		EV_STRING,				EV_STRING,				EV_STRING},	0},	/* REPLACE */
 	{2,	{EV_STRING,				EV_STRING},						0},	/* DICMATCH */
-	{1,	{EV_NUMERIC | EV_STRING,		EV_STRING},						0}	/* TYPEOF */
+	{1,	{EV_NUMERIC | EV_STRING,		EV_STRING},						0},	/* TYPEOF */
+	{1,	{EV_STRING},											0},	/* TOLOWER */
+	{1,	{EV_STRING},											0},	/* TOUPPER */
 };
 
 
@@ -1511,7 +1515,7 @@ unsigned int	space_left)
 
 				while(apointer != NULL)
 				{
-					if (strcmp(results[0].string, apointer) == 0)
+					if (strcasecmp(results[0].string, apointer) == 0)
 					{
 						final.integer = i;
 						break;
@@ -1626,13 +1630,36 @@ unsigned int	space_left)
 						}
 				}
 				break;
+			case EVAL_OP_TOLOWER:
+				{
+					char* p = results[0].string;
+					char* q = final.string;
+					while(*p)
+					{
+						char c= *p++;
+						*q++ = tolower(c);
+					}
+					*q = '\0';
+				}
+				break;
+			case EVAL_OP_TOUPPER:
+				{
+					char* p = results[0].string;
+					char* q = final.string;
+					while(*p)
+					{
+						char c= *p++;
+						*q++ = toupper(c);
+					}
+					*q = '\0';
+				}
+				break;
 
 			default:
 				notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Unknown op.");
 				strcpy (result_buffer, error_return_string.c_str());
 				return (COMMAND_FAIL);
 		}
-
 
 		/* Skip trailing spaces */
 		while (isspace (*expression))
@@ -1951,6 +1978,25 @@ const	char	*&expression,
 								return (EVAL_OP_NONE);
 					}
 					break;
+				case 'o':
+				case 'O':
+					++expression;
+					switch(*expression)
+					{
+						case 'u':
+						case 'U':
+							if(string_prefix(expression, "upper"))
+								return (EVAL_OP_TOUPPER);
+							else
+								return (EVAL_OP_NONE);
+						case 'l':
+						case 'L':
+							if(string_prefix(expression, "lower"))
+								return (EVAL_OP_TOLOWER);
+							else
+								return (EVAL_OP_NONE);
+					}
+							
 				case 'y':
 				case 'Y':
 					++expression;

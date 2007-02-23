@@ -99,6 +99,10 @@ public:
 	{
 		return push_UMObject(L, m_context, db[m_object].get_owner());
 	}
+	int location(lua_State* L)
+	{
+		return push_UMObject(L, m_context, db[m_object].get_location());
+	}
 };
 
 const char UMObject::className[] = "UMObject";
@@ -109,6 +113,7 @@ Lunar<UMObject>::RegType UMObject::methods[] =
 	method(UMObject, name),
 	method(UMObject, description),
 	method(UMObject, owner),
+	method(UMObject, location),
 
 	{NULL, NULL}
 };

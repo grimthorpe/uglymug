@@ -1260,7 +1260,14 @@ const	String& arg)
 	if (!arg)
 		pos = 0;
 	else
-		pos = atoi (arg.c_str());
+	{
+		int level = atoi (arg.c_str());
+		if(level < 0)
+			pos = call_stack.size() + level;
+		else
+			pos = level;
+	}
+
 	if (pos >= call_stack.size ())
 	{
 		if (!gagged_command())

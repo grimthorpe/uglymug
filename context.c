@@ -259,6 +259,7 @@ const	dbref	eid,
 , command(NOTHING)
 , player(c->get_player())
 , effective_id (eid)
+, unchpid_id(c->get_effective_id())
 , csucc_cache (NOTHING)
 , cfail_cache (NOTHING)
 , gagged(silent)
@@ -637,7 +638,6 @@ context::context (const bool is_default)
 : Command_and_arguments (NULLSTRING, NULLSTRING, NULLSTRING, 0)
 , player (NOTHING)
 , trace_command (NOTHING)
-, unchpid_id (NOTHING)
 , commands_executed (0)
 , sneaky_executed_depth (0)
 , step_limit (COMPOUND_COMMAND_BASE_LIMIT)
@@ -661,7 +661,6 @@ const context& your_maker)
 : Command_and_arguments (NULLSTRING, NULLSTRING, NULLSTRING, 0)
 , player (new_player)
 , trace_command (NOTHING)
-, unchpid_id (new_player)
 , commands_executed (0)
 , sneaky_executed_depth (0)
 , step_limit (your_maker.step_limit)
@@ -773,7 +772,6 @@ const
 const bool
 context::set_effective_id (
 dbref	id)
-
 {
 	if (call_stack.empty ())
 		return (false);
@@ -794,6 +792,31 @@ const
 		return (player);
 	else
 		return (call_stack.top ()->get_effective_id ());
+}
+
+const bool
+context::set_unchpid_id (
+dbref	id)
+{
+	if (call_stack.empty ())
+		return (false);
+	else
+	{
+		call_stack.top ()->set_unchpid_id (id);
+		return (true);
+	}
+}
+
+
+const dbref
+context::get_unchpid_id ()
+const
+
+{
+	if (call_stack.empty ())
+		return (player);
+	else
+		return (call_stack.top ()->get_unchpid_id ());
 }
 
 

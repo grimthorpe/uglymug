@@ -257,3 +257,46 @@ const String &s)
 {
 	return os << s.c_str ();
 }
+
+const char*
+chop_string(const char* string, int size)
+{
+	static char whostring[256];
+	char *p=whostring;
+	const char *q=string;
+	int visible=0,
+	    copied=0;
+	int percent_primed =0;
+	while (q && *q && (visible < size) && (copied < 255))
+	{
+		if (*q == '%')
+		{
+			if (percent_primed)
+			{
+				visible++;
+				percent_primed=0;
+			}
+			else
+				percent_primed=1;
+ 		}
+		else
+		{
+			if (percent_primed)
+				percent_primed=0;
+			else
+				visible++;
+		}
+		*p++=*q++;
+		copied++;
+	}
+
+
+	while ((visible++ < size) && (copied < 255))
+	{
+		copied++;
+		*p++=' ';
+	}
+	*p='\0';
+	return whostring;
+}
+

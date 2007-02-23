@@ -207,7 +207,7 @@ Matcher		&matcher)
 		return ACTION_HALT;
 	}
 
-	if(db[command].get_codelanguage() == "lua")
+	if(db[command].get_inherited_codelanguage() == "lua")
 	{
 		call_stack.push (new Lua_command_and_arguments (command, this, sc, a1, a2, eid == NOTHING ? get_effective_id () : eid, &matcher, gagged_command()));
 	}
@@ -592,6 +592,15 @@ const	String&)
 	}
 }
 
+void
+context::do_query_pid (
+const	String&,
+const	String&)
+{
+	return_status = COMMAND_SUCC;
+	set_return_string(unparse_for_return(*this, get_effective_id()));
+}
+
 
 void
 context::do_at_unchpid (
@@ -607,7 +616,7 @@ const	String&)
 	}
 	else
 	{
-		call_stack.top ()->set_effective_id (unchpid_id);
+		call_stack.top ()->set_effective_id (call_stack.top()->get_unchpid_id());
 //		return_status = COMMAND_SUCC;
 //		set_return_string (ok_return_string);
 	}

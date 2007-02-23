@@ -91,7 +91,7 @@ const	String& command)
 	/* force victim to do command */
 	{
 		dbref old_player = get_player();
-		dbref old_unchpid_id = unchpid_id;
+		dbref old_unchpid_id = get_unchpid_id();
 		dbref old_effective_id = get_effective_id();
 		int old_depth_limit = get_depth_limit();
 		if(old_depth_limit <= 1)
@@ -102,19 +102,23 @@ const	String& command)
 
 		set_depth_limit(old_depth_limit - 1);
 		player = victim;
-		unchpid_id = victim;
 		if(!call_stack.empty())
+		{
 			call_stack.top()->set_effective_id(victim);
+			call_stack.top()->set_unchpid_id(victim);
+		}
 
 		const size_t old_depth = call_stack.size ();
 		process_basic_command(command);
 		while(call_stack.size () > old_depth)
 			step();
 		if(!call_stack.empty())
+		{
 			call_stack.top()->set_effective_id(old_effective_id);
+			call_stack.top()->set_unchpid_id(old_unchpid_id);
+		}
 
 		player = old_player;
-		unchpid_id = old_unchpid_id;
 		set_depth_limit(old_depth_limit);
 		if (!in_command())
 			notify_colour(player,  player, COLOUR_MESSAGES, "Forced.");

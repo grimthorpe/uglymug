@@ -14,6 +14,17 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added @?playerid (Grimthorpe)
+	Properly nested @unchpid (Grimthorpe)
+	Fixed destroy code for cases with NPCs and their location get destroyed (Grimthorpe)
+	Added loading & saving codelanguage (Grimthorpe)
+	Added codelanguage to examine (Grimthorpe)
+	Support inherited codelanguage when running commands (Grimthorpe)
+	WHO now respects the terminal width setting (Grimthorpe)
+	Added @eval toupper and tolower (Grimthorpe)
+	Allow negative numbers as the stack level for @?my (Grimthorpe)
+	Made @eval matchitem case-insensitive (Grimthorpe)
+
 um1_063
 	Fixed @?my so that if called from a .login / .logout it works.
 	Get IDLE to just echo something and not change your idle time (Grimthorpe)

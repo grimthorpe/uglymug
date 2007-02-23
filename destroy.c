@@ -324,6 +324,11 @@ dbref	zap_room)
 					db[i].set_destination(LIMBO);
 					Modified (i);
 					break;
+				case TYPE_PUPPET:
+					notify_colour(c.get_player(), c.get_player(), COLOUR_MESSAGES, "NPC %s: Home reset to Limbo.", unparse_object (c, i));
+					db[i].set_destination(LIMBO);
+					Modified (i);
+					break;
 				case TYPE_THING:
 					notify_colour(c.get_player(), c.get_player() , COLOUR_MESSAGES, "Thing %s: Home reset to Limbo.", unparse_object(c, i));
 					db[i].set_destination(LIMBO);
@@ -465,6 +470,10 @@ dbref	zap_thing)
 			{
                                 case TYPE_PLAYER:
                                         notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "Player %s: Home reset to Limbo.", unparse_object (c, i));
+                                        db[i].set_destination(LIMBO);
+                                        break;
+                                case TYPE_PUPPET:
+                                        notify_colour(c.get_player (), c.get_player(), COLOUR_MESSAGES, "NPC %s: Home reset to Limbo.", unparse_object (c, i));
                                         db[i].set_destination(LIMBO);
                                         break;
                                 case TYPE_THING:
@@ -1335,13 +1344,15 @@ const	String& )
 				if ((db [i].get_real_location () == NOTHING)
 					|| ((Typeof (db[i].get_real_location()) != TYPE_ROOM)
 						&& (Typeof (db[i].get_real_location()) != TYPE_THING)
-						&& (Typeof (db[i].get_real_location()) != TYPE_PLAYER)))
+						&& (Typeof (db[i].get_real_location()) != TYPE_PLAYER)
+						&& (Typeof (db[i].get_real_location()) != TYPE_PUPPET)))
 					moveto (i, LIMBO);
 				check_and_make_sane_lock (i);
 				if ((db[i].get_destination() == NOTHING)
 					|| (db[i].get_destination() == HOME)
 					|| ((Typeof (db[i].get_destination()) != TYPE_ROOM)
 						&& (Typeof (db[i].get_destination()) != TYPE_PLAYER)
+						&& (Typeof (db[i].get_destination()) != TYPE_PUPPET)
 						&& (Typeof (db[i].get_destination()) != TYPE_THING)))
 					db[i].set_destination(LIMBO);
 				break;

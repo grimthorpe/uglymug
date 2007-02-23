@@ -1300,6 +1300,9 @@ const	String& )
 			notify_censor(player, player, "%sDestination:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
 		break;
 	  case TYPE_COMMAND:
+		if(db[thing].get_inherited_codelanguage())
+			notify_censor(player, player, "%sCode Language:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT, db[thing].get_inherited_codelanguage().c_str());
+		/* Fallthrough */
 	  case TYPE_FUSE:
 		/* Print success and fail destinations */
 		notify_censor(player, player, "%sOn success, go to:%s %s%s%s", ca[COLOUR_TITLES],COLOUR_REVERT,

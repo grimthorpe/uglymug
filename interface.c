@@ -776,47 +776,6 @@ const char *fmt, ...)
 		}
 }
 
-static char *chop_string(const char *string, int size)
-{
-	static char whostring[256];
-	char *p=whostring;
-	const char *q=string;
-	int visible=0,
-	    copied=0;
-	int percent_primed =0;
-	while (q && *q && (visible < size) && (copied < 255))
-	{
-		if (*q == '%')
-		{
-			if (percent_primed)
-			{
-				visible++;
-				percent_primed=0;
-			}
-			else
-				percent_primed=1;
-		}
-		else
-		{
-			if (percent_primed)
-				percent_primed=0;
-			else
-				visible++;
-		}
-		*p++=*q++;
-		copied++;
-	}
-
-
-	while ((visible++ < size) && (copied < 255))
-	{
-		copied++;
-		*p++=' ';
-	}
-	*p='\0';
-	return whostring;
-}
-
 void terminal_underline(dbref player, const char *string)
 {
 
@@ -3139,6 +3098,14 @@ descriptor_data::do_command (String command, time_t now)
 		}
 		return 1;
 	}
+	else if(strcmp (command.c_str(), WHO_COMMAND) == 0)
+	{
+		output_prefix();
+		dump_users (NULL, (IS_CONNECTED() && (db[get_player()].get_flag(FLAG_HOST))) ? DUMP_WIZARD : 0);
+		output_suffix();
+
+		return 1;
+	}
 
 	last_time = now;
 
@@ -3167,12 +3134,6 @@ descriptor_data::do_command (String command, time_t now)
 			return 1;
 		}
 		write(get_descriptor(), HALFQUIT_FAIL_MESSAGE, strlen(HALFQUIT_FAIL_MESSAGE));
-	}
-	else if(strcmp (command.c_str(), WHO_COMMAND) == 0)
-	{
-		output_prefix();
-		dump_users (NULL, (IS_CONNECTED() && (db[get_player()].get_flag(FLAG_HOST))) ? DUMP_WIZARD : 0);
-		output_suffix();
 	}
 	else if(strcmp (command.c_str(), INFO_COMMAND) == 0)
 	{
@@ -3816,7 +3777,7 @@ int			flags)
 {
 	struct	descriptor_data	*d;
 	time_t			now;
-	char			buf[1024];
+	char			buf[4096];
 	char			flag_buf [256];
 	int			length;
 	int			users = 0;
@@ -3831,6 +3792,14 @@ int			flags)
 
 	WhoToShow who(victim, get_player(), true);
 	
+	int width = d->terminal.width;
+	if(width <= 40)
+		width = 80;
+	if (flags & DUMP_WIZARD)
+	{
+		width = 80;
+	}
+
 	//Find size of current descriptor list
 	//Make new array
 	//Copy in
@@ -3881,8 +3850,7 @@ int			flags)
 				strcpy (buf, " Broken");
 
 			strncat (buf, " ", sizeof(buf));
-			int twidth= 80;
-			int remaining= twidth;
+			int remaining= width;
 
 			/* Format output: Name... */
 			if (d->IS_CONNECTED())

@@ -262,6 +262,7 @@ private:
 			dbref		command;
 			dbref		player;
 			dbref		effective_id;
+			dbref		unchpid_id;
 			dbref		csucc_cache;
 			dbref		cfail_cache;
 			Scope_stack	scope_stack;
@@ -277,7 +278,10 @@ private:
 		const	dbref		get_command		()	const		{ return (command); }
 			void		set_effective_id	(dbref i)		{ effective_id = i; }
 		const	dbref		get_effective_id	()	const		{ return (effective_id); }
+			void		set_unchpid_id		(dbref i)		{ unchpid_id = i; }
+		const	dbref		get_unchpid_id	()		const		{ return (unchpid_id); }
 			void		chpid			()			{ effective_id = db [command].get_owner (); }
+			void		uncpid			()			{ effective_id = unchpid_id; }
 		const	bool		inside_subscope		()	const		{ return !scope_stack.empty(); }
 			void		push_scope		(Scope *s)		{ scope_stack.push (s); }
 			Command_action	step_once	(context *);
@@ -331,7 +335,6 @@ public:
 
 		dbref			player;
 		dbref			trace_command;
-		dbref			unchpid_id;
 		Call_stack		call_stack;
 		int			commands_executed;
 		int			sneaky_executed_depth;
@@ -359,7 +362,7 @@ public:
 		void			set_step_limit		(int new_limit)	{ step_limit = new_limit; }
 		void			set_depth_limit		(size_t new_limit)	{ depth_limit = new_limit; }
 	const	bool			set_effective_id	(dbref i);
-		void			set_unchpid_id		(dbref i)	{ unchpid_id = i; }
+	const	bool			set_unchpid_id		(dbref i);
 		void			scheduled		(bool s)	{ m_scheduled = s; }	///< Set whether this context is currently scheduled.
 	const	bool			scheduled		()	const	{ return m_scheduled; }	///< Return whether this context is currently scheduled.
 		void			set_return_string	(const String& rs) { return_string = rs; }
@@ -369,7 +372,7 @@ public:
 		void			set_sneaky_executed_depth(int d)	{ sneaky_executed_depth = d; }
 	const	size_t			get_depth_limit		()	const	{ return (depth_limit); }
 	const	dbref			get_player		()	const	{ return (player); }
-	const	dbref			get_unchpid_id		()	const	{ return (unchpid_id); }
+	const	dbref			get_unchpid_id		()	const;
 	const	Command_status		get_return_status	()	const	{ return (return_status); }
 	const	String&			get_innermost_arg1	()	const;
 	const	String&			get_innermost_arg2	()	const;
@@ -585,6 +588,7 @@ public:
 	void				do_query_owner		(const String&, const String&);
 	void				do_query_parent		(const String&, const String&);
 	void				do_query_pending	(const String&, const String&);
+	void				do_query_pid		(const String&, const String&);
 	void				do_query_properties	(const String&, const String&);
 	void				do_query_aliases	(const String&, const String&);
 	void				do_query_race		(const String&, const String&);

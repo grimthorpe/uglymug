@@ -906,6 +906,9 @@ Old_object::read (
 		case ARRAY_STORAGE_ELEMENTS:
 			get_array_elements (f, this);
 			break;
+		case OOBJECT_CODELANGUAGE:
+			set_codelanguage(getstring(f));
+			break;
 		default:
 			log_bug("Something has gone seriously wrong in Old_object::read\nField Type: %d", fieldtype);
 			exit(1);
@@ -2292,6 +2295,18 @@ void Database::remove_player_from_cache(const String& name)
 			player_cache.erase(entry);
 		}
 	}
+}
+
+const bool
+Command::write (
+FILE	*f)
+const
+
+{
+	Old_object::write (f);
+	putfieldtype	(f, OOBJECT_CODELANGUAGE);
+	putstring	(f, get_codelanguage());
+	return (true);
 }
 
 #ifdef DBREF_BUG_HUNTING
