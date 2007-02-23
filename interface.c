@@ -2290,6 +2290,7 @@ descriptor_data::queue_string(const char *s, bool show_literally, bool store_in_
 static char b1[2*BUFFER_LEN];
 static char b2[2*BUFFER_LEN];
 static char OUTPUT_COMMAND[] = ".output ";
+static char PLAYER_OUTPUT_COMMAND[] = ".playeroutput ";
 static char MYOUTPUT_COMMAND[] = ".myoutput ";
 char *a,*a1,*b;
 
@@ -2313,6 +2314,14 @@ char *a,*a1,*b;
 					if(myoutput)
 						strcpy(b1, MYOUTPUT_COMMAND);
 					else
+					if(terminal.emit_lastcommand)
+					{
+						char tmp[20];
+						sprintf(tmp, "#%d=", LastCommandCaller);
+						strcpy(b1, PLAYER_OUTPUT_COMMAND);
+						strcat(b1, tmp);
+					}
+					else
 						strcpy(b1, OUTPUT_COMMAND);
 					strcat(b1, (char *)raw_input);
 					time(&last_time);
@@ -2321,6 +2330,18 @@ char *a,*a1,*b;
 					break;
 				case '\0':
 					return 1;
+				case '%': // Strip colour codes
+					if(!terminal.colour_terminal)
+					{
+						s++;
+						if(*s != '\0')
+							s++;
+					}
+					else
+					{
+						*(raw_input_at++) = *(s++);
+					}
+					break;
 				case '$':
 				case '{':
 				case '\\':
