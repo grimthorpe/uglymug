@@ -3164,8 +3164,8 @@ descriptor_data::do_command (String command, time_t now)
 		{
 			while (fgets(scratch, BUFFER_LEN, fp)!=NULL)
 				queue_string (scratch);
+			fclose(fp);
 		}
-		fclose(fp);
 	}
 	else if (strncmp (command.c_str(), PREFIX_COMMAND, strlen (PREFIX_COMMAND)) == 0)
 		set_output_prefix(command.c_str()+strlen(PREFIX_COMMAND));
