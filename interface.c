@@ -3813,8 +3813,8 @@ int			flags)
 
 	WhoToShow who(victim, get_player(), true);
 	
-	int width = d->terminal.width;
-	if(width <= 40)
+	int width = terminal.width;
+	if(width < 40)
 		width = 80;
 	if (flags & DUMP_WIZARD)
 	{

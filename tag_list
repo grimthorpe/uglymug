@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Oops; don't crash when doing 'who'. (Grimthorpe)
 	Don't crash under Linux if the help.txt file doesn't exist (Grimthorpe)
 	NPCs don't get colour codes if their @terminal colour_terminal=off (Grimthorpe)
 	NPCs get the #playerid responsible for the output if their @terminal commandinfo=on (Grimthorpe)
