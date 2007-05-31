@@ -460,12 +460,18 @@ const	String& colour_codes)
 	if(colour_player != NOTHING)
 	{
 		db[player].set_colour_player(colour_player, colour_codes);
-		notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), (colour_codes)?"":" to default");
+		if(!in_command())
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "Colour for \"%s\" set%s.", db[colour_player].get_name().c_str(), (colour_codes)?"":" to default");
+		}
 	}
 	else
 	{
 		db[player].set_colour_attr((ColourAttribute)i, colour_codes);
-		notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia.c_str(), (colour_codes)?"":" to default");
+		if(!in_command())
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "Attribute \"%s\" set%s.", cia_table[i].cia.c_str(), (colour_codes)?"":" to default");
+		}
 	}
 
 	set_return_string (ok_return_string);

@@ -212,10 +212,10 @@ public:
 					{ _connect_state = cs; }
 	void	connect_a_player	(dbref player, announce_states connect_state);
 	SOCKET	get_descriptor()	{ return _descriptor; }
-	int	get_player()		{ return _player; }
+	dbref	get_player()		{ return _player; }
 	const String& 	get_player_name()	{ return _player_name;}
 	const String&	get_password()		{ return _password;}
-	void	set_player(int p)	{ _player = p; }
+	void	set_player(dbref p)	{ _player = p; }
 	void	set_player_name(const String& p) { _player_name = p; }
 	void	set_password(const String& p) { _password = p; }
 

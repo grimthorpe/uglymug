@@ -78,6 +78,14 @@ const	String& name,
 		return (matcher.noisy_match_result ());
 }
 
+dbref
+context::find_object(const String& name, bool need_control)
+{
+	dbref retval = find_for_query(*this, name, (int)need_control);
+	if(retval != NOTHING)
+		Accessed(retval);
+	return retval;
+}
 
 static dbref
 find_executor_for_query (

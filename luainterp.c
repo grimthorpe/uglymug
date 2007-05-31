@@ -45,6 +45,9 @@ public:
 	static int arg1(lua_State*);
 	static int arg2(lua_State*);
 	static int arg3(lua_State*);
+	static int find(lua_State*);
+
+	static int print(lua_State*);
 private:
 	// Helper functions
 	static context* get_context(lua_State *L)
@@ -62,6 +65,8 @@ static const luaL_reg luaUM_Library[] =
 	{ "1",			UM_lua_commands::arg1},
 	{ "2",			UM_lua_commands::arg2},
 	{ "3",			UM_lua_commands::arg3},
+	{ "find",		UM_lua_commands::find},
+	{ "print",		UM_lua_commands::print},
 
 	{NULL, NULL}
 };
@@ -77,12 +82,20 @@ public:
 
 	static int	push_UMObject(lua_State* S, context* c, dbref obj);
 
+	static int	push_UMObjectArray(lua_State* S, context* c, dbref startobj);
+
 	UMObject(lua_State* L)
 	{
 		lua_pushstring(L, "PermissionDenied");
 		lua_error(L);
 	}
 
+	int id(lua_State* L)
+	{
+		lua_pushstring(L, unparse_for_return(*m_context, m_object));
+
+		return 1;
+	}
 	int name(lua_State* L)
 	{
 		lua_pushstring(L, db[m_object].get_name().c_str());
@@ -103,6 +116,21 @@ public:
 	{
 		return push_UMObject(L, m_context, db[m_object].get_location());
 	}
+
+	int contents(lua_State* L)
+	{
+		return push_UMObjectArray(L, m_context, db[m_object].get_contents());
+	}
+
+	int variables(lua_State* L)
+	{
+		return push_UMObjectArray(L, m_context, db[m_object].get_variables());
+	}
+
+	int commands(lua_State* L)
+	{
+		return push_UMObjectArray(L, m_context, db[m_object].get_commands());
+	}
 };
 
 const char UMObject::className[] = "UMObject";
@@ -110,10 +138,14 @@ const char UMObject::className[] = "UMObject";
 #define method(class, name) {#name, &class::name}
 Lunar<UMObject>::RegType UMObject::methods[] =
 {
+	method(UMObject, id),
 	method(UMObject, name),
 	method(UMObject, description),
 	method(UMObject, owner),
 	method(UMObject, location),
+	method(UMObject, contents),
+	method(UMObject, variables),
+	method(UMObject, commands),
 
 	{NULL, NULL}
 };
@@ -134,7 +166,11 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 	luaL_openlib(L, "UM", luaUM_Library, 1);
 
 	// Include the base library (to be removed soon)
-	lua_baselibopen(L);
+	//lua_baselibopen(L);
+
+	lua_pushlightuserdata(L, (void*)this);
+	lua_pushcclosure(L, UM_lua_commands::print, 1);
+	lua_setglobal(L, "print");
 
 	Lunar<UMObject>::Register(L);
 
@@ -169,6 +205,51 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 	return ACTION_STOP;
 }
 
+/*
+ * print - Effectively @echo but will concatenate all the parameters
+ */
+int
+UM_lua_commands::print(lua_State *L)
+{
+	context* c = get_context(L);
+
+	String output;
+	int n = lua_gettop(L);
+	for(int i = 0; i < n; i++)
+	{
+		String tmp = lua_tostring(L, i+1);
+		output += tmp;
+	}
+
+	notify_censor_colour(c->get_player(), c->get_player(), COLOUR_MESSAGES, "%s%s", output.c_str(), COLOUR_REVERT);
+
+	return 0;
+}
+
+/*
+ * Find a db object
+ */
+int
+UM_lua_commands::find(lua_State *L)
+{
+	context* c = get_context(L);
+
+	int n = lua_gettop(L);
+	if(n != 1)
+	{
+		lua_pushstring(L, "Invalid number of arguments");
+		lua_error(L);
+	}
+	String name = lua_tostring(L, 1);
+
+	dbref thing = c->find_object(name, false);
+
+	if(thing != NOTHING)
+	{
+		return UMObject::push_UMObject(L, c, thing);
+	}
+	return 0;
+}
 
 /*
  * Run a UM command line.
@@ -180,6 +261,7 @@ UM_lua_commands::Command(lua_State *L)
 {
 	context* c = get_context(L);
 
+	/*
 	// Increase the step count.
 	c->command_executed();
 	if(!c->allow_another_step())
@@ -187,12 +269,13 @@ UM_lua_commands::Command(lua_State *L)
 		lua_pushstring(L, "Recursionlimit");
 		return lua_error(L);
 	}
+	*/
 
 	int n = lua_gettop(L);
 	if(n != 1)
 	{
 		lua_pushstring(L, "Invalid number of arguments");
-		lua_error(L);
+		return lua_error(L);
 	}
 	String cmd = lua_tostring(L, 1);
 
@@ -280,7 +363,27 @@ UM_lua_commands::_CountHook(lua_State* L, lua_Debug* ar)
 int
 UMObject::push_UMObject(lua_State* L, context* c, dbref obj)
 {
-	lua_pushvalue(L, Lunar<UMObject>::push(L, new UMObject(c, obj), true));
+	//lua_pushvalue(L, Lunar<UMObject>::push(L, new UMObject(c, obj), true));
+	Lunar<UMObject>::push(L, new UMObject(c, obj), true);
+	return 1;
+}
+
+int
+UMObject::push_UMObjectArray(lua_State* L, context* c, dbref obj)
+{
+	lua_newtable(L);
+	int index=0;
+	static char number[10];
+	while(obj != NOTHING)
+	{
+	//	sprintf(number, "%d", index++);
+	//	lua_pushstring(L, (const char*)number);
+		lua_pushnumber(L, index++);
+		push_UMObject(L, c, obj);
+		lua_settable(L, -3);
+		obj=db[obj].get_next();
+	}
+
 	return 1;
 }
 #endif

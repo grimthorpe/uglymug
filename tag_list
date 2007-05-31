@@ -14,6 +14,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Get the lua code integration to work better. (Grimthorpe)
+	Get LiteralInput to work correctly, and handle %, \, $ and { at the right place. (Grimthorpe)
+	Stop @colour from outputting information messages when in_command(). (Grimthorpe)
+	If someone types 'who' in any capitalisation at the name prompt then show the who list. (Grimthorpe)
 	Oops; don't crash when doing 'who'. (Grimthorpe)
 	Don't crash under Linux if the help.txt file doesn't exist (Grimthorpe)
 	NPCs don't get colour codes if their @terminal colour_terminal=off (Grimthorpe)

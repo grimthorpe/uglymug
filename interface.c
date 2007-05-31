@@ -2483,7 +2483,7 @@ char *a,*a1,*b;
 	bool colour = false;
 	if(get_player())
 		colour = Colour(get_player());  /* Stores whether we need to substitute in the codes */
-	int percent_loaded = 0;		/* Indicates whether we have already hit a % sign */
+	bool percent_loaded = false;		/* Indicates whether we have already hit a % sign */
 
 	while(*b)
 	{
@@ -2495,11 +2495,11 @@ char *a,*a1,*b;
 			{
 				/* Deal with %% which displays a % sign */
 				output += '%';
-				percent_loaded = 0;
+				percent_loaded = false;
 			}
 			else
 			{
-				percent_loaded = 1;
+				percent_loaded = true;
 			}
 			break;
 
@@ -2519,7 +2519,7 @@ char *a,*a1,*b;
 		default:
 			if(percent_loaded)
 			{
-				percent_loaded = 0;
+				percent_loaded = false;
 				if((colour || terminal.effects) && terminal.colour_terminal)
 				{
 					/* They want the colour codes transfered*/
@@ -2541,6 +2541,7 @@ char *a,*a1,*b;
 				/* Just a character, copy it */
 				output += chr;
 			}
+			break;
 		}
 	}
 	return queue_write (output.c_str(), output.length());
@@ -3047,6 +3048,30 @@ process_commands(time_t now)
 				nprocessed++;
 				String command = d->input.front();
 				d->input.pop_front();
+				if(d->IS_CONNECTED())
+				{
+					if(LiteralInput(d->get_player()))
+					{
+						String fixedcommand;
+						const char* c = command.c_str();
+						while(*c)
+						{
+							switch(*c)
+							{
+							case '%':
+								fixedcommand += '%';
+								break;
+							case '\\':
+							case '{':
+							case '$':
+								fixedcommand += '\\';
+								break;
+							}
+							fixedcommand += (*c++);
+						}
+						command = fixedcommand;
+					}
+				}
 				if (!d->do_command (command, now))
 				{
 					if (d->get_connect_state() == DESCRIPTOR_CONNECTED)
@@ -3350,6 +3375,10 @@ descriptor_data::check_connect (const char *input)
 					queue_string(guest_create_banned);
 					log_message("BANNED GUEST %s on descriptor %d", luser, CHANNEL());
 					welcome_user();
+				}
+				else if(string_compare(msg, "who") == 0)
+				{
+					dump_users (NULL, (IS_CONNECTED() && (db[get_player()].get_flag(FLAG_HOST))) ? DUMP_WIZARD : 0);
 				}
 				else
 				{

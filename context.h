@@ -387,6 +387,7 @@ public:
 	const	bool			controls_for_write	(const dbref what) const;
 	const	bool			controls_for_private	(const dbref what) const;
 	const	bool			controls_for_look	(const dbref what) const;
+		dbref			find_object		(const String& name, bool need_control);
 		String_pair		*locate_innermost_arg	(const String& name)	const;
 #ifndef	NO_GAME_CODE
 	bool				allow_another_step	();
