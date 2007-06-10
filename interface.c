@@ -3272,7 +3272,10 @@ descriptor_data::connect_a_player (
 
 		start_time = last_one->start_time;
 
+		bool old_terminal_recall = terminal.recall;
+		terminal.recall = false;
 		notify_colour(player, player, COLOUR_MESSAGES, "You have been reconnected. Your previous connection has been closed and you occupy your previous place in the WHO list. To view any output from the game that you may have missed please use '@recall <number of lines to view>'");
+		terminal.recall = old_terminal_recall;
 		announce_player(ANNOUNCE_RECONNECT);
 		mud_run_dotcommand(get_player(), ".reconnect");
 
