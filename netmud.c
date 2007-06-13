@@ -57,6 +57,7 @@ char	**argv)
 	int errflg = 0;
 	extern char *optarg;
 	extern int optind;
+	String pidfile;
 
 #ifdef sun
 	/* Tell the operating system that we access pages randomly */
@@ -65,7 +66,7 @@ char	**argv)
 
 	fprintf(stderr, "%s\n", version);
 
-	while ((c = getopt(argc, argv, "dfcshBCHPRWA:i:")) != -1)
+	while ((c = getopt(argc, argv, "dfcshBCHPRWA:i:p:")) != -1)
 	{
 		switch (c)
 		{
@@ -106,6 +107,9 @@ char	**argv)
 				break;
 			case 'W':
 				wizard_check = 1;
+				break;
+			case 'p':
+				pidfile = optarg;
 				break;
 			case 'h':
 			default:
@@ -149,12 +153,26 @@ char	**argv)
 		Trace( "Usage: %s infile dumpfile [port]\n", *argv);
 		exit (1);
 	}
+
+	if(pidfile)
+	{
+		FILE* pfile = fopen(pidfile.c_str(), "w");
+		if(pfile == NULL)
+		{
+			log_message("Couldn't create pid file %s", pidfile.c_str());
+			exit(3);
+		}
+		fprintf(pfile, "%d\n", getpid());
+		fclose(pfile);
+	}
+
 	init_strings ();
 	if (init_game (argv[optind], argv[optind + 1]) < 0)
 	{
 		log_message("Couldn't load %s!", argv[optind]);
 		exit (2);
 	}
+
 	set_signals ();
 	mud_main_loop (argc-optind-2, argv+optind+2);
 	close_sockets ();

@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added a command line option '-p <filename>' to write the process id to (Grimthorpe)
 	Don't put the reconnection notice into the recall buffer. (Grimthorpe)
 	Get the lua code integration to work better. (Grimthorpe)
 	Get LiteralInput to work correctly, and handle %, \, $ and { at the right place. (Grimthorpe)
