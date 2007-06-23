@@ -178,7 +178,7 @@ do_write (unsigned char c)
 		ccount = 0;
 		do_write_raw_str (s);
 		break;
-	case '':
+	case '\r':
 		/* do not write it */
 		return;
 	case '<':
@@ -209,33 +209,33 @@ do_write (unsigned char c)
 void
 do_start (void)
 {
-	do_write_raw_str ("\
-<html><head><title></title>\n\
-<style>\n\
-.BGDEFAULT { background: ");
+	do_write_raw_str (""
+"<html><head><title></title>\n"
+"<style>\n"
+".BGDEFAULT { background: ");
 	do_write_raw_str (config.background_color);
-	do_write_raw_str ("\
-; }\n\
-.BGBLACK { background: black; }\n\
-.BGRED { background: red; }\n\
-.BGGREEN { background: green; }\n\
-.BGYELLOW { background: yellow; }\n\
-.BGBLUE { background: blue; }\n\
-.BGMAGENTA { background: magenta; }\n\
-.BGCYAN { background: cyan; }\n\
-.BGWHITE { background: white; }\n\
-</style>\n\
-</head>\n\
-<SCRIPT LANGUAGE=\"JavaScript\"><!--\n
-function myScroll() {\n
-    window.scrollBy(0,100)\n
-    setTimeout('myScroll()',1000); // scrolls every 1000 miliseconds\n
-}\n
-\n
-if (document.layers || document.all)\n
-    myScroll()\n
-//--></SCRIPT>\n
-<body text=\"");
+	do_write_raw_str (""
+"; }\n"
+".BGBLACK { background: black; }\n"
+".BGRED { background: red; }\n"
+".BGGREEN { background: green; }\n"
+".BGYELLOW { background: yellow; }\n"
+".BGBLUE { background: blue; }\n"
+".BGMAGENTA { background: magenta; }\n"
+".BGCYAN { background: cyan; }\n"
+".BGWHITE { background: white; }\n"
+"</style>\n"
+"</head>\n"
+"<SCRIPT LANGUAGE=\"JavaScript\"><!--\n"
+"function myScroll() {\n"
+"    window.scrollBy(0,100)\n"
+"    setTimeout('myScroll()',1000); // scrolls every 1000 miliseconds\n"
+"}\n"
+"\n"
+"if (document.layers || document.all)\n"
+"    myScroll()\n"
+"//--></SCRIPT>\n"
+"<body text=\"");
 	do_write_raw_str (config.foreground_color);
 	do_write_raw_str ("\" bgcolor=\"");
 	do_write_raw_str (config.background_color);

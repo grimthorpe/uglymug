@@ -102,60 +102,60 @@ void
 show_input_page (void)
 {
 // JPK Added the style sheet to this bit, plus modified end of printf
-	printf ("\
-<html><head><title></title>\n\
-<style>\n\
-.BGDEFAULT { background: %s; }\n\
-.BGBLACK { background: black; }\n\
-.BGRED { background: red; }\n\
-.BGGREEN { background: green; }\n\
-.BGYELLOW { background: yellow; }\n\
-.BGBLUE { background: blue; }\n\
-.BGMAGENTA { background: magenta; }\n\
-.BGCYAN { background: cyan; }\n\
-.BGWHITE { background: white; }\n\
-</style>\n\
-<script>\n\
-var win = window.parent.frames[\"cgitelnet_msg\"];\n\
-var last = -1;	/* last vertical position */\n\
-var running;\n\
-function scrollWindowDown ()\n\
-{\n\
-	if (win.pageYOffset >= last) {\n\
-		win.scrollBy (0, %d);\n\
-		last = win.pageYOffset;\n\
-		/* call ourselves again in a few milliseconds */\n\
-		setTimeout (\"scrollWindowDown ()\", %d);\n\
-		document.input_form.input.focus(); \
-	} else /* win.pageYOffset < last */ {\n\
-		running = 0; \n\
-	}\n\
-}\n\
-</script>\n\
-</head>
-<body bgcolor=\"%s\" text=\"%s\" onLoad='\n\
-scrollWindowDown (); \
-running = 1; \
-document.input_form.input.focus(); \
-return true; \
-'>\n\
-<!-- This site uses cgitelnet: http://cgitelnet.sourceforge.net/ -->\n\
-<table border=\"0\" cellspacing=\"0\" cellpadding=\"2\">\n\
-<tr><td>\n\
-<form name=\"input_form\" action=\"cgitelnet_input.cgi\" method=\"post\">\n\
-<!-- XXX FIXME --><!-- form action=\"cgitest/listall\" method=\"post\" -->\n\
-<input name=\"id\" type=\"hidden\" value=\"%d\">\n\
-<input name=\"input\" type=\"text\" size=\"50\">\
-<input name=\"submit_input\" type=\"submit\" value=\"Send\"> &nbsp; \
-<input name=\"submit_enter\" type=\"submit\" value=\"Send Enter\">\
-</form>\n\
-</td><td>\n\
-<form onSubmit=\"if (!running) { last=-1; scrollWindowDown (); running=1; } return false;\">\n\
-<input type=\"submit\" value=\"Scroll\">\n\
-</form>\n\
-</td></tr></table>\n\
-</body></html>\n\
-", config.background_color, config.scroll_by, config.scroll_timeout, config.background_color, config.foreground_color, key /*, (with_enter ? "checked" : "")*/);
+	printf (""
+"<html><head><title></title>\n"
+"<style>\n"
+".BGDEFAULT { background: %s; }\n"
+".BGBLACK { background: black; }\n"
+".BGRED { background: red; }\n"
+".BGGREEN { background: green; }\n"
+".BGYELLOW { background: yellow; }\n"
+".BGBLUE { background: blue; }\n"
+".BGMAGENTA { background: magenta; }\n"
+".BGCYAN { background: cyan; }\n"
+".BGWHITE { background: white; }\n"
+"</style>\n"
+"<script>\n"
+"var win = window.parent.frames[\"cgitelnet_msg\"];\n"
+"var last = -1;	/* last vertical position */\n"
+"var running;\n"
+"function scrollWindowDown ()\n"
+"{\n"
+"	if (win.pageYOffset >= last) {\n"
+"		win.scrollBy (0, %d);\n"
+"		last = win.pageYOffset;\n"
+"		/* call ourselves again in a few milliseconds */\n"
+"		setTimeout (\"scrollWindowDown ()\", %d);\n"
+"		document.input_form.input.focus(); "
+"	} else /* win.pageYOffset < last */ {\n"
+"		running = 0; \n"
+"	}\n"
+"}\n"
+"</script>\n"
+"</head>"
+"<body bgcolor=\"%s\" text=\"%s\" onLoad='\n"
+"scrollWindowDown (); "
+"running = 1; "
+"document.input_form.input.focus(); "
+"return true; "
+"'>\n"
+"<!-- This site uses cgitelnet: http://cgitelnet.sourceforge.net/ -->\n"
+"<table border=\"0\" cellspacing=\"0\" cellpadding=\"2\">\n"
+"<tr><td>\n"
+"<form name=\"input_form\" action=\"cgitelnet_input.cgi\" method=\"post\">\n"
+"<!-- XXX FIXME --><!-- form action=\"cgitest/listall\" method=\"post\" -->\n"
+"<input name=\"id\" type=\"hidden\" value=\"%d\">\n"
+"<input name=\"input\" type=\"text\" size=\"50\">"
+"<input name=\"submit_input\" type=\"submit\" value=\"Send\"> &nbsp; "
+"<input name=\"submit_enter\" type=\"submit\" value=\"Send Enter\">"
+"</form>\n"
+"</td><td>\n"
+"<form onSubmit=\"if (!running) { last=-1; scrollWindowDown (); running=1; } return false;\">\n"
+"<input type=\"submit\" value=\"Scroll\">\n"
+"</form>\n"
+"</td></tr></table>\n"
+"</body></html>\n"
+, config.background_color, config.scroll_by, config.scroll_timeout, config.background_color, config.foreground_color, key /*, (with_enter ? "checked" : "")*/);
 
 /*<with Enter:<input type=\"checkbox\" name=\"with_enter\" %s>\n\*/
 }
