@@ -14,6 +14,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Added @list game=players to list all the players (Grimthorpe)
+	Fixed @list XXX=YYY where XXX doesn't match a player name to stop it crashing (Grimthorpe)
+	More improvements to the lua code integration. (Grimthorpe)
 	Fixed @?csucc to work on alarms (Grimthorpe)
 	Added a command line option '-p <filename>' to write the process id to (Grimthorpe)
 	Don't put the reconnection notice into the recall buffer. (Grimthorpe)

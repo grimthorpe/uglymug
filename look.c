@@ -1771,6 +1771,18 @@ const	String& string)
 			 return;
 		}
 		
+		if(string_prefix("players", string))
+		{
+			notify_colour(player, player, COLOUR_TITLES, "List of Players:");
+
+			for(i = 0; i < db.get_top (); i++)
+			if (Typeof(i) == TYPE_PLAYER)
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+
+			notify_colour(player, player, COLOUR_CONTENTS, "*** End of List ***");
+			return;
+		}
+
 		if (! string_prefix("ashcanned", string))
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Currently only Ashcan is a valid type to list using '@list game'.");
@@ -1793,11 +1805,11 @@ const	String& string)
 		Matcher matcher (player, descriptor, TYPE_PUPPET, get_effective_id());
 		matcher.match_everything();
 
-		if (Typeof(victim= matcher.noisy_match_result()) != TYPE_PUPPET)
+		victim=matcher.noisy_match_result();
+		if((victim == NOTHING) || (victim == AMBIGUOUS))
+			return;
+		if (Typeof(victim) != TYPE_PUPPET)
 		{
-			if (victim==NOTHING)
-				return;
-
 			/* Only allow this if we're looking at child objects */
 			if (string_prefix("children",string))
 			{

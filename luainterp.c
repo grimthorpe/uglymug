@@ -16,6 +16,8 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 
 #else
 
+static const char* UMMeta="__UMObject__";
+
 /*
  * Ok, now we know we've got LUA support. Lets do things properly...
  */
@@ -81,8 +83,53 @@ public:
 	static Lunar<UMObject>::RegType methods[];
 
 	static int	push_UMObject(lua_State* S, context* c, dbref obj);
-
 	static int	push_UMObjectArray(lua_State* S, context* c, dbref startobj);
+
+	// Get the named parameter
+	static int Get(lua_State* L)
+	{
+		int n = lua_gettop(L);
+		if(n == 2)
+		{
+			UMObject* pObj = (UMObject*)lua_touserdata(L, 1);
+			String tmp = lua_tostring(L, 2);
+
+			if(tmp == "id")
+			{
+				return pObj->id(L);
+			}
+			else if(tmp == "description")
+			{
+				return pObj->description(L);
+			}
+			else if(tmp == "name")
+			{
+				return pObj->name(L);
+			}
+		}
+		return 0;
+	}
+
+	// Set the named parameter
+	static int Set(lua_State* L)
+	{
+		return 0;
+	}
+
+	static int GC(lua_State* L)
+	{
+		return 0;
+	}
+
+	static int ToString(lua_State* L)
+	{
+		UMObject* pObj = (UMObject*)lua_touserdata(L, 1);
+		if(pObj != NULL)
+		{
+			return pObj->name(L);
+		}
+		return 0;
+	}
 
 	UMObject(lua_State* L)
 	{
@@ -135,22 +182,6 @@ public:
 
 const char UMObject::className[] = "UMObject";
 
-#define method(class, name) {#name, &class::name}
-Lunar<UMObject>::RegType UMObject::methods[] =
-{
-	method(UMObject, id),
-	method(UMObject, name),
-	method(UMObject, description),
-	method(UMObject, owner),
-	method(UMObject, location),
-	method(UMObject, contents),
-	method(UMObject, variables),
-	method(UMObject, commands),
-
-	{NULL, NULL}
-};
-
-
 Command_action
 context::do_lua_command(dbref command, const String& cmdname, const String& arg1, const String& arg2)
 {
@@ -172,7 +203,19 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 	lua_pushcclosure(L, UM_lua_commands::print, 1);
 	lua_setglobal(L, "print");
 
-	Lunar<UMObject>::Register(L);
+	//Lunar<UMObject>::Register(L);
+
+	luaL_newmetatable(L, UMMeta);
+	lua_pushstring(L, "__index");
+	lua_pushcfunction(L, UMObject::Get);
+	lua_settable(L, -3);
+	lua_pushstring(L, "__newindex");
+	lua_pushcfunction(L, UMObject::Set);
+	lua_settable(L, -3);
+	lua_pushstring(L, "__tostring");
+	lua_pushcfunction(L, UMObject::ToString);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
 
 	String cmd = db[command].get_description();
 	int err;
@@ -363,9 +406,19 @@ UM_lua_commands::_CountHook(lua_State* L, lua_Debug* ar)
 int
 UMObject::push_UMObject(lua_State* L, context* c, dbref obj)
 {
-	//lua_pushvalue(L, Lunar<UMObject>::push(L, new UMObject(c, obj), true));
-	Lunar<UMObject>::push(L, new UMObject(c, obj), true);
-	return 1;
+	UMObject* pluaobj = (UMObject*)lua_newuserdata(L, sizeof(UMObject));
+	
+	if(pluaobj != NULL)
+	{
+		luaL_getmetatable(L, UMMeta);
+		lua_setmetatable(L, -2);
+
+		pluaobj->m_object = obj;
+		pluaobj->m_context = c;
+		return 1;
+	}
+
+	return 0;
 }
 
 int
@@ -373,11 +426,8 @@ UMObject::push_UMObjectArray(lua_State* L, context* c, dbref obj)
 {
 	lua_newtable(L);
 	int index=0;
-	static char number[10];
 	while(obj != NOTHING)
 	{
-	//	sprintf(number, "%d", index++);
-	//	lua_pushstring(L, (const char*)number);
 		lua_pushnumber(L, index++);
 		push_UMObject(L, c, obj);
 		lua_settable(L, -3);
