@@ -420,7 +420,7 @@ context::do_query_csucc (const String& name, const String&)
 	if (thing == NOTHING)
 		return;
 	Accessed (thing);
-	set_return_string (unparse_for_return(*this, db[thing].get_contents()));
+	set_return_string (unparse_for_return(*this, db[thing].get_csucc()));
 	return_status = COMMAND_SUCC;
 }
 
