@@ -1153,7 +1153,7 @@ const	char	*element_name)
 
 {
 	// Mark the object as accessed.
-	Access(d);
+	Accessed(d);
 
 	int total = db[d].get_number_of_elements();
 	int i;
