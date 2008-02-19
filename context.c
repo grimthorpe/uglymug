@@ -1152,6 +1152,9 @@ const	char	*element_name)
 , element (addarg (element_name, NULLSTRING))
 
 {
+	// Mark the object as accessed.
+	Access(d);
+
 	int total = db[d].get_number_of_elements();
 	int i;
 	switch(Typeof(d))
