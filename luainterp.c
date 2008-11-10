@@ -11,7 +11,7 @@ Command_action
 context::do_lua_command(dbref command, const String& cmdname, const String& arg1, const String& arg2)
 {
 	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Lua support not available");
-	return ACTION_HALT;
+	return ACTION_STOP;
 }
 
 #else
@@ -75,6 +75,15 @@ static const luaL_reg luaUM_Library[] =
 
 class UMObject
 {
+	struct LookupTableEntry
+	{
+		const char*	name;
+		int		(UMObject::*GetCommand)(lua_State*);
+		int		(UMObject::*SetCommand)(lua_State*);
+	};
+
+	static LookupTableEntry LookupTable[];
+
 	dbref		m_object;
 	context*	m_context;
 	UMObject(context* c, dbref obj) :m_object(obj), m_context(c) {}
@@ -94,17 +103,14 @@ public:
 			UMObject* pObj = (UMObject*)lua_touserdata(L, 1);
 			String tmp = lua_tostring(L, 2);
 
-			if(tmp == "id")
+			LookupTableEntry* entry = LookupTable;
+			while(entry->name != NULL)
 			{
-				return pObj->id(L);
-			}
-			else if(tmp == "description")
-			{
-				return pObj->description(L);
-			}
-			else if(tmp == "name")
-			{
-				return pObj->name(L);
+				if(tmp == entry->name)
+				{
+					return (pObj->*(entry->GetCommand))(L);
+				}
+				entry++;
 			}
 		}
 		return 0;
@@ -180,6 +186,19 @@ public:
 	}
 };
 
+UMObject::LookupTableEntry UMObject::LookupTable[] =
+{
+	{ "name",		&UMObject::name,		NULL},
+	{ "description",	&UMObject::description,	NULL },
+	{ "id",			&UMObject::id,		NULL },
+	{ "owner",		&UMObject::owner,		NULL },
+	{ "location",		&UMObject::location,		NULL },
+	{ "contents",		&UMObject::contents,		NULL },
+	{ "variables",		&UMObject::variables,		NULL },
+	{ "commands",		&UMObject::commands,		NULL },
+	{ NULL,			NULL,		NULL }
+};
+
 const char UMObject::className[] = "UMObject";
 
 Command_action
@@ -187,7 +206,7 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 {
 	if((command <= NOTHING) || (Typeof(command) != TYPE_COMMAND))
 	{
-		return ACTION_HALT;
+		return ACTION_STOP;
 	}
 
 	lua_State* L = lua_open();
@@ -231,7 +250,7 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 
 	if(err)
 	{
-		printf("lua: %s\n", lua_tostring(L, -1));
+		notify_censor_colour(get_player(), get_player(), COLOUR_MESSAGES, "error in lua code: %s%s", lua_tostring(L, -1), COLOUR_REVERT);
 		lua_pop(L, 1);
 	}
 	else
@@ -243,7 +262,7 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 
 	if(err)
 	{
-		return ACTION_HALT;
+		return ACTION_STOP;
 	}
 	return ACTION_STOP;
 }
@@ -452,7 +471,7 @@ Lua_command_and_arguments::~Lua_command_and_arguments()
 Command_action
 Lua_command_and_arguments::step(context *co)
 {
-	return co->do_lua_command(get_command(), get_simple_command(), get_arg1(), get_arg2());
+	return co->do_lua_command(get_command(), db[co->get_current_command()].get_name(), get_arg1(), get_arg2());
 }
 
 Command_action
