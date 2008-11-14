@@ -417,20 +417,16 @@ const
 	return (false);
 }
 
-
-static	char	boolexp_buf[BUFFER_LEN];	///< String for storing the unparsed boolexp
-static	char	*buftop;	///< Current location of the unparse pointer
-
-
 /**
  * Unparse a part of a full boolexp in a form that it can be re-read by the boolexp parser.
- * TODO: Reimplement using String, as this is liable to crash when the boolexp overflows boolexp_buf and there is no easy fix.
  */
 
 void
 boolexp::unparse_internal (
 	context		&c,
-const	boolexp_type	outer_type)
+const	boolexp_type	outer_type,
+	String&		retval,
+	bool		for_return)
 const
 
 {
@@ -438,8 +434,7 @@ const
 
 	if (this == TRUE_BOOLEXP)
 	{
-		strcpy(buftop, "*UNLOCKED*");
-		buftop += strlen(buftop);
+		retval = "*UNLOCKED*";
 	}
 	else
 	{
@@ -447,40 +442,45 @@ const
 		{
 			case BOOLEXP_AND:
 				if(outer_type == BOOLEXP_NOT)
-					*buftop++ = '(';
-				sub1->unparse_internal (c, type);
-				*buftop++ = AND_TOKEN;
-				sub2->unparse_internal (c, type);
+					retval += '(';
+				sub1->unparse_internal (c, type, retval, for_return);
+				retval += AND_TOKEN;
+				sub2->unparse_internal (c, type, retval, for_return);
 				if(outer_type == BOOLEXP_NOT)
-					*buftop++ = ')';
+					retval += ')';
 				break;
 			case BOOLEXP_OR:
 				if(outer_type == BOOLEXP_NOT || outer_type == BOOLEXP_AND)
-					*buftop++ = '(';
-				sub1->unparse_internal (c, type);
-				*buftop++ = OR_TOKEN;
-				sub2->unparse_internal (c, type);
+					retval += '(';
+				sub1->unparse_internal (c, type, retval, for_return);
+				retval += OR_TOKEN;
+				sub2->unparse_internal (c, type, retval, for_return);
 				if(outer_type == BOOLEXP_NOT || outer_type == BOOLEXP_AND)
-					*buftop++ = ')';
+					retval += '(';
 				break;
 			case BOOLEXP_NOT:
-				*buftop++ = '!';
-				sub1->unparse_internal (c, type);
+				retval += '!';
+				sub1->unparse_internal (c, type, retval, for_return);
 				break;
 			case BOOLEXP_CONST:
-				strcpy(buftop, unparse_object(c, thing));
-				buftop += strlen(buftop);
+				if(for_return)
+				{
+					retval += ::unparse_for_return (c, thing);
+				}
+				else
+				{
+					retval += unparse_object_inherited(c, thing);
+				}
 				break;
 			case BOOLEXP_FLAG:
-				*buftop++ = '@';
+				retval += '@';
 				for (i=0; flag_list[i].string != NULL; i++)
 					if (thing == flag_list[i].flag)
 						break;
 
 				if (flag_list[i].string != NULL)
 				{
-					strcpy (buftop, flag_list[i].string);
-					buftop += strlen (buftop);
+					retval += flag_list[i].string;
 				}
 				else
 				{
@@ -492,90 +492,20 @@ const
 
 
 /**
- * TODO: Can this be combined with unparse_for_return by sneaky use of a function pointer as to which unparser to use (or just a boolean?)
- * PJC 2003-10-26
- */
-
-void
-boolexp::unparse_for_return_internal (
-	context		&c,
-const	boolexp_type	outer_type)
-const
-
-{
-	int i;
-
-	if (this == TRUE_BOOLEXP)
-	{
-		strcpy(buftop, "*UNLOCKED*");
-		buftop += strlen(buftop);
-	}
-	else
-	{
-		switch(type)
-		{
-			case BOOLEXP_AND:
-				if(outer_type == BOOLEXP_NOT)
-					*buftop++ = '(';
-				sub1->unparse_for_return_internal (c, type);
-				*buftop++ = AND_TOKEN;
-				sub2->unparse_for_return_internal (c, type);
-				if(outer_type == BOOLEXP_NOT)
-					*buftop++ = ')';
-				break;
-			case BOOLEXP_OR:
-				if(outer_type == BOOLEXP_NOT || outer_type == BOOLEXP_AND)
-					*buftop++ = '(';
-				sub1->unparse_for_return_internal (c, type);
-				*buftop++ = OR_TOKEN;
-				sub2->unparse_for_return_internal (c, type);
-				if(outer_type == BOOLEXP_NOT || outer_type == BOOLEXP_AND)
-					*buftop++ = ')';
-				break;
-			case BOOLEXP_NOT:
-				*buftop++ = '!';
-				sub1->unparse_for_return_internal (c, type);
-				break;
-			case BOOLEXP_CONST:
-				strcpy(buftop, ::unparse_for_return (c, thing));
-				buftop += strlen(buftop);
-				break;
-			case BOOLEXP_FLAG:
-				*buftop++ = '@';
-				for (i=0; flag_list[i].string!=NULL; i++)
-					if (flag_list[i].flag == thing)
-						break;
-
-				if (flag_list[i].string!=NULL)
-				{
-					strcpy (buftop, flag_list[i].string);
-					buftop += strlen(buftop);
-				}
-				else
-				{
-					log_bug("unparse_for_return_internal: unknown_type: %c", type);
-					abort();
-				}
-		}
-	}
-}
-
-
-/**
  * Construct the string representing this boolexp and return it.  Successive returns may re-use the same memory.
  */
 
-const char *
+const char*
 boolexp::unparse (
 context	&c)
 const
 
 {
-	buftop = boolexp_buf;
-	unparse_internal (c, BOOLEXP_CONST);	/* no outer type */
-	*buftop++ = '\0';
+	static String boolexp;
+	boolexp = NULLSTRING;
+	unparse_internal (c, BOOLEXP_CONST, boolexp, false);	/* no outer type */
 
-	return (boolexp_buf);
+	return boolexp.c_str();
 }
 
 
@@ -589,11 +519,11 @@ context	&c)
 const
 
 {
-	buftop = boolexp_buf;
-	unparse_for_return_internal (c, BOOLEXP_CONST);	/* no outer type */
-	*buftop++ = '\0';
+	static String boolexp;
+	boolexp = NULLSTRING;
+	unparse_internal (c, BOOLEXP_CONST, boolexp, true);	/* no outer type */
 
-	return (boolexp_buf);
+	return boolexp.c_str();
 }
 
 

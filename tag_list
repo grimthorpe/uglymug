@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Fixed the matcher and locks to use inherited names for objects (Grimthorpe)
 	Improved lua integration. (Grimthorpe)
 	Fixed @with to mark the array or dictionary as accessed (Grimthorpe)
 	Added @list game=players to list all the players (Grimthorpe)

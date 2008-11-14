@@ -245,8 +245,7 @@ class	boolexp
 	boolexp			*sub2;
 	dbref			thing;
 	const	bool		eval_internal		(const context &c, Matcher &matcher)		const;
-		void		unparse_internal	(context &c, boolexp_type outer_type)	const;
-		void		unparse_for_return_internal	(context &c, const boolexp_type outer_type)	const;
+		void		unparse_internal	(context &c, boolexp_type outer_type, String& retval, bool for_return)	const;
 	friend	boolexp		*parse_boolexp_E	(const dbref player);
 	friend	boolexp		*parse_boolexp_T	(const dbref player);
 	friend	boolexp		*parse_boolexp_F	(const dbref player);
