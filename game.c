@@ -1428,9 +1428,17 @@ void mud_connect_player (dbref player)
 
 	db [player].set_flag(FLAG_CONNECTED);
 
-	if(Retired(player) && Wizard(player))
+	if(Retired(player))
 	{
-		log_hack(NOTHING, "<<<RETIRED WIZARD>>> %s(#%d) Connected", getname(player), player);
+		const char* type="PLAYER";
+		if(Wizard(player))
+			type="WIZARD";
+		else if(Apprentice(player))
+			type="APPRENTICE";
+		else if(Welcomer(player))
+			type = "WELCOMER";
+
+		log_hack(NOTHING, "<<<RETIRED %s>>> %s(#%d) Connected", type, getname(player), player);
 	}
 	mud_run_dotcommand(player, ".login");
 }

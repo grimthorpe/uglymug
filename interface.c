@@ -3140,7 +3140,8 @@ descriptor_data::do_command (String command, time_t now)
 		}
 		else
 		{
-			queue_string ("Idle time not modified.\n");
+			// Make long-time idlers happy.
+			//queue_string ("Idle time not modified.\n");
 		}
 		return 1;
 	}
