@@ -1118,28 +1118,26 @@ const	String& new_text)
 	free (copy);
 }
 
-static	char	buildbuf[BUFFER_LEN];
 static  String buildstring;
 
 const String&
 Describable_object::get_description()
 const
 {
+	String buildbuf;
 	int	x;
-	char 	*p = buildbuf;
-	*p = '\0';
 
 	if (number==0)
 		return NULLSTRING;
 	for(x = 0;x < number;x++)
 	{
 		if(x!=0)
-			strcat(p, "\n");
+			buildbuf += "\n";
 		if(elements[x])		/* NULL pointer not null string */
-			strcat(p, elements[x].c_str());
+			buildbuf += elements[x];
 		else
 			if(x==(number-1))	/* for trailing blank lines */
-				strcat(p, "\n");
+				buildbuf += "\n";
 	}
 	buildstring = buildbuf;
 	return buildstring;
