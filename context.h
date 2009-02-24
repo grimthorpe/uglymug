@@ -267,6 +267,7 @@ private:
 			dbref		cfail_cache;
 			Scope_stack	scope_stack;
 			bool		gagged; // Set true if this or previous compound commands 'Silent'
+			bool		in_chpid; // Set true if this compound command has called @chpid
 			void		empty_scope_stack	();
     protected:
 	virtual	const	int		line_for_outer_scope	()	const	{ return current_line + 1; };
@@ -280,8 +281,8 @@ private:
 		const	dbref		get_effective_id	()	const		{ return (effective_id); }
 			void		set_unchpid_id		(dbref i)		{ unchpid_id = i; }
 		const	dbref		get_unchpid_id	()		const		{ return (unchpid_id); }
-			void		chpid			()			{ effective_id = db [command].get_owner (); }
-			void		uncpid			()			{ effective_id = unchpid_id; }
+			void		chpid			()			{ effective_id = db [command].get_owner (); in_chpid = true; }
+			void		unchpid			()			{ if(!in_chpid) effective_id = unchpid_id; }
 		const	bool		inside_subscope		()	const		{ return !scope_stack.empty(); }
 			void		push_scope		(Scope *s)		{ scope_stack.push (s); }
 			Command_action	step_once	(context *);
@@ -533,6 +534,7 @@ public:
 	void				do_at_pcreate		(const String&, const String&);
 	void				do_at_pemote		(const String&, const String&);
 	void				do_pose			(const String&, const String&);
+	void				do_emote		(const String&, const String&, bool oemote);
 	void				do_at_property		(const String&, const String&);
 	void				do_at_puppet		(const String&, const String&);
 	void				do_query_address	(const String&, const String&);

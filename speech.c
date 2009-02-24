@@ -294,6 +294,12 @@ const	String& arg1,
 const	String& arg2)
 
 {
+	do_emote(arg1, arg2, false);
+}
+
+void
+context::do_emote(const String& arg1, const String& arg2, bool oemote)
+{
 	dbref loc, prop;
 	const char *message;
 
@@ -308,7 +314,8 @@ const	String& arg2)
 	
 	if(Silent(player) && !Wizard(player) && !Apprentice(player))
 	{
-		notify_colour(player,  player, COLOUR_MESSAGES,"You are set Silent. You can't emote anything.");
+		if(!oemote)
+			notify_colour(player,  player, COLOUR_MESSAGES,"You are set Silent. You can't emote anything.");
 		return;
 	}
 	
@@ -324,13 +331,16 @@ const	String& arg2)
 	  }
 	  else
 	  {
-		Matcher matcher_prop(player, ".silent", TYPE_PROPERTY, get_effective_id());
-		matcher_prop.match_variable_remote(loc);
+		if(!oemote)
+		{
+			Matcher matcher_prop(player, ".silent", TYPE_PROPERTY, get_effective_id());
+			matcher_prop.match_variable_remote(loc);
 
-		if ((prop=matcher_prop.match_result()) == NOTHING || (prop == AMBIGUOUS))
-			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't emote in a silent room!");
-		else
-			notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description().c_str() );
+			if ((prop=matcher_prop.match_result()) == NOTHING || (prop == AMBIGUOUS))
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't emote in a silent room!");
+			else
+				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description().c_str() );
+		}
 		return;
 	  }
 
@@ -339,7 +349,8 @@ const	String& arg2)
 	/* you can't pose nothing */
 	if (strlen(message) == 0)
 	{
-		notify_colour(player, player, COLOUR_MESSAGES, "You can't emote nothing!");
+		if(!oemote)
+			notify_colour(player, player, COLOUR_MESSAGES, "You can't emote nothing!");
 		return;
 	}
 
@@ -348,7 +359,11 @@ const	String& arg2)
 		sprintf(scratch_buffer, "%s", getname_inherited (player));
 	else
 		sprintf(scratch_buffer, "%s ", getname_inherited (player));
-	notify_except_colour(db[loc].get_contents(), NOTHING, scratch_buffer, message, false, player, COLOUR_EMOTES);
+	dbref except = NOTHING;
+	if(oemote)
+		except = player;
+
+	notify_except_colour(db[loc].get_contents(), except, scratch_buffer, message, false, player, COLOUR_EMOTES);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -707,20 +722,7 @@ const	String& arg1,
 const	String& arg2)
 
 {
-
-       return_status = COMMAND_FAIL;
-       set_return_string (error_return_string);
-
-  
-       if(!Silent(player) || Wizard(player) || Apprentice(player))
-       {
-	sprintf (scratch_buffer, "%s %s", getname_inherited (player), reconstruct_message(arg1, arg2));
-	notify_except (db [db [player].get_location()].get_contents(), player, player, scratch_buffer);
-	return_status = COMMAND_SUCC;
-	set_return_string (ok_return_string);
-       }
-       else
-	   notify_colour(player,  player, COLOUR_ERROR_MESSAGES, "Silent players can't @oemote anything!");
+	do_emote(arg1, arg2, true);
 }
 
 void
