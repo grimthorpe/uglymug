@@ -26,6 +26,26 @@ for i in /usr /usr/local /opt/pcre; do
   fi
 done
 
+# GeoIP support
+
+LD_LIBGEOIP=""
+CC_LIBGEOIP=""
+for i in /usr /usr/local; do
+  if [ "$LD_LIBGEOIP" = "" ]; then
+    if [ -f $i/lib/libGeoIP.a ]; then
+      LD_LIBGEOIP="-B$i/lib -Xlinker -R$i/lib -lGeoIP"
+      echo libGeoIP found in $i/lib
+    fi
+  fi
+  if [ "$CC_LIBGEOIP" = "" ]; then
+    if [ -f $i/include/GeoIP.h ]; then
+      CC_LIBGEOIP="-I$i/include -DGEOIP"
+      echo GeoIP.h found in $i/include
+    fi
+  fi
+done
+
+
 # Lua has its own configuration detection program, so we'll just use that.
 LD_LUA=`lua-config --libs 2>/dev/null`
 CC_LUA=`lua-config --include 2>/dev/null`
@@ -38,6 +58,8 @@ fi
 echo '# Local machine configuration.' > $1
 echo LD_REGEXP=$LD_LIBPCRE >> $1
 echo CC_REGEXP=$CC_LIBPCRE >> $1
+echo LD_GEOIP=$LD_LIBGEOIP >> $1
+echo CC_GEOIP=$CC_LIBGEOIP >> $1
 echo LD_LUA=$LD_LUA >> $1
 echo CC_LUA=$CC_LUA >> $1
 

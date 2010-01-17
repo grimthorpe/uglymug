@@ -151,6 +151,7 @@ void log_command (
 void log_connect (
 			bool		success,
 			int			descriptor,
+			const String&	hostname,
 			dbref		playerid,
 	const	String&	playername
 ) {
@@ -158,13 +159,13 @@ void log_connect (
 	 * e.g. CONNECT|timestamp|(SUCCESS|FAILURE)|descriptor|playerid|playername
 	 */
 
-	Trace(	"%cCONNECT%c%d%c%s%c%d%c%d%c%s%c\n",
-			RECORD_START,						FIELD_SEPARATOR,
-			time(NULL),							FIELD_SEPARATOR,
+	Trace(	"%cCONNECT%c%d%c%s%c%d [%s]%c%d%c%s%c\n",
+			RECORD_START,				FIELD_SEPARATOR,
+			time(NULL),				FIELD_SEPARATOR,
 			(success ? "SUCCESS" : "FAILURE"),	FIELD_SEPARATOR,
-			descriptor,							FIELD_SEPARATOR,
-			playerid,							FIELD_SEPARATOR,
-			playername.c_str(),					RECORD_END
+			descriptor, hostname.c_str(),		FIELD_SEPARATOR,
+			playerid,				FIELD_SEPARATOR,
+			playername.c_str(),			RECORD_END
 	);
 }
 

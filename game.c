@@ -1523,11 +1523,14 @@ void mud_time_sync ()
 					a_location = db[a_command].get_location();
 					if ((Typeof (a_location) == TYPE_PLAYER) || (Typeof (a_location) == TYPE_PUPPET))
 						a_location = db[a_location].get_location();
-					moveto (the_player, a_location);
+					db[the_player].set_remote_location(a_location);
+					Accessed(a_location);
+					//moveto (the_player, a_location);
 					context *alarm_context = new context (the_player, context::DEFAULT_CONTEXT);
 					alarm_context->prepare_compound_command (a_command, "ALARM", "", "");
 					delete mud_scheduler.push_new_express_job (alarm_context);
-					moveto (the_player, cached_location);
+					db[the_player].set_remote_location(cached_location);
+					//moveto (the_player, cached_location);
 				}
 				else
 				{

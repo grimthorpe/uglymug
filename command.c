@@ -616,7 +616,10 @@ const	String&)
 	}
 	else
 	{
+		// Default: Unchpid to last effective id
 		call_stack.top ()->set_effective_id (call_stack.top()->get_unchpid_id());
+		// But if the current compound command hasn't chpid'd, unchpid to original effective id.
+		call_stack.top()->unchpid();
 //		return_status = COMMAND_SUCC;
 //		set_return_string (ok_return_string);
 	}

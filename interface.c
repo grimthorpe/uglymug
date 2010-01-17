@@ -128,6 +128,10 @@ const char *strsignal (const int sig)
 }
 #endif	/* NEEDS_STRSIGNAL */
 
+#if defined(GEOIP)
+#include <GeoIP.h>
+#endif /* GEOIP */
+
 #define	HELP_FILE		"help.txt"
 #define	SIGNAL_STACK_SIZE	200000
 #define	LOGTHROUGH_HOST		INADDR_LOOPBACK	/* 127.0.0.1 */
@@ -1955,54 +1959,63 @@ set_cached_addr(u_long addr, const String& name)
 	time(&(cached_addresses[bestindex].lastused));
 }
 
+#if defined(GEOIP)
+static GeoIP* GeoLocResolver = GeoIP_new(GEOIP_STANDARD);
+#endif
+
 const char *
 convert_addr (
 unsigned long addr)
 
 {
 	struct	hostent	*he;
-	static	char	buffer [MAX(20, MAXHOSTNAMELEN)];
+	static char	retbuffer [MAX(20, MAXHOSTNAMELEN + 10)];
+	char		buffer [MAX(20, MAXHOSTNAMELEN + 10)];
 	char		compare_buffer [MAXHOSTNAMELEN];
 
-	if(get_cached_addr(addr, buffer))
+	if(!get_cached_addr(addr, retbuffer))
 	{
-		return buffer;
-	}
-	if (smd_dnslookup (addr))
-	{
-		if((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL)
+		long bsaddr = ntohl(addr);
+		if (smd_dnslookup (addr))
 		{
-			char	*pos;
-
-			strcpy (buffer, he->h_name);
-			strcpy (compare_buffer, DOMAIN_STRING);
-			while (strchr (compare_buffer, '.') != NULL)
+			if((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL)
 			{
-				if ((pos = strstr (buffer, compare_buffer)) != NULL)
+				char	*pos;
+
+				strcpy (buffer, he->h_name);
+				strcpy (compare_buffer, DOMAIN_STRING);
+				while (strchr (compare_buffer, '.') != NULL)
 				{
-					*pos = '\0';
-					break;
+					if ((pos = strstr (buffer, compare_buffer)) != NULL)
+					{
+						*pos = '\0';
+						break;
+					}
+					else if ((pos = strchr (compare_buffer + 1, '.')) == NULL)
+						break;
+					else
+						strcpy (compare_buffer, pos);
 				}
-				else if ((pos = strchr (compare_buffer + 1, '.')) == NULL)
-					break;
-				else
-					strcpy (compare_buffer, pos);
+			}
+			else
+			{
+				snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
 			}
 		}
 		else
 		{
-			long bsaddr = ntohl(addr);
+			/* Not local, or not found in db */
 			snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
 		}
-		set_cached_addr(addr, buffer);
+		char geoloc[10];
+		geoloc[0]=0;
+#if defined(GEOIP)
+		snprintf(geoloc, sizeof(geoloc), "(%s) ", GeoIP_country_code_by_ipnum(GeoLocResolver, (unsigned long)bsaddr));
+#endif
+		snprintf(retbuffer, sizeof(retbuffer), "%s%s", geoloc, buffer);
+		set_cached_addr(addr, retbuffer);
 	}
-	else
-	{
-		/* Not local, or not found in db */
-		long bsaddr = ntohl(addr);
-		snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
-	}
-	return (buffer);
+	return (retbuffer);
 }
 
 void
@@ -3260,10 +3273,10 @@ descriptor_data::connect_a_player (
 			log_created(CHANNEL(), player, db[player].get_name().c_str());
 		}
 		else {
-			log_connect(true, CHANNEL(), player, db[player].get_name().c_str());
+			log_connect(true, CHANNEL(), hostname, player, db[player].get_name().c_str());
 		}
-		mud_connect_player (get_player());
 		announce_player (announce_type);
+		mud_connect_player (get_player());
 	}
 	else
 	{
@@ -3332,7 +3345,7 @@ descriptor_data::check_connect (const char *input)
 		if (player == NOTHING || player == 0)
 		{
 			queue_string (connect_fail);
-			log_connect(false, CHANNEL(), -1, luser);
+			log_connect(false, CHANNEL(), hostname, -1, luser);
 		}
 		else
 		{
@@ -3485,7 +3498,7 @@ descriptor_data::check_connect (const char *input)
 					{
 						/* Invalid password */
 						queue_string (connect_fail);
-						log_connect(false, CHANNEL(), -1, get_player_name().c_str());
+						log_connect(false, CHANNEL(), hostname, -1, get_player_name().c_str());
 						if(--connect_attempts==0)
 						{
 							queue_string (too_many_attempts);

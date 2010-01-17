@@ -24,7 +24,7 @@
 	void		log_bug				(const char *, ...);
 	void		log_checkpointing	(const String&, int);
 	void		log_command			(dbref, const String&, dbref, const String&, dbref, const String&, const String&);
-	void		log_connect			(bool, int, dbref, const String&);
+	void		log_connect			(bool, int, const String&, dbref, const String&);
 	void		log_created			(int, dbref, const String&);
 	//void		log_credit			(dbref, dbref, int, const char*);
 	void		log_credit			(dbref, const String&, dbref, const String&, int, const char*);

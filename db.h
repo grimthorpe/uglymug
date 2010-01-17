@@ -302,9 +302,9 @@ class	object
 	virtual	const	bool	destroy				(const dbref);
 	/* set functions */
 
-			void	set_flag			(const object_flag_type f)	{ flags[f/8] |= (1<<(f%8)); }
-			void	clear_flag			(const object_flag_type f)	{ flags[f/8] &= ~(1<<(f%8)); }
-			bool	get_flag			(const object_flag_type f)	{ return (flags[f/8] & (1<<(f%8))) != 0; }
+			void	set_flag			(const object_flag_type f)	{ flags[f/8] |= (flag_type)(1<<(f&7)); }
+			void	clear_flag			(const object_flag_type f)	{ flags[f/8] &= ~(flag_type)(1<<(f&7)); }
+			bool	get_flag			(const object_flag_type f)	{ return (flags[f/8] & (flag_type)(1<<(f&7))) != 0; }
 			void	set_flag_byte			(const int c, const flag_type v){ flags[c] = v; }
 			flag_type	get_flag_byte		(const int c)			const { return (flags[c]); }
 

@@ -168,7 +168,7 @@ int		level)
 				notify_public_colour(c.get_player (), c.get_player(), COLOUR_CONTENTS, "%s", scratch_buffer);
 				had_contents = 1;
 			}
-			sprintf (scratch_buffer + level, unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE));
+			sprintf (scratch_buffer + level, "%s", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE));
 			notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
 			if (Container (thing))
 			{
@@ -493,16 +493,17 @@ dbref	loc)
 	const colour_at& ca = db[c.get_player()].get_colour_at();
 	dbref looper;
 	int   prettylook= Prettylook(c.get_player()) ;
+	String name = unparse_objectandarticle_inherited (c, loc, ARTICLE_UPPER_INDEFINITE);
 
 	/* tell hir the name, and the number if he can link to it */
 	notify_public(c.get_player(), c.get_player (), "%s%s%s",
 			ca[COLOUR_ROOMNAME],
-			unparse_objectandarticle_inherited (c, loc, ARTICLE_UPPER_INDEFINITE),
+			name.c_str(),
 			COLOUR_REVERT);
 	if (prettylook)
 		notify(c.get_player(), "%s%s%s",
 				ca[COLOUR_UNDERLINES],
-				underline(colour_strlen(unparse_objectandarticle_inherited (c, loc, ARTICLE_UPPER_INDEFINITE))),
+				underline(colour_strlen(name.c_str())),
 				COLOUR_REVERT);
 
 
@@ -747,19 +748,19 @@ flag_description (
 dbref	thing)
 
 {
-	static	char	buf[BUFFER_LEN];
+	static String buf;
 	int		i;
 
-	*buf = '\0';
+	buf="";
 	/* Formerly tested to see if there were any flags before proceeding but */
 	for (i = 0; flag_list [i].string != NULL; i++)
 	if (db[thing].get_flag(flag_list [i].flag))
 	{
-		strcat (buf, " ");
-		strcat (buf, flag_list [i].string);
+		buf += " ";
+		buf += flag_list[i].string;
 	}
 
-	return (buf);
+	return buf.c_str();
 }
 
 void
@@ -775,7 +776,7 @@ const	String& )
 	unsigned int	value;
 	dbref	thing;
 	dbref	looper;
-	char	stored_owner [BUFFER_LEN];
+	String	stored_owner;
 	time_t	last, total, now;
 	Matcher matcher (player, name, TYPE_NO_TYPE, get_effective_id ());
 	return_status = COMMAND_FAIL;
@@ -798,7 +799,7 @@ const	String& )
 		notify_censor(player, player, "%s", unparse_object(*this, thing));
 	else
 		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing));
-	strcpy (stored_owner, unparse_object(*this, db[thing].get_owner()));
+	stored_owner = unparse_object(*this, db[thing].get_owner());
 
 	if((Private(thing) && !controls_for_private(thing)) ||
 	  ((!can_link (*this, thing)) && (!controls_for_read (thing))))
@@ -818,7 +819,7 @@ const	String& )
 			notify(player, "%sOwner:%s %s; %sFlags:%s%s",
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
-					stored_owner,
+					stored_owner.c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
@@ -829,7 +830,7 @@ const	String& )
 				notify(player, "%sOwner:%s %s; %sKey [INHERITED]:%s %s; %sFlags:%s%s",
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
-					stored_owner,
+					stored_owner.c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					db[thing].get_inherited_key()->unparse (*this),
@@ -842,7 +843,7 @@ const	String& )
 				notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
-					stored_owner,
+					stored_owner.c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					db[thing].get_key()->unparse (*this),

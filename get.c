@@ -397,7 +397,7 @@ context::do_query_cstring (const String& name, const String&)
 {
 	dbref	thing = find_for_query (*this, name, 1);
 
-	if ((thing == NOTHING) || (Typeof(thing) != TYPE_ROOM) && (Typeof(thing) != TYPE_THING))
+	if ((thing == NOTHING) || ((Typeof(thing) != TYPE_ROOM) && (Typeof(thing) != TYPE_THING)))
 	{
 		if (thing != NOTHING)
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only Rooms and Things have contents strings.");

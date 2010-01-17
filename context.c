@@ -263,6 +263,7 @@ const	dbref	eid,
 , csucc_cache (NOTHING)
 , cfail_cache (NOTHING)
 , gagged(silent)
+, in_chpid(false)
 {
 	const	char	*err;
 
