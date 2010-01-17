@@ -2082,7 +2082,7 @@ const	String& volume_limit)
 	Modified (victim);
 
 	if (!in_command())
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Set.");
+		notify_colour (player, player, COLOUR_MESSAGES, "Set.");
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
