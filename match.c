@@ -257,8 +257,8 @@ dbref			effective_player)
 		}
 
 		/* Check for any index on the final name */
-		if(((begin = strchr(match_name, '[')) != NULL)
-			&& ((end = strchr(begin, ']')) != NULL))
+		if(((begin = (char*)(strchr(match_name, '['))) != NULL)
+			&& ((end = (char*)(strchr(begin, ']'))) != NULL))
 		{
 			*begin++ = '\0';
 			*end = '\0';

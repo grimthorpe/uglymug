@@ -1577,7 +1577,7 @@ const String& strung)
 
 	const char* string = strung.c_str();
 
-	char* nlpos = 0;
+	const char* nlpos = 0;
 	while((nlpos = strchr(string, '\n')) != 0)
 	{
 		if((nlpos == string) && (!*(recall->buffer_build)))

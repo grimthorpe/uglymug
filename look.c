@@ -766,7 +766,7 @@ dbref	thing)
 void
 context::do_examine (
 const	String& name,
-const	String& )
+const	String& options)
 
 {
 	const colour_at& ca = db[player].get_colour_at();
@@ -1159,6 +1159,7 @@ const	String& )
 		case TYPE_PLAYER:
 		case TYPE_PUPPET:
 			if (db[thing].get_gravity_factor () != 1)
+			{
 				if (db[thing].get_gravity_factor () == NUM_INHERIT)
 					notify (player, "%sGravity factor [INHERITED]:%s %.9g",
 						ca[COLOUR_TITLES],
@@ -1169,6 +1170,7 @@ const	String& )
 						ca[COLOUR_TITLES],
 						COLOUR_REVERT,
 						db[thing].get_gravity_factor ());
+			}
 			if (db[thing].get_mass () == NUM_INHERIT)
 				notify (player, "%sMass [INHERITED]:%s %s%.9g kilos%s",
 						ca[COLOUR_TITLES],
@@ -1617,49 +1619,52 @@ const	String& )
 			break;
 	}
 
-	if(db[thing].get_ctime() || db[thing].get_mtime() || db[thing].get_atime())
+	if(!semicolon_string_match(options, "notime"))
 	{
-		notify_colour(player, player, COLOUR_CONTENTS, "Timestamps:");
-
-		time(&now);
-
-		if((last=db[thing].get_ctime()))
+		if(db[thing].get_ctime() || db[thing].get_mtime() || db[thing].get_atime())
 		{
-			sprintf(scratch_buffer, "  %sCreate:%s %s(+%s)%s", 
-				ca[COLOUR_TITLES], 
-				ca[COLOUR_TIMESTAMPS], 
-				ctime(&last), 
-				tiny_time_string(now-last),
-				COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_CONTENTS, "Timestamps:");
 
-			*strchr(scratch_buffer, '\n') = ' ';
-			notify(player, "%s", scratch_buffer);
-		}
+			time(&now);
 
-		if((last=db[thing].get_mtime()))
-		{
-			sprintf(scratch_buffer, "  %sModify:%s %s(+%s)%s", 
-				ca[COLOUR_TITLES], 
-				ca[COLOUR_TIMESTAMPS], 
-				ctime(&last), 
-				tiny_time_string(now-last),
-				COLOUR_REVERT);
+			if((last=db[thing].get_ctime()))
+			{
+				sprintf(scratch_buffer, "  %sCreate:%s %s(+%s)%s", 
+					ca[COLOUR_TITLES], 
+					ca[COLOUR_TIMESTAMPS], 
+					ctime(&last), 
+					tiny_time_string(now-last),
+					COLOUR_REVERT);
 
-			*strchr(scratch_buffer, '\n') = ' ';
-			notify(player, "%s", scratch_buffer);
-		}
+				*strchr(scratch_buffer, '\n') = ' ';
+				notify(player, "%s", scratch_buffer);
+			}
 
-		if((last=db[thing].get_atime()))
-		{
-			sprintf(scratch_buffer, "  %sAccess:%s %s(+%s)%s", 
-				ca[COLOUR_TITLES], 
-				ca[COLOUR_TIMESTAMPS], 
-				ctime(&last), 
-				tiny_time_string(now-last),
-				COLOUR_REVERT);
+			if((last=db[thing].get_mtime()))
+			{
+				sprintf(scratch_buffer, "  %sModify:%s %s(+%s)%s", 
+					ca[COLOUR_TITLES], 
+					ca[COLOUR_TIMESTAMPS], 
+					ctime(&last), 
+					tiny_time_string(now-last),
+					COLOUR_REVERT);
 
-			*strchr(scratch_buffer, '\n') = ' ';
-			notify(player, "%s", scratch_buffer);
+				*strchr(scratch_buffer, '\n') = ' ';
+				notify(player, "%s", scratch_buffer);
+			}
+
+			if((last=db[thing].get_atime()))
+			{
+				sprintf(scratch_buffer, "  %sAccess:%s %s(+%s)%s", 
+					ca[COLOUR_TITLES], 
+					ca[COLOUR_TIMESTAMPS], 
+					ctime(&last), 
+					tiny_time_string(now-last),
+					COLOUR_REVERT);
+
+				*strchr(scratch_buffer, '\n') = ' ';
+				notify(player, "%s", scratch_buffer);
+			}
 		}
 	}
 }

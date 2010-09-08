@@ -325,7 +325,7 @@ const	String& newrace)
 		return;
 	}	
 
-	if ((check = strchr(newrace.c_str(), '\n')))
+	if ((check = (char *)strchr(newrace.c_str(), '\n')))
 	{	
 		*check = '\0';
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Race truncated at newline.");

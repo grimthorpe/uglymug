@@ -2010,7 +2010,10 @@ unsigned long addr)
 		char geoloc[10];
 		geoloc[0]=0;
 #if defined(GEOIP)
-		snprintf(geoloc, sizeof(geoloc), "(%s) ", GeoIP_country_code_by_ipnum(GeoLocResolver, (unsigned long)bsaddr));
+		if(GeoLocResolver != NULL)
+		{
+			snprintf(geoloc, sizeof(geoloc), "(%s) ", GeoIP_country_code_by_ipnum(GeoLocResolver, (unsigned long)bsaddr));
+		}
 #endif
 		snprintf(retbuffer, sizeof(retbuffer), "%s%s", geoloc, buffer);
 		set_cached_addr(addr, retbuffer);
