@@ -3863,8 +3863,16 @@ int			flags)
 	WhoToShow who(victim, get_player(), true);
 	
 	int width = terminal.width;
-	if(width < 40)
+	if(get_player())
+	{
+		if(width < 40)
+			width = 80;
+		if(width > 256)
+			width = 256;	// Avoid going over the end of the line buffer.
+	}
+	else
 		width = 80;
+
 	if (flags & DUMP_WIZARD)
 	{
 		width = 80;
@@ -3883,13 +3891,14 @@ int			flags)
 			{
 				if (get_player())
 					queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
-				if (victim == NULL)
-					queue_string ("Current Players:                                                          Idle\n");
+				const char* Message = "Current Players:";
+				if (victim != NULL)
+					Message = "Specific player details (as requested):";
 				else if (who.want_npcs)
 					queue_string ("Currently connected NPCs:                                                 Idle\n");
-				else
-					queue_string ("Specific player details (as requested):                                   Idle\n");
 
+				snprintf(buf, sizeof(buf), "%-*sIdle\n", width-6, Message);
+				queue_string(buf);
 				if (get_player())
 					queue_string (COLOUR_REVERT);
 				gotonealready = 1;
