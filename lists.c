@@ -508,6 +508,7 @@ Player_list::include_if_unset(const object_flag_type f)
 	for (int i=0; i<db.get_top(); i++)
 	{
 		if ( (Typeof(i) == TYPE_PLAYER) && !(db[i].get_flag(f)))
+		{
 			if ((temp=find_player(i)))
 			{
 				set_included(temp, true);
@@ -516,6 +517,7 @@ Player_list::include_if_unset(const object_flag_type f)
 			{
 				add_player(i, true);
 			}
+		}
 	}
 	return filtered_size;
 }
@@ -527,6 +529,7 @@ Player_list::include_if_set(const object_flag_type f)
 	for (int i=0; i<db.get_top(); i++)
 	{
 		if ( (Typeof(i) == TYPE_PLAYER) && (db[i].get_flag(f)))
+		{
 			if ((temp=find_player(i)))
 			{
 				set_included(temp, true);
@@ -535,6 +538,7 @@ Player_list::include_if_set(const object_flag_type f)
 			{
 				add_player(i, true);
 			}
+		}
 	}
 	return filtered_size;
 }
