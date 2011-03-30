@@ -4,6 +4,8 @@
  *	Peter Crowther, 28/9/93.
  */
 
+#if !defined(REGEXP_PCRE)
+
 #include <stdio.h>
 
 #define INIT		register const char *sp = instring;
@@ -16,3 +18,5 @@
 /* static char SCCSid[] = "@(#)regexp.c	1.4\t8/12/94"; */
 
 #include "regexp.h"
+
+#endif // !defined(REGEXP_PCRE)

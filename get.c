@@ -1720,10 +1720,10 @@ context::do_query_typeof (const String& name, const String& type)
 				truebool = string_prefix ("exit", type);
 				break;
 			case TYPE_PLAYER:
-				truebool = string_prefix ("player", type) || string_prefix("executor", type);
+				truebool = string_prefix ("player", type) || string_prefix("executor", type) || string_prefix("actor", type);
 				break;
 			case TYPE_PUPPET:
-				truebool = string_prefix ("puppet", type) || string_prefix("executor", type);
+				truebool = string_prefix ("puppet", type) || string_prefix("executor", type) || string_prefix("actor", type);
 				break;
 			case TYPE_COMMAND:
 				truebool = string_prefix ("command", type);

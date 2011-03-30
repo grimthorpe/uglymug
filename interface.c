@@ -4241,16 +4241,13 @@ struct  descriptor_data *d;
         set_return_string (error_return_string);
 
         /* get victim */
-        if((victim = lookup_player(player, what)) == NOTHING)
-        {
-                Matcher matcher (player, what, TYPE_PUPPET, get_effective_id());
-                matcher.match_everything ();
-                if (((victim = matcher.noisy_match_result ()) == NOTHING) ||
-                        (Typeof(victim) != TYPE_PUPPET))
-                {
-                        notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player does not exist.");
-                        return;
-                }
+	Matcher matcher (player, what, TYPE_PUPPET, get_effective_id());
+	matcher.match_everything ();
+	if (((victim = matcher.noisy_match_result ()) == NOTHING) ||
+		(Typeof(victim) != TYPE_PUPPET))
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That NPC does not exist.");
+		return;
         }
 
         /* Check player/victim dependencies */
@@ -4264,13 +4261,6 @@ struct  descriptor_data *d;
 	if(!command)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to @queue?");
-		return;
-	}
-
-	/* JPK hack to match softcode change */
-	if (Typeof(victim) != TYPE_PUPPET)
-	{
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry, you can only queue commands for puppets.");
 		return;
 	}
 

@@ -11,20 +11,31 @@ echo
 LD_LIBPCRE=""
 CC_LIBPCRE=""
 
-for i in /usr /usr/local /opt/pcre; do
+for i in /usr/lib /usr/lib/i386-linux-gnu /usr/local/lib /opt/pcre/lib; do
   if [ "$LD_LIBPCRE" = "" ]; then
-    if [ -f $i/lib/libpcre.a ]; then
-      LD_LIBPCRE="-B$i/lib -Xlinker -R$i/lib -lpcre"
-      echo libpcre found in $i/lib
-    fi
-  fi
-  if [ "$CC_LIBPCRE" = "" ]; then
-    if [ -f $i/include/pcre.h ]; then
-      CC_LIBPCRE="-I$i/include -DREGEXP_PCRE"
-      echo pcre.h found in $i/include
+    if [ -f $i/libpcre.a ]; then
+      LD_LIBPCRE="-B$i -Xlinker -R$i -lpcre"
+      echo libpcre found in $i
     fi
   fi
 done
+
+for i in /usr/include /usr/include/i386-linux-gnu /usr/local/include /opt/pcre/include; do
+  if [ "$CC_LIBPCRE" = "" ]; then
+    if [ -f $i/pcre.h ]; then
+      CC_LIBPCRE="-I$i -DREGEXP_PCRE"
+      echo pcre.h found in $i
+    fi
+  fi
+done
+
+if [ "$LD_LIBPCRE" = "" ]; then
+  CC_LIBPCRE=""
+fi
+
+if [ "$CC_LIBPCRE" = "" ]; then
+  LD_LIBPCRE=""
+fi
 
 # GeoIP support
 

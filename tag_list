@@ -14,7 +14,15 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	@queue now only checks for puppets to queue to (Grimthorpe)
+	Only compile the old-style regexp code if it is used (Grimthorpe)
+	@?typeof <player or npc> = actor implemented to match the help (Grimthorpe)
+	WHO uses terminal width (Grimthorpe)
+	examine can have 'notime' as a 2nd argument to suppress timestamps (Grimthorpe)
+	Started to add geo-location information for IP addresses (Grimthorpe)
+	Overhaul of the code to reduce compilation problems (Grimthorpe)
 	Get @oemote and emote to use the same code. (Grimthorpe)
+	controls_for_write and controls_for_read now check if the thing you want controls over is the same as your current effective id. (Grimthorpe)
 
 um1_064
 	Convert a fixed-size char array into a String to stop buffer overruns. (Grimthorpe)

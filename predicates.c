@@ -192,6 +192,7 @@ const
 		&& (WriteAll(get_effective_id())		/* GOD controls everything */
 			|| (Wizard(player) && (player == get_effective_id()) && (!Wizard (what) || (Typeof(what) != TYPE_PLAYER)))	/* WIZARDs control everything except other WIZARD players */
 			|| (Wizard(get_effective_id()) && !Wizard (db[what].get_owner()))	/* Effective WIZARDs control mortals */
+			|| (get_effective_id() == what)
 			|| (get_effective_id() == db[what].get_owner())				/* Everyone controls themselves */
 			|| (db[get_effective_id()].get_build_id() == db[what].get_owner())			/* Controls for their group */
 			|| (get_effective_id() == db [db [what].get_owner()].get_controller ())));	/* Players own their puppets and puppets' stuff */
@@ -231,6 +232,7 @@ const	dbref	effective_id)
 		&& what < db.get_top ()
 		&& (	   (effective_id == UNPARSE_ID)					/* UNPARSE_ID can read anything */
 			|| Wizard(effective_id)						/* Effective WIZARDS can read anything */
+			|| (effective_id == what)					/* Everyone controls themselves */
 			|| (effective_id == db [what].get_owner())			/* Everyone controls themselves */
 			|| (effective_id == db [db [what].get_owner()].get_controller ()) /* Everyone controls themselves */
 			|| Wizard(player)						/* Real WIZARDS can read anything */
