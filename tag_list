@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_065
 	@queue now only checks for puppets to queue to (Grimthorpe)
 	Only compile the old-style regexp code if it is used (Grimthorpe)
 	@?typeof <player or npc> = actor implemented to match the help (Grimthorpe)
