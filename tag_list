@@ -15,6 +15,7 @@ the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
 
+um1_066
 	Fix performace issue with previous release - string_compare would construct a String from a constant C string. (Grimthorpe)
 
 um1_065
