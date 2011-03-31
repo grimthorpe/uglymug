@@ -14,6 +14,9 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+
+	Fix performace issue with previous release - string_compare would construct a String from a constant C string. (Grimthorpe)
+
 um1_065
 	@queue now only checks for puppets to queue to (Grimthorpe)
 	Only compile the old-style regexp code if it is used (Grimthorpe)

@@ -158,13 +158,45 @@ const	String& s2)
 	if (!s2)
 		return (1);
 
-	/* Both non-NULL; find common prefix, if any */
-	const char* c1 = s1.c_str();
-	const char* c2 = s2.c_str();
-	while(*c1 && *c2 && (tolower(*c1) == tolower(*c2)))
-		c1++, c2++;
+	return string_compare(s1.c_str(), s2.c_str());
+}
 
-	return(tolower(*c1) - tolower(*c2));
+int
+string_compare (
+const	String& s1,
+const	char* s2)
+
+{
+	return string_compare(s1.c_str(), s2);
+}
+
+int
+string_compare (
+const	char* s1,
+const	String& s2)
+
+{
+	return string_compare(s1, s2.c_str());
+}
+
+int
+string_compare (
+const	char* s1,
+const	char* s2)
+
+{
+	if(!s1 && !s2)
+		return 0;
+	if(!s1)
+		return -1;
+	if(!s2)
+		return 1;
+
+	/* Both non-NULL; find common prefix, if any */
+	while(*s1 && *s2 && (tolower(*s1) == tolower(*s2)))
+		s1++, s2++;
+
+	return(tolower(*s1) - tolower(*s2));
 }
 
 
