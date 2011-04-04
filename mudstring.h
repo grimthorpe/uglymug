@@ -133,6 +133,10 @@ public:
 // NOTE: A 0-length string is the same as a 'NULL' string.
 	operator bool()			const	{ return _buffer->length() > 0; }
 
+	String substring(int start, int length = -1)	const;
+	int	find(char c, int start = 0)		const;
+	char	operator[](int pos)			const;
+
 	bool operator<(const String& other)	const;
 	bool operator>(const String& other)	const;
 	bool operator==(const String& other)	const;

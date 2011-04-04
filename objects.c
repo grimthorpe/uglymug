@@ -1794,9 +1794,12 @@ const
 	{
 		if (i == MAX_ALIASES)
 			break;
-		if ((!alias[i]) && (foundempty == 0))
-			foundempty = (i + 1);
-		if ((string_compare(alias[i], string)) == 0)
+		if (!alias[i])
+		{
+			if (foundempty == 0)
+				foundempty = (i + 1);
+		}
+		else if ((string_compare(alias[i], string)) == 0)
 			return (i + 1);
 	}
 	return (-foundempty);

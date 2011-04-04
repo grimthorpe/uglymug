@@ -202,6 +202,25 @@ const	char* s2)
 
 int
 string_prefix (
+const	char* string,
+const	char* prefix)
+{
+	/* If prefix is NULL, any string matches */
+	if(!prefix)
+		return 1;
+	/* If prefix is non-NULL and string is NULL, fail. */
+	if(!string)
+		return 0;
+
+	/* Otherwise, we have to think about it */
+	while (*string && *prefix && (tolower(*string) == tolower(*prefix)))
+		string++, prefix++;
+
+	return *prefix== '\0';
+}
+
+int
+string_prefix (
 const	String& string,
 const	String& prefix)
 
@@ -214,14 +233,7 @@ const	String& prefix)
 	if (!string)
 		return (0);
 
-	const char* s = string.c_str();
-	const char* p = prefix.c_str();
-
-	/* Otherwise, we have to think about it */
-	while (*s && *p && (tolower(*s) == tolower(*p)))
-		s++, p++;
-
-	return *p== '\0';
+	return string_prefix(string.c_str(), prefix.c_str());
 }
 
 
@@ -229,35 +241,46 @@ const	String& prefix)
  * string_match: accepts only nonempty matches starting at the beginning of a word
  */
 
-const char *
+bool
 string_match (
 const	String& csrc,
 const	String& csub)
 
 {
-const char* sub = csub.c_str();
-const char* src = csrc.c_str();
+	if(!csub)
+		return true;
+	if(!csrc)
+		return false;
+	return string_match(csrc.c_str(), csub.c_str());
+}
+
+bool
+string_match (
+const	char* src,
+const	char* sub)
+
+{
 	/* If substring is NULL, automatic match */
-	if (!csub)
-		return (src);
+	if (!sub)
+		return true;
 
 	/* If substring is non-NULL and source is NULL, fail. */
-	if (!csrc)
-		return (NULL);
+	if (!src)
+		return false;
 
 	/* Otherwise, we have to hunt for it */
 	if(*sub != '\0')
 	{
 		while(*src)
 		{
-			if(string_prefix(src, sub)) return src;
+			if(string_prefix(src, sub)) return true;
 			/* else scan to beginning of next word */
 			while(*src && (isalnum(*src) || (*src == '@'))) src++;
 			while(*src && !(isalnum(*src) || (*src == '@'))) src++;
 		}
 	}
 
-	return (NULL);
+	return false;
 }
 
 
@@ -291,7 +314,7 @@ const	String& cstr)
 	{
 		buffer_length -= strlen(result);
 	}
-  else
+	else
 	{
 		buffer_length = 0;
 	}

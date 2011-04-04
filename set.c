@@ -307,7 +307,8 @@ const	String& newrace)
 
 {
 	dbref	thing;
-	char	*check;
+	int	newlinecheck;
+	String	checkrace = newrace;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -319,20 +320,21 @@ const	String& newrace)
 		notify_colour(player, player, COLOUR_MESSAGES, "Only Players have races.");
 		return;
 	}
-	if(!ok_name(newrace))
+
+	if ((newlinecheck = checkrace.find('\n')) != -1)
+	{
+		checkrace = checkrace.substring(newlinecheck);
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Race truncated at newline.");
+	}
+
+	if(!ok_name(checkrace))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That is not a reasonable race.");
 		return;
 	}	
 
-	if ((check = (char *)strchr(newrace.c_str(), '\n')))
-	{	
-		*check = '\0';
-		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Race truncated at newline.");
-	}
-
 	/* Assuming all OK, changing race... */
-	db[thing].set_race (newrace);
+	db[thing].set_race (checkrace);
 	Modified (thing);
 
 	if (!in_command())

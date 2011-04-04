@@ -325,22 +325,22 @@ dbref	loc)
 
 	old = db[player].get_location();
 
-	if (contains (loc, player))
-	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES,"You cannot enter that.");
-		return;
-	}
-	if ((fit_error = will_fit (player, loc)) != SUCCESS)
-	{
-		notify_colour(player, player, COLOUR_MESSAGES, "You can't seem to go that way - %s", fit_errlist [fit_error]);
-		return;
-	}
-
 	/* check for self-loop */
 	/* self-loops don't do move or other player notification */
 	/* but you still get autolook */
-	if(loc != old)
+	if(old != loc)
 	{
+		if (contains (loc, player))
+		{
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES,"You cannot enter that.");
+			return;
+		}
+		if ((fit_error = will_fit (player, loc)) != SUCCESS)
+		{
+			notify_colour(player, player, COLOUR_MESSAGES, "You can't seem to go that way - %s", fit_errlist [fit_error]);
+			return;
+		}
+
 		count_down_fuses (*this, player, TOM_FUSE);	/* trigger the movement fuses */
 		count_down_fuses (*this, db[player].get_location(), TOM_FUSE);
 
@@ -1178,21 +1178,18 @@ const	String& command)
 	cached_loc = db [player].get_location();
 	db[player].set_remote_location(loc);	// sets up the fudged location.
 	Accessed (loc);
-//	moveto (player, loc);
 
 	const size_t old_depth = call_stack.size ();
 	process_basic_command (command);
 	while(call_stack.size () > old_depth)
 		step();
 
-	db[player].set_remote_location(cached_loc);
-	/* Just make sure players don't pull silly stunts like zapping the thing they remoted out of */
-	if ((cached_loc < 0) || (cached_loc >= db.get_top ())
-		|| (Typeof(cached_loc) == TYPE_FREE)
-		|| ((Typeof (cached_loc) != TYPE_ROOM) && !Container (cached_loc)))
+	if((cached_loc < 0) || (cached_loc >= db.get_top())
+		|| ((Typeof(cached_loc) != TYPE_ROOM) && (Typeof(cached_loc) != TYPE_THING)))
 	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Oops! You can't return to where you came from! You'd better go to limbo");
-		enter_room(LIMBO);
+		// Cached_loc isn't valid any more!
+		cached_loc = db[player].get_real_location();
 	}
+	db[player].set_remote_location(cached_loc);
 }
 

@@ -1229,7 +1229,7 @@ unsigned int	space_left)
 				break;
 
 			case EVAL_OP_GETMATCH:
-				final.integer = (string_match (results[1].string, results[0].string) != NULL);
+				final.integer = string_match (results[1].string, results[0].string);
 				final.type = EVAL_TYPE_NUMERIC;
 				break;
 
@@ -1622,7 +1622,7 @@ unsigned int	space_left)
 						return (COMMAND_FAIL);
 					}
 					for (unsigned int i = 1; i <= db [dic].get_number_of_elements (); i++)
-						if (string_match (results[1].string, db [dic].get_index (i)) != NULL)
+						if (string_match (results[1].string, db [dic].get_index (i)))
 						{
 							if (final.string [0] != '\0')
 								strcat (final.string, ";");

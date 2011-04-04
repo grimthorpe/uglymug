@@ -178,14 +178,14 @@ dbref			effective_player)
 , match_count			(0)
 , effective_who			(effective_player)
 , real_who			(player)
-, match_name			(NULL)
+, match_name			(name)
 , preferred_type		(type)
-, index				(NULL)
+, index				(NULLSTRING)
 , index_attempt			(false)
 , absolute			(NOTHING)
 , gagged			(false)
 , absolute_loc			(NOTHING)
-, beginning			(NULL)
+, beginning			(name)
 , already_checked_location	(false)
 , path				(MATCHER_PATH_NONE)
 , current_state			(MATCHER_STATE_INVALID)
@@ -195,14 +195,6 @@ dbref			effective_player)
 , thing				(NOTHING)
 , end_location			(NOTHING)
 {
-	char	*p;
-	char	*temp_string_end;
-	char	*begin = 0;
-	char	*end = 0;
-
-	set_beginning (name.c_str());
-	match_name = beginning;
-
 	/* Cache the absolute location, since it's used by so many routines */
 	absolute = absolute_name();
 	if (!controls_for_read (real_who, absolute, effective_who) &&
@@ -210,62 +202,55 @@ dbref			effective_player)
 		absolute = NOTHING;
 
 	/* Find the object's location (if supplied) */
-	p = beginning;
-	if(((temp_string_end = strchr(p, ':')) != NULL)
-		&& ((begin = strchr(p, '[')) != NULL)
-		&& ((end = strchr(p, ']')) != NULL)
-		&& (begin < temp_string_end)
-		&& (end < temp_string_end))
+	int colon;
+	while((colon=beginning.find(':')) != -1)
 	{
+		if(colon == 0)
+		{
+			beginning = beginning.substring(1);
+		}
+		else
+		{
+			int openindex = beginning.find('[');
+			int closeindex = beginning.find(']');
+			if((openindex != -1) && (openindex < colon)
+				&& (closeindex != -1) && (closeindex < colon))
+			{
+				break;
+			}
+
+			String locationname = beginning.substring(0, colon);
+
+			Matcher	nesting_matcher (player, locationname, TYPE_NO_TYPE, effective_player);
+			nesting_matcher.absolute_loc = absolute_loc;
+			nesting_matcher.match_everything ();
+			absolute_loc = nesting_matcher.match_result ();
+			if((absolute_loc != NOTHING) && (absolute_loc != AMBIGUOUS))
+			{
+				beginning = beginning.substring(colon + 1);
+			}
+			else
+			{
+				/* Zap AMBIGUOUS mentions, to ease checking */
+				absolute_loc = NOTHING;
+				break;
+			}
+		}
+	}
+
+	int openindex = beginning.find('[');
+	int closeindex = beginning.find(']');
+
+	if((openindex != -1) && (closeindex != -1) && (openindex < closeindex))
+	{
+		match_name = beginning.substring(0, openindex);
+		index = beginning.substring(openindex + 1, closeindex - openindex - 1);
+		index_attempt = true;
+		match_absolute();
 	}
 	else
 	{
-		while (p && *p)
-		{
-			if (*p != ':')
-				p++;
-			else
-			{
-				temp_string_end = p;
-				*p++ = '\0';
-				if(((begin = strchr(beginning, '[')) != NULL)
-					&& ((end = strchr(begin, ']')) != NULL))
-				{
-					*begin = 0;
-					*end = 0;
-				}
-				Matcher	nesting_matcher (player, match_name, TYPE_NO_TYPE, effective_player);
-				nesting_matcher.absolute_loc = absolute_loc;
-				nesting_matcher.match_everything ();
-				absolute_loc = nesting_matcher.match_result ();
-				*temp_string_end = ':';
-				if(begin && end)
-				{
-					*begin = '[';
-					*end = ']';
-				}
-				if((absolute_loc != NOTHING) && (absolute_loc != AMBIGUOUS))
-					match_name = p;
-				else
-				{
-					/* Zap AMBIGUOUS mentions, to ease checking */
-					absolute_loc = NOTHING;
-					match_name = beginning;
-					break;
-				}
-			}
-		}
-
-		/* Check for any index on the final name */
-		if(((begin = (char*)(strchr(match_name, '['))) != NULL)
-			&& ((end = (char*)(strchr(begin, ']'))) != NULL))
-		{
-			*begin++ = '\0';
-			*end = '\0';
-			index_attempt = true;
-			index = begin;
-			match_absolute();
-		}
+		match_name = beginning;
 	}
 
 #ifdef MATCH_DEBUG
@@ -289,12 +274,12 @@ dbref			effective_player)
 , real_who			(player)
 , match_name			("")
 , preferred_type		(type)
-, index				(NULL)
+, index				(NULLSTRING)
 , index_attempt			(false)
 , absolute			(NOTHING)
 , gagged			(false)
 , absolute_loc			(object)
-, beginning			(NULL)
+, beginning			(NULLSTRING)
 , already_checked_location	(false)
 , path				(MATCHER_PATH_NONE)
 , current_state			(MATCHER_STATE_INVALID)
@@ -318,14 +303,14 @@ const	Matcher	&src)
 , match_count			(src.match_count)
 , effective_who			(src.effective_who)
 , real_who			(src.real_who)
-, match_name			(NULL)
+, match_name			(src.match_name)
 , preferred_type		(src.preferred_type)
 , index				(src.index)
 , index_attempt			(src.index_attempt)
 , absolute			(src.absolute)
 , gagged			(src.gagged)
 , absolute_loc			(src.absolute_loc)
-, beginning			(NULL)
+, beginning			(src.beginning)
 , already_checked_location	(src.already_checked_location)
 , path				(src.path)
 , current_state			(src.current_state)
@@ -336,33 +321,12 @@ const	Matcher	&src)
 , end_location			(src.end_location)
 
 {
-	/* Keep the assignment to beginning above, otherwise this fails */
-	set_beginning (src.beginning);
-	match_name = beginning;
 }
 
 
 Matcher::~Matcher ()
 
 {
-	/** We should be using this - but set_beginning() doesn't free memory **/
-	/** set_beginning (NULL); **/
-	if (beginning != NULL)
-	{
-		free (beginning);
-		beginning = NULL;
-	}
-}
-
-
-void
-Matcher::set_beginning (
-const	char	*src)
-
-{
-//	ASSIGN_STRING (beginning, src);
-/* See above for why we do this. Grimthorpe 26/5/94 */
-	TACKY_ASSIGN (beginning, src);
 }
 
 
@@ -448,10 +412,10 @@ Matcher::match_player ()
 	dbref		match;
 	const	char	*p;
 
-	if (*match_name == LOOKUP_TOKEN && payfor(effective_who, LOOKUP_COST))
+	if (match_name.c_str()[0] == LOOKUP_TOKEN && payfor(effective_who, LOOKUP_COST))
 	{
 		/* Trim leading white space */
-		for(p = match_name + 1; isspace(*p); p++)
+		for(p = match_name.c_str() + 1; isspace(*p); p++)
 			;
 
 		if((match = lookup_player(real_who, p)) != NOTHING)
@@ -492,9 +456,9 @@ Matcher::absolute_name ()
 {
 	dbref	match;
 
-	if(*match_name == NUMBER_TOKEN)
+	if(match_name.c_str()[0] == NUMBER_TOKEN)
 	{
-		match = parse_dbref(match_name+1);
+		match = parse_dbref(match_name.c_str()+1);
 		if ((match >= 0) && (match < db.get_top ()) && (db + match != NULL))
 			return match;
 	}
@@ -1075,13 +1039,16 @@ Matcher::match_everything ()
 {
 	if(absolute_loc == NOTHING)
 	{
-		match_exit	();
-		match_neighbor	();
-		match_possession();
 		match_me	();
 		match_here	();
 		match_absolute	();
-		match_player	();
+		if(exact_match == NOTHING)
+		{
+			match_exit	();
+			match_neighbor	();
+			match_possession();
+			match_player();
+		}
 		if (exact_match == NOTHING)
 			match_command();
 		if (exact_match == NOTHING)
@@ -1180,7 +1147,7 @@ Matcher::noisy_match_result ()
 	{
 		case NOTHING:
 			if (gagged == false)
-				notify_colour(real_who,real_who, COLOUR_MESSAGES, "I don't see '%s' here.", value_or_empty (match_name));
+				notify_colour(real_who,real_who, COLOUR_MESSAGES, "I don't see '%s' here.", value_or_empty (match_name.c_str()));
 			return NOTHING;
 		case AMBIGUOUS:
 			if (gagged == false)

@@ -1403,6 +1403,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 	DOLIST (the_command, db[COMMAND_LAST_RESORT].get_commands())
 	{
 		if (!string_compare(db[the_command].get_name(),command))
+		{
 			if (Wizard(db[the_command].get_owner()))
 			{
 				context *login_context = new context (player, context::DEFAULT_CONTEXT);
@@ -1411,6 +1412,7 @@ void mud_run_dotcommand(dbref player, const String& command)
 			}
 			else
 				log_hack(NOTHING, "Global .login command (#%d) not owned by a Wizard", the_command);
+		}
 	}
 
 }
@@ -1529,7 +1531,7 @@ void mud_time_sync ()
 					context *alarm_context = new context (the_player, context::DEFAULT_CONTEXT);
 					alarm_context->prepare_compound_command (a_command, "ALARM", "", "");
 					delete mud_scheduler.push_new_express_job (alarm_context);
-					db[the_player].set_remote_location(cached_location);
+					db[the_player].set_remote_location(db[the_player].get_real_location());
 					//moveto (the_player, cached_location);
 				}
 				else

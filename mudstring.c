@@ -300,3 +300,31 @@ chop_string(const char* string, int size)
 	return whostring;
 }
 
+String
+String::substring(int start, int len /* = -1 */) const
+{
+	int totallength = (int)length();
+	if((len == 0) || (start >= totallength))
+		return NULLSTRING;
+
+	if(len < 0)
+		len = totallength-start;
+
+	return String(c_str() + start, len);
+}
+
+int
+String::find(char c, int start /* = 0 */) const
+{
+	if(start < 0)
+		return 0;
+	int len = length();
+	const char* ptr = c_str();
+	for(int pos = start; pos < len; pos++)
+	{
+		if(ptr[pos] == c)
+			return pos;
+	}
+	return -1;
+}
+

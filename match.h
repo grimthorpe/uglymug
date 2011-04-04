@@ -83,10 +83,12 @@ private:
 	int			match_count;		/* holds total number of inexact matches */
 	dbref			effective_who;		/* effective player who is being matched around */
 	dbref			real_who;		/* real player who is being matched around */
-	const	char		*match_name;		/* name to match */
+	//const	char		*match_name;		/* name to match */
+	String			match_name;		/* name to match */
 	int			preferred_type;		/* preferred type */
 
-	char			*index;			/* Index into array or dictionary */
+	//char			*index;			/* Index into array or dictionary */
+	String			index;			/* Index into array or dictionary */
 	bool			index_attempt;		/* Whether the player tried to define an index */
 	dbref			absolute;		/* Cached absolute ID or NOTHING */
 
@@ -94,7 +96,8 @@ private:
 
 	/* This is here to support name matching */
 	dbref			absolute_loc;		/* location specified by ':' */
-	char			*beginning;		/* begining of above for freeing */
+	//char			*beginning;		/* begining of above for freeing */
+	String			beginning;		/* begining of above for freeing */
 
 	/* Following to support command and fuse search restarts */
 	bool			already_checked_location;
@@ -124,7 +127,7 @@ private:
 				Matcher				(dbref player, const String& name, typeof_type type, dbref effective_player);
 				Matcher				(dbref player, dbref object, typeof_type type, dbref effective_player);
 				~Matcher			();
-	void			set_beginning			(const char *str);
+	//void			set_beginning			(const char *str);
 	void			check_keys			();
 	void			work_silent			()			{ gagged = true; }
 	void			match_me			();

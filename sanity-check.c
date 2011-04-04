@@ -937,7 +937,9 @@ dbref	i)
 
 {
 	if (db [i].get_parent () != NOTHING)
+	{
 		if (Typeof (db [i].get_parent ()) != Typeof (i))
+		{
 			if (fix_things)
 			{
 				violate (i, "parent rules: parent type does not match child type (unparented)", PARENT);
@@ -949,6 +951,8 @@ dbref	i)
 				violate (i, "PARENT RULES: PARENT TYPE DOES NOT MATCH CHILD TYPE", PARENT);
 				fatal++;
 			}
+		}
+	}
 }
 
 

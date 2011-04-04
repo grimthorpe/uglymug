@@ -14,6 +14,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+um1_067
+	Overhaul the match code to use String. (Grimthorpe)
+	Fix the alarm and @remote handling of virtual movement so it doesn't lock up, and deals with the player's location being destroyed whilst remote (Grimthorpe)
+	Use String functions to truncate race name at newline character instead of dodgy direct modification of the underlying buffer (Grimthorpe)
+	More fixes to the string comparison code. (Grimthorpe)
 
 um1_066
 	Fix performace issue with previous release - string_compare would construct a String from a constant C string. (Grimthorpe)
