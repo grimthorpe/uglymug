@@ -14,6 +14,8 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	NPC's only get colour codes if set Colour and their colour_terminal is true. (Grimthorpe)
+
 um1_067
 	Overhaul the match code to use String. (Grimthorpe)
 	Fix the alarm and @remote handling of virtual movement so it doesn't lock up, and deals with the player's location being destroyed whilst remote (Grimthorpe)

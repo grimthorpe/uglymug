@@ -2310,6 +2310,10 @@ static char PLAYER_OUTPUT_COMMAND[] = ".playeroutput ";
 static char MYOUTPUT_COMMAND[] = ".myoutput ";
 char *a,*a1,*b;
 
+	bool colour = false;
+	if(get_player())
+		colour = Colour(get_player());  /* Stores whether we need to substitute in the codes */
+
 	if(get_connect_state()==DESCRIPTOR_LIMBO)
 	{
 		log_bug("WARNING: Attempt to queue_string to a limbo'd descriptor");
@@ -2347,10 +2351,10 @@ char *a,*a1,*b;
 				case '\0':
 					return 1;
 				case '%': // Strip colour codes
-					if(!terminal.colour_terminal)
+					if(!colour || !terminal.colour_terminal)
 					{
 						s++;
-						if(*s != '\0')
+						if(*s != '%' && *s != '\0')
 							s++;
 					}
 					else
@@ -2496,9 +2500,6 @@ char *a,*a1,*b;
 
 	String output;
 
-	bool colour = false;
-	if(get_player())
-		colour = Colour(get_player());  /* Stores whether we need to substitute in the codes */
 	bool percent_loaded = false;		/* Indicates whether we have already hit a % sign */
 
 	while(*b)
