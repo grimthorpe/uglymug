@@ -167,7 +167,7 @@ const	String& string)
 
 	/* Round */
 	if (second != -1)
-		second = (((second % 60) + 9) / 10) * 10;
+		second = (((second % 60) + ALARM_RESOLUTION_SECONDS - 1) / ALARM_RESOLUTION_SECONDS) * ALARM_RESOLUTION_SECONDS;
 	if (minute != -1)
 		minute = minute % 60;
 	if (hour != -1)
@@ -190,7 +190,7 @@ const	String& string)
 	else
 	{
 		if (second == -1)
-			second = (rtime->tm_sec + 10) % 60;
+			second = (rtime->tm_sec + ALARM_RESOLUTION_SECONDS) % 60;
 		now += second - rtime->tm_sec;
 		if (minute == -1)
 			minute = (rtime->tm_min + (now < then)) % 60;
@@ -246,7 +246,7 @@ dbref	alarm)
 
 void
 context::do_query_pending (
-const	String&,
+const	String& alarm,
 const	String&)
 
 {
@@ -255,32 +255,81 @@ const	String&)
 	struct	tm	*rtime;
 	time_t		now;
 	time_t		then;
+	dbref		target = NOTHING;
 
-	time (&now);
-	for (current = db.get_alarms (); current != NULL; current = (Pending_alarm *) current->get_next ())
-		if (controls_for_read (current->get_object ()))
+	return_status = COMMAND_FAIL;
+	set_return_string(error_return_string);
+
+	if(alarm)
+	{
+		Matcher matcher (get_player(), alarm, TYPE_ALARM, get_effective_id());
+		if(gagged_command())
+			matcher.work_silent();
+		matcher.match_absolute();
+		if(matcher.match_result() == NOTHING)
+			matcher.match_fuse_or_alarm();
+
+		if(((target = matcher.match_result()) == NOTHING)
+			|| (Typeof(target) != TYPE_ALARM))
 		{
-			then = current->get_time_to_execute ();
-			rtime = localtime (&then);
-			sprintf (scratch_buffer,
-				"%2dd %02dh %02dm %02ds (%ld secs): %s",
-				rtime->tm_wday,
-				rtime->tm_hour,
-				rtime->tm_min,
-				rtime->tm_sec,
-				(long int)current->get_time_to_execute () - now,
-				unparse_object (*this, current->get_object ())
-                                );
-			strcat (scratch_buffer, " firing ");
-			strcat (scratch_buffer, unparse_object (*this, db[current->get_object ()].get_destination ()));
-			notify (player, "%s", scratch_buffer);
-			count++;
+			if(!gagged_command())
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "I don't know which alarm you means.");
+			}
+			return;
 		}
-	if (count == 0)
-		notify (player, "You have nothing pending.");
-
-	return_status = COMMAND_SUCC;
-	set_return_string (ok_return_string);
+		if(!controls_for_read(target))
+		{
+			if(!gagged_command())
+			{
+				notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You don't control that alarm");
+			}
+			return;
+		}
+		bool found = false;
+		for(current = db.get_alarms(); current != NULL; current = (Pending_alarm*) current->get_next())
+		{
+			if(current->get_object() == target)
+			{
+				time(&now);
+				sprintf(scratch_buffer, "%d;%s",
+					(int)(current->get_time_to_execute() - now),
+					unparse_for_return(*this, db[target].get_destination()));
+				set_return_string(scratch_buffer);
+				return_status = COMMAND_SUCC;
+				break;
+			}
+		}
+	}
+	else
+	{
+		time (&now);
+		for (current = db.get_alarms (); current != NULL; current = (Pending_alarm *) current->get_next ())
+		{
+			if (controls_for_read (current->get_object ()))
+			{
+				then = current->get_time_to_execute ();
+				rtime = localtime (&then);
+				sprintf (scratch_buffer,
+					"%2dd %02dh %02dm %02ds (%ld secs): %s",
+					rtime->tm_wday,
+					rtime->tm_hour,
+					rtime->tm_min,
+					rtime->tm_sec,
+					(long int)current->get_time_to_execute () - now,
+					unparse_object (*this, current->get_object ())
+					);
+				strcat (scratch_buffer, " firing ");
+				strcat (scratch_buffer, unparse_object (*this, db[current->get_object ()].get_destination ()));
+				notify (player, "%s", scratch_buffer);
+				count++;
+			}
+		}
+		if (count == 0)
+			notify (player, "You have nothing pending.");
+		set_return_string (ok_return_string);
+		return_status = COMMAND_SUCC;
+	}
 }
 
 

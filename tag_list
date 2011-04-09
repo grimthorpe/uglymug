@@ -14,6 +14,11 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	Suppress command trace if a compound command is set Haven. (Grimthorpe)
+	Allow Haven to be set on commands only by Wizards. (Grimthorpe)
+	Extend @?pend to return time until next trigger and triggered command for named alarm. (Grimthorpe)
+	Alarm resolution is now configurable in config.h. (Grimthorpe)
+
 um1_068
 	NPC's only get colour codes if set Colour and their colour_terminal is true. (Grimthorpe)
 

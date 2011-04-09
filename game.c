@@ -976,10 +976,18 @@ const	String&	_command)
 	 */
 
 	dbref effective_player=(Typeof(player)==TYPE_PUPPET) ? db[player].get_owner() : player;
+	dbref commandref = (in_command() && (db+get_current_command() != NULL))?get_current_command() : NOTHING;
 
 	if (in_command () && get_current_command () == NOTHING)
 		tracer = NOTHING;
-	else if(in_command() && (db + get_current_command () != NULL) && (Wizard(effective_player) || Apprentice(effective_player) || XBuilder(effective_player) || (player==db[get_current_command()].get_owner()) || (effective_player==db[get_current_command()].get_owner())) && (Tracing(player) || Tracing(get_current_command())))
+	else if((commandref != NOTHING)
+		&& (Wizard(effective_player)
+			|| Apprentice(effective_player)
+			|| XBuilder(effective_player)
+			|| (player==db[commandref].get_owner())
+			|| (effective_player==db[commandref].get_owner()))
+		&& ((Tracing(player) && !Haven(commandref))
+			|| Tracing(commandref)))
 		tracer = effective_player;
 	else if((!in_command()) && Tracing(player))
 		tracer = effective_player;

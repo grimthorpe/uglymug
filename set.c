@@ -1573,6 +1573,14 @@ const	String& flag)
 			return;
 		}
 	}
+	if((f==FLAG_HAVEN) && (Typeof(thing)==TYPE_COMMAND))
+	{
+		if (!Wizard(get_effective_id()))
+		{
+			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Only Wizards can set or unset the haven flag on commands.");
+			return;
+		}
+	}
 
 	if (!controls_for_write (thing))
 	{

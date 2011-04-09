@@ -116,6 +116,8 @@
 #define	COMMAND_BURST_SIZE	2	/* commands per user in a burst */
 #define	COMMANDS_PER_TIME	1	/* commands/time slice after burst */
 
+#define ALARM_RESOLUTION_SECONDS	5	/* The resolution of alarms */
+
 /* Maximum number of compound commands executed in response to one user-typed command */
 #define COMPOUND_COMMAND_BASE_LIMIT	100
 #define	COMPOUND_COMMAND_MAXIMUM_LIMIT	1500
