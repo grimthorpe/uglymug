@@ -325,7 +325,6 @@ command_details			command_table [] =
 	{"read",		&context::do_look_at,		NO_COMMAND_FLAGS},
 	{"say",			&context::do_say,		NO_COMMAND_FLAGS},
 	{"score",		&context::do_score,		NO_COMMAND_FLAGS},
-	{"set",			&context::do_at_terminal,	FULL_COMPARE},
 	{"swho",		&context::do_swho,		NO_COMMAND_FLAGS},
 	{"take",		&context::do_get,		NO_COMMAND_FLAGS},
 	{"tell",		&context::do_tell,		NO_COMMAND_FLAGS},
