@@ -217,7 +217,7 @@ int		level)
 	/* output the key for the container */
 	for (level_count = 0; level_count < level; level_count++)
 		scratch_buffer [level_count] = ' ';
-	sprintf (scratch_buffer + level_count, "%sLock Key:%s %s", 
+	sprintf (scratch_buffer + level_count, "%sKey:%s %s", 
 			ca[COLOUR_TITLES],
 			COLOUR_REVERT,
 			db[object].get_lock_key ()->unparse (c));
@@ -840,7 +840,7 @@ const	String& options)
 			}
 			else
 			{
-				notify(player, "%sOwner:%s %s; %sKey:%s %s; %sFlags:%s%s",
+				notify(player, "%sOwner:%s %s; %sLock:%s %s; %sFlags:%s%s",
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					stored_owner.c_str(),
