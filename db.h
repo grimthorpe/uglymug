@@ -189,6 +189,7 @@ enum object_flag_type
 #define TOM_FUSE	2	///< This is for count_down_fuses last parameter - tom_state
 
 #define Articleof(x)	((db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_CONS))?FLAG_ARTICLE_SINGULAR_CONS:(db[(x)].get_flag(FLAG_ARTICLE_PLURAL))?FLAG_ARTICLE_PLURAL:(db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_VOWEL))?FLAG_ARTICLE_SINGULAR_VOWEL:FLAG_ARTICLE_NOUN)
+#define Plural(x)	(Articleof(x) == FLAG_ARTICLE_PLURAL)
 #define ConvertArticle(x)	((db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_CONS))?VALUE_ARTICLE_SINGULAR_CONS:(db[(x)].get_flag(FLAG_ARTICLE_PLURAL))?VALUE_ARTICLE_PLURAL:(db[(x)].get_flag(FLAG_ARTICLE_SINGULAR_VOWEL))?VALUE_ARTICLE_SINGULAR_VOWEL:VALUE_ARTICLE_NOUN)
 #ifdef RESTRICTED_BUILDING
 #define Builder(x)	((db[(x)].get_flag(FLAG_WIZARD)||db[(x)].get_flag(FLAG_BUILDER)) != 0)

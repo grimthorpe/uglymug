@@ -218,9 +218,10 @@ Database::pend (
 dbref	alarm)
 
 {
-	Pending_alarm	*new_entry;
-	
-	new_entry = new Pending_alarm (alarm, time_of_next_cron (db[alarm].get_description()));
+	// Make sure there isn't an entry for the alarm there already.
+	unpend(alarm);
+
+	Pending_alarm*new_entry = new Pending_alarm (alarm, time_of_next_cron (db[alarm].get_description()));
 	new_entry->insert_into ((Pending **) &alarms);
 }
 
@@ -286,7 +287,6 @@ const	String&)
 			}
 			return;
 		}
-		bool found = false;
 		for(current = db.get_alarms(); current != NULL; current = (Pending_alarm*) current->get_next())
 		{
 			if(current->get_object() == target)
@@ -435,14 +435,12 @@ Pending	**list,
 dbref	candidate)
 
 {
-	if (this == NULL)
-		log_bug("attempt to remove element from list that didn't contain it: candidate is #%d", candidate);
-	else if (object == candidate)
+	if (object == candidate)
 	{
 		remove_from (list);
 		delete (this);
 	}
-	else
+	else if(next != NULL)
 		next->remove_object (&((*list)->next), candidate);
 }
 

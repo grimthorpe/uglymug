@@ -450,7 +450,7 @@ int 	prettylook_is_on
 							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit);
 						else
 						{
-							if (!strcmp("some ",getarticle(exit,ARTICLE_LOWER_INDEFINITE)))
+							if (!Plural(exit))
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) lead to %s%s%s.",
 									 ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME], 
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
