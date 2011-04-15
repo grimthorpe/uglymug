@@ -168,7 +168,7 @@ int		level)
 				notify_public_colour(c.get_player (), c.get_player(), COLOUR_CONTENTS, "%s", scratch_buffer);
 				had_contents = 1;
 			}
-			sprintf (scratch_buffer + level, "%s", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE));
+			sprintf (scratch_buffer + level, "%s", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str());
 			notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
 			if (Container (thing))
 			{
@@ -220,7 +220,7 @@ int		level)
 	sprintf (scratch_buffer + level_count, "%sKey:%s %s", 
 			ca[COLOUR_TITLES],
 			COLOUR_REVERT,
-			db[object].get_lock_key ()->unparse (c));
+			db[object].get_lock_key ()->unparse (c).c_str());
 
 	notify(c.get_player (), "%s", scratch_buffer);
 
@@ -247,7 +247,7 @@ int		level)
 	/* ... and dump a list of the contents. */
 	DOLIST (thing, db[object].get_contents())
 	{
-		sprintf (scratch_buffer + level_count, "%s%s", (Connected (thing) ? "*" : ""), unparse_object_inherited(c, thing));
+		sprintf (scratch_buffer + level_count, "%s%s", (Connected (thing) ? "*" : ""), unparse_object_inherited(c, thing).c_str());
 		notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
 		if (Container (thing))
 			if(db[thing].get_contents() != NOTHING)
@@ -312,17 +312,17 @@ const	char	*contents_name)
 						switch(Typeof(thing))
 						{
 							case TYPE_THING:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str(), COLOUR_REVERT);
 								break;
 							case TYPE_PLAYER:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s%s",  (Connected (thing) ? "*" : ""), ca[rank_colour(thing)], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s%s",  (Connected (thing) ? "*" : ""), ca[rank_colour(thing)], unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str(), COLOUR_REVERT);
 								break;
 							case TYPE_PUPPET:
-								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_PLAYERS], Connected(thing)?"+":"", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE), COLOUR_REVERT);
+								notify_public(c.get_player(), c.get_player (), "  %s%s%s", ca[COLOUR_PLAYERS], Connected(thing)?"+":"", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str(), COLOUR_REVERT);
 								break;
 
 							default:
-								notify_public(c.get_player(), c.get_player (), "  %s%s",  (Connected (thing) ? "*" : ""), unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE));
+								notify_public(c.get_player(), c.get_player (), "  %s%s",  (Connected (thing) ? "*" : ""), unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str());
 								break;
 						}
 					}
@@ -453,12 +453,12 @@ int 	prettylook_is_on
 							if (!Plural(exit))
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) lead to %s%s%s.",
 									 ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME], 
-									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
+									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE).c_str(),
 									 COLOUR_REVERT);
 							else
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) leads to %s%s%s.",
 									 ca[COLOUR_EXITS],namebuf,COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME],
-									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE),
+									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE).c_str(),
 									 COLOUR_REVERT);
 						}
 
@@ -626,7 +626,7 @@ const	String& )
 					look_simple(*this, thing);
 					if(!Unassigned (thing))
 					{
-						strcpy (scratch_buffer, unparse_object_inherited (*this, thing));
+						strcpy (scratch_buffer, unparse_object_inherited (*this, thing).c_str());
 						strcat (scratch_buffer, " is ");
 						if(Male(thing)) strcat (scratch_buffer, "male.");
 						if(Female(thing)) strcat (scratch_buffer, "female.");
@@ -796,15 +796,15 @@ const	String& options)
 	}
 
 	if(db[thing].get_name())
-		notify_censor(player, player, "%s", unparse_object(*this, thing));
+		notify_censor(player, player, "%s", unparse_object(*this, thing).c_str());
 	else
-		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing));
+		notify_censor(player, player, "%s", unparse_object_inherited(*this, thing).c_str());
 	stored_owner = unparse_object(*this, db[thing].get_owner());
 
 	if((Private(thing) && !controls_for_private(thing)) ||
 	  ((!can_link (*this, thing)) && (!controls_for_read (thing))))
 	{
-		notify (player, "%sOwner:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object_inherited (*this, db[thing].get_owner()));
+		notify (player, "%sOwner:%s %s.", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object_inherited (*this, db[thing].get_owner()).c_str());
 		return;
 	}
 
@@ -833,7 +833,7 @@ const	String& options)
 					stored_owner.c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
-					db[thing].get_inherited_key()->unparse (*this),
+					db[thing].get_inherited_key()->unparse (*this).c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
@@ -846,7 +846,7 @@ const	String& options)
 					stored_owner.c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
-					db[thing].get_key()->unparse (*this),
+					db[thing].get_key()->unparse (*this).c_str(),
 					ca[COLOUR_TITLES],
 					COLOUR_REVERT,
 					flag_description(thing));
@@ -1133,7 +1133,7 @@ const	String& options)
 
 	if((db[thing].get_location() != NOTHING)
 		&& (controls_for_read (db[thing].get_location()) || can_link_to (*this, db[thing].get_location())))
-		notify_censor(player, player, "%sLocation:%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_ROOMNAME], unparse_object(*this, db[thing].get_location()), COLOUR_REVERT);
+		notify_censor(player, player, "%sLocation:%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_ROOMNAME], unparse_object(*this, db[thing].get_location()).c_str(), COLOUR_REVERT);
 
 	switch(Typeof(thing))
 	{
@@ -1146,7 +1146,7 @@ const	String& options)
 		case TYPE_ROOM:
 		case TYPE_THING:
 		case TYPE_VARIABLE:
-				notify_censor(player, player, "%sParent:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_parent ()));
+				notify_censor(player, player, "%sParent:%s %s", ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_parent ()).c_str());
 		default:
 			break;
 	}
@@ -1272,7 +1272,7 @@ const	String& options)
 		/* print dropto if present */
 		if(db[thing].get_destination() != NOTHING)
 			notify_censor(player, player, "%sDropped objects go to:%s %s",
-					ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_destination()));
+					ca[COLOUR_TITLES], COLOUR_REVERT, unparse_object(*this, db[thing].get_destination()).c_str());
 		/* print last entry time */
 		if(db[thing].get_last_entry_time() == 0)
 			notify(player, "%sLast entry time:%s %sUnknown%s", ca[COLOUR_TITLES], COLOUR_REVERT, ca[COLOUR_LAST_CONNECTED], COLOUR_REVERT);
@@ -1289,18 +1289,18 @@ const	String& options)
 		notify (player, "%sBuilding points:%s %d", ca[COLOUR_TITLES],COLOUR_REVERT,db [thing].get_pennies ());
 		notify (player, "%sScore:%s %d", ca[COLOUR_TITLES],COLOUR_REVERT,db[thing].get_score ());
 		notify (player, "%s%s:%s %d", ca[COLOUR_TITLES], currency_name, COLOUR_REVERT,db[thing].get_money ());
-		notify_censor(player, player, "%sHome:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
+		notify_censor(player, player, "%sHome:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()).c_str());
 		if (db[thing].get_controller () != NOTHING)
-			notify_censor(player, player, "%sController:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_controller ()));
+			notify_censor(player, player, "%sController:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_controller ()).c_str());
 		break;
 	  case TYPE_THING:
 		/* print home */
-		notify_censor(player, player, "%sHome:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
+		notify_censor(player, player, "%sHome:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()).c_str());
 		break;
 	  case TYPE_EXIT:
 		/* print destination */
 		if (db[thing].get_destination() != NOTHING)
-			notify_censor(player, player, "%sDestination:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()));
+			notify_censor(player, player, "%sDestination:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object(*this, db[thing].get_destination()).c_str());
 		break;
 	  case TYPE_COMMAND:
 		if(db[thing].get_inherited_codelanguage())
@@ -1309,13 +1309,13 @@ const	String& options)
 	  case TYPE_FUSE:
 		/* Print success and fail destinations */
 		notify_censor(player, player, "%sOn success, go to:%s %s%s%s", ca[COLOUR_TITLES],COLOUR_REVERT,
-					ca[COLOUR_CSUCCESS],unparse_object (*this, db [thing].get_csucc ()), COLOUR_REVERT);
+					ca[COLOUR_CSUCCESS],unparse_object (*this, db [thing].get_csucc ()).c_str(), COLOUR_REVERT);
 		notify_censor(player, player, "%sOn failure, go to:%s %s%s%s", ca[COLOUR_TITLES],COLOUR_REVERT,
-					ca[COLOUR_CFAILURE],unparse_object (*this, db [thing].get_cfail ()), COLOUR_REVERT);
+					ca[COLOUR_CFAILURE],unparse_object (*this, db [thing].get_cfail ()).c_str(), COLOUR_REVERT);
 		break;
 	  case TYPE_ALARM:
 		/* print alarm fire command */
-		notify_censor(player, player, "%sFire:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object (*this, db [thing].get_csucc ()));
+		notify_censor(player, player, "%sFire:%s %s", ca[COLOUR_TITLES],COLOUR_REVERT,unparse_object (*this, db [thing].get_csucc ()).c_str());
 		break;
 	  case TYPE_DICTIONARY:
 		if (matcher.match_index_attempt_result())
@@ -1408,10 +1408,10 @@ const	String& options)
 						switch(Typeof(looper))
 						{
 							case TYPE_PLAYER:
-								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), ca[rank_colour(looper)], unparse_object(*this, looper), COLOUR_REVERT);
+								notify(player, "  %s%s%s%s", (Connected (looper) ? "*" : ""), ca[rank_colour(looper)], unparse_object(*this, looper).c_str(), COLOUR_REVERT);
 								break;
 							default:
-								notify_public_colour(player, player, COLOUR_THINGS, "  %s", unparse_object(*this, looper));
+								notify_public_colour(player, player, COLOUR_THINGS, "  %s", unparse_object(*this, looper).c_str());
 								break;
 						}
 					}
@@ -1433,7 +1433,7 @@ const	String& options)
 				notify_colour(player, player, COLOUR_CONTENTS, "Exits:");
 				DOLIST(looper, db[thing].get_exits())
 				{
-					notify_public(player, player,"  %s%s%s",  ca[COLOUR_EXITS], unparse_object(*this, looper), COLOUR_REVERT);
+					notify_public(player, player,"  %s%s%s",  ca[COLOUR_EXITS], unparse_object(*this, looper).c_str(), COLOUR_REVERT);
 				}
 			}
 			break;
@@ -1454,7 +1454,7 @@ const	String& options)
 				notify_colour(player, player, COLOUR_CONTENTS, "Commands:");
 				DOLIST(looper, db[thing].get_commands())
 				{
-					notify_public(player, player,  "  %s%s%s",  ca[COLOUR_COMMANDS], unparse_object(*this, looper), COLOUR_REVERT);
+					notify_public(player, player,  "  %s%s%s",  ca[COLOUR_COMMANDS], unparse_object(*this, looper).c_str(), COLOUR_REVERT);
 				}
 			}
 			break;
@@ -1489,7 +1489,7 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Variables:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES],unparse_object(*this, looper));
+							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES],unparse_object(*this, looper).c_str());
 							{
 								if (!Dark(looper) && controls_for_read (looper))
 								{
@@ -1516,7 +1516,7 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Properties:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES], unparse_object(*this, looper));
+							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES], unparse_object(*this, looper).c_str());
 							if (!Dark(looper) && controls_for_read (looper))
 							{
 								strcat (scratch_buffer, " = ");
@@ -1541,7 +1541,7 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Arrays:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper));
+							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper).c_str());
 							if (!Dark(looper) && controls_for_read (looper))
 								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
 							else
@@ -1564,7 +1564,7 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Dictionaries:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper));
+							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper).c_str());
 							if (!Dark(looper) && controls_for_read (looper))
 								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_DICTIONARIES], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
 							else
@@ -1596,7 +1596,7 @@ const	String& options)
 							notify_colour(player, player, COLOUR_CONTENTS, "Fuses:");
 							had_title = 1;
 						}
-						notify_public (player, player, "  %s%s%s", ca[COLOUR_FUSES], unparse_object(*this, looper), COLOUR_REVERT);
+						notify_public (player, player, "  %s%s%s", ca[COLOUR_FUSES], unparse_object(*this, looper).c_str(), COLOUR_REVERT);
 					}
 				}
 				had_title = 0;
@@ -1609,7 +1609,7 @@ const	String& options)
 							notify_colour (player, player, COLOUR_CONTENTS, "Alarms:");
 							had_title = 1;
 						}
-						notify_public(player, player, "  %s%s%s", ca[COLOUR_ALARMS], unparse_object(*this, looper), COLOUR_REVERT);
+						notify_public(player, player, "  %s%s%s", ca[COLOUR_ALARMS], unparse_object(*this, looper).c_str(), COLOUR_REVERT);
 					}
 				}
 			}
@@ -1712,10 +1712,10 @@ const	String& )
 			switch(Typeof(thing))
 			{
 				case TYPE_THING:
-					notify_censor(player, player, "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE), COLOUR_REVERT);
+					notify_censor(player, player, "  %s%s%s", ca[COLOUR_THINGS], unparse_objectandarticle_inherited(*this, thing, ARTICLE_LOWER_INDEFINITE).c_str(), COLOUR_REVERT);
 					break;
 				default:
-					notify_censor(player, player, "  %s", unparse_objectandarticle(*this, thing, ARTICLE_LOWER_INDEFINITE));
+					notify_censor(player, player, "  %s", unparse_objectandarticle(*this, thing, ARTICLE_LOWER_INDEFINITE).c_str());
 					break;
 			}
 		}
@@ -1783,7 +1783,7 @@ const	String& string)
 
 			for(i = 0; i < db.get_top (); i++)
 			if (Typeof(i) == TYPE_PLAYER)
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 
 			notify_colour(player, player, COLOUR_CONTENTS, "*** End of List ***");
 			return;
@@ -1799,7 +1799,7 @@ const	String& string)
 
 		for(i = 0; i < db.get_top (); i++)
 		if ((Typeof(i) != TYPE_FREE) && Ashcan(i))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 
 		notify_colour(player, player, COLOUR_CONTENTS, "*** End of List ***");
 		return;
@@ -1839,7 +1839,7 @@ const	String& string)
 	{
 		for (i=0 ; i < db.get_top(); i++)
 			if ((Typeof (i) != TYPE_FREE) && (db[i].get_parent() == victim))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s",unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s",unparse_object(*this, i).c_str());
 			notify_colour(player, player, COLOUR_CONTENTS, "*** End of List ***");
 		return;
 	}
@@ -1887,27 +1887,27 @@ const	String& string)
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if ((Typeof (i) != TYPE_FREE) && (db[i].get_owner() == victim))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	if (search_type == TYPE_PLAYER)
 	{
 		for(i = 0; i < db.get_top (); i++)
 		if ((Typeof(i) == TYPE_PLAYER) || (Typeof(i) == TYPE_PUPPET))
 			if (db [i].get_controller () == victim)
-				notify_censor_colour(player, player, COLOUR_PLAYERS, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_PLAYERS, "%s", unparse_object(*this, i).c_str());
 	}
 	else if(search_type == TYPE_FREE) /*Ashcan*/
 	{
 		for(i = 0; i < db.get_top (); i++)
 		if ((Typeof(i) != TYPE_FREE) && Ashcan(i))
 			if (db [i].get_owner () == victim)
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else
 	{
 		for(i = 0; i < db.get_top (); i++)
 			if ((Typeof (i) == search_type) && (db[i].get_owner() == victim))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	notify_colour(player, player, COLOUR_CONTENTS, "***End of List***");
 	return_status = COMMAND_SUCC;
@@ -1963,7 +1963,7 @@ const	String& string)
 				&& db[i].get_name()
 				&& controls_for_read(i)
 				&& (!string || re.Match(db[i].get_name())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("description", descriptor))
 	{
@@ -1973,7 +1973,7 @@ const	String& string)
 				&& db[i].get_description()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_description())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("cname", descriptor))
 	{
@@ -1982,7 +1982,7 @@ const	String& string)
 				&& db[i].get_name()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_name())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("cdescription", descriptor))
 	{
@@ -1991,7 +1991,7 @@ const	String& string)
 				&& db[i].get_description()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_description())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("vname", descriptor))
 	{
@@ -2000,7 +2000,7 @@ const	String& string)
 				&& db[i].get_name()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_name())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("vdescription", descriptor))
 	{
@@ -2009,7 +2009,7 @@ const	String& string)
 				&& db[i].get_description()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_description())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("ename", descriptor))
 	{
@@ -2018,7 +2018,7 @@ const	String& string)
 				&& db[i].get_name()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_name())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("edescription", descriptor))
 	{
@@ -2027,7 +2027,7 @@ const	String& string)
 				&& db[i].get_description()
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_description())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("edestination", descriptor))
 	{
@@ -2053,7 +2053,7 @@ const	String& string)
 				if(Typeof(i) == TYPE_EXIT
 					&& controls_for_read (i)
 					&& (db[i].get_destination() == room))
-					notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+					notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("cdestination", descriptor))
 	{
@@ -2083,7 +2083,7 @@ const	String& string)
 					&& controls_for_read (i)
 					&& ((db[i].get_csucc() == command)
 						|| (db[i].get_cfail() == command)))
-					notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+					notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("alarm", descriptor))
 	{
@@ -2091,7 +2091,7 @@ const	String& string)
 			if(Typeof(i) == TYPE_ALARM
 			&& controls_for_read (i)
 			&& (!string || re.Match(db[i].get_description())))
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else if (string_prefix("ashcan", descriptor))
 	{
@@ -2100,7 +2100,7 @@ const	String& string)
 				&& Ashcan(i)
 				&& controls_for_read (i)
 				&& (!string || re.Match(db[i].get_description())))
-					notify_censor_colour(player,  player, COLOUR_MESSAGES, "%s", unparse_object(*this, i));
+					notify_censor_colour(player,  player, COLOUR_MESSAGES, "%s", unparse_object(*this, i).c_str());
 	}
 	else
 	{

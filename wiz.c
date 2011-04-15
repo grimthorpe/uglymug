@@ -438,8 +438,8 @@ const	String& )
 	for (an_object = 0; an_object < db.get_top (); an_object ++)
 		if ((Typeof (an_object) == TYPE_EXIT) && (db[an_object].get_destination() == thing))
 		{
-			sprintf (scratch_buffer, "Object %s -> ", unparse_objectandarticle_inherited (*this, db [an_object].get_location(), ARTICLE_LOWER_INDEFINITE));
-			strcat (scratch_buffer, unparse_objectandarticle_inherited (*this, an_object, ARTICLE_LOWER_INDEFINITE));
+			sprintf (scratch_buffer, "Object %s -> ", unparse_objectandarticle_inherited (*this, db [an_object].get_location(), ARTICLE_LOWER_INDEFINITE).c_str());
+			strcat (scratch_buffer, unparse_objectandarticle_inherited (*this, an_object, ARTICLE_LOWER_INDEFINITE).c_str());
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, scratch_buffer);
 		}
 	notify_colour (player, player, COLOUR_CONTENTS, "*** End of list ***");

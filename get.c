@@ -193,7 +193,7 @@ const	String& )
 			{
 				if (already_had_one)
 					strcat (scratch_return_string, ", ");
-				strcat (scratch_return_string, unparse_object (*this, loc));
+				strcat (scratch_return_string, unparse_object (*this, loc).c_str());
 				loc = db[loc].get_location();
 				already_had_one = 1;
 			}

@@ -1589,6 +1589,7 @@ const	String& flag)
 	}
 
 	if((f==FLAG_MALE) || (f==FLAG_FEMALE) || (f==FLAG_NEUTER))
+	{
 		if(*flag.c_str()==NOT_TOKEN)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't unassign gender!");
@@ -1600,7 +1601,7 @@ const	String& flag)
 			db[thing].clear_flag(FLAG_FEMALE);
 			db[thing].clear_flag(FLAG_NEUTER);
 		}
-
+	}
 
 	/* check for restricted flag */
 	if(!MakeWizard(player) && !Wizard(get_effective_id ())
@@ -1990,8 +1991,8 @@ const	String& volume)
 	{
 		if (gagged_command ())
 		{
-			sprintf (scratch_buffer, "You can't make %s that large in", unparse_object (*this, victim));
-			notify_censor_colour (player,player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)));
+			sprintf (scratch_buffer, "You can't make %s that large in", unparse_object (*this, victim).c_str());
+			notify_censor_colour (player,player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)).c_str());
 		}
 		return;
 	}
@@ -2163,8 +2164,8 @@ const	String& mass)
 	{
 		if (!gagged_command ())
 		{
-			sprintf (scratch_buffer, "You can't make %s that heavy in", unparse_object (*this, victim));
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)));
+			sprintf (scratch_buffer, "You can't make %s that heavy in", unparse_object (*this, victim).c_str());
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)).c_str());
 		}
 		return;
 	}
@@ -2693,9 +2694,9 @@ const	String& keyname)
 		if (!in_command())
 		{
 			if (!keyname)
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s can no longer be locked.", unparse_object (*this, container));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s can no longer be locked.", unparse_object (*this, container).c_str());
 			else
-				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s can now be locked.", unparse_object (*this, container));
+				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s can now be locked.", unparse_object (*this, container).c_str());
 		}
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);

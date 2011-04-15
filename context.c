@@ -270,7 +270,7 @@ const	dbref	eid,
 //	player = c->get_player();
 	if ((err = (set_command (cmd))) != 0)
 	{
-		notify(c->get_player(), "%s %s", err, unparse_object(*c, cmd));
+		notify(c->get_player(), "%s %s", err, unparse_object(*c, cmd).c_str());
 		set_command (NOTHING);
 	}
 	else if(Silent(cmd))
@@ -509,7 +509,7 @@ context		*context)
 					const char *err;
 					if ((err = set_command (cfail_cache)))
 					{
-						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err, unparse_object(*context, temp_cache));
+						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err, unparse_object(*context, temp_cache).c_str());
 						set_command (NOTHING);
 					}
 				}
@@ -542,7 +542,7 @@ context		*context)
 					const char *err;
 					if ((err = set_command (csucc_cache)))
 					{
-						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err, unparse_object(*context, temp_cache));
+						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err, unparse_object(*context, temp_cache).c_str());
 						set_command (NOTHING);
 					}
 				}

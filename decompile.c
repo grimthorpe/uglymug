@@ -293,7 +293,7 @@ const	String& args)
 
 /* These bits are common to all objects */
 	readonly_flag_set = decompile_flags (object, player);			/* Decompile flags set on object */
-	notify (player, "@owner %s = %s", decompiled_name, unparse_for_return(*this, db[object].get_owner()));
+	notify (player, "@owner %s = %s", decompiled_name, unparse_for_return(*this, db[object].get_owner()).c_str());
 
 	switch (Typeof (object))
 	{
@@ -322,7 +322,7 @@ const	String& args)
 				notify (player, "@link %s = #%d", decompiled_name, db[object].get_destination());
 		case TYPE_COMMAND:
 			if (db[object].get_key() != NULL)
-				notify (player, "@lock %s = %s", decompiled_name, db[object].get_key()->unparse_for_return(*this));
+				notify (player, "@lock %s = %s", decompiled_name, db[object].get_key()->unparse_for_return(*this).c_str());
 		case TYPE_VARIABLE:
 		case TYPE_ALARM:
 			if (db[object].get_odrop())

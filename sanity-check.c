@@ -82,7 +82,7 @@ sane_unparse_object (dbref thing)
 		return (buf);
 	}
 	else
-		return (unparse_object (unparse_context, thing));
+		return (unparse_object (unparse_context, thing).c_str());
 }
 
 
@@ -106,9 +106,9 @@ int		fields)
 		fprintf(sanity_file, "\tNext: %s\n", sane_unparse_object (db[i].get_next()));
 	if (fields & KEY)
 	{
-		fprintf(sanity_file, "\tKey: %s\n", db[i].get_key()->unparse (unparse_context));
+		fprintf(sanity_file, "\tKey: %s\n", db[i].get_key()->unparse (unparse_context).c_str());
 		if (Typeof (i) == TYPE_THING)
-			fprintf(sanity_file, "\tLock key: %s\n", db[i].get_lock_key()->unparse (unparse_context));
+			fprintf(sanity_file, "\tLock key: %s\n", db[i].get_lock_key()->unparse (unparse_context).c_str());
 	}
 	if (fields & OWNER)
 		fprintf(sanity_file, "\tOwner: %s\n", sane_unparse_object(db[i].get_owner()));

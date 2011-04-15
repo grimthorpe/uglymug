@@ -90,7 +90,7 @@ const	String& player_string)
 			members = matcher.match_result();
 			
 			notify(player, "You are currently building for: %s.",
-				unparse_object(*this, db[player].get_build_id()));
+				unparse_object(*this, db[player].get_build_id()).c_str());
 			if(members !=NOTHING)
 			{
 				tmp = add_up_votes(members, db[player].get_build_id(), idstring);

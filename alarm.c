@@ -294,7 +294,7 @@ const	String&)
 				time(&now);
 				sprintf(scratch_buffer, "%d;%s",
 					(int)(current->get_time_to_execute() - now),
-					unparse_for_return(*this, db[target].get_destination()));
+					unparse_for_return(*this, db[target].get_destination()).c_str());
 				set_return_string(scratch_buffer);
 				return_status = COMMAND_SUCC;
 				break;
@@ -317,10 +317,10 @@ const	String&)
 					rtime->tm_min,
 					rtime->tm_sec,
 					(long int)current->get_time_to_execute () - now,
-					unparse_object (*this, current->get_object ())
+					unparse_object (*this, current->get_object ()).c_str()
 					);
 				strcat (scratch_buffer, " firing ");
-				strcat (scratch_buffer, unparse_object (*this, db[current->get_object ()].get_destination ()));
+				strcat (scratch_buffer, unparse_object (*this, db[current->get_object ()].get_destination ()).c_str());
 				notify (player, "%s", scratch_buffer);
 				count++;
 			}

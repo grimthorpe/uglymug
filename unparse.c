@@ -86,24 +86,24 @@ struct	flag_stuff	flag_list [] =
 };
 
 
-static char *
+static String
 unparse_flags(
 dbref	thing)
 
 {
-	static	char	buf [100];
-	char		*p;
 	static	char	type_codes [] = "?0-PNRTECVpadAFtswzb";
 	int		type = Typeof (thing);
 	int		i;
 
-	p = buf;
-	*p++ = ' ';
-	*p = type_codes [type];
+	String p(" ");
 	if ((Typeof (thing) == TYPE_PLAYER) && Puppet (thing))
-		*p = 'p';
-
-	p++;
+	{
+		p += 'p';
+	}
+	else
+	{
+		p += type_codes [type];
+	}
 
 	/* Print flags if there are any */
 	for (i = 0; flag_list [i].string != NULL; i++)
@@ -112,13 +112,12 @@ dbref	thing)
 			/* If they are retired, don't display W flag */
 			&& (!((flag_list[i].flag == FLAG_WIZARD) &&
 			      Retired(thing))))
-			*p++ = flag_list [i].quick_flag;
-	*p = '\0';
-	return buf;
+			p += flag_list [i].quick_flag;
+	return p;
 }
 
 
-const char *const
+String
 unparse_object(
 const	context	&c,
 dbref		thing)
@@ -144,7 +143,7 @@ dbref		thing)
 						|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing))))
 			{
 				/* show everything */
-				sprintf(buf, "%s%s(#%d%s)", getname(thing), COLOUR_REVERT, (int)thing, unparse_flags(thing));
+				sprintf(buf, "%s%s(#%d%s)", getname(thing), COLOUR_REVERT, (int)thing, unparse_flags(thing).c_str());
 				return buf;
 			}
 			else
@@ -156,7 +155,7 @@ dbref		thing)
 }
 
 
-const char *const
+String
 unparse_objectandarticle(
 const	context	&c,
 const	dbref	thing,
@@ -191,7 +190,7 @@ const	dbref	thing,
 					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
 			{
 				/* show everything */
-				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing));
+				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
 				return buf;
 			}
 			else
@@ -203,7 +202,7 @@ const	dbref	thing,
 	}
 }
 
-const char *const
+String
 unparse_object_inherited (
 const	context	&c,
 const	dbref	thing)
@@ -226,7 +225,7 @@ const	dbref	thing)
 					|| can_link_to (c, thing)))*/
 			{
 				/* show everything */
-				sprintf(buf, "%s%s(#%d%s)", getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing));
+				sprintf(buf, "%s%s(#%d%s)", getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
 				return buf;
 			}
 			else
@@ -238,7 +237,7 @@ const	dbref	thing)
 }
 
 
-const char *const
+String
 unparse_objectandarticle_inherited (
 const	context	&c,
 const	dbref	thing,
@@ -267,7 +266,7 @@ const	dbref	thing,
 			/*if (!(db[c.get_player ()].get_flag(FLAG_NUMBER) || Visible(thing)) && (c.controls_for_read (thing) || can_link_to (c, thing)))*/
 			{
 				/* show everything */
-				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing));
+				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
 				return buf;
 			}
 			else
@@ -279,7 +278,7 @@ const	dbref	thing,
 	}
 }
 
-const char *const
+String
 unparse_for_return_inherited (
 const	context	&c,
 const	dbref	thing)
@@ -306,7 +305,7 @@ const	dbref	thing)
 }
 
 
-const char *const
+String
 unparse_for_return (
 const	context	&c,
 const	dbref	thing)

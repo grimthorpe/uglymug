@@ -877,8 +877,8 @@ const String&)
 
 	/* Should never get here */
 	log_bug("@end processed by %s in a command with no scope (%s)",
-			unparse_object (context(UNPARSE_ID, context::DEFAULT_CONTEXT), player),
-			unparse_object (context(UNPARSE_ID, context::DEFAULT_CONTEXT), get_current_command ())
+			unparse_object (context(UNPARSE_ID, context::DEFAULT_CONTEXT), player).c_str(),
+			unparse_object (context(UNPARSE_ID, context::DEFAULT_CONTEXT), get_current_command ()).c_str()
 	);
 }
 

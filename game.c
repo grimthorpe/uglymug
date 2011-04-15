@@ -1240,7 +1240,7 @@ const	String&	_command)
 				"%sCan't find basic command in %s%s%s. Full command line was:%s",
 				 ca[COLOUR_ERROR_MESSAGES],
 				 ca[COLOUR_TRACING],
-				 unparse_object (*this, get_current_command ()),
+				 unparse_object (*this, get_current_command ()).c_str(),
 				 ca[COLOUR_ERROR_MESSAGES],
 				 COLOUR_REVERT);
 
@@ -1351,7 +1351,7 @@ const String&	command)
 	}
 	if ((db[player].get_location() < 0) && (db[player].get_location() >= db.get_top ()))
 	{
-		log_bug("Player #%s at location #%d", unparse_object (context::UNPARSE_CONTEXT, player), db[player].get_location());
+		log_bug("Player #%s at location #%d", unparse_object (context::UNPARSE_CONTEXT, player).c_str(), db[player].get_location());
 		return;
 	}
 
@@ -1547,7 +1547,7 @@ void mud_time_sync ()
 					notify_colour(the_player, the_player,
 						      COLOUR_ERROR_MESSAGES,
 						"Alarm %s failed to execute, due to lack of money.",
-						unparse_object (alarm_context, an_alarm));
+						unparse_object (alarm_context, an_alarm).c_str());
 				}
 			}
 			if (db[an_alarm].get_description())
@@ -1555,7 +1555,7 @@ void mud_time_sync ()
 		}
 		else
 		{
-			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context::UNPARSE_CONTEXT, an_alarm));
+			notify_wizard("PENDED ALARM IS BROKEN - Object %s found.", unparse_object (context::UNPARSE_CONTEXT, an_alarm).c_str());
 			alarm_block--;
 			return;
 		}

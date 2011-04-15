@@ -145,7 +145,7 @@ public:
 
 	int id(lua_State* L)
 	{
-		lua_pushstring(L, unparse_for_return(*m_context, m_object));
+		lua_pushstring(L, unparse_for_return(*m_context, m_object).c_str());
 
 		return 1;
 	}

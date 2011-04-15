@@ -257,8 +257,8 @@ class	boolexp
 				~boolexp		();
 	const	bool		eval			(const context &c, Matcher &matcher)		const;
 	const	bool		contains		(const dbref thing)		const;
-	const	char		*unparse		(context &c)		const;
-	const	char		*unparse_for_return	(context &c)		const;
+	String			unparse			(context &c)		const;
+	String			unparse_for_return	(context &c)		const;
 	boolexp			*sanitise		();
 	void			valid_key		(const dbref)	const;
 	void			set_references		()		const;

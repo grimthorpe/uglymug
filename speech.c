@@ -610,10 +610,10 @@ const	String& part2)
 		{
 			const colour_at& ca=db[target].get_colour_at();
 			context	unparse_context (target, *this);
-			strcpy (scratch_buffer, unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE));
+			strcpy (scratch_buffer, unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE).c_str());
 			strcat (scratch_buffer, ", ");
 			strcat (scratch_buffer, ca[rank_colour(player)]);
-			strcat (scratch_buffer, unparse_object_inherited (unparse_context, player));
+			strcat (scratch_buffer, unparse_object_inherited (unparse_context, player).c_str());
 
 			if (howmany > 1)
 				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z to %s from %s%s %s%s", targets.generate_courtesy_string(player, target), ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));

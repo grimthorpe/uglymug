@@ -38,29 +38,29 @@ const	String& )
 	}
 	count_down_fuses (*this, container, !TOM_FUSE);
 	if (!Openable (container))
-		notify_censor_colour(player, player, COLOUR_MESSAGES,  "%s cannot be opened.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+		notify_censor_colour(player, player, COLOUR_MESSAGES,  "%s cannot be opened.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 	else if (Locked (container))
 	{
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		else
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 	}
 	else if (Open (container))
 	{
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are already open.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are already open.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		else
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is already open.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is already open.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 	}
 	else
 	{
 		db[container].set_flag(FLAG_OPEN);
 		Modified (container);
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are now open", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are now open", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		else
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is now open", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is now open", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 	}
@@ -93,29 +93,29 @@ const	String& )
 	}
 	count_down_fuses (*this, container, !TOM_FUSE);
 	if (!Openable (container))
-		notify_censor_colour(player, player, COLOUR_MESSAGES, "%s cannot be closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+		notify_censor_colour(player, player, COLOUR_MESSAGES, "%s cannot be closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 	else if (Locked (container))
 	{
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		else
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is locked.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 	}
 	else if (!Open (container))
 	{
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are already closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are already closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		else
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is already closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is already closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 	}
 	else
 	{
 		db[container].clear_flag(FLAG_OPEN);
 		Modified (container);
 		if (db[container].get_flag(FLAG_ARTICLE_PLURAL))
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are now closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s are now closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		else
-			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is now closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE));
+			notify_censor_colour(player, player, COLOUR_MESSAGES, "%s is now closed.", unparse_objectandarticle_inherited (*this, container, ARTICLE_UPPER_DEFINITE).c_str());
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 	}
@@ -232,7 +232,7 @@ const	String& )
 	if (!Openable (container))
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can't unlock something that cannot be opened.");
 	else if (!db[container].get_lock_key ()->eval (*this, matcher))
-		notify_censor_colour(player, player, COLOUR_MESSAGES,"You couldn't unlock %s.", unparse_objectandarticle_inherited (*this, container, ARTICLE_LOWER_DEFINITE));
+		notify_censor_colour(player, player, COLOUR_MESSAGES,"You couldn't unlock %s.", unparse_objectandarticle_inherited (*this, container, ARTICLE_LOWER_DEFINITE).c_str());
 	else
 	{
 		db[container].clear_flag(FLAG_LOCKED);

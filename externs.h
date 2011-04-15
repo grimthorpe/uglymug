@@ -192,12 +192,12 @@ extern	dbref		reverse			(dbref list);
 extern	struct	boolexp	*parse_boolexp		(const dbref player, const String& buf);
 
 /* From unparse.c */
-extern	const	char	*const	unparse_objectandarticle		(const context &c, const dbref object, int articletype);
-extern	const	char	*const	unparse_objectandarticle_inherited	(const context &c, const dbref object, int articletype);
-extern	const	char	*const	unparse_object				(const context &c, const dbref object);
-extern	const	char	*const	unparse_object_inherited		(const context &c, const dbref object);
-extern	const	char	*const	unparse_for_return			(const context &c, const dbref object);
-extern	const	char	*const	unparse_for_return_inherited		(const context &c, const dbref object);
+extern	String	unparse_objectandarticle		(const context &c, const dbref object, int articletype);
+extern	String	unparse_objectandarticle_inherited	(const context &c, const dbref object, int articletype);
+extern	String	unparse_object				(const context &c, const dbref object);
+extern	String	unparse_object_inherited		(const context &c, const dbref object);
+extern	String	unparse_for_return			(const context &c, const dbref object);
+extern	String	unparse_for_return_inherited		(const context &c, const dbref object);
 
 /* From channel.c */
 class Channel;

@@ -159,7 +159,7 @@ dbref	room2)
 			if(room1_parents [i] == NOTHING)
 				notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "Permission denied: Not in an area (see 'help areas')");
 			else
-				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Permission denied: You don't control %s. (see 'help areas')", unparse_object (c, room1_parents [i]));
+				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Permission denied: You don't control %s. (see 'help areas')", unparse_object (c, room1_parents [i]).c_str());
 			return (0);
 		}
 		if ((i < room2_index - common_parent_offset) && (!c.controls_for_write (room2_parents [i])))
@@ -167,7 +167,7 @@ dbref	room2)
 			if(room2_parents[i] == NOTHING)
 				notify_colour(c.get_player(), c.get_player(), COLOUR_ERROR_MESSAGES, "Permission denied: Not in an area (see 'help areas')");
 			else
-				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Permission denied: You don't control %s. (see 'help areas')", unparse_object (c, room2_parents [i]));
+				notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Permission denied: You don't control %s. (see 'help areas')", unparse_object (c, room2_parents [i]).c_str());
 			return (0);
 		}
 	}

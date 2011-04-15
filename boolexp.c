@@ -495,17 +495,16 @@ const
  * Construct the string representing this boolexp and return it.  Successive returns may re-use the same memory.
  */
 
-const char*
+String
 boolexp::unparse (
 context	&c)
 const
 
 {
-	static String boolexp;
-	boolexp = NULLSTRING;
+	String boolexp;
 	unparse_internal (c, BOOLEXP_CONST, boolexp, false);	/* no outer type */
 
-	return boolexp.c_str();
+	return boolexp;
 }
 
 
@@ -513,17 +512,16 @@ const
  * Construct the string representing this boolexp as a return value and return it.  Successive returns may re-use the same memory.
  */
 
-const char *
+String
 boolexp::unparse_for_return (
 context	&c)
 const
 
 {
-	static String boolexp;
-	boolexp = NULLSTRING;
+	String boolexp;
 	unparse_internal (c, BOOLEXP_CONST, boolexp, true);	/* no outer type */
 
-	return boolexp.c_str();
+	return boolexp;
 }
 
 
