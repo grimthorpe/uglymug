@@ -35,7 +35,6 @@
 #include "copyright.h"
 #include "game.h"
 #include "interface.h"
-#include "destroy.h"
 #include "match.h"
 #include "regexp_interface.h"
 
