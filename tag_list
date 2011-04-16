@@ -14,7 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
-	Overhaul the unparse code to use String instead of static buffers. (Grimthorpe)
+	Overhaul the code to use String instead of static buffers. (Grimthorpe)
 	Fix the duplicate alarm entry bug (at last!). (Grimthorpe)
 	Tidied up the plural transparent exit code. (Grimthorpe)
 	Examine now displays the title 'Lock:' for the field set with @lock, and 'Key:' for the field set with @key. (Grimthorpe)

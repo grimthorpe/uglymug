@@ -57,7 +57,7 @@ static	int			alarm_block	= 0;
 	int			sanity_only	= 0;
 	int			abort_from_fuse;
 
-const	char			*shutdown_reason;
+	String			shutdown_reason;
 
 
 enum	command_flags
@@ -521,10 +521,10 @@ const	String& arg2)
 	}
 
 	execute_shutdown();
-	shutdown_reason = alloc_string(reconstruct_message(arg1, arg2));
-	if (!blank(shutdown_reason))
+	shutdown_reason = reconstruct_message(arg1, arg2);
+	if (shutdown_reason)
 	{
-		log_shutdown(player, getname(player), shutdown_reason);
+		log_shutdown(player, getname(player), shutdown_reason.c_str());
 	}
 	else
 	{
@@ -1584,7 +1584,7 @@ context::do_at_error(
 const String& arg1,
 const String& arg2)
 {
-	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", reconstruct_message(arg1, arg2));
+	notify_colour(player, player, COLOUR_ERROR_MESSAGES, "%s", reconstruct_message(arg1, arg2).c_str());
 	// No RETURN_SUCC or RETURN_FAIL, because we don't want to change the return value.
 }
 

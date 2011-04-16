@@ -413,8 +413,8 @@ private:
 		String	buffer[400];		// The buffer
 		int	buffer_next;		//Next place to put a line
 		bool	buffer_wrapped;		//Have we wrapped the buffer yet
-		char	buffer_build[BUFFER_LEN];//Buffer to build lines
-		RecallBuffer() : buffer_next(0), buffer_wrapped(false) { buffer_build[0] = 0; }
+		String	buffer_build;		//Buffer to build lines
+		RecallBuffer() : buffer_next(0), buffer_wrapped(false) { }
 	};
 	RecallBuffer*		recall;
 

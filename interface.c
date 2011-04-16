@@ -152,8 +152,6 @@ const char *strsignal (const int sig)
 
 	time_t	game_start_time;
 extern	int	errno;
-extern	char	player_booting[BUFFER_LEN];
-extern	char	boot_reason[BUFFER_LEN];
 int		shutdown_flag = 0;
 dbref		shutdown_player = NOTHING;
 static	char	vsnprintf_result[BUFFER_LEN];
@@ -2704,7 +2702,7 @@ char *underscorify(dbref player, const char *str)
 
 
 void
-descriptor_data::announce_player (announce_states state)
+descriptor_data::announce_player (announce_states state, const String& whodidit, const String& reason)
 {
 	struct descriptor_data *d;
 
@@ -2737,10 +2735,10 @@ descriptor_data::announce_player (announce_states state)
 			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_BOOTED :
-			snprintf (scratch, sizeof(scratch), " has been booted by %s%s%s]\n", player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (scratch, sizeof(scratch), " has been booted by %s%s%s]\n", whodidit.c_str(), reason?" ":"", reason.c_str());
 			mortal_string = scratch;
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has been booted from %s by %s%s%s]\n", hostname.c_str(), player_booting, blank (boot_reason)?"":" ", boot_reason);
+			snprintf (wizard_string, sizeof(wizard_string), " has been booted from %s by %s%s%s]\n", hostname.c_str(), whodidit.c_str(), reason?" ":"", reason.c_str());
 			break;
 		case ANNOUNCE_DISCONNECTED :
 			mortal_string = " has disconnected]\n";
@@ -3104,7 +3102,9 @@ process_commands(time_t now)
 void
 boot_player (
 dbref	player,
-dbref	booter)
+dbref	booter,
+const String& whodidit,
+const String& reason)
 
 {
 	time_t			now;
@@ -3117,12 +3117,12 @@ dbref	booter)
 		{
 			if (player == booter && now - d->last_time > SELF_BOOT_TIME)
 			{
-				d->announce_player (ANNOUNCE_PURGE);
+				d->announce_player (ANNOUNCE_PURGE, whodidit, reason);
 				d->NUKE_DESCRIPTOR ();
 			}
 			if (player != booter)
 			{
-				d->announce_player (ANNOUNCE_BOOTED);
+				d->announce_player (ANNOUNCE_BOOTED, whodidit, reason);
 				d->NUKE_DESCRIPTOR ();
 			}
 		}
@@ -3597,26 +3597,26 @@ void parse_connect (const char *msg, char *command, char *user, char *pass)
 void close_sockets()
 {
 	struct	descriptor_data	*d;
-	char			message [BUFFER_LEN];
+	String message;
 
 	if (shutdown_flag != 2)
-		strcpy (message, emergency_shutdown_message);
+		message = emergency_shutdown_message;
 	else
 	{
-		strcpy (message, first_shutdown_message);
-		strcat (message, getname(shutdown_player));
-		strcat (message, second_shutdown_message);
-		if (!blank(shutdown_reason))
+		message = first_shutdown_message;
+		message += getname(shutdown_player);
+		message += second_shutdown_message;
+		if (shutdown_reason)
 		{
-			strcat (message, " - ");
-			strcat (message, shutdown_reason);
+			message += " - ";
+			message += shutdown_reason;
 		}
-		strcat (message, ".\n\n");
+		message += ".\n\n";
 	}
 
 	for (d = descriptor_list; d != NULL; d = d->next)
 	{
-		d->queue_string (message);
+		d->queue_string (message.c_str());
 		d->process_output ();
 		if (d->get_descriptor())
 		{

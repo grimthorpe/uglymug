@@ -272,7 +272,7 @@ public:
 	void	welcome_user();
 	void	splat_motd();
 	int	check_connect(const char *msg);
-	void	announce_player(announce_states state);
+	void	announce_player(announce_states state, const String& whodidit = NULLSTRING, const String& reason = NULLSTRING);
 
 	void save_command (String command);
 	int	do_command(String command, time_t now);

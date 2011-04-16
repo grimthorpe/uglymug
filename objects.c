@@ -1559,7 +1559,7 @@ const	String& what)
 
 void
 Player::add_recall_line (
-const String& strung)
+const String& string)
 {
 	if(!recall)
 	{
@@ -1575,29 +1575,28 @@ const String& strung)
         //get 51 lines if you did @recall but it is 0430 you picky bastard.
         //Love Reaps.
 
-	const char* string = strung.c_str();
-
-	const char* nlpos = 0;
-	while((nlpos = strchr(string, '\n')) != 0)
+	int nlpos = 0;
+	int start = 0;
+	while((nlpos = string.find('\n', start)) >= 0)
 	{
-		if((nlpos == string) && (!*(recall->buffer_build)))
+		if((nlpos == start) && (!(recall->buffer_build)))
 		{
-			string++;
+			start++;
 			continue; // Leave blank lines alone.
 		}
-		strncat(recall->buffer_build, string, (nlpos+1)-string);
+		recall->buffer_build += string.substring(start, nlpos+1-start);
 		recall->buffer[recall->buffer_next++] = recall->buffer_build;
-		recall->buffer_build[0] = '\0';
+		recall->buffer_build = "";
 		if(recall->buffer_next == MAX_RECALL_LINES)
 		{
 			recall->buffer_next = 0;
 			recall->buffer_wrapped = true;
 		}
-		string = nlpos+1;
+		start = nlpos+1;
 	}
-	if(*string)
+	if(start < string.length())
 	{
-		strcat(recall->buffer_build, string);
+		recall->buffer_build += string.substring(start);
 	}
 }
 
@@ -1651,7 +1650,7 @@ dbref player)
 
         if(recall->buffer_build)
         {
-                notify_norecall(player, "%s", recall->buffer_build);
+                notify_norecall(player, "%s", recall->buffer_build.c_str());
         }
 
 }
@@ -1714,7 +1713,7 @@ dbref		player)
         if(recall->buffer_build)
         {
 		if(re.Match(recall->buffer_build))
-			notify_norecall(player, "%s", recall->buffer_build);
+			notify_norecall(player, "%s", recall->buffer_build.c_str());
         }
 
 }

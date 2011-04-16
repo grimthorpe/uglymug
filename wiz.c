@@ -22,15 +22,12 @@
 #include <stdio.h>
 
 
-char 	player_booting[BUFFER_LEN];
-char	boot_reason[BUFFER_LEN];
-
 void
 context::do_at_welcome (
 const   String& arg1,
 const   String& arg2)
 {
-        const char *message;
+        String message;
 
         return_status = COMMAND_FAIL;
         set_return_string (error_return_string);
@@ -43,13 +40,13 @@ const   String& arg2)
                 if (message[0] == POSE_TOKEN)
 		{
                         if ((message[1] == '\'') || (message[1] == '`'))
-                          notify_welcomer_natter ("  %s%s", getname_inherited (player), message+1);
+                          notify_welcomer_natter ("  %s%s", getname_inherited (player), message.c_str()+1);
                         else
-                          notify_welcomer_natter ("  %s %s", getname_inherited (player), message+1);
+                          notify_welcomer_natter ("  %s %s", getname_inherited (player), message.c_str()+1);
 		}
 
                 else
-                        notify_welcomer_natter ("  %s natters \"%s\"", getname_inherited (player), message);
+                        notify_welcomer_natter ("  %s natters \"%s\"", getname_inherited (player), message.c_str());
                 return_status = COMMAND_SUCC;
                 set_return_string (ok_return_string);
 	}
@@ -328,7 +325,6 @@ const	String& reason)
 {
 	int allow = 0;
 	dbref recipient;
-	strcpy(player_booting, db[player].get_name().c_str());
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 	if (!victim)
@@ -391,19 +387,16 @@ const	String& reason)
 	{
 		if (Connected (recipient))
 		{
-			strcpy(boot_reason, reason.c_str());
-			notify_colour(recipient, player, COLOUR_ERROR_MESSAGES, "You got booted by %s%s%s.", getname_inherited (player), (!reason)?"":" ", boot_reason);
-			boot_player (recipient,player);
+			notify_colour(recipient, player, COLOUR_ERROR_MESSAGES, "You got booted by %s%s%s.", getname_inherited (player), (!reason)?"":" ", reason.c_str());
+			boot_player (recipient,player, getname_inherited(player), reason);
 			notify_colour(player, player, COLOUR_MESSAGES, "Booted.");
 			return_status = COMMAND_SUCC;
 			set_return_string (ok_return_string);
-			log_boot(recipient, db[recipient].get_name().c_str(), player, db[player].get_name().c_str(), (reason) ? boot_reason : "for no apparent reason");
+			log_boot(recipient, db[recipient].get_name().c_str(), player, db[player].get_name().c_str(), (reason) ? reason.c_str() : "for no apparent reason");
 		}
 		else
 			notify_colour(player, player, COLOUR_MESSAGES,"That player is not connected.");
 	}
-	boot_reason[0] = '\0';
-	player_booting[0] = '\0';
 }
 
 

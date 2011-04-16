@@ -7,13 +7,13 @@
 
 extern	 int		shutdown_flag;		/* if non-zero, interface should shut down */
 extern	 dbref		shutdown_player;	/*The wizard shutting down*/
-extern	 const	char	*shutdown_reason;	/*The reason for shutdown*/
+extern	 String		shutdown_reason;	/*The reason for shutdown*/
 extern	 time_t		game_start_time;	/*time game started*/
 
 extern	 dbref	create_player		(const String& name, const String& password, bool effective_wizard = false);
 extern	 dbref	connect_player		(const String& name, const String& password);
 extern	 void	emergency_shutdown	(void);
-extern	 void	boot_player		(dbref player, dbref booter);
+extern	 void	boot_player		(dbref player, dbref booter, const String& whodidit, const String& reason);
 
 extern	 int	init_game		(const char *infile, const char *outfile);
 extern	 void	dump_database		(void);

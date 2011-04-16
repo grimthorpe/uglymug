@@ -328,3 +328,11 @@ String::find(char c, int start /* = 0 */) const
 	return -1;
 }
 
+char
+String::operator[](int pos) const
+{
+	if(pos < (int)length())
+		return c_str()[pos];
+	return '\0';
+}
+

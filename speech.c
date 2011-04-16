@@ -21,31 +21,36 @@
 void notify_except_colour (dbref first,dbref exception, const char *prefix,const char *msg, bool speechmarks, dbref talker, ColourAttribute colour);
 
 static void
-strcpy_with_indent (
-char		*dest,
-const	char	*src)
+strcat_with_indent (
+String&		dest,
+const String&	src)
 
 {
-	while (src && *src)
-		if (*src == '\n')
+	if(src)
+	{
+		const char* p = src.c_str();
+		while(*p)
 		{
-			*dest++ = *src++;
-			*dest++ = ' ';
-			*dest++ = ' ';
+			dest += *p;
+			if(*p == '\n')
+			{
+				dest += ' ';
+				dest += ' ';
+			}
+			p++;
 		}
-		else
-			*dest++ = *src++;
-	*dest = '\0';
+	}
 }
 
 
 static void
-strcat_with_indent (
-char		*dest,
-const	char	*src)
+strcpy_with_indent (
+String&		dest,
+const	String&	src)
 
 {
-	strcpy_with_indent (dest + strlen (dest), src);
+	dest = "";
+	strcat_with_indent (dest, src);
 }
 
 
@@ -53,19 +58,19 @@ const	char	*src)
  * this function is a kludge for regenerating messages split by '='
  */
 
-const char *
+String
 reconstruct_message (
 const	String& arg1,
 const	String& arg2)
 {
-	static	char	buf [BUFFER_LEN];
+	String buf;
 
 	/* Handle reconstruction */
-	strcpy_with_indent (buf, arg1.c_str());
-	if(arg2 && *arg2.c_str())
+	strcpy_with_indent (buf, arg1);
+	if(arg2)
 	{
-		strcat (buf, " = ");
-		strcat_with_indent (buf, arg2.c_str());
+		buf += " = ";
+		strcat_with_indent (buf, arg2);
 	}
 
 	return (buf);
@@ -80,8 +85,7 @@ const	String& arg2)
 {
 		dbref	loc;
 		dbref	prop;
-	const	char	*message;
-		int	length;
+		String	message;
 	const	char	*say;
 	const	char	*says;
 	const	colour_at& ca=db[player].get_colour_at();
@@ -116,14 +120,14 @@ const	String& arg2)
    
 
 	/* you can't say nothing */
-	if ((length = strlen(message)) == 0)
+	if (!message)
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "What do you want to say?");
 		return;
 	}
 
 	/* notify everybody */
-	switch(message[length - 1])
+	switch(message[message.length() - 1])
 	{
 		case '?':
 			say = "ask";
@@ -138,13 +142,13 @@ const	String& arg2)
 			says = "says";
 			break;
 	}
-	notify_public(player, player, "%sYou %s \"%s%s%s\"", ca[rank_colour(player)], say, ca[COLOUR_SAYS], value_or_empty(message), ca[rank_colour(player)]);
+	notify_public(player, player, "%sYou %s \"%s%s%s\"", ca[rank_colour(player)], say, ca[COLOUR_SAYS], message.c_str(), ca[rank_colour(player)]);
 
 	sprintf(scratch_buffer, "%s %s ", getname_inherited (player),says);
 	notify_except_colour(db[loc].get_contents(),
 				player,
 				scratch_buffer,
-			        value_or_empty(message),
+			        message.c_str(),
 				true,
 				player,
 				COLOUR_SAYS);
@@ -195,7 +199,7 @@ const	String& arg2)
 		}
 		else
 		{
-				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, value_or_empty(db[prop].get_inherited_description().c_str()) );
+				notify_public_colour(player, player, COLOUR_ERROR_MESSAGES, db[prop].get_inherited_description().c_str() );
 		}
 		return;
 	}
@@ -215,11 +219,11 @@ const	String& arg2)
 				return;
 			}
 			notify_public_colour(player, who, COLOUR_WHISPERS, "You whisper \"%s\" to %s.", arg2.c_str(), getname_inherited (who));
-			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", value_or_empty(getname_inherited (player)), arg2.c_str());
+			notify_public_colour(who, who, COLOUR_WHISPERS, "%s whispers \"%s\"", getname_inherited (player), arg2.c_str());
 			Accessed (who);
 #ifndef QUIET_WHISPER
 			sprintf(scratch_buffer, "%s whispers something to %s.",
-				value_or_empty(getname_inherited (player)), value_or_empty(getname_inherited (who)));
+				getname_inherited (player), getname_inherited (who));
 			if((loc = getloc(player)) != NOTHING)
 			{
 				notify_except2(db[loc].get_contents(), player, player, who, scratch_buffer);
@@ -282,7 +286,7 @@ const	String& arg2)
 	}
 
 	/* notify everybody */
-	notify_area(loc, player, "%s", value_or_empty(reconstruct_message(arg1, arg2)));
+	notify_area(loc, player, "%s", reconstruct_message(arg1, arg2).c_str());
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -301,7 +305,7 @@ void
 context::do_emote(const String& arg1, const String& arg2, bool oemote)
 {
 	dbref loc, prop;
-	const char *message;
+	String message;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -324,7 +328,7 @@ context::do_emote(const String& arg1, const String& arg2, bool oemote)
 	if(Silent(loc) && !Wizard(player) && !Apprentice(player))
 	{
 	
-	  if(strcmp(message,"has connected")==0)
+	  if(string_compare(message,"has connected")==0)
 	  {
 		  if(DontAnnounce(player))
 			  return;
@@ -347,7 +351,7 @@ context::do_emote(const String& arg1, const String& arg2, bool oemote)
 	}
 
 	/* you can't pose nothing */
-	if (strlen(message) == 0)
+	if (!message)
 	{
 		if(!oemote)
 			notify_colour(player, player, COLOUR_MESSAGES, "You can't emote nothing!");
@@ -355,7 +359,7 @@ context::do_emote(const String& arg1, const String& arg2, bool oemote)
 	}
 
 	/* notify everybody */
-	if ((*message == '\'') || (*message == '`'))
+	if ((message[0] == '\'') || (message[0] == '`'))
 		sprintf(scratch_buffer, "%s", getname_inherited (player));
 	else
 		sprintf(scratch_buffer, "%s ", getname_inherited (player));
@@ -363,7 +367,7 @@ context::do_emote(const String& arg1, const String& arg2, bool oemote)
 	if(oemote)
 		except = player;
 
-	notify_except_colour(db[loc].get_contents(), except, scratch_buffer, message, false, player, COLOUR_EMOTES);
+	notify_except_colour(db[loc].get_contents(), except, scratch_buffer, message.c_str(), false, player, COLOUR_EMOTES);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -375,7 +379,7 @@ const	String& arg1,
 const	String& arg2)
 
 {
-	const char *message;
+	String message;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -383,11 +387,11 @@ const	String& arg2)
 	if (Wizard (get_effective_id ()) || Apprentice (player))
 	{
 #ifdef	LOG_WALLS
-		log_wall(player, getname_inherited(player), message);
+		log_wall(player, getname_inherited(player), message.c_str());
 #endif	/* LOG_WALLS */
-		if(!blank(message))
+		if(message)
 		{
-			notify_all ("%s shouts \"%s\"", getname_inherited (player), message);
+			notify_all ("%s shouts \"%s\"", getname_inherited (player), message.c_str());
 			return_status = COMMAND_SUCC;
 			set_return_string (ok_return_string);
 		}
@@ -404,14 +408,14 @@ const	String& arg1,
 const	String& arg2)
 
 {
-	const char *message;
+	String message;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
 
 	message = reconstruct_message(arg1, arg2);
 
-	if(blank(message))
+	if(!message)
 		notify_colour(player, player, COLOUR_MESSAGES, "Not really worth taking a note of, huh?");
 	else
 	{
@@ -432,7 +436,7 @@ const	String& arg2)
 				getname_inherited (db[player].get_location ()),
 				npc_owner,
 				controls_for_read (db[player].get_location()) ? true : false,
-				message
+				message.c_str()
 		);
 		if (!in_command())
 			notify_colour(player, player, COLOUR_MESSAGES, "Your note has been logged.");
@@ -448,7 +452,7 @@ const	String& arg2)
 
 {
 	dbref loc;
-	const char *message;
+	String message;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -462,7 +466,7 @@ const	String& arg2)
 		return;
 	}
 
-	if(blank(message))
+	if(!message)
 		notify_colour(player, player, COLOUR_MESSAGES, "Anything in particular, or just generally moaning?");
 	else
 	{
@@ -470,10 +474,10 @@ const	String& arg2)
 			getname_inherited (player), (int)player,
 			getarticle (loc, ARTICLE_LOWER_INDEFINITE),
 			getname_inherited (loc), (int)loc,
-			value_or_empty(message));
+			message.c_str());
 		log_gripe(	player, getname_inherited(player),
 					loc,	getname_inherited(loc),
-					value_or_empty(message)
+					message.c_str()
 		);
 		notify_colour(player, player, COLOUR_MESSAGES, "Your complaint has been logged.");
 		notify_wizard ("%s", scratch_buffer);
@@ -651,7 +655,7 @@ context::do_at_natter (
 const	String& arg1,
 const	String& arg2)
 {
-	const char *message;
+	String message;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -670,13 +674,13 @@ const	String& arg2)
 		if (message[0] == POSE_TOKEN)
 			{
 			if ((message[1] == '\'') || (message[1] == '`'))
-			  notify_wizard_natter ("  %s%s", getname_inherited (player), message+1);
+			  notify_wizard_natter ("  %s%s", getname_inherited (player), message.c_str()+1);
 			else
-			  notify_wizard_natter ("  %s %s", getname_inherited (player), message+1);
+			  notify_wizard_natter ("  %s %s", getname_inherited (player), message.c_str()+1);
 			}
 
 		else
-			notify_wizard_natter ("  %s natters \"%s\"", getname_inherited (player), message);
+			notify_wizard_natter ("  %s natters \"%s\"", getname_inherited (player), message.c_str());
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 	}
@@ -690,7 +694,7 @@ const	String& arg2)
 
 {
 	
-	notify_censor_colour(player, player, COLOUR_MESSAGES, "%s%s", reconstruct_message(arg1, arg2), COLOUR_REVERT);
+	notify_censor_colour(player, player, COLOUR_MESSAGES, "%s%s", reconstruct_message(arg1, arg2).c_str(), COLOUR_REVERT);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -706,7 +710,7 @@ const	String& arg2)
 	set_return_string (error_return_string);
 	if (controls_for_write (db[player].get_location()))
 	{
-		sprintf (scratch_buffer, "%s", reconstruct_message(arg1, arg2));
+		sprintf (scratch_buffer, "%s", reconstruct_message(arg1, arg2).c_str());
 		notify_except (db [db [player].get_location()].get_contents(), player, player, scratch_buffer);
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
@@ -839,11 +843,11 @@ const	String& arg2)
 	targets.exclude_from_reverse_list(player, PLIST_IGNORE);
 	targets.exclude_from_reverse_list(player, PLIST_FBLOCK);
 	targets.include(player);
-	const char *output=reconstruct_message(arg1, arg2);
-	if (*output == ':')
-		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s%s%s", db[player].get_name().c_str(), (output[1] == '\'') ? "" : " ", output+1); 	
+	String output=reconstruct_message(arg1, arg2);
+	if (output[0] == ':')
+		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s%s%s", db[player].get_name().c_str(), (output[1] == '\'') ? "" : " ", output.c_str()+1); 
 	else
-		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s says \"%s\"", db[player].get_name().c_str(), output); 	
+		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s says \"%s\"", db[player].get_name().c_str(), output.c_str()); 
 	dbref target=targets.get_first();
 
 	while (target != NOTHING)

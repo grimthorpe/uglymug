@@ -409,7 +409,7 @@ UM_lua_commands::arg3(lua_State* L)
 {
 	context* c = get_context(L);
 
-	lua_pushstring(L, reconstruct_message(c->get_arg1(), c->get_arg2()));
+	lua_pushstring(L, reconstruct_message(c->get_arg1(), c->get_arg2()).c_str());
 	return 1;
 }
 

@@ -153,7 +153,7 @@ extern	bool	can_link		(const context &c, const dbref exit);
 extern	void		notify_except		(dbref first, dbref originator, dbref exception, const char *msg);
 extern	void		notify_except2		(dbref first, dbref originator, dbref exc1, dbref exc2, const char *msg);
 extern	int		blank			(const char *s);
-extern	const	char	*reconstruct_message	(const String& arg1, const String& arg2);
+extern	String		reconstruct_message	(const String& arg1, const String& arg2);
 
 /* From stringutil.c */
 extern	bool		semicolon_string_match	(const String&, const String&);
