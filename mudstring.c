@@ -74,7 +74,7 @@ StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the
 // capacity is defaulted to 0 in the definition 
 StringBuffer::StringBuffer(unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
-	resize(capacity);
+	resize(capacity, false);
 }
 StringBuffer::StringBuffer(const char* str) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
@@ -258,46 +258,31 @@ const String &s)
 	return os << s.c_str ();
 }
 
-const char*
+String
+chop_string(const String& string, int size)
+{
+	return chop_string(string.c_str(), size);
+}
+
+String
 chop_string(const char* string, int size)
 {
-	static char whostring[256];
-	char *p=whostring;
-	const char *q=string;
-	int visible=0,
-	    copied=0;
-	int percent_primed =0;
-	while (q && *q && (visible < size) && (copied < 255))
+	String retval;
+	const char* p = string;
+	for(int i = 0; i < size; i++)
 	{
-		if (*q == '%')
+		if(!*p)
+			break;
+		if(*p == '%')
 		{
-			if (percent_primed)
-			{
-				visible++;
-				percent_primed=0;
-			}
-			else
-				percent_primed=1;
- 		}
-		else
-		{
-			if (percent_primed)
-				percent_primed=0;
-			else
-				visible++;
+			size++;
+			if(*(p+1) != '%')
+				size++;
 		}
-		*p++=*q++;
-		copied++;
 	}
 
-
-	while ((visible++ < size) && (copied < 255))
-	{
-		copied++;
-		*p++=' ';
-	}
-	*p='\0';
-	return whostring;
+	retval.printf("%-*.*s", size, size, string);
+	return retval;
 }
 
 String
@@ -334,5 +319,50 @@ String::operator[](int pos) const
 	if(pos < (int)length())
 		return c_str()[pos];
 	return '\0';
+}
+
+String&
+String::printf(const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	this->vprintf(fmt, va);
+	va_end(va);
+
+	return *this;
+}
+
+String&
+String::vprintf(const char *fmt, va_list va)
+{
+	if(_buffer->refcount() > 1)
+	{
+		_buffer->unref();
+		_buffer = new StringBuffer(512);
+		_buffer->ref();
+	}
+
+	_buffer->printf(fmt, va);
+	return *this;
+}
+
+void
+StringBuffer::printf(const char *fmt, va_list va)
+{
+	int size;
+
+	while(true)
+	{
+		size = vsnprintf(_buf, _capacity, fmt, va);
+		if((size > -1) && (size < _capacity))
+		{
+			_len = size;
+			return;
+		}
+		else if(size > -1)
+			resize(size + 1);
+		else
+			resize(_capacity + 512);
+	}
 }
 

@@ -14,6 +14,7 @@
 
 #include <functional>
 #include <iostream>
+#include <stdarg.h>
 
 class	String;
 
@@ -86,6 +87,7 @@ public:
 	unsigned int	length()	const	{ return _len; }
 
 	void		append(const char*, unsigned int len);
+	void		printf(const char*, va_list va);
 };
 
 /*
@@ -120,6 +122,11 @@ public:
 
 	String& operator+=(const String& other);
 	String& operator+=(char c);
+
+// __attribute__ ((format(printf, 2, 3))) is used to enfore printf-style format checking in gcc.
+// NOTE: There is an implicit parameter of 'this', which is why it is parameter 2 that should be checked.
+	String& printf(const char*, ...) __attribute__ ((format (printf, 2, 3)));
+	String& vprintf(const char*, va_list) __attribute__ ((format (printf, 2, 0)));
 // Useful methods
 // c_str - Return a pointer to the underlying character buffer.
 //		Same guarantee as StringBuffer::c_str
@@ -153,6 +160,7 @@ namespace std {
 /** Output a string to a stream */
 extern std::ostream &operator<< (std::ostream &os, const String &s);
 
-/* Output a string to a maximum length (or pad to the length with spaces) */
-const char* chop_string(const char*, int length);
+/* Output a string to a maximum length (or pad to the length with spaces), taking colour markup into account */
+String chop_string(const String&, int length);
+String chop_string(const char*, int length);
 #endif /* _MUDSTRING_H */

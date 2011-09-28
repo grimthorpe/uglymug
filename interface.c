@@ -154,8 +154,6 @@ const char *strsignal (const int sig)
 extern	int	errno;
 int		shutdown_flag = 0;
 dbref		shutdown_player = NOTHING;
-static	char	vsnprintf_result[BUFFER_LEN];
-static	char	scratch[BUFFER_LEN];
 bool descriptor_data::check_descriptors = false;
 int			peak_users;
 String	descriptor_data::LastCommandName;
@@ -506,15 +504,16 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 	bool deruded = false,
 		censorall= false;
 	const char *censored=NULL;
+	String output;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result, sizeof(vsnprintf_result),fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	if (Censored(originator))
 	{
 		censorall= true;
-		censored=censor(vsnprintf_result);
+		censored=censor(output.c_str());
 		deruded=true;
 	}
 
@@ -528,14 +527,14 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 				if (deruded==false)
 				{
 					deruded=true;
-					censored=censor(vsnprintf_result);
+					censored=censor(output.c_str());
 				}
 				d->queue_string (censored);
 				d->queue_string ("\n");
 			}
 			else
 			{
-				d->queue_string (vsnprintf_result);
+				d->queue_string (output.c_str());
 				d->queue_string ("\n");
 			}
 			d->queue_string(COLOUR_REVERT);
@@ -546,16 +545,17 @@ void notify_area (dbref area, dbref originator, const char *fmt, ...)
 void notify_listeners (const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Listen(d->get_player())))
 		{
-			d->queue_string (vsnprintf_result);
+			d->queue_string (output.c_str());
 			d->queue_string(COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -567,17 +567,18 @@ void notify_listeners (const char *fmt, ...)
 void notify_all (const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED())
 		{
 			d->queue_string (db[d->get_player()].get_colour_attr(COLOUR_SHOUTS));
-			d->queue_string (vsnprintf_result);
+			d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -586,16 +587,17 @@ void notify_all (const char *fmt, ...)
 void notify_wizard(const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf (fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())) && (!(Haven(d->get_player()))))
 		{
-			d->queue_string (vsnprintf_result, true);
+			d->queue_string (output.c_str(), true);
 			d->queue_string ("\n");
 		}
 }
@@ -603,16 +605,17 @@ void notify_wizard(const char *fmt, ...)
 void notify_wizard_unconditional(const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())))
 		{
-			d->queue_string (vsnprintf_result);
+			d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -621,10 +624,11 @@ void notify_wizard_unconditional(const char *fmt, ...)
 void notify_wizard_natter(const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start(vl, fmt);
-	vsnprintf(vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end(vl);
 
 	for (d = descriptor_list; d; d=d->next)
@@ -633,7 +637,7 @@ void notify_wizard_natter(const char *fmt, ...)
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTER_TITLES]);
 			d->queue_string("[WIZARD]");
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTERS]);
-			d->queue_string(vsnprintf_result);
+			d->queue_string(output.c_str());
 			d->queue_string(COLOUR_REVERT);
 			d->queue_string("\n");
 		}
@@ -642,10 +646,11 @@ void notify_wizard_natter(const char *fmt, ...)
 void notify_welcomer_natter(const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start(vl, fmt);
-	vsnprintf(vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end(vl);
 
 	for (d = descriptor_list; d; d=d->next)
@@ -654,7 +659,7 @@ void notify_welcomer_natter(const char *fmt, ...)
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_WELCOMER_TITLES]);
 			d->queue_string("[WELCOMER]");
 			d->queue_string(db[d->get_player()].get_colour_at()[COLOUR_NATTERS]);
-			d->queue_string(vsnprintf_result);
+			d->queue_string(output.c_str());
 			d->queue_string(COLOUR_REVERT);
 			d->queue_string("\n");
 		}
@@ -673,10 +678,11 @@ ColourAttribute colour,
 const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	/* I'm relying on the coders either calling it with 
@@ -689,7 +695,7 @@ const char *fmt, ...)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
 			d->queue_string (player_colour(player, talker, colour));
-			d->queue_string (vsnprintf_result);
+			d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -704,10 +710,11 @@ const char *fmt, ...)
 	struct descriptor_data *d;
 	va_list vl;
 	bool deruded=false;
+	String output;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	/* I'm relying on the coders either calling it with 
@@ -725,12 +732,12 @@ const char *fmt, ...)
 				if (deruded==false)
 				{
 					deruded=true;
-					censored=censor(vsnprintf_result);
+					censored=censor(output.c_str());
 				}
 				d->queue_string(censored);
 			}
 			else
-				d->queue_string (vsnprintf_result);
+				d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -743,13 +750,14 @@ ColourAttribute colour,
 const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	/* I'm relying on the coders either calling it with 
@@ -767,12 +775,12 @@ const char *fmt, ...)
 				if (deruded==false)
 				{
 					deruded=true;
-					censored=censor(vsnprintf_result);
+					censored=censor(output.c_str());
 				}
 				d->queue_string (censored);
 			}
 			else
-				d->queue_string (vsnprintf_result);
+				d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -801,16 +809,17 @@ void terminal_underline(dbref player, const char *string)
 void notify(dbref player, const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
-			d->queue_string (vsnprintf_result);
+			d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -820,22 +829,23 @@ void notify_norecall_conditional(String match,dbref player, const char *fmt, ...
 {
 
         struct descriptor_data *d;
+	String output;
         va_list vl;
 
         va_start (vl, fmt);
-        vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
         va_end (vl);
 	
 	// JPK *FIXME*
 	if (match)
 	{
 		RegularExpression re(match);
-		if (re.Match(vsnprintf_result))
+		if (re.Match(output.c_str()))
 		{
        	 		for (d = descriptor_list; d; d = d->next)
        	        		if (d->IS_CONNECTED() && d->get_player() == player)
        	        		{
-       	        		        d->queue_string (vsnprintf_result, 0, 0);
+       	        		        d->queue_string (output.c_str(), 0, 0);
        	        		}
 		}
 	}
@@ -844,7 +854,7 @@ void notify_norecall_conditional(String match,dbref player, const char *fmt, ...
 		for (d = descriptor_list; d; d = d->next)
 			if (d->IS_CONNECTED() && d->get_player() == player)
 			{
-				d->queue_string (vsnprintf_result, 0, 0);
+				d->queue_string (output.c_str(), 0, 0);
 			}
 	}
 }
@@ -852,16 +862,17 @@ void notify_norecall_conditional(String match,dbref player, const char *fmt, ...
 void notify_norecall(dbref player, const char *fmt, ...)
 {
         struct descriptor_data *d;
+	String output;
         va_list vl;
 
         va_start (vl, fmt);
-        vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
         va_end (vl);
 
         for (d = descriptor_list; d; d = d->next)
                 if (d->IS_CONNECTED() && d->get_player() == player)
                 {
-                        d->queue_string (vsnprintf_result, 0, 0);
+                        d->queue_string (output.c_str(), 0, 0);
                 }
 }
 
@@ -872,12 +883,13 @@ void notify_norecall(dbref player, const char *fmt, ...)
 void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
@@ -888,12 +900,12 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 				if (deruded==false)
 				{
 					deruded=true;
-					censored=censor(vsnprintf_result);
+					censored=censor(output.c_str());
 				}
 				d->queue_string(censored);
 			}
 			else
-				d->queue_string (vsnprintf_result);
+				d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -905,13 +917,14 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 void notify_public(dbref player, dbref originator, const char *fmt, ...)
 {
 	struct descriptor_data *d;
+	String output;
 	va_list vl;
 
 	bool deruded=false;
 	const char *censored=NULL;
 
 	va_start (vl, fmt);
-	vsnprintf (vsnprintf_result,sizeof(vsnprintf_result), fmt, vl);
+	output.vprintf(fmt, vl);
 	va_end (vl);
 
 	for (d = descriptor_list; d; d = d->next)
@@ -922,12 +935,12 @@ void notify_public(dbref player, dbref originator, const char *fmt, ...)
 				if (deruded==false)
 				{
 					deruded=true;
-					censored=censor(vsnprintf_result);
+					censored=censor(output.c_str());
 				}
 				d->queue_string (censored);
 			}
 			else
-				d->queue_string (vsnprintf_result);
+				d->queue_string (output.c_str());
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -1242,6 +1255,7 @@ void mud_main_loop(int argc, char** argv)
 						{
 							if(d->terminal.halfquit)
 							{
+								d->last_time = now;
 								d->HALFQUIT();
 							}
 							else
@@ -1708,29 +1722,34 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 			break;
 
 		case TELOPT_TTYPE:
-			memcpy(scratch, buf+1, size);
-			scratch[size]=0;
+			{
+				String termtype((const char*)(buf+1), size-1);
+				//memcpy(scratch, buf+1, size);
+				//scratch[size]=0;
 #ifdef DEBUG_TELNET
-			log_debug("Descriptor %d terminal type is '%s'", get_descriptor(), scratch);
+				log_debug("Descriptor %d terminal type is '%s'", get_descriptor(), scratch);
 #endif
-			set_terminal_type(scratch);
-			send_telnet_option(WONT, TELOPT_TTYPE);	/* To make sure we don't have to send it */
+				set_terminal_type(termtype);
+				send_telnet_option(WONT, TELOPT_TTYPE);	/* To make sure we don't have to send it */
+			}
 			break;
 		
 		case TELOPT_SNDLOC:
-			if(ntohl(address) != LOGTHROUGH_HOST)
 			{
-				log_bug("Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST", get_descriptor());
-				break;
-			}
-			memcpy(scratch, buf, size);
-			scratch[size]=0;
+				if(ntohl(address) != LOGTHROUGH_HOST)
+				{
+					log_bug("Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST", get_descriptor());
+					break;
+				}
+				//memcpy(scratch, buf, size);
+				//scratch[size]=0;
 #ifdef DEBUG_TELNET
-			log_debug("Descriptor %d location is '%s'", get_descriptor(), scratch);
+				log_debug("Descriptor %d location is '%s'", get_descriptor(), scratch);
 #endif
-			service = "Redirect";
-			hostname = scratch;
-			send_telnet_option(WONT, TELOPT_SNDLOC);
+				service = "Redirect";
+				hostname = String((const char*)buf, size);
+				send_telnet_option(WONT, TELOPT_SNDLOC);
+			}
 			break;
 	}
 }
@@ -1804,7 +1823,7 @@ bool descriptor_data::set_terminal_type (const String& termtype)
 	const char *const underscore_off = tigetstr(const_cast<char *>("rmul"));
 	if (underscore_off != (char *)-1)
 	{
-		termcap.underscore_off = scratch;
+		termcap.underscore_off = underscore_off;
 	}
 
 	return true;
@@ -2652,6 +2671,7 @@ descriptor_data::splat_motd()
 	}
 	else
 	{
+		char scratch[BUFFER_LEN];
 		while(fgets(scratch, BUFFER_LEN, f))
 			queue_string (scratch);
 		fclose(f);
@@ -2706,9 +2726,9 @@ descriptor_data::announce_player (announce_states state, const String& whodidit,
 {
 	struct descriptor_data *d;
 
-	char	wizard_string[1024];
-	const char*	app_string;
-	const char*	mortal_string;
+	String wizard_string;
+	String app_string;
+	String mortal_string;
 
 	bool deruded=false;
 	const char *censored=NULL;
@@ -2727,44 +2747,42 @@ descriptor_data::announce_player (announce_states state, const String& whodidit,
 		case ANNOUNCE_CONNECTED :
 			mortal_string = " has connected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has connected from %s]\n", hostname.c_str());
+			wizard_string.printf (" has connected from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_CREATED :
 			mortal_string = " has connected]\n";
 			app_string = " has been created]\n";
-			snprintf (wizard_string, sizeof(wizard_string), " has been created from %s]\n", hostname.c_str());
+			wizard_string.printf (" has been created from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_BOOTED :
-			snprintf (scratch, sizeof(scratch), " has been booted by %s%s%s]\n", whodidit.c_str(), reason?" ":"", reason.c_str());
-			mortal_string = scratch;
+			mortal_string.printf (" has been booted by %s%s%s]\n", whodidit.c_str(), reason?" ":"", reason.c_str());
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has been booted from %s by %s%s%s]\n", hostname.c_str(), whodidit.c_str(), reason?" ":"", reason.c_str());
+			wizard_string.printf(" has been booted from %s by %s%s%s]\n", hostname.c_str(), whodidit.c_str(), reason?" ":"", reason.c_str());
 			break;
 		case ANNOUNCE_DISCONNECTED :
 			mortal_string = " has disconnected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s]\n", hostname.c_str());
+			wizard_string.printf(" has disconnected from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_SMD :
 			mortal_string = " has disconnected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has disconnected from %s due to an SMD read]\n", hostname.c_str());
+			wizard_string.printf(" has disconnected from %s due to an SMD read]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_TIMEOUT :
 			mortal_string = " has disconnected]\n";
 			app_string = " has timed out]\n";
-			snprintf (wizard_string, sizeof(wizard_string), " has timed out from %s]\n", hostname.c_str());
+			wizard_string.printf(" has timed out from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_PURGE :
 			mortal_string = " has purged an idle connection]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has purged an idle connection from %s]\n", hostname.c_str());
+			wizard_string.printf(" has purged an idle connection from %s]\n", hostname.c_str());
 			break;
 		case ANNOUNCE_RECONNECT:
 			mortal_string = " has reconnected]\n";
 			app_string = mortal_string;
-			snprintf (wizard_string, sizeof(wizard_string), " has reconnected from %s]\n", hostname.c_str());
-			break;
+			wizard_string.printf(" has reconnected from %s]\n", hostname.c_str());
 		default :
 			log_bug("Unknown state (%d) encounted in announce_player()", state);
 			break;
@@ -2780,24 +2798,24 @@ descriptor_data::announce_player (announce_states state, const String& whodidit,
 			d->queue_string(COLOUR_REVERT);
 			if (Wizard (d->get_player()))
 			{
-				d->queue_string (underscorify (d->get_player(), wizard_string));
+				d->queue_string (underscorify (d->get_player(), wizard_string.c_str()));
 			}
 			else if ( Apprentice(d->get_player()) || Welcomer (d->get_player()))
 			{
-				d->queue_string (underscorify (d->get_player(), app_string));
+				d->queue_string (underscorify (d->get_player(), app_string.c_str()));
 			}
 			else if (Censorall(d->get_player()) || Censorpublic(d->get_player()))
 			{
 				if (deruded==false)
 				{
 					deruded=true;
-					censored=censor(mortal_string);
+					censored=censor(mortal_string.c_str());
 				}
 				d->queue_string (underscorify (d->get_player(), censored));
 			}
 			else
 			{
-				d->queue_string (underscorify (d->get_player(), mortal_string));
+				d->queue_string (underscorify (d->get_player(), mortal_string.c_str()));
 			}
 		}
 	}
@@ -3205,6 +3223,7 @@ descriptor_data::do_command (String command, time_t now)
 			log_bug("%s: %s",HELP_FILE, strerror (errno));
 		else
 		{
+			char scratch[BUFFER_LEN];
 			while (fgets(scratch, BUFFER_LEN, fp)!=NULL)
 				queue_string (scratch);
 			fclose(fp);
@@ -3848,8 +3867,6 @@ int			flags)
 {
 	struct	descriptor_data	*d;
 	time_t			now;
-	char			buf[4096];
-	char			flag_buf [256];
 	int			length;
 	int			users = 0;
 	int			local = 0, inet = 0, logthrough = 0;
@@ -3886,60 +3903,65 @@ int			flags)
 
 	for (d = descriptor_list; d; d = d->next)
 	{
+		String outputline;
 		if(who.Show(d))
 		{
 			if (!gotonealready)
 			{
-				if (get_player())
-					queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
 				const char* Message = "Current Players:";
-				if (victim != NULL)
+				if (who.want_npcs)
+					Message = "Currently connected NPCs:";
+				else if (victim != NULL)
 					Message = "Specific player details (as requested):";
-				else if (who.want_npcs)
-					queue_string ("Currently connected NPCs:                                                 Idle\n");
 
-				snprintf(buf, sizeof(buf), "%-*sIdle\n", width-6, Message);
-				queue_string(buf);
-				if (get_player())
-					queue_string (COLOUR_REVERT);
+				outputline.printf("%s%-*sIdle%s\n",
+					get_player()?player_colour(get_player(), get_player(), COLOUR_MESSAGES):"",
+					width-6, Message,
+					get_player()?COLOUR_REVERT:"");
+				queue_string(outputline);
 				gotonealready = 1;
 			}
+			if (get_player())
+				outputline = player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS);
+			else
+				outputline = "";
+			String connectedtime;
 			/* ... start time... */
 			if (d->start_time)
 			{
 				length = now - d->start_time;
-				if (get_player())
-					queue_string (player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS));
 				if (length < 60)
-					snprintf (buf, sizeof(buf), "    %02ds", length);
+					connectedtime.printf("    %02ds ", length);
 				else if (length < 60 * 60)
-					snprintf (buf, sizeof(buf), "%2dm %02ds", length / 60, length % 60);
+					connectedtime.printf("%2dm %02ds ", length / 60, length % 60);
 				else if (length < 8 * 60 * 60)
-					snprintf (buf, sizeof(buf), "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
+					connectedtime.printf("%2dh %02dm ", length / (60 * 60), (length / 60) % 60);
 				else if (length < 9 * 60 * 60)
-					snprintf (buf, sizeof(buf), "Muddict");
+					connectedtime = "Muddict ";
 				else if (length < 24 * 60 * 60)
-					snprintf (buf, sizeof(buf), "%2dh %02dm", length / (60 * 60), (length / 60) % 60);
+					connectedtime.printf("%2dh %02dm ", length / (60 * 60), (length / 60) % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					snprintf (buf, sizeof(buf), "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
+					connectedtime.printf("%2dd %02dh ", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
 				else
-					snprintf (buf, sizeof(buf), "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
+					connectedtime.printf("%2dw %02dd ", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 
 			}
 			else
-				strcpy (buf, " Broken");
+				connectedtime = " Broken ";
 
-			strncat (buf, " ", sizeof(buf));
-			int remaining= width;
+			outputline += connectedtime;
+
+			int remaining= width - connectedtime.length() - 10;
 
 			/* Format output: Name... */
 			if (d->IS_CONNECTED())
 			{
 				if (who.want_npcs)
 				{
-					snprintf(scratch, sizeof(scratch), "#%-5d ", d->get_player());
-					remaining-=7;
-					strcat(buf, scratch);
+					String npc;
+					npc.printf("#%-6d ", d->get_player());
+					remaining-=npc.length();
+					outputline += npc;
 				}
 
 				if (get_player())
@@ -3947,23 +3969,25 @@ int			flags)
 					int thing= d->get_player();
 					ColourAttribute colour=rank_colour(thing);
 					if (!who.want_npcs)
-						strcat(buf, player_colour (get_player(), get_player(), colour));
+						outputline += player_colour (get_player(), get_player(), colour);
 				}
 				if (who.want_npcs)
 				{
-					snprintf(flag_buf, sizeof(flag_buf), "(%s)", db[db[d->get_player()].get_owner()].get_name().c_str());
-					snprintf(scratch, sizeof(scratch), "%-20s %-22s", db[d->get_player()].get_name().c_str(), flag_buf);
+					String npcstring;
+					npcstring.printf("%-22.22s (%-22.22s)", db[d->get_player()].get_name().c_str(), db[db[d->get_player()].get_owner()].get_name().c_str());
+					outputline += npcstring;
+					remaining -= npcstring.length();
 				}
 				else
-					snprintf(scratch, sizeof(scratch), "%s", db[d->get_player()].get_name().c_str());
-
-				strcat(buf, scratch);
-
-				flag_buf[0]='\0';
+				{
+					String playername = db[d->get_player()].get_name();
+					remaining -= playername.length();
+					outputline += playername;
+				}
 
 				if (db[d->get_player()].get_who_string ())
 				{
-					firstchar = db[d->get_player()].get_who_string().c_str()[0];
+					firstchar = db[d->get_player()].get_who_string()[0];
 					if (!(firstchar == ' '
 					|| firstchar == ','
 					|| firstchar == ';'
@@ -3971,71 +3995,64 @@ int			flags)
 					|| firstchar == '.'
 					|| firstchar == '\''))
 					{
-						strcat (buf, " ");
+						outputline += ' ';
 						remaining--;
 					}
 				}
 
-				strcat (flag_buf, "(");
+				String flagstring = "(";
 				bool wantbuilder = true;
 				if (Retired(d->get_player()))
 				{
-					strcat (flag_buf, "R");
+					flagstring += 'R';
 					wantbuilder = false;
 				}
 				else if (Wizard(d->get_player()))
 				{
-					strcat (flag_buf, "W");
+					flagstring += 'W';
 					wantbuilder = false;
 					wizard++;
 				}
 				else if (Apprentice(d->get_player()))
 				{
-					strcat (flag_buf, "A");
+					flagstring += 'A';
 					wantbuilder = false;
 				}
 				if (XBuilder(d->get_player()))
 				{
-					strcat (flag_buf, "X");
+					flagstring += 'X';
 				}
 				else if (wantbuilder && (Builder(d->get_player())))
 				{
-					strcat (flag_buf, "B");
+					flagstring += 'B';
 					builder++;
 				}
 				if (Welcomer(d->get_player()))
 				{
-					strcat (flag_buf, "w");
+					flagstring += 'w';
 				}
 				if (Fighting(d->get_player()))
 				{
-					strcat (flag_buf, "F");
+					flagstring += 'F';
 				}
 				if (Haven(d->get_player()))
 				{
-					strcat (flag_buf, "H");
+					flagstring += 'H';
 					haven++;
 				}
-				if (strlen (flag_buf) == 1)
-					*flag_buf = '\0';
+				if(flagstring.length() == 1)
+					flagstring = "";
 				else
-					strcat (flag_buf, ")");
+					flagstring += ')';
 
-				if (who.want_npcs)
-					remaining-=18 + strlen(flag_buf) + 43;
-				else
-					remaining-=18 + strlen(flag_buf) + strlen(db[d->get_player()].get_name().c_str());
+				remaining -= flagstring.length();
 				if (get_player())
-					strcat(buf, player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS));
-				if (db[d->get_player()].get_who_string())
-					strcat(buf, chop_string(db[d->get_player()].get_who_string ().c_str(), remaining));
-				else
-					strcat(buf, chop_string("", remaining)); // Lazy
+					outputline += player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS);
+				outputline += chop_string(db[d->get_player()].get_who_string(), remaining);
 
-
-				strcat(buf, " ");
 				if (get_player())
-					strcat(buf,player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS));
+					outputline += player_colour (get_player(), get_player(), COLOUR_WHOSTRINGS);
+				outputline += ' ';
 				/* count the users. */
 				users++;
 
@@ -4049,47 +4066,44 @@ int			flags)
 					else
 						inet++;
 				}
-
+				outputline += flagstring;
 			}
 			else
 			{
-
-				strcat (buf, chop_string("*** UNCONNECTED ***", 63));
-				*flag_buf = '\0';
-				/* ... and machine name */
+				outputline += chop_string("*** UNCONNECTED ***", remaining+1);
 			}
 			
-			strcat (buf, flag_buf);
-
-
+			String idletime;
 			/* ... idle time... - may as well re-use flag_buf*/
 			if (d->last_time)
 			{
 				length = now - d->last_time;
 				if (length < 60)
-					snprintf (flag_buf, sizeof(flag_buf), "    %02ds", length);
+					idletime.printf ("    %02ds", length);
 				else if (length < 60 * 60)
-					snprintf (flag_buf, sizeof(flag_buf), "%2dm %02ds", length / 60, length % 60);
+					idletime.printf ("%2dm %02ds", length / 60, length % 60);
 				else if (length < 24 * 60 * 60)
-					snprintf (flag_buf, sizeof(flag_buf), "%2dh %02dm", length / (60 * 60), (length / 60)  % 60);
+					idletime.printf ("%2dh %02dm", length / (60 * 60), (length / 60)  % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					snprintf (flag_buf, sizeof(flag_buf), "%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
+					idletime.printf ("%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
 				else
-					snprintf (flag_buf, sizeof(flag_buf), "%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
+					idletime.printf ("%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 			}
 			else
-				snprintf (flag_buf, sizeof(flag_buf), "TooLong");
+				idletime = "TooLong";
 
-			strcat(buf, flag_buf);
+			outputline += idletime;
+
 			if (flags & DUMP_WIZARD)
 			{
-				snprintf (flag_buf, sizeof(flag_buf), " [%s:%s]", d->hostname.c_str(),d->service.c_str());
-				strcat(buf, flag_buf);
+				String host;
+				host.printf(" [%s:%s]", d->hostname.c_str(),d->service.c_str());
+				outputline += host;
 			}
 
 			/* Add a newline and queue it */
-			strcat (buf, "\n");
-			queue_string (buf);
+			outputline += '\n';
+			queue_string (outputline);
 
 		}
 		if (get_player())
@@ -4102,26 +4116,27 @@ int			flags)
 		{
 			if(who.want_npcs)
 			{
-				snprintf (buf, sizeof(buf), "NPCs: %d\n", users);
-				queue_string (buf);
+				String npc;
+				npc.printf("NPCs: %d\n", users);
+				queue_string (npc);
 				if (get_player())
 					queue_string (COLOUR_REVERT);
 			}
 			else
 			{
+				String outputline;
 				if(users > peak_users)
 					peak_users = users;
 
 				uptime = time(NULL) - game_start_time;
 
-				snprintf (scratch, sizeof(scratch), " Up: %s", small_time_string(uptime));
 				if (get_player())
 					queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
 				if (flags & DUMP_WIZARD)
-					snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) %s\n", users, peak_users, local, inet, logthrough, scratch);
+					outputline.printf("Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) Up: %s\n", users, peak_users, local, inet, logthrough, small_time_string(uptime));
 				else
-					snprintf (buf, sizeof(buf), "Users: %d (Peak %d)  %s\n", users, peak_users, scratch);
-				queue_string (buf);
+					outputline.printf("Users: %d (Peak %d) Up: %s\n", users, peak_users, small_time_string(uptime));
+				queue_string (outputline);
 				if (get_player())
 					queue_string (COLOUR_REVERT);
 			}
@@ -4396,8 +4411,9 @@ String buf;
 			}
 			if(d->IS_FAKED())  	// NPC, so give number
 			{
-				snprintf(scratch, sizeof(scratch), "#%d",d->get_player());
-				buf+=scratch;
+				String hashid;
+				hashid.printf("#%d",d->get_player());
+				buf+=hashid;
 			}
 			else 			// Normal player, so give name
 			{

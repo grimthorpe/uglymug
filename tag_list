@@ -14,6 +14,7 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	When detecting HALFQUIT disconnects reset the 'last' time so we don't time it out immediately. (Grimthorpe)
 	Overhaul the code to use String instead of static buffers. (Grimthorpe)
 	Fix the duplicate alarm entry bug (at last!). (Grimthorpe)
 	Tidied up the plural transparent exit code. (Grimthorpe)

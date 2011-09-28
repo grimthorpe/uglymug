@@ -1307,11 +1307,11 @@ context::do_channel_who(const String& name, const String& arg2)
 				extra_space=1;
 			      }
 
-			strcat(scratch_buffer, chop_string(db[cp->player()].get_who_string ().c_str(), 60 - extra_space - strlen(db[cp->player()].get_name().c_str())));
+			strcat(scratch_buffer, chop_string(db[cp->player()].get_who_string (), 60 - extra_space - db[cp->player()].get_name().length()).c_str());
 		}
 		else
 		{
-			strcat(scratch_buffer, chop_string("", 60 - extra_space - strlen(db[cp->player()].get_name().c_str())));
+			strcat(scratch_buffer, chop_string("", 60 - extra_space - db[cp->player()].get_name().length()).c_str());
 		}
 
 		strcat(scratch_buffer, ca[COLOUR_WHOSTRINGS]);

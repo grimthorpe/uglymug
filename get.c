@@ -22,10 +22,7 @@
 
 extern	"C"	long	lrand48 ();
 
-
-/** Not the neatest solution, but quick.  PJC 1/2/97 **/
-static	char	scratch_return_string [BUFFER_LEN];
-
+static char scratch_return_string[BUFFER_LEN];
 
 void
 context::do_query_numconnected(
@@ -46,9 +43,10 @@ const	String& )
 	else
 		what = 0;
 
-	sprintf(scratch_return_string, "%d", count_connect_types(what));
+	String ret;
+	ret.printf("%d", count_connect_types(what));
 
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }
 
@@ -177,6 +175,7 @@ const	String& )
 	dbref loc;
 	dbref thing;
 	int already_had_one = 0;
+	String ret;
 
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
@@ -187,19 +186,18 @@ const	String& )
 			notify_colour(player, player, COLOUR_MESSAGES, "You can only find the address on rooms");
 		else
 		{
-			*scratch_return_string = '\0';
 			loc = db[thing].get_location();
 			while ((loc != NOTHING) && (strlen (scratch_return_string) < BUFFER_LEN))
 			{
 				if (already_had_one)
-					strcat (scratch_return_string, ", ");
-				strcat (scratch_return_string, unparse_object (*this, loc).c_str());
+					ret += ", ";
+				ret += unparse_object (*this, loc).c_str();
 				loc = db[loc].get_location();
 				already_had_one = 1;
 			}
 
 			Accessed(loc);
-			set_return_string (scratch_return_string);
+			set_return_string (ret);
 			return_status = COMMAND_SUCC;
 		}
 	}
@@ -846,8 +844,6 @@ context::do_query_fail (const String& name, const String&)
 void
 context::do_query_first_name (const String& name, const String&)
 {
-	char	*name_end;
-
 	dbref	thing = find_for_query (*this, name, 0);
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
@@ -857,10 +853,11 @@ context::do_query_first_name (const String& name, const String&)
 		set_return_string (getname (thing));
 	else
 	{
-		strcpy (scratch_return_string, getname (thing));
-		if ((name_end = strchr (scratch_return_string, ';')) != NULL)
-			*name_end = '\0';
-		set_return_string (scratch_return_string);
+		String ret = getname(thing);
+		int semipos = ret.find(';');
+		if(semipos >= 0)
+			ret = ret.substring(0, semipos);
+		set_return_string (ret);
 	}
 	Accessed (thing);
 	return_status = COMMAND_SUCC;

@@ -153,7 +153,6 @@ const	String& )
 	int	top = db.get_top();
 	dbref	i;
 	dbref	owner;
-	char	buf [BUFFER_LEN];
 	const	char	*currency_name = CURRENCY_NAME;
 
 	return_status = COMMAND_FAIL;
@@ -258,13 +257,13 @@ const	String& )
 			}
 		}
 	}
-	sprintf (buf,
+	notify_colour (player, player, COLOUR_MESSAGES,
 		"%d objects = %d rooms, %d exits, %d things, %d players, %d puppets, %d NPC's, %d variables, %d properties, %d arrays, %d dictionaries, %d commands, %d fuses, %d alarms, %d free, %d unknowns, %d ashcanned. %s: %d. BPs: %d.",
 		total, rooms, exits, things, players, puppets, npcs, variables, properties, arrays, dictionaries, commands, fuses, alarms, frees, unknowns, ashcans, currency_name, money, bps);
-	notify_colour (player, player, COLOUR_MESSAGES, buf);
 
 	return_status = COMMAND_SUCC;
-	sprintf (buf, "%d", total);
+	String buf;
+	buf.printf ("%d", total);
 	set_return_string (buf);
 }
 
@@ -431,9 +430,10 @@ const	String& )
 	for (an_object = 0; an_object < db.get_top (); an_object ++)
 		if ((Typeof (an_object) == TYPE_EXIT) && (db[an_object].get_destination() == thing))
 		{
-			sprintf (scratch_buffer, "Object %s -> ", unparse_objectandarticle_inherited (*this, db [an_object].get_location(), ARTICLE_LOWER_INDEFINITE).c_str());
-			strcat (scratch_buffer, unparse_objectandarticle_inherited (*this, an_object, ARTICLE_LOWER_INDEFINITE).c_str());
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, scratch_buffer);
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES,
+				"Object %s -> %s",
+				unparse_objectandarticle_inherited (*this, db [an_object].get_location(), ARTICLE_LOWER_INDEFINITE).c_str(),
+				unparse_objectandarticle_inherited (*this, an_object, ARTICLE_LOWER_INDEFINITE).c_str());
 		}
 	notify_colour (player, player, COLOUR_CONTENTS, "*** End of list ***");
 
