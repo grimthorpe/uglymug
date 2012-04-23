@@ -146,7 +146,6 @@ const	String& element)
 				limit = MAX_WIZARD_ARRAY_ELEMENTS;
 			else
 				limit = MAX_MORTAL_ARRAY_ELEMENTS;
-			break;
 
 			if((db[thing].get_number_of_elements() + 1) > limit)
 			{
@@ -160,7 +159,6 @@ const	String& element)
 				limit = MAX_WIZARD_DESC_SIZE;
 			else
 				limit = MAX_MORTAL_DESC_SIZE;
-			break;
 
 			if((element.length() + db[thing].get_size()) > limit)
 			{
@@ -169,7 +167,6 @@ const	String& element)
 			}
 			break;
 	}
-
 
 	/* Do it */
 	db[thing].insert_element(index, element);
