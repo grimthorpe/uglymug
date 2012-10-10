@@ -19,6 +19,7 @@ BUILD_ENVIRONMENT.Linux-i386:=linux
 BUILD_ENVIRONMENT.Linux-i486:=linux
 BUILD_ENVIRONMENT.Linux-i586:=linux
 BUILD_ENVIRONMENT.Linux-i686:=linux
+BUILD_ENVIRONMENT.Linux-x86_64:=linux
 # Yes, some people are running this.
 BUILD_ENVIRONMENT.Linux-sparc:=linux
 BUILD_ENVIRONMENT.Linux-sparc64:=linux
