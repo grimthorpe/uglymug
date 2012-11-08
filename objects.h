@@ -275,7 +275,7 @@ private:
 	Command(const Command&); // DUMMY
 	Command& operator=(const Command&); // DUMMY
     private:
-		unsigned short	*parse_helper;
+		unsigned int	*parse_helper;
 		unsigned	lines_in_command_block(const unsigned) const;
 		unsigned	reconstruct_command_block(char *const, const unsigned, const unsigned)	const;
 	String			codelanguage;	/* The language the command is written in */
@@ -290,8 +290,8 @@ private:
 		void		set_csucc		(const dbref o);
 		void		set_cfail		(const dbref o);
 		void		set_description		(const String&);
-	const	unsigned short	get_parse_helper	(const unsigned int index)	const;
-		void		set_parse_helper	(const unsigned int index, const unsigned short value);
+	const	unsigned int	get_parse_helper	(const unsigned int index)	const;
+		void		set_parse_helper	(const unsigned int index, const unsigned int value);
 	const	bool		alloc_parse_helper	();
 		void		flush_parse_helper	();
 		unsigned	inherited_lines_in_cmd_blk(const unsigned) const;

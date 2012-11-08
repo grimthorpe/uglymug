@@ -641,7 +641,7 @@ void object::set_volume_limit (const double)
 
 /* Command */
 
-void object::set_parse_helper (const unsigned int, const unsigned short)
+void object::set_parse_helper (const unsigned int, const unsigned int)
 { IMPLEMENTATION_ERROR ("parse helper") }
 
 const bool object::alloc_parse_helper ()
@@ -2579,7 +2579,7 @@ Command::alloc_parse_helper ()
 	if (parse_helper)
 		return false;
 
-	if (!(parse_helper = new unsigned short [get_inherited_number_of_elements () + 1]))
+	if (!(parse_helper = new unsigned int [get_inherited_number_of_elements () + 1]))
 		panic ("Couldn't allocate parse helper array");
 
 	return true;
@@ -2598,7 +2598,7 @@ Command::flush_parse_helper ()
 }
 
 
-const unsigned short
+const unsigned int
 Command::get_parse_helper (
 const	unsigned int	index)
 const
@@ -2614,7 +2614,7 @@ const
 void
 Command::set_parse_helper (
 const	unsigned int	index,
-const	unsigned short	value)
+const	unsigned int	value)
 
 {
 	if (!parse_helper)

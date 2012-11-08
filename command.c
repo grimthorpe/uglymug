@@ -58,19 +58,25 @@ const	String& arg2)
 	// If we're inside a chpid, and not in a special command (fuse, .enter, .leave, alarm, etc.)
 	if(get_effective_id() != get_player())
 	{
-		/* If we try to call a command that doesn't start
-		 * with '#' (ie an absolute number, or relative to
-		 * an absolute), then print a nasty warning.
-		 * We'll let commands relative to 'here' through...
-		 * and anything indirected off a specific 'remote' player.
+		/* Check if we're owned by the chpid (ie NPC or puppet).
+		 * If so, allow me: scoped commands as well
 		 */
-		if((command_string.c_str()[0] != '#')
-			&& (command_string.c_str()[0] != '*')
-			&& (strncasecmp(command_string.c_str(), "here:", 5) != 0))
+		if((db[get_player()].get_owner() != get_effective_id())
+			|| (strncasecmp(command_string.c_str(), "me:", 3) != 0))
 		{
-			notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
-			log_hack(get_effective_id(),
-				"player %s(#%d): effective: %s(#%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
+			/* If we try to call a command that doesn't start
+			 * with '#' (ie an absolute number, or relative to
+			 * an absolute), then print a nasty warning.
+			 * We'll let commands relative to 'here' through...
+			 * and anything indirected off a specific 'remote' player.
+			 */
+			if((command_string.c_str()[0] != '#')
+				&& (command_string.c_str()[0] != '*')
+				&& (strncasecmp(command_string.c_str(), "here:", 5) != 0))
+			{
+				notify_colour(get_effective_id(), get_effective_id(), COLOUR_ERROR_MESSAGES, "HACK: Command #%d has non-absolute command (%s) called while in @chpid.", get_current_command(), command_string.c_str());
+				log_hack(get_effective_id(),
+					"player %s(#%d): effective: %s(#%d): command %s(#%d) has non-absolute command '%s' called while in @chpid",
 						getname(get_player()),
 						get_player(),
 						getname(get_effective_id()),
@@ -78,7 +84,8 @@ const	String& arg2)
 						getname(get_current_command()),
 						get_current_command(),
 						command_string.c_str()
-			);
+				);
+			}
 		}
 	}
 #endif /* HACK_HUNTING */
@@ -506,20 +513,15 @@ const	char	*text)
 
 	// Smash leading spaces, because we don't like them.
 	// Actually, its because some people like to additionally indent...
-	while (q && (*q) && (*q == ' '))
-		q++;
+	SKIP_SPACES(q);
 
-	// smash leading tabs too. you can get these using /quote in TinyFugue
-	while (q && (*q) && (*q == '\t'))
-		q++;
+	/* Swift hunt for the common case */
+	if(*q != '@')
+		return NORMAL_NEXT;
 
 	while (q && (*q) && (*q !=' ') && (charssofar++ < 255))
 		*p++=*q++;
 	*p='\0';
-
-	/* Swift hunt for the common case */
-	if (*temp_buffer != '@')
-		return NORMAL_NEXT;
 
 	/* Damn, we've got to do some work */
 	if(string_prefix("@if", temp_buffer))
@@ -1088,4 +1090,22 @@ const String&language)
 	}
 }
 
+
+void
+context::do_at_break(
+const String& dummy1,
+const String& dummy2)
+{
+	return_status=COMMAND_FAIL;
+	set_return_string(error_return_string);
+}
+
+void
+context::do_at_continue(
+const String& dummy1,
+const String& dummy2)
+{
+	return_status=COMMAND_FAIL;
+	set_return_string(error_return_string);
+}
 

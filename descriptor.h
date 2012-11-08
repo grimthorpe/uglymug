@@ -262,6 +262,7 @@ public:
 	String	terminal_get_sevenbit();
 	Command_status	terminal_set_emit_lastcommand(const String& , bool);
 	String	terminal_get_emit_lastcommand();
+	String	terminal_get_inputpending();
 	void	do_write(const char * c, int i);
 
 	int	process_output();

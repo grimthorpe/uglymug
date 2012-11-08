@@ -457,10 +457,10 @@ class	object
 		const	dbref	get_inherited_csucc		()			const;
 	virtual	const	dbref	get_cfail			()			const	{ return NOTHING; }
 		const	dbref	get_inherited_cfail		()			const;
-	virtual	const	unsigned short	get_parse_helper	(const unsigned int)		const	{ return 0; }
+	virtual	const	unsigned int	get_parse_helper	(const unsigned int)		const	{ return 0; }
 	virtual	const	bool	alloc_parse_helper		();
 	virtual		void	flush_parse_helper		();
-	virtual		void	set_parse_helper		(const unsigned int index, const unsigned short value);
+	virtual		void	set_parse_helper		(const unsigned int index, const unsigned int value);
 	/* Massy_object */
 	virtual	const	double	get_gravity_factor		()			const	{ return (1.0); }
 	virtual	const	double	get_inherited_gravity_factor	()			const;

@@ -330,6 +330,7 @@ struct terminal_set_command
 	{ "sevenbit",	&descriptor_data::terminal_set_sevenbit, &descriptor_data::terminal_get_sevenbit },
 	{ "colour_terminal",	&descriptor_data::terminal_set_colour_terminal, &descriptor_data::terminal_get_colour_terminal },
 	{ "commandinfo",	&descriptor_data::terminal_set_emit_lastcommand, &descriptor_data::terminal_get_emit_lastcommand },
+	{ "input",	NULL, &descriptor_data::terminal_get_inputpending },
 
 	{ NULL, NULL }
 };
@@ -1410,7 +1411,7 @@ struct descriptor_data *new_connection(SOCKET sock)
 void
 descriptor_data::send_telnet_option(unsigned char command, unsigned char option)
 {
-	char sendbuf[3];
+	unsigned char sendbuf[3];
 
 	if(IS_FAKED())
 		return;
@@ -1422,7 +1423,7 @@ descriptor_data::send_telnet_option(unsigned char command, unsigned char option)
 #ifdef DEBUG_TELNET
 	log_debug("Sent option '%s %s'", TELCMD(command), TELOPT(option));
 #endif /* DEBUG_TELNET */
-	write(get_descriptor(), sendbuf, 3);
+	write(get_descriptor(), (const char*)sendbuf, 3);
 }
 
 int
@@ -1627,7 +1628,7 @@ void
 descriptor_data::initial_telnet_options()
 {
 	int i;
-	static char buf[20];
+	static unsigned char buf[20];
 
 	/* First send the things we want the client to DO. */
 
@@ -1643,7 +1644,7 @@ descriptor_data::initial_telnet_options()
 	buf[4]=IAC;
 	buf[5]=SE;
 	buf[6]=0;
-	write(get_descriptor(), buf, 6);
+	write(get_descriptor(), (const char*)buf, 6);
 
 	/* Any replies will go to process_telnet_options() */
 }
@@ -1651,7 +1652,7 @@ descriptor_data::initial_telnet_options()
 void
 descriptor_data::set_echo(bool echo)
 {
-static char buf[20];
+static unsigned char buf[20];
 	if(IS_FAKED())
 		return;
 
@@ -1668,7 +1669,7 @@ static char buf[20];
 		buf[5] = IAC;
 		buf[6] = SE;
 		buf[7] = 0;
-		write(get_descriptor(), buf, 7);
+		write(get_descriptor(), (const char*)buf, 7);
 	}
 /*
  * This is a crude attempt to start/stop local echo on the client side.
@@ -4518,6 +4519,34 @@ descriptor_data::terminal_set_colour_terminal(const String& toggle, bool gagged)
 
 
 String
+descriptor_data::terminal_get_inputpending()
+{
+	if(raw_input_at != NULL)
+		return ok_return_string;
+	else if (input.begin() != input.end())
+		return ok_return_string;
+	else if (get_descriptor()
+		  && !IS_FAKED()
+		  && !IS_HALFQUIT())
+	{
+//printf("Trying select\n");
+		fd_set		input_set;
+		struct timeval	timeout;
+		int descriptor = get_descriptor();
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+		FD_ZERO(&input_set);
+		FD_SET(descriptor, &input_set);
+		int result = select (descriptor+1, &input_set, NULL, NULL, &timeout);
+printf("Result is %d\n", result);
+		if(result > 0)
+			return ok_return_string;
+	}
+
+	return error_return_string;
+}
+
+String
 descriptor_data::terminal_get_emit_lastcommand()
 {
 	if(terminal.emit_lastcommand)
@@ -5054,6 +5083,8 @@ void context::do_at_terminal(const String& command, const String& arg)
 
 	for(i=0; terminal_set_command_table[i].name; i++)
 	{
+		if(terminal_set_command_table[i].set_function == NULL)
+			continue;
 		if(command)
 		{
 			if(string_compare(command, terminal_set_command_table[i].name)==0)

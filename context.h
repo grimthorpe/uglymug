@@ -454,6 +454,7 @@ public:
 	void				do_at_with		(const String&, const String&);
 	void				do_at_beep		(const String&, const String&);
 	void				do_at_boot		(const String&, const String&);
+	void				do_at_break		(const String&, const String&);
 	void				do_at_cfailure		(const String&, const String&);
 	void				do_at_channel		(const String&, const String&);
 	void				do_channel_who		(const String&, const String&);
@@ -463,6 +464,7 @@ public:
 	void				do_at_colour		(const String&, const String&);
 	void				do_container		(const String&, const String&);
 	void				do_at_controller	(const String&, const String&);
+	void				do_at_continue		(const String&, const String&);
 	void				do_at_create		(const String&, const String&);
 	void				do_at_credit		(const String&, const String&);
 	void				do_at_cstring		(const String&, const String&);
