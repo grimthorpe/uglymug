@@ -52,6 +52,15 @@ void StringBuffer::resize(unsigned int newsize, bool copy)
 		newsize += 32;
 	}
 	_capacity = newsize;
+	if(!_buf)
+	{
+		_buf = (char*)malloc(_capacity + 2);
+	}
+	else
+	{
+		_buf = (char*)realloc(_buf, _capacity + 2);
+	}
+	/*
 	//while(newsize > _capacity)
 	//	_capacity += STRINGBUFFER_GROWSIZE;
 	char* tmp = new char[_capacity+2]; // Allow for slight overrun (JIC)
@@ -65,11 +74,14 @@ void StringBuffer::resize(unsigned int newsize, bool copy)
 	if(_buf)
 		delete[] _buf;
 	_buf = tmp;
+	*/
 }
 StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the reference counting!
 {
 	if(_buf)
-		delete[] _buf;
+		free(_buf);
+	_buf = 0;
+	//	delete[] _buf;
 }
 // capacity is defaulted to 0 in the definition 
 StringBuffer::StringBuffer(unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
@@ -273,11 +285,14 @@ chop_string(const char* string, int size)
 	{
 		if(!*p)
 			break;
-		if(*p == '%')
+		if(*p++ == '%')
 		{
 			size++;
-			if(*(p+1) != '%')
+			if(*p != '%')
+			{
 				size++;
+				p++;
+			}
 		}
 	}
 

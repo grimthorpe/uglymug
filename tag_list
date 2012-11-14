@@ -14,6 +14,10 @@ Addendum: As you commit code, please put information about the changes in above
 the latest release tag. That way if someone else does a release, the change
 information doesn't get lost.
 
+	chop_string didn't iterate the string so could end up in a loop. (Grimthorpe)
+	@eval midstring gave strange results if the start-point was beyond the end of the string. (Grimthorpe)
+	If you manage to go through an exit set the return string to OK (Grimthorpe)
+
 um1_069
 	Fixed up compiler warnings (Grimthorpe)
 	Changed command scope helpers from short to int to optimise CPU usage (Grimthorpe)

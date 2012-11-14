@@ -667,6 +667,7 @@ const	String&)
 						}
 					}
 					return_status = COMMAND_SUCC;
+					set_return_string (ok_return_string);
 				}
 				break;
 		}

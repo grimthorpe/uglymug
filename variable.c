@@ -1334,19 +1334,23 @@ unsigned int	space_left)
 				break;
 
 			case EVAL_OP_MIDSTRING:
-				if (strlen(results[2].string) < (size_t)results[1].integer)
 				{
-					if (!c.gagged_command())
-						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
+					size_t len = strlen(results[2].string);
+					if ((len < (size_t)results[1].integer)
+						|| (len < (size_t)results[0].integer))
+					{
+						if (!c.gagged_command())
+							notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
 
-					strcpy (result_buffer, error_return_string.c_str());
-					return (COMMAND_FAIL);
-				}
-				else
-				{
-					results[2].string[results[1].integer] = '\0';
-					strcpy(final.string, results[2].string + results[0].integer - 1);
-					final.type = EVAL_TYPE_STRING;
+						strcpy (result_buffer, error_return_string.c_str());
+						return (COMMAND_FAIL);
+					}
+					else
+					{
+						results[2].string[results[1].integer] = '\0';
+						strcpy(final.string, results[2].string + results[0].integer - 1);
+						final.type = EVAL_TYPE_STRING;
+					}
 					break;
 				}
 
