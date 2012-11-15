@@ -74,7 +74,8 @@ enum	eval_ops
 	EVAL_OP_DICMATCH	= 45,
 	EVAL_OP_TYPEOF		= 46,
 	EVAL_OP_TOLOWER		= 47,
-	EVAL_OP_TOUPPER		= 48
+	EVAL_OP_TOUPPER		= 48,
+	EVAL_OP_ABS		= 49
 };
 
 enum	eval_types
@@ -166,6 +167,7 @@ struct	operation
 	{1,	{EV_NUMERIC | EV_STRING,		EV_STRING},						0},	/* TYPEOF */
 	{1,	{EV_STRING},											0},	/* TOLOWER */
 	{1,	{EV_STRING},											0},	/* TOUPPER */
+	{1,	{EV_NUMERIC | EV_FLOAT},									0},	/* ABS */
 };
 
 
@@ -1659,6 +1661,27 @@ unsigned int	space_left)
 				}
 				break;
 
+			case EVAL_OP_ABS:
+				{
+					if (OpType(0) == EVAL_TYPE_NUMERIC)
+					{
+						if(results[0].integer < 0)
+							final.integer = 0-results[0].integer;
+						else
+							final.integer = results[0].integer;
+						final.type = EVAL_TYPE_NUMERIC;
+					}
+					else
+					{
+						if(results[0].floating < 0)
+							final.floating = 0-results[0].floating;
+						else
+							final.floating = results[0].floating;
+						final.type = EVAL_TYPE_FLOAT;
+					}
+				}
+				break;
+
 			default:
 				notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Unknown op.");
 				strcpy (result_buffer, error_return_string.c_str());
@@ -1790,6 +1813,12 @@ const	char	*&expression,
 			++expression;
 			switch (*expression)
 			{
+				case 'b':
+				case 'B':
+					if (string_prefix (expression, "bs"))
+						return (EVAL_OP_ABS);
+					else
+						return (EVAL_OP_NONE);
 				case 'c':
 				case 'C':
 					if (string_prefix (expression, "cos"))
