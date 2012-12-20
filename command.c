@@ -1093,11 +1093,50 @@ const String&language)
 
 void
 context::do_at_break(
-const String& dummy1,
-const String& dummy2)
+const String& arg1,
+const String& arg2)
 {
-	return_status=COMMAND_FAIL;
-	set_return_string(error_return_string);
+	if (!really_in_command())
+	{
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@break can only be used inside a command.");
+		set_return_string (error_return_string);
+		return_status = COMMAND_FAIL;
+		return;
+	}
+	// We want to support a NULL return value!
+	if (arg1)
+	{
+		if ((string_compare(arg1, "true") == 0) || (string_compare(arg1, "t") == 0))
+			return_status = COMMAND_SUCC;
+		else if ((string_compare (arg1, "false") == 0) || (string_compare (arg1, "f") == 0))
+			return_status = COMMAND_FAIL;
+		else if ((string_compare (arg1, "current") == 0) || (string_compare (arg1, "c") == 0))
+		{
+			if (return_status != COMMAND_SUCC && return_status != COMMAND_FAIL)
+			{
+				return_status = COMMAND_SUCC;
+				if (!gagged_command ())
+					notify_colour (player, player, COLOUR_MESSAGES, "Warning: No previous state for @return current, assuming success.");
+			}
+		}
+		else
+		{
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Invalid return state passed to @break.");
+			return_status = COMMAND_FAIL;
+			return;
+		}
+	}
+	if(arg2 || arg1)
+	{
+		/* Set up the second argument */
+		set_return_string (arg2);
+	}
+	if(!call_stack.top ()->do_at_break (*this))
+	{
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@break used outside of @for or @with");
+		set_return_string (error_return_string);
+		return_status = COMMAND_FAIL;
+	}
 }
 
 void
@@ -1105,7 +1144,20 @@ context::do_at_continue(
 const String& dummy1,
 const String& dummy2)
 {
-	return_status=COMMAND_FAIL;
-	set_return_string(error_return_string);
+	if (!really_in_command())
+	{
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@break can only be used inside a command.");
+		set_return_string (error_return_string);
+		return_status = COMMAND_FAIL;
+		return;
+	}
+	return_status=COMMAND_SUCC;
+	set_return_string(ok_return_string);
+	if(!call_stack.top ()->do_at_continue (*this))
+	{
+		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@continue used outside of @for or @with");
+		set_return_string (error_return_string);
+		return_status = COMMAND_FAIL;
+	}
 }
 

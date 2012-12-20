@@ -110,6 +110,8 @@ private:
     public:
 	virtual		Command_action	step_once		(context *)		= 0;
 	virtual		void		do_at_elseif		(const bool ok);
+	virtual		bool		do_at_break		();
+	virtual		bool		do_at_continue		();
 			String_pair	*locate_stack_arg	(const String& name)	const;
 };
 
@@ -174,6 +176,8 @@ class	Loop
 	virtual	const	int		line_for_outer_scope	()	const;
 	virtual		bool		loopagain	()			= 0;
 	virtual		bool		shouldrun	()	const		= 0;
+	virtual		bool		do_at_break	();
+	virtual		bool		do_at_continue	();
     public:
 	virtual				~Loop		()			{}
 			Command_action	step_once	(context *);
@@ -194,6 +198,7 @@ private:
     protected:
 	virtual		bool		shouldrun	()	const;
 	virtual		bool		loopagain	();
+	virtual		bool		do_at_break	();
     public:
 					For_loop	(const Scope &os, int in_start, int in_end, int in_step, const String& name);
 	virtual				~For_loop	()			{}
@@ -215,6 +220,7 @@ class	With_loop
     protected:
 	virtual		bool		shouldrun	()	const;
 	virtual		bool		loopagain	();
+	virtual		bool		do_at_break	();
     public:
 					With_loop	(const Scope &os, dbref d, const char *index_name, const char *element_name);
 	virtual				~With_loop	()			{}
@@ -290,6 +296,8 @@ private:
 			void		do_at_end		(context &);
 			void		do_at_return		(context &);
 			void		do_at_returnchain	(context &);
+			bool		do_at_break		(context &);
+			bool		do_at_continue		(context &);
 		const	Scope		&innermost_scope	()	const;
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
 		String_pair		*locate_innermost_arg	(const String& name)	const;

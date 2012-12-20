@@ -157,6 +157,18 @@ const	bool	ok)
 	log_bug("Scope::do_at_elseif called");
 }
 
+bool
+Scope::do_at_break()
+{
+	return false;
+}
+
+bool
+Scope::do_at_continue()
+{
+	return false;
+}
+
 
 /************************************************************************/
 /*									*/
@@ -626,6 +638,42 @@ context	&c)
 {
 	/* A current_line less than zero will ditch the chain in step_once */
 	current_line = -1;
+}
+
+bool
+Compound_command_and_arguments::do_at_break (
+context	&c)
+
+{
+	while(!scope_stack.empty() && !scope_stack.top()->do_at_break())
+	{
+		delete scope_stack.top();
+		scope_stack.pop();
+	}
+	if(scope_stack.empty())
+	{
+		current_line = -1;
+		return false;
+	}
+	return true;
+}
+
+bool
+Compound_command_and_arguments::do_at_continue (
+context	&c)
+
+{
+	while(!scope_stack.empty() && !scope_stack.top()->do_at_continue())
+	{
+		delete scope_stack.top();
+		scope_stack.pop();
+	}
+	if(scope_stack.empty())
+	{
+		current_line = -1;
+		return false;
+	}
+	return true;
 }
 
 
@@ -1259,6 +1307,33 @@ For_loop::loopagain ()
 	return shouldrun();
 }
 
+bool
+For_loop::do_at_break()
+{
+	start = end;
+	return Loop::do_at_break();
+}
+
+bool
+With_loop::do_at_break()
+{
+	pos = elements.end();
+	return Loop::do_at_break();
+}
+
+bool
+Loop::do_at_break()
+{
+	current_line = end_line;
+	return true;
+}
+
+bool
+Loop::do_at_continue()
+{
+	current_line = end_line;
+	return true;
+}
 
 /************************************************************************/
 /*									*/
