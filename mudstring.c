@@ -106,6 +106,9 @@ StringBuffer::StringBuffer(const char* str, unsigned int len, unsigned int capac
 
 void StringBuffer::assign(const char* str, int len)
 {
+	if(len < 0)
+		len = 0; // Avoid accidental errors in string lengths.
+
 	resize(len, false);
 	if(str)
 	{

@@ -1585,10 +1585,7 @@ int count = 0;
 				if(t_piacbuf >= t_liacbuf)
 				{
 					t_liacbuf += 128;
-					unsigned char* tmp = (unsigned char*)malloc(t_liacbuf);
-					memcpy(tmp, t_iacbuf, t_piacbuf);
-					free(t_iacbuf);
-					t_iacbuf = tmp;
+					t_iacbuf = (unsigned char*)realloc(t_iacbuf, t_liacbuf);
 				}
 			}
 			if(t_iac != IAC_OUTSIDE_IAC)
@@ -1724,13 +1721,14 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 
 		case TELOPT_TTYPE:
 			{
-				String termtype((const char*)(buf+1), size-1);
-				//memcpy(scratch, buf+1, size);
-				//scratch[size]=0;
+				if(size > 0)
+				{
+					String termtype((const char*)(buf+1), size-1);
 #ifdef DEBUG_TELNET
-				log_debug("Descriptor %d terminal type is '%s'", get_descriptor(), scratch);
+					log_debug("Descriptor %d terminal type is '%s'", get_descriptor(), scratch);
 #endif
-				set_terminal_type(termtype);
+					set_terminal_type(termtype);
+				}
 				send_telnet_option(WONT, TELOPT_TTYPE);	/* To make sure we don't have to send it */
 			}
 			break;
