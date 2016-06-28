@@ -60,28 +60,12 @@ void StringBuffer::resize(unsigned int newsize, bool copy)
 	{
 		_buf = (char*)realloc(_buf, _capacity + 2);
 	}
-	/*
-	//while(newsize > _capacity)
-	//	_capacity += STRINGBUFFER_GROWSIZE;
-	char* tmp = new char[_capacity+2]; // Allow for slight overrun (JIC)
-	memset(tmp, '\0', _capacity + 2); // Ensure the buffer is completely empty.
-	if(_buf && copy)
-	{
-		// We use memcpy because the regions will not overlap.
-		memcpy(tmp, _buf, _len);
-		tmp[_len] = 0;
-	}
-	if(_buf)
-		delete[] _buf;
-	_buf = tmp;
-	*/
 }
 StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the reference counting!
 {
 	if(_buf)
 		free(_buf);
 	_buf = 0;
-	//	delete[] _buf;
 }
 // capacity is defaulted to 0 in the definition 
 StringBuffer::StringBuffer(unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
@@ -371,10 +355,13 @@ StringBuffer::printf(const char *fmt, va_list va)
 
 	while(true)
 	{
-		size = vsnprintf(_buf, _capacity, fmt, va);
+		va_list va2;
+		va_copy(va2, va);
+		size = vsnprintf(_buf, _capacity, fmt, va2);
 		if((size > -1) && (size < _capacity))
 		{
 			_len = size;
+			va_end(va2);
 			return;
 		}
 		else if(size > -1)
