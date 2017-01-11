@@ -38,6 +38,12 @@ const	String& password)
 
 	if ((player = lookup_player (NOTHING, name)) == NOTHING)
 		return NOTHING;
+	if(!password && db[player].get_password())
+	{
+		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with empty password");
+		log_hack(NOTHING, "Login attempt unsuccessful for player %s(%d)", db[player].get_name().c_str(), player);
+		return 0;
+	}
 	if(db[player].get_password ()
 		&& string_compare(db[player].get_password (), (char *) (crypt(password.c_str(), password.c_str()) +2)))
 	{
