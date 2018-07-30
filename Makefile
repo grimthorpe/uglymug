@@ -77,7 +77,6 @@ SOURCES:=\
 	paths.c \
 	player.c \
 	predicates.c \
-	regexp.c \
 	rob.c \
 	sadness.c \
 	sanity-check.c \
@@ -122,7 +121,6 @@ RAW_LIB_OBJECTS:= \
 	objects.o \
 	player.o \
 	predicates.o \
-	regexp.o \
 	rob.o \
 	sanity-check.o \
 	set.o \
