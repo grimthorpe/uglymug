@@ -13,7 +13,7 @@ CC_LIBPCRE=""
 
 for i in /usr/lib /usr/lib/i386-linux-gnu /usr/local/lib /opt/pcre/lib; do
   if [ "$LD_LIBPCRE" = "" ]; then
-    if [ -f $i/libpcre.a ]; then
+    if [ -f $i/libpcre.a -o -f $i/libpcre.so ]; then
       LD_LIBPCRE="-B$i -Xlinker -R$i -lpcre"
       echo libpcre found in $i
     fi
@@ -43,7 +43,7 @@ LD_LIBGEOIP=""
 CC_LIBGEOIP=""
 for i in /usr /usr/local; do
   if [ "$LD_LIBGEOIP" = "" ]; then
-    if [ -f $i/lib/libGeoIP.a ]; then
+    if [ -f $i/lib/libGeoIP.a -o -f $i/lib/libGeoIP.so ]; then
       LD_LIBGEOIP="-B$i/lib -Xlinker -R$i/lib -lGeoIP"
       echo libGeoIP found in $i/lib
     fi
