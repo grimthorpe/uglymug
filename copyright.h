@@ -36,7 +36,7 @@ Heydon, Nick Huggins, Malcolm J. Harwood, Dave Proctor and Gary D. Wallage.
 
 Additional features Copyright (c) 1992, 1993, 1994, 1995 by:
 The UglyMug Update Team : The Next Generation.  This consists of:
-	Adrian StJohn, Keith Garrett, Ian Chard, Ian Whalley.
+	Lisa StJohn, Keith Garrett, Ian Chard, Ian Whalley.
 
 A spanking new set of features/code fixes (especially Keith's) copyright 
 (c) 1994, 1995, 1996 by:
@@ -55,4 +55,10 @@ given above.
 
 We'd like to receive information and bug fixes, but we have no illusions
 about how likely it is.
+*/
+
+/*
+Other changes should be in the git/CVS logs.
+Everybody owns their own changes, especially the ones nobody else wants
+to admit to.
 */
