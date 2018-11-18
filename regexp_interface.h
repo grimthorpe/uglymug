@@ -52,7 +52,7 @@ inline bool RegularExpression::Match(const String& target)
 	if(!_compileresults)
 		return false;
 
-	if(pcre_exec(_compileresults, NULL, target.c_str(), target.length(), 0, 0, NULL, 0) < 0)
+	if(pcre_exec(_compileresults, NULL, target.c_str(), (int)(target.length()), 0, 0, NULL, 0) < 0)
 	{
 		return false;
 	}

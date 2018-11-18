@@ -37,15 +37,15 @@ class StringBuffer
 friend class String;
 
 	char*		_buf;		// Pointer to the data
-	unsigned int	_len;		// The length of the string
-	unsigned int	_capacity;	// The total allocated space
+	size_t		_len;		// The length of the string
+	size_t		_capacity;	// The total allocated space
 	int		_ref;		// The reference count.
 
 // Private member functions.
 // resize - Resize the storage space to at least 'newsize'.
 //		If copy is true, copy over the data into the new buffer
 //		If copy is false, the buffer contents are undefined.
-	void resize(unsigned int newsize, bool copy=true);
+	void resize(size_t newsize, bool copy=true);
 
 // DESTRUCTOR - Private so that we enforce the reference counting.
 	~StringBuffer();
@@ -58,19 +58,21 @@ friend class String;
 
 // CONSTRUCTORS - Private so that we can share a common 'Empty' buffer
 //			if required. Use NewBuffer to create a new StringBuffer
-	StringBuffer(unsigned int capacity = 0);
+	StringBuffer(size_t capacity = 0);
 	StringBuffer(const char* str);
-	StringBuffer(const char* str, unsigned int len, unsigned int capacity = 0);
+	StringBuffer(const char* str, size_t len, size_t capacity = 0);
 
 public:
 // Public member functions
 
 // NewBuffer - Create a new buffer.
-	static StringBuffer* NewBuffer(const char*str, unsigned int len = 0);
+	static StringBuffer* NewBuffer(const char*str, size_t len = 0, size_t capacity = 0);
 
 // assign - Copy that data pointed to by str, up to 'len' characters.
 //		The internal buffer will sort itself out to cope with it
-	void assign(const char* str, int len);
+	void assign(const char* str, size_t len);
+// fill - Fill the buffer with character 'c' 'len' times.
+	void fill(const char c, size_t len);
 
 // ref - Increase the reference count.
 	void ref();
@@ -84,9 +86,9 @@ public:
 	const char*	c_str()		const	{ return _buf?_buf:""; }
 
 // length - Return the length of the data, not including the \0 terminator.
-	unsigned int	length()	const	{ return _len; }
+	size_t	length()	const	{ return _len; }
 
-	void		append(const char*, unsigned int len);
+	void		append(const char*, size_t len);
 	void		printf(const char*, va_list va);
 };
 
@@ -113,8 +115,9 @@ public:
 
 // PUBLIC CONSTRUCTORS
 	String(const char* str = 0);	// Create a new String based on the data pointer to.
-	String(const char* str, unsigned int len);
+	String(const char* str, size_t len);
 	String(const String& str);	// COPY constructor
+	String(const char c, size_t repeat);
 
 // Assignment operators
 	String& operator=(const String& cstr);
@@ -132,7 +135,7 @@ public:
 //		Same guarantee as StringBuffer::c_str
 	const char*	c_str()		const	{ return _buffer->c_str(); }
 // length - Return the length of the string
-	unsigned int	length()	const	{ return _buffer->length(); }
+	size_t		length()	const	{ return _buffer->length(); }
 
 // operator bool - shorthand for checking if the string has data in it.
 //	Returns: TRUE if there is data in the string
@@ -140,9 +143,10 @@ public:
 // NOTE: A 0-length string is the same as a 'NULL' string.
 	operator bool()			const	{ return _buffer->length() > 0; }
 
-	String substring(int start, int length = -1)	const;
-	int	find(char c, int start = 0)		const;
-	char	operator[](int pos)			const;
+	String	substring(size_t start)			const;
+	String	substring(size_t start, size_t length)	const;
+	ssize_t	find(char c, size_t start = 0)		const;
+	char	operator[](size_t pos)			const;
 
 	bool operator<(const String& other)	const;
 	bool operator>(const String& other)	const;
@@ -161,6 +165,6 @@ namespace std {
 extern std::ostream &operator<< (std::ostream &os, const String &s);
 
 /* Output a string to a maximum length (or pad to the length with spaces), taking colour markup into account */
-String chop_string(const String&, int length);
-String chop_string(const char*, int length);
+String chop_string(const String&, size_t length);
+String chop_string(const char*, size_t length);
 #endif /* _MUDSTRING_H */

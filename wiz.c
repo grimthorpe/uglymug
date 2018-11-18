@@ -90,7 +90,7 @@ const	String& command)
 		dbref old_player = get_player();
 		dbref old_unchpid_id = get_unchpid_id();
 		dbref old_effective_id = get_effective_id();
-		int old_depth_limit = get_depth_limit();
+		size_t old_depth_limit = get_depth_limit();
 		if(old_depth_limit <= 1)
 		{
 			notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Too many nested commands.");

@@ -146,7 +146,7 @@ char	**argv)
 		log_bug("setrlimit() failed");
 #endif /* NEEDS_RESOURCES */
 
-	srand (time(NULL));
+	srand ((unsigned int)time(NULL));
 	game_start_time = time(NULL);
 	if (argc-optind<2)
 	{

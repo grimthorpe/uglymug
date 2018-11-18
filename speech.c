@@ -910,6 +910,17 @@ notify_except (
 dbref		first,
 dbref		originator,
 dbref		exception,
+const	String&	msg)
+
+{
+	notify_except(first, originator, exception, msg.c_str());
+}
+
+void
+notify_except (
+dbref		first,
+dbref		originator,
+dbref		exception,
 const	char	*msg)
 
 {
@@ -918,6 +929,18 @@ const	char	*msg)
 			notify_public (first, originator, "%s", msg);
 }
 
+
+void
+notify_except2 (
+dbref		first,
+dbref		originator,
+dbref		exc1,
+dbref		exc2,
+const	String&	msg)
+
+{
+	notify_except2(first, originator, exc1, exc2, msg.c_str());
+}
 
 void
 notify_except2 (

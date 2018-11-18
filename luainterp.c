@@ -22,8 +22,6 @@ static const char* UMMeta="__UMObject__";
  * Ok, now we know we've got LUA support. Lets do things properly...
  */
 
-#include "lunar.h"
-
 extern "C"
 {
 	#include <lua.h>
@@ -58,6 +56,7 @@ private:
 	}
 };
 
+struct luaL_reg { const char* name; int (*func)(lua_State*); };
 static const luaL_reg luaUM_Library[] =
 {
 	{ "exec",		UM_lua_commands::Command},
@@ -89,7 +88,6 @@ class UMObject
 	UMObject(context* c, dbref obj) :m_object(obj), m_context(c) {}
 public:
 	static const char className[];
-	static Lunar<UMObject>::RegType methods[];
 
 	static int	push_UMObject(lua_State* S, context* c, dbref obj);
 	static int	push_UMObjectArray(lua_State* S, context* c, dbref startobj);
@@ -209,14 +207,11 @@ context::do_lua_command(dbref command, const String& cmdname, const String& arg1
 		return ACTION_STOP;
 	}
 
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
+	luaL_openlibs(L);
 	// Register the UM command name
 	// Push the context onto the stack. Every time UM_lua_command is called we can retrieve this value
 	lua_pushlightuserdata(L, (void*)this);
-	luaL_openlib(L, "UM", luaUM_Library, 1);
-
-	// Include the base library (to be removed soon)
-	//lua_baselibopen(L);
 
 	lua_pushlightuserdata(L, (void*)this);
 	lua_pushcclosure(L, UM_lua_commands::print, 1);

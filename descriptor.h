@@ -118,7 +118,7 @@ public:
 	bool			backslash_pending;
 	int			cr_pending;
 	String			hostname;
-	unsigned long		address;
+	uint32_t		address;
 	String			service; // What the port connected to is for
 	descriptor_data		*next;
 	descriptor_data		**prev; // Pointer to previous->next!
@@ -263,7 +263,7 @@ public:
 	Command_status	terminal_set_emit_lastcommand(const String& , bool);
 	String	terminal_get_emit_lastcommand();
 	String	terminal_get_inputpending();
-	void	do_write(const char * c, int i);
+	void	do_write(const char * c, size_t i);
 
 	int	process_output();
 	int	process_input(int len = 0);

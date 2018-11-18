@@ -297,34 +297,25 @@ const	char* sub)
 
 void
 pronoun_substitute (
-char		*result,
-unsigned int	buffer_length,
-dbref		player,
+String&	result,
+dbref	player,
 const	String& cstr)
-
 {
 	char c;
 	const char* str = cstr.c_str();
-	static const char *subjective[4] = { "", "it", "she", "he" };
-	static const char *possessive[4] = { "", "its", "her", "his" };
-	static const char *objective[4] = { "", "it", "her", "him" };
+	static const String subjective_u[4] = { "", "It", "She", "He" };
+	static const String possessive_u[4] = { "", "Its", "Her", "His" };
+	static const String objective_u[4] = { "", "It", "Her", "Him" };
+	static const String subjective_l[4] = { "", "it", "she", "he" };
+	static const String possessive_l[4] = { "", "its", "her", "his" };
+	static const String objective_l[4] = { "", "it", "her", "him" };
 
-	strcpy(result, db[player].get_name().c_str());
-	if (buffer_length > strlen(result))
-	{
-		buffer_length -= strlen(result);
-	}
-	else
-	{
-		buffer_length = 0;
-	}
-	result += strlen(result);
-	*result++ = ' ';
-	while (*str && buffer_length > 0)
+	result = db[player].get_name();
+	result += ' ';
+	while (*str)
 	{
 		if(*str == '%')
 		{
-			*result = '\0';
 			c = *(++str);
 			if (Unassigned(player))
 			{
@@ -336,108 +327,54 @@ const	String& cstr)
 					case 'O':
 					case 's':
 					case 'S':
-						if (buffer_length > db[player].get_name().length())
-						{
-							strcat(result, db[player].get_name().c_str());
-						}
-						else
-						{
-							buffer_length = 0;
-						}
+						result += db[player].get_name();
 						break;
 					case 'p':
 					case 'P':
-						if (buffer_length > (db[player].get_name().length()+2)) 
-						{
-							strcat(result, db[player].get_name().c_str());
-							strcat(result, "'s");
-						}
-						else
-						{
-							buffer_length = 0;
-						}
-						break;
+						result += db[player].get_name();
+						result += "'s";
 					default:
-						*result++ = *str;
+						result += *str;
 						break;
 				}
 				str++;
-/* We know this is safe, since we tested buffer_length > strlen(result)
- * at each stage JPK
- */
-				buffer_length -= strlen(result);
-				result += strlen(result);
 			}
 			else
 			{
 				switch (c)
 				{
 					case 's':
+						result += subjective_l[ConvertGender(player)];
+						break;
 					case 'S':
-						if (buffer_length > strlen(subjective[ConvertGender(player)]))
-						{
-							strcat(result, subjective[ConvertGender(player)]);
-						}
-						else
-						{
-							buffer_length = 0;
-						}
+						result += subjective_u[ConvertGender(player)];
 						break;
 					case 'p':
+						result += possessive_l[ConvertGender(player)];
+						break;
 					case 'P':
-						if (buffer_length > strlen(possessive[ConvertGender(player)]))
-						{
-							strcat(result, possessive[ConvertGender(player)]);
-						}
-						else
-						{
-							buffer_length = 0;
-						}
+						result += possessive_u[ConvertGender(player)];
 						break;
 					case 'o':
+						result += objective_l[ConvertGender(player)];
+						break;
 					case 'O':
-						if (buffer_length > strlen(objective[ConvertGender(player)]))
-						{
-							strcat(result, objective[ConvertGender(player)]);
-						}
-						else
-						{
-							buffer_length = 0;
-						}
+						result += objective_u[ConvertGender(player)];
 						break;
 					case 'n':
 					case 'N':
-						if (buffer_length > db[player].get_name().length())
-						{
-							strcat(result, db[player].get_name().c_str());
-						}
-						else
-						{
-							buffer_length = 0;
-						}
+						result += db[player].get_name();
 						break;
 					default:
-						*result = *str;
-						result[1] = '\0';
+						result += *str;
 						break;
 				} 
-				if(isupper(c) && islower(*result))
-				{
-					*result = toupper(*result);
-				}
-				buffer_length -= strlen(result);
-				result += strlen(result);
 				str++;
 			}
 		}
 		else
-			*result++ = *str++;
+			result += *str++;
 	}
-	if (buffer_length == 0)
-	{
-		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "WARNING: Buffer overflow doing a pronoun substitution.");
-	}
-	else *result = '\0';
 } 
 
 static int
@@ -517,7 +454,7 @@ const String& string)
 	return true;
 }
 
-int
+static size_t
 rude_count (
 char *string)
 {

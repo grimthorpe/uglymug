@@ -533,7 +533,7 @@ void object::set_remote_location (const dbref)
 void object::set_index(const int, const String&)
 { IMPLEMENTATION_ERROR("index"); }
 
-void object::set_size (const int)
+void object::set_size (const size_t)
 { IMPLEMENTATION_ERROR ("size"); }
 
 const bool object::destroy (const dbref)
@@ -1575,8 +1575,8 @@ const String& string)
         //get 51 lines if you did @recall but it is 0430 you picky bastard.
         //Love Reaps.
 
-	int nlpos = 0;
-	int start = 0;
+	size_t nlpos = 0;
+	size_t start = 0;
 	while((nlpos = string.find('\n', start)) >= 0)
 	{
 		if((nlpos == start) && (!(recall->buffer_build)))

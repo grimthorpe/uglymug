@@ -21,7 +21,7 @@
 
 static	int	commands_executed;
 
-
+boolexp* TRUE_BOOLEXP=new boolexp(BOOLEXP_CONST);
 
 /**
  * Construct a blank boolexp of type t.
@@ -87,7 +87,6 @@ const
 			case BOOLEXP_CONST:
 				if (Typeof (thing) != TYPE_COMMAND)
 					return (thing == c.get_effective_id () || ::contains_inherited(thing, c.get_player ()));
-					//return (thing == c.get_effective_id () || ::contains(thing, c.get_player ()));
 				if (!could_doit (c, thing))
 					return false; /* Automatically fails */
 				else if(Typeof (thing) != TYPE_COMMAND) // could_doit could destroy the command.
@@ -606,6 +605,8 @@ const
 			break;
 		case BOOLEXP_CONST:
 			db [thing].set_referenced ();
+			break;
+		case BOOLEXP_FLAG:
 			break;
 	}
 }

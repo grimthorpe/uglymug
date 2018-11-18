@@ -50,8 +50,9 @@ const	String&)
 
 	if (!Dark(player))
 	{
-		sprintf(scratch_buffer, "%s has arrived.", getname_inherited (player));
-		notify_except(db[db[player].get_location()].get_contents(), player, player, scratch_buffer);
+		String temp;
+		temp.printf("%s has arrived.", getname_inherited (player));
+		notify_except(db[db[player].get_location()].get_contents(), player, player, temp);
 	}
 
 	return_status = COMMAND_SUCC;
@@ -110,8 +111,9 @@ const	String&)
 
 	if (!Dark(player))
 	{
-		sprintf(scratch_buffer, "%s has arrived.", getname_inherited (player));
-		notify_except(db[object].get_contents(), player, player, scratch_buffer);
+		String temp;
+		temp.printf("%s has arrived.", getname_inherited (player));
+		notify_except(db[object].get_contents(), player, player, temp);
 	}
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
@@ -349,8 +351,9 @@ dbref	loc)
 			/* notify others unless DARK */
 			if(!Dark(old) && !Dark(player))
 			{
-				sprintf(scratch_buffer, "%s has left.", getname_inherited (player));
-				notify_except(db[old].get_contents(), player, player, scratch_buffer);
+				String temp;
+				temp.printf("%s has left.", getname_inherited (player));
+				notify_except(db[old].get_contents(), player, player, temp);
 			}
 		}
 
@@ -537,8 +540,9 @@ dbref	thing)
 
 			if(db[db[thing].get_destination()].get_inherited_odrop() && !(Dark(thing)))
 			{
-				pronoun_substitute(scratch_buffer, BUFFER_LEN, thing, db[db[thing].get_destination()].get_inherited_odrop());
-				notify_except(db[db[thing].get_destination()].get_contents(), thing, thing, scratch_buffer);
+				String temp;
+				pronoun_substitute(temp, thing, db[db[thing].get_destination()].get_inherited_odrop());
+				notify_except(db[db[thing].get_destination()].get_contents(), thing, thing, temp);
 			}
 			break;
 		case TYPE_THING:
@@ -640,13 +644,15 @@ const	String&)
 						{
 							if (db[exit].get_inherited_odrop())
 							{
-								pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[exit].get_inherited_odrop());
-								notify_except(db[db[player].get_location()].get_contents(), player, player, scratch_buffer);
+								String temp;
+								pronoun_substitute(temp, player, db[exit].get_inherited_odrop());
+								notify_except(db[db[player].get_location()].get_contents(), player, player, temp);
 							}
 							if(!Dark(db[exit].get_destination()))
 							{
-								sprintf(scratch_buffer, "%s has arrived.", getname_inherited (player));
-								notify_except(db[db[player].get_location()].get_contents(), player, player, scratch_buffer);
+								String temp;
+								temp.printf("%s has arrived.", getname_inherited (player));
+								notify_except(db[db[player].get_location()].get_contents(), player, player, temp);
 							}
 						}
 					}
@@ -656,13 +662,15 @@ const	String&)
 						{
 							if (db[exit].get_inherited_odrop())
 							{
-								pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[exit].get_inherited_odrop());
-								notify_except(db[db[player].get_destination()].get_contents(), player, player, scratch_buffer);
+								String temp;
+								pronoun_substitute(temp, player, db[exit].get_inherited_odrop());
+								notify_except(db[db[player].get_destination()].get_contents(), player, player, temp);
 							}
 							if(!Dark(db[player].get_destination()))
 							{
-								sprintf(scratch_buffer, "%s has arrived.", getname_inherited (player));
-								notify_except(db[db[player].get_destination()].get_contents(), player, player, scratch_buffer);
+								String temp;
+								temp.printf("%s has arrived.", getname_inherited (player));
+								notify_except(db[db[player].get_destination()].get_contents(), player, player, temp);
 							}
 						}
 					}
@@ -755,8 +763,9 @@ const	String& where)
 								notify_colour(player, player, COLOUR_ERROR_MESSAGES, "You can't carry anything that big.");
 							return;
 						}
-						sprintf (scratch_buffer, "%s picks up %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
-						notify_except (db[db [player].get_location()].get_contents(), player, player, scratch_buffer);
+						String temp;
+						temp.printf ("%s picks up %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
+						notify_except (db[db [player].get_location()].get_contents(), player, player, temp);
 					}
 					else
 					{
@@ -802,8 +811,9 @@ const	String& where)
 
 								count_down_fuses (*this, thing, !TOM_FUSE);
 								moveto (thing, container);
-								sprintf (scratch_buffer, "%s picks up %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
-								notify_except (db [player].get_location(), player, NOTHING, scratch_buffer);
+								String temp;
+								temp.printf ("%s picks up %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
+								notify_except (db [player].get_location(), player, NOTHING, temp);
 							}
 						}
 					}
@@ -1024,15 +1034,17 @@ const	String& where)
 						notify_public_colour(player, player, COLOUR_DROP, "%s", db[loc].get_inherited_drop_message().c_str());
 					if (!(Dark(thing)))
 					{
+						String temp;
 						if (db[thing].get_inherited_odrop())
-							pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[thing].get_inherited_odrop());
+							pronoun_substitute(temp, player, db[thing].get_inherited_odrop());
 						else
-							sprintf(scratch_buffer, "%s dropped %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
-						notify_except(db[loc].get_contents(), player, player, scratch_buffer);
+							temp.printf("%s dropped %s%s.", getname_inherited (player), getarticle (thing, ARTICLE_LOWER_INDEFINITE), getname_inherited (thing));
+						notify_except(db[loc].get_contents(), player, player, temp);
 						if (db[loc].get_inherited_odrop() && !(Dark(loc)))
 						{
-							pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[loc].get_inherited_odrop());
-							notify_except(db[loc].get_contents(), player, player, scratch_buffer);
+							String temp2;
+							pronoun_substitute(temp2, player, db[loc].get_inherited_odrop());
+							notify_except(db[loc].get_contents(), player, player, temp2);
 						}
 					}
 				}

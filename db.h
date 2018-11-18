@@ -221,13 +221,14 @@ enum object_flag_type
 #define PLAYER_PID_STACK_SIZE 16
 
 
-typedef	char			boolexp_type;
-
-#define	BOOLEXP_AND		0
-#define	BOOLEXP_OR		1
-#define	BOOLEXP_NOT		2
-#define	BOOLEXP_CONST		3
-#define BOOLEXP_FLAG		4
+enum boolexp_type
+{
+	BOOLEXP_AND		= 0,
+	BOOLEXP_OR		= 1,
+	BOOLEXP_NOT		= 2,
+	BOOLEXP_CONST		= 3,
+	BOOLEXP_FLAG		= 4
+};
 
 class	context;
 class	Pending_alarm;
@@ -266,8 +267,7 @@ class	boolexp
 
 extern		char		*alloc_string		(const char *);
 
-#define	TRUE_BOOLEXP		((boolexp *) 0)
-
+extern boolexp* TRUE_BOOLEXP;
 
 class	object
 {
@@ -359,8 +359,8 @@ class	object
 	virtual		void	set_codelanguage		(const String&);
 	virtual		void	set_csucc			(const dbref o);
 	virtual		void	set_cfail			(const dbref o);
-	virtual		void	set_size			(const int);
-	virtual		int	get_size			()			const	{return 0;}
+	virtual		void	set_size			(const size_t);
+	virtual		size_t	get_size			()			const	{return 0;}
 	virtual unsigned int	inherited_lines_in_cmd_blk(const unsigned) const;
 	virtual	unsigned int	reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line)	const;
 	/* Massy_object */

@@ -94,13 +94,14 @@ class	Scope
 {
 private:
 	Scope& operator=(const Scope&); // DUMMY
+	Scope (const Scope &os);
 
     private:
 
 		const	Scope		*outer_scope;
     public:
 			int		current_line;
-					Scope			(const Scope &os);
+					Scope			(const Scope *os);
 	virtual				~Scope () {}
 	virtual	const	int		line_for_outer_scope	()	const	= 0;
 	virtual	const	int		line_for_inner_scope	()	const;
@@ -138,7 +139,7 @@ class	Brace_scope
 			char		smashed_base [MAX_COMMAND_LEN];
 			char		*smashed_current;
     public:
-					Brace_scope		(const Scope &os, const context &c);
+					Brace_scope		(const Scope *os, const context &c);
 	virtual				~Brace_scope		();
 	virtual		Command_action	step_once		(context *);
 };
@@ -154,7 +155,7 @@ class	If_scope
     protected:
 	virtual	const	int		line_for_outer_scope	()	const;
     public:
-					If_scope	(const Scope &os, bool i);
+					If_scope	(const Scope *os, bool i);
 	virtual				~If_scope	()			{}
 			Command_action	step_once	(context *);
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
@@ -172,7 +173,7 @@ class	Loop
 			int		start_line;
 			int		end_line;
     protected:
-					Loop		(const Scope &os);
+					Loop		(const Scope *os);
 	virtual	const	int		line_for_outer_scope	()	const;
 	virtual		bool		loopagain	()			= 0;
 	virtual		bool		shouldrun	()	const		= 0;
@@ -200,7 +201,7 @@ private:
 	virtual		bool		loopagain	();
 	virtual		bool		do_at_break	();
     public:
-					For_loop	(const Scope &os, int in_start, int in_end, int in_step, const String& name);
+					For_loop	(const Scope *os, int in_start, int in_end, int in_step, const String& name);
 	virtual				~For_loop	()			{}
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
 };
@@ -222,7 +223,7 @@ class	With_loop
 	virtual		bool		loopagain	();
 	virtual		bool		do_at_break	();
     public:
-					With_loop	(const Scope &os, dbref d, const char *index_name, const char *element_name);
+					With_loop	(const Scope *os, dbref d, const char *index_name, const char *element_name);
 	virtual				~With_loop	()			{}
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
 };
@@ -298,7 +299,7 @@ private:
 			void		do_at_returnchain	(context &);
 			bool		do_at_break		(context &);
 			bool		do_at_continue		(context &);
-		const	Scope		&innermost_scope	()	const;
+		const	Scope		*innermost_scope	()	const;
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
 		String_pair		*locate_innermost_arg	(const String& name)	const;
 

@@ -380,7 +380,7 @@ const	String& arg2)
 
 	if(string_compare(arg1, "ban")==0)
 	{
-		unsigned	int	i;
+				size_t	i;
 		unsigned	long	host_num;
 				char	*host;
 				char	*mask;

@@ -37,8 +37,8 @@ const context context::UNPARSE_CONTEXT (UNPARSE_ID, context::DEFAULT_CONTEXT);
 /************************************************************************/
 
 Scope::Scope (
-const	Scope	&os)
-: outer_scope (&os), current_line((&os)?outer_scope->line_for_inner_scope():1)
+const	Scope	*os)
+: outer_scope (os), current_line((os)?outer_scope->line_for_inner_scope():1)
 
 {
 }
@@ -267,7 +267,7 @@ const	dbref	eid,
 	Matcher	*m,
 	bool	silent)
 : Command_and_arguments (sc, a1, a2, m)
-, Scope (*(Scope *)0)
+, Scope (NULL)
 , command(NOTHING)
 , player(c->get_player())
 , effective_id (eid)
@@ -370,15 +370,15 @@ const
 }
 
 
-const Scope &
+const Scope *
 Compound_command_and_arguments::innermost_scope ()
 const
 
 {
 	if (scope_stack.empty ())
-		return *this;
+		return this;
 	else
-		return *scope_stack.top ();
+		return scope_stack.top ();
 }
 
 
@@ -503,8 +503,9 @@ context		*context)
 						notify_public_colour (player, player, COLOUR_FAILURE, "%s", db[command].get_inherited_fail_message ().c_str());
 					if ((!Silent (player)) && db [command].get_inherited_ofail ())
 					{
-						pronoun_substitute (scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_ofail ());
-						notify_except (db[db[player].get_location ()].get_contents (), player, player, scratch_buffer);
+						String temp;
+						pronoun_substitute(temp, player, db[command].get_inherited_ofail ());
+						notify_except (db[db[player].get_location ()].get_contents (), player, player, temp);
 					}
 				}
 				else
@@ -536,8 +537,9 @@ context		*context)
 						notify_public_colour(player, player, COLOUR_SUCCESS, "%s", db[command].get_inherited_succ_message ().c_str());
 					if((!Silent (player)) && db[command].get_inherited_osuccess () && !Dark(player))
 					{
-						pronoun_substitute(scratch_buffer, BUFFER_LEN, player, db[command].get_inherited_osuccess ());
-						notify_except(db[db[player].get_location ()].get_contents (), player, player, scratch_buffer);
+						String temp;
+						pronoun_substitute(temp, player, db[command].get_inherited_osuccess ());
+						notify_except(db[db[player].get_location ()].get_contents (), player, player, temp);
 					}
 				}
 				else
@@ -1008,19 +1010,13 @@ const	String& v)
 /************************************************************************/
 
 If_scope::If_scope (
-const	Scope	&os,
+const	Scope	*os,
 	bool	i)
 : Scope (os)
 , if_ok (i)
 , stop_line ((db[get_command()].get_parse_helper(current_line)) & 0xff)
 , endif_line((db[get_command()].get_parse_helper(current_line)) >> 8)
 {
-//	dbref	command = get_command ();
-//	unsigned short	temp = db [command].get_parse_helper (current_line);
-
-//	stop_line = temp & 0xff;
-//	endif_line = temp >> 8;
-
 	/* Flip to the elseif / endif if required */
 	if (!if_ok)
 	{
@@ -1128,9 +1124,9 @@ context	*c)
 /************************************************************************/
 
 Loop::Loop (
-const	Scope	&os)
+const	Scope	*os)
 : Scope (os)
-, start_line (os.line_for_inner_scope ())
+, start_line (os->line_for_inner_scope ())
 , end_line (db [get_command ()].get_parse_helper (start_line))
 {
 
@@ -1190,7 +1186,7 @@ context	*c)
 
 
 With_loop::With_loop (
-const	Scope	&os,
+const	Scope	*os,
 	dbref	d,
 const	char	*index_name,
 const	char	*element_name)
@@ -1269,7 +1265,7 @@ With_loop::loopagain ()
 
 
 For_loop::For_loop (
-const	Scope	&os,
+const	Scope	*os,
 	int	in_start,
 	int	in_end,
 	int	in_step,

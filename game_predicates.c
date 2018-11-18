@@ -107,7 +107,6 @@ const	char	*default_fail_msg)
 
 {
 	dbref	loc;
-	char	buf[BUFFER_LEN];
 
 	if ((loc = getloc(c.get_player ())) == NOTHING)
 		return false;
@@ -125,8 +124,9 @@ const	char	*default_fail_msg)
 		
 			if(db[thing].get_inherited_ofail() && !Dark(c.get_player ()))
 			{
-				pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_ofail ());
-				notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
+				String temp;
+				pronoun_substitute(temp, c.get_player (), db[thing].get_inherited_ofail ());
+				notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), temp);
 			}
 		}
 		else if(default_fail_msg)
@@ -142,8 +142,9 @@ const	char	*default_fail_msg)
 
 		if(db[thing].get_inherited_osuccess() && !Dark(c.get_player ()))
 		{
-			pronoun_substitute(buf, BUFFER_LEN, c.get_player (), db[thing].get_inherited_osuccess());
-			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), buf);
+			String temp;
+			pronoun_substitute(temp, c.get_player (), db[thing].get_inherited_osuccess());
+			notify_except(db[loc].get_contents(), c.get_player(), c.get_player (), temp);
 		}
 
 		return true;

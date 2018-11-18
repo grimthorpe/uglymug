@@ -202,7 +202,7 @@ dbref			effective_player)
 		absolute = NOTHING;
 
 	/* Find the object's location (if supplied) */
-	int colon;
+	ssize_t colon;
 	while((colon=beginning.find(':')) != -1)
 	{
 		if(colon == 0)
@@ -211,8 +211,8 @@ dbref			effective_player)
 		}
 		else
 		{
-			int openindex = beginning.find('[');
-			int closeindex = beginning.find(']');
+			ssize_t openindex = beginning.find('[');
+			ssize_t closeindex = beginning.find(']');
 			if((openindex != -1) && (openindex < colon)
 				&& (closeindex != -1) && (closeindex < colon))
 			{
@@ -238,8 +238,8 @@ dbref			effective_player)
 		}
 	}
 
-	int openindex = beginning.find('[');
-	int closeindex = beginning.find(']');
+	ssize_t openindex = beginning.find('[');
+	ssize_t closeindex = beginning.find(']');
 
 	if((openindex != -1) && (closeindex != -1) && (openindex < closeindex))
 	{
@@ -567,7 +567,7 @@ dbref	first)
 {
 	DOREALLIST (first, first)
         {
-		if (!Dark(first) || controls_for_read (effective_who, first, effective_who));
+		if (!Dark(first) || controls_for_read (effective_who, first, effective_who))
 		{
 			if (semicolon_string_match (db [first].get_inherited_name (), match_name))
 			{
@@ -1218,8 +1218,8 @@ const	String& arg)
 
 {
 	/** For now, assume type == "leaf" **/
-	unsigned int		pos;
-	Matcher			*matcher = (Matcher *) NULL;
+	size_t		pos;
+	Matcher		*matcher = (Matcher *) NULL;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);

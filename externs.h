@@ -151,14 +151,16 @@ extern	bool	can_link		(const context &c, const dbref exit);
 
 /* From speech.c */
 extern	void		notify_except		(dbref first, dbref originator, dbref exception, const char *msg);
+extern	void		notify_except		(dbref first, dbref originator, dbref exception, const String& msg);
 extern	void		notify_except2		(dbref first, dbref originator, dbref exc1, dbref exc2, const char *msg);
+extern	void		notify_except2		(dbref first, dbref originator, dbref exc1, dbref exc2, const String& msg);
 extern	int		blank			(const char *s);
 extern	String		reconstruct_message	(const String& arg1, const String& arg2);
 
 /* From stringutil.c */
 extern	bool		semicolon_string_match	(const String&, const String&);
 extern	void		init_strings		();
-extern	void		pronoun_substitute	(char *result, unsigned int buffer_length, dbref player, const String& str);
+extern	void		pronoun_substitute	(String& result, dbref player, const String& str);
 extern	int		string_compare		(const String& s1, const String& s2);
 extern	int		string_compare		(const String& s1, const char* s2);
 extern	int		string_compare		(const char* s1, const String& s2);

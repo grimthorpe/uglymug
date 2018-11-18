@@ -34,7 +34,7 @@ private:
 	Array_storage(const Array_storage&); // DUMMY
 	Array_storage& operator=(const Array_storage&); // DUMMY
 	private:
-		int		size;
+		size_t		size;
 	public:
 				Array_storage		();
 	virtual			~Array_storage		();
@@ -47,8 +47,8 @@ private:
 	virtual const	int		exist_element		(const int)		const;
 		void		insert_element		(const int, const String&);
 	const	bool		destroy			(const dbref);
-    		void		set_size		(const int value)	{ size = value; }
-		int		get_size		()			{ return size; }
+    		void		set_size		(const size_t value)	{ size = value; }
+		size_t		get_size		()			{ return size; }
 	const	bool		write			(FILE *f)		const;
 //	const	bool		read			(FILE* f);
 		void		sort_elements		(int);

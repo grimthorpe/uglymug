@@ -19,23 +19,26 @@
 // NewBuffer - static method that returns a StringBuffer.
 // len is defaulted to 0 in the definition..
 StringBuffer*
-StringBuffer::NewBuffer(const char* ptr, unsigned int len)
+StringBuffer::NewBuffer(const char* ptr, size_t len, size_t capacity)
 {
 // Have a static data member; When NULLSTRING is destroyed, the 
 // reference count on it should go to 0, and it will go too.
 static StringBuffer* EmptyBuffer = new StringBuffer();
 
-	if(!ptr || !*ptr)
+	if(capacity == 0)
 	{
-		// If there is no data to store, then return the default empty one.
-		return EmptyBuffer;
+		if(!ptr || !*ptr)
+		{
+			// If there is no data to store, then return the default empty one.
+			return EmptyBuffer;
+		}
 	}
 
 	if(!len)
 	{
-		return new StringBuffer(ptr);
+		return new StringBuffer(ptr, 0, capacity);
 	}
-	return new StringBuffer(ptr, len);
+	return new StringBuffer(ptr, len, capacity);
 }
 
 String NULLSTRING;
@@ -43,7 +46,7 @@ String NULLSTRING;
 #define STRINGBUFFER_GROWSIZE	64
 
 // copy is defaulted to true in the definition
-void StringBuffer::resize(unsigned int newsize, bool copy)
+void StringBuffer::resize(size_t newsize, bool copy)
 {
 	if(newsize <= _capacity)
 		return;
@@ -68,7 +71,7 @@ StringBuffer::~StringBuffer() // Private so that nobody can delete this. Use the
 	_buf = 0;
 }
 // capacity is defaulted to 0 in the definition 
-StringBuffer::StringBuffer(unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
+StringBuffer::StringBuffer(size_t capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
 	resize(capacity, false);
 }
@@ -79,20 +82,20 @@ StringBuffer::StringBuffer(const char* str) : _buf(0), _len(0), _capacity(0), _r
 		assign(str, strlen(str));
 	}
 }
-StringBuffer::StringBuffer(const char* str, unsigned int len, unsigned int capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
+StringBuffer::StringBuffer(const char* str, size_t len, size_t capacity) : _buf(0), _len(0), _capacity(0), _ref(0)
 {
-	resize(capacity, false);	// Make sure we've got enough space.
+	if(capacity > 0)
+		resize(capacity, false);	// Make sure we've got enough space.
 	if(str && *str)
 	{
+		if(len == 0)
+			len=strlen(str);
 		assign(str, len);
 	}
 }
 
-void StringBuffer::assign(const char* str, int len)
+void StringBuffer::assign(const char* str, size_t len)
 {
-	if(len < 0)
-		len = 0; // Avoid accidental errors in string lengths.
-
 	resize(len, false);
 	if(str)
 	{
@@ -108,20 +111,18 @@ void StringBuffer::assign(const char* str, int len)
 }
 void StringBuffer::ref()
 {
-	if(this)
-		_ref++;
+	_ref++;
 }
 void StringBuffer::unref()
 {
-	if((this) && ((--_ref) == 0))
+	if((--_ref) == 0)
 	{
-		//if(this != &EMPTYBUFFER)
-			delete const_cast<StringBuffer*>(this);
+		delete const_cast<StringBuffer*>(this);
 	}
 }
 
 void
-StringBuffer::append(const char* other, unsigned int len)
+StringBuffer::append(const char* other, size_t len)
 {
 	resize(_len+len, true);
 	memcpy(_buf+_len, other, len);
@@ -129,6 +130,12 @@ StringBuffer::append(const char* other, unsigned int len)
 	_buf[_len] = 0;
 }
 
+void
+StringBuffer::fill(const char c, size_t len)
+{
+	resize(len);
+	memset(_buf, c, len);
+}
 
 String::~String()
 {
@@ -142,7 +149,7 @@ String::String(const char* str) : _buffer(0)
 	_buffer->ref();
 }
 
-String::String(const char* str, unsigned int len) : _buffer(0)
+String::String(const char* str, size_t len) : _buffer(0)
 {
 	_buffer = StringBuffer::NewBuffer(str, len);
 	_buffer->ref();
@@ -150,7 +157,10 @@ String::String(const char* str, unsigned int len) : _buffer(0)
 
 String::String(const String& str) : _buffer(0)
 {
-	_buffer=str._buffer;
+	if(str._buffer != NULL)
+		_buffer=str._buffer;
+	else
+		_buffer = StringBuffer::NewBuffer(NULL);
 	_buffer->ref();
 }
 
@@ -160,14 +170,21 @@ String::String(StringBuffer* buf) : _buffer(0)
 	_buffer->ref();
 }
 
+String::String(const char c, size_t repeat) : _buffer(0)
+{
+	_buffer=StringBuffer::NewBuffer(NULL, 0, repeat);
+	_buffer->ref();
+	_buffer->fill(c, repeat);
+}
+
 String& String::operator=(const String& cstr)
 {
-	if(cstr._buffer != _buffer)
-	{
-		_buffer->unref();
-		_buffer = cstr._buffer;
-		_buffer->ref();
-	}
+	StringBuffer* oldbuf=_buffer;
+
+	_buffer=cstr._buffer;
+	_buffer->ref();
+	oldbuf->unref();
+
 	return *this;
 }
 
@@ -258,39 +275,48 @@ const String &s)
 }
 
 String
-chop_string(const String& string, int size)
+chop_string(const String& string, size_t size)
 {
 	return chop_string(string.c_str(), size);
 }
 
 String
-chop_string(const char* string, int size)
+chop_string(const char* string, size_t size)
 {
 	String retval;
-	const char* p = string;
-	for(int i = 0; i < size; i++)
+	if(string != NULL)
 	{
-		if(!*p)
-			break;
-		if(*p++ == '%')
+		const char* p = string;
+		for(size_t i = 0; i < size; i++)
 		{
-			size++;
-			if(*p != '%')
+			if(!*p)
+				break;
+			if(*p++ == '%')
 			{
 				size++;
-				p++;
+				if(*p != '%')
+				{
+					size++;
+					p++;
+				}
 			}
 		}
 	}
 
-	retval.printf("%-*.*s", size, size, string);
+	retval.printf("%-*.*s", (int)size, (int)size, string);
 	return retval;
 }
 
 String
-String::substring(int start, int len /* = -1 */) const
+String::substring(size_t start) const
 {
-	int totallength = (int)length();
+	return substring(start, length()-start);
+}
+
+String
+String::substring(size_t start, size_t len) const
+{
+	size_t totallength = length();
 	if((len == 0) || (start >= totallength))
 		return NULLSTRING;
 
@@ -300,25 +326,23 @@ String::substring(int start, int len /* = -1 */) const
 	return String(c_str() + start, len);
 }
 
-int
-String::find(char c, int start /* = 0 */) const
+ssize_t
+String::find(char c, size_t start /* = 0 */) const
 {
-	if(start < 0)
-		return 0;
-	int len = length();
+	size_t len = length();
 	const char* ptr = c_str();
-	for(int pos = start; pos < len; pos++)
+	for(size_t pos = start; pos < len; pos++)
 	{
 		if(ptr[pos] == c)
-			return pos;
+			return (ssize_t)pos;
 	}
 	return -1;
 }
 
 char
-String::operator[](int pos) const
+String::operator[](size_t pos) const
 {
-	if(pos < (int)length())
+	if(pos < length())
 		return c_str()[pos];
 	return '\0';
 }
@@ -353,21 +377,30 @@ StringBuffer::printf(const char *fmt, va_list va)
 {
 	int size;
 
-	while(true)
+	for(int i=0; i < 2; i++)
 	{
 		va_list va2;
 		va_copy(va2, va);
 		size = vsnprintf(_buf, _capacity, fmt, va2);
-		if((size > -1) && (size < _capacity))
+		va_end(va2);
+		if(size > -1)
 		{
-			_len = size;
-			va_end(va2);
-			return;
+			if((size_t)size < _capacity)
+			{
+				_len = (size_t)size;
+				return;
+			}
+			else
+				resize(size + 1, false);
 		}
-		else if(size > -1)
-			resize(size + 1);
 		else
-			resize(_capacity + 512);
+		{
+			// SUSv2 fix - set _capacity to > 0
+			resize(_capacity + 512, false);
+		}
 	}
+	// If we've not returned before now then we've tried
+	// too many times.
+	_len=0;
 }
 

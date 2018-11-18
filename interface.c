@@ -249,7 +249,7 @@ int	iac_we_use[] =
 };
 
 void
-descriptor_data::do_write(const char * c, int i)
+descriptor_data::do_write(const char * c, size_t i)
 {
 /*
  * There is a logic behind this function!
@@ -292,7 +292,7 @@ static	int			outgoing_conc_data_waiting = 0;
 
 void				process_commands	(time_t now);
 void				make_nonblocking	(int s);
-const	char			*convert_addr 		(unsigned long);
+const	char			*convert_addr 		(uint32_t);
 struct	descriptor_data		*new_connection		(SOCKET sock);
 void				parse_connect 		(const char *msg, char *command, char *user, char *pass);
 SOCKET				make_socket		(int, unsigned long);
@@ -1981,7 +1981,7 @@ static GeoIP* GeoLocResolver = GeoIP_new(GEOIP_STANDARD);
 
 const char *
 convert_addr (
-unsigned long addr)
+uint32_t addr)
 
 {
 	struct	hostent	*he;
@@ -1991,7 +1991,7 @@ unsigned long addr)
 
 	if(!get_cached_addr(addr, retbuffer))
 	{
-		long bsaddr = ntohl(addr);
+		uint32_t bsaddr = ntohl(addr);
 		if (smd_dnslookup (addr))
 		{
 			if((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL)
@@ -2253,7 +2253,7 @@ int
 text_buffer::write(int fd)
 {
 int written;
-int towrite = m_data.length();
+size_t towrite = m_data.length();
 const char* data = m_data.c_str();
 	do
 	{
@@ -3866,11 +3866,11 @@ int			flags)
 {
 	struct	descriptor_data	*d;
 	time_t			now;
-	int			length;
+	time_t			length;
 	int			users = 0;
 	int			local = 0, inet = 0, logthrough = 0;
 	int			builder = 0, wizard = 0, haven = 0;
-	int			uptime;
+	time_t			uptime;
 	int			gotonealready = 0;
 
 	int			firstchar;
@@ -5163,7 +5163,7 @@ void
 smd_updated()
 {
 struct descriptor_data *d;
-u_long	host_addr;
+uint32_t	host_addr;
 
 	for(d=descriptor_list; d!=NULL; d=d->next)
 	{
