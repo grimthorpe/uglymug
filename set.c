@@ -304,7 +304,7 @@ const	String& newrace)
 
 {
 	dbref	thing;
-	int	newlinecheck;
+	ssize_t	newlinecheck;
 	String	checkrace = newrace;
 
 	return_status = COMMAND_FAIL;
@@ -350,7 +350,7 @@ const	String& newname)
 	dbref	thing;
 	int	value;
 	time_t	now;
-	int	temp = 0;
+	time_t	temp = 0;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
