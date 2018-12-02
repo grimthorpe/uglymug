@@ -961,7 +961,7 @@ const	int	element,
 const	String& string)
 
 {
-	int this_size;
+	ssize_t this_size;
 
 // Truncate to MAX_WIZARD_ARRAY_ELEMENTS entries. Silently.
 // We should really bug this one, but given that our recent problem
@@ -2433,7 +2433,7 @@ unsigned int Command::inherited_lines_in_cmd_blk(const unsigned start_line) cons
 unsigned Command::reconstruct_command_block(char *const command_block, const unsigned max_size, const unsigned start_line) const
 {
 	static const char too_big[]="TooBig";
-	unsigned space_left=max_size;
+	size_t space_left=max_size;
 	bool it_dont_fit=false;
 	unsigned	current_line=start_line;
 	bool first=true;
