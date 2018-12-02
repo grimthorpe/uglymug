@@ -246,7 +246,7 @@ $(BUILD_DIR)/%.d: %.c version.h
 	rm -f $@.$$$$
 
 $(BUILD_DIR)/Makefile.local: configure
-	sh ./configure $(BUILD_DIR)/Makefile.local
+	bash ./configure $(BUILD_DIR)/Makefile.local
 
 # regexp_interface.h changes depending on the local configuration.
 regexp_interface.h: $(BUILD_DIR)/Makefile.local

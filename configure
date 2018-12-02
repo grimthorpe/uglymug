@@ -23,9 +23,9 @@ if which pkg-config > /dev/null 2>&1; then
     LD_LIBGEOIP="`pkg-config --libs geoip`"
     CC_LIBGEOIP="`pkg-config --cflags geoip` -DGEOIP"
   fi
-  if pkg-config libpcre; then
-    LD_LUA="`pkg-config --libs lua`"
-    CC_LUA="`pkg-config --cflags lua` -DLUA"
+  if pkg-config lua5.3; then
+    LD_LUA="`pkg-config --libs lua5.3`"
+    CC_LUA="`pkg-config --cflags lua5.3` -DLUA"
   fi
 else
   for i in /usr/lib /usr/lib/i386-linux-gnu /usr/local/lib /opt/pcre/lib; do
