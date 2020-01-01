@@ -346,9 +346,9 @@ public:
 		dbref			player;
 		dbref			trace_command;
 		Call_stack		call_stack;
-		int			commands_executed;
-		int			sneaky_executed_depth;
-		int			step_limit;
+		size_t			commands_executed;
+		size_t			sneaky_executed_depth;
+		size_t			step_limit;
 		size_t			depth_limit;
 		String			return_string;
 		Command_status		return_status;
@@ -369,7 +369,7 @@ public:
 	virtual				~context		();
 		void			execute_commands	();
 		void			command_executed	()	{ commands_executed++; }
-		void			set_step_limit		(int new_limit)	{ step_limit = new_limit; }
+		void			set_step_limit		(size_t new_limit)	{ step_limit = new_limit; }
 		void			set_depth_limit		(size_t new_limit)	{ depth_limit = new_limit; }
 	const	bool			set_effective_id	(dbref i);
 	const	bool			set_unchpid_id		(dbref i);
@@ -377,9 +377,9 @@ public:
 	const	bool			scheduled		()	const	{ return m_scheduled; }	///< Return whether this context is currently scheduled.
 		void			set_return_string	(const String& rs) { return_string = rs; }
 		void			calling_from_command	()		{ called_from_command = true; }
-	const	int			get_commands_executed	()	const	{ return (commands_executed); }
-	const	int			get_sneaky_executed_depth()	const	{ return (sneaky_executed_depth); }
-		void			set_sneaky_executed_depth(int d)	{ sneaky_executed_depth = d; }
+	const	size_t			get_commands_executed	()	const	{ return (commands_executed); }
+	const	size_t			get_sneaky_executed_depth()	const	{ return (sneaky_executed_depth); }
+		void			set_sneaky_executed_depth(size_t d)	{ sneaky_executed_depth = d; }
 	const	size_t			get_depth_limit		()	const	{ return (depth_limit); }
 	const	dbref			get_player		()	const	{ return (player); }
 	const	dbref			get_unchpid_id		()	const;

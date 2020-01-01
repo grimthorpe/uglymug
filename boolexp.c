@@ -19,7 +19,7 @@
 #include "colour.h"
 #include "log.h"
 
-static	int	commands_executed;
+static	size_t	commands_executed;
 
 boolexp* TRUE_BOOLEXP=new boolexp(BOOLEXP_CONST);
 

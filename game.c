@@ -368,9 +368,9 @@ const	unsigned int	command_table_size = (sizeof (command_table) / sizeof (comman
 void
 context::do_query_stepsleft(const String&, const String&)
 {
-	char tmp[21];
+	char tmp[256];
 
-	sprintf(tmp, "%d", (step_limit - commands_executed));
+	snprintf(tmp, sizeof(tmp), "%ld", (step_limit - commands_executed));
 	return_status = COMMAND_SUCC;
 	set_return_string(tmp);
 }
@@ -1490,7 +1490,6 @@ void mud_time_sync ()
 	dbref		an_alarm;
 	dbref		a_command;
 	dbref		a_location;
-	dbref		cached_location;
 	int		recursion_counter = 0;
         time_t		now;
 
@@ -1530,18 +1529,15 @@ void mud_time_sync ()
 				the_player = db[a_command].get_owner();
 				if (payfor (the_player, ALARM_EXECUTE_COST))
 				{
-					cached_location = db[the_player].get_location();
 					a_location = db[a_command].get_location();
 					if ((Typeof (a_location) == TYPE_PLAYER) || (Typeof (a_location) == TYPE_PUPPET))
 						a_location = db[a_location].get_location();
 					db[the_player].set_remote_location(a_location);
 					Accessed(a_location);
-					//moveto (the_player, a_location);
 					context *alarm_context = new context (the_player, context::DEFAULT_CONTEXT);
 					alarm_context->prepare_compound_command (a_command, "ALARM", "", "");
 					delete mud_scheduler.push_new_express_job (alarm_context);
 					db[the_player].set_remote_location(db[the_player].get_real_location());
-					//moveto (the_player, cached_location);
 				}
 				else
 				{
