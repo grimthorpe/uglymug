@@ -27,6 +27,10 @@
 #include "interface.h"
 #include "log.h"
 
+#define EXITCODE_UNABLE_TO_OPEN_PANIC_DUMP_FILE 135
+#define EXITCODE_PANIC 136
+#define EXITCODE_DOUBLE_PANIC 137
+
 /* Bits'n'pieces that SunOS appears not to define in any of its header files. PJC 15/4/96.
 #ifdef	__sun
 extern	int	nice	(int);
@@ -605,13 +609,13 @@ dump_database_internal ()
 
 
 void
-dump_core ()
+dump_core (int exitcode)
 
 {
 #if	HAS_SIGNALS
 	kill (getpid (), SIGQUIT);
 #endif	/* HAS_SIGNALS */
-	_exit(1);
+	_exit(exitcode);
 }
 
 
@@ -627,7 +631,7 @@ int	sig)
 
 {
 	log_panic ("DOUBLE PANIC: Got signal %d during panic dump!", sig);
-	dump_core ();
+	dump_core (EXITCODE_DOUBLE_PANIC);
 }
 #endif	/* HAS_SIGNALS */
 
@@ -660,7 +664,7 @@ const	char	*message)
 	if ((f = fopen (panicfile, "w")) == NULL)
 	{
 		perror ("Cannot open panic file (the game has lost data)");
-		exitcode = 135;
+		exitcode = EXITCODE_UNABLE_TO_OPEN_PANIC_DUMP_FILE;
 	}
 	else
 	{
@@ -668,13 +672,13 @@ const	char	*message)
 		db.write (f);
 		fclose (f);
 		log_dumping(true, panicfile);
-		exitcode = 136;
+		exitcode = EXITCODE_PANIC;
 	}
 
 	/** Interface shutdown moved here while debugging interface problems. PJC 20/2/95. **/
 	/* shut down interface */
 	emergency_shutdown ();
-	dump_core ();
+	dump_core (exitcode);
 }
 
 
