@@ -919,7 +919,7 @@ const	String& options)
 					(last==0) ? "Unknown" : ctime(&last), 
 					COLOUR_REVERT);
 
-				int i;
+				size_t i;
 				for (i= strlen(scratch_buffer) ; (scratch_buffer[i] != '\n') && (i > 0) ;  i--);
 				if (scratch_buffer[i]=='\n')
 				    scratch_buffer[i]='\0';
@@ -1840,7 +1840,7 @@ const	String& string)
 		for (i=0 ; i < db.get_top(); i++)
 			if ((Typeof (i) != TYPE_FREE) && (db[i].get_parent() == victim))
 				notify_censor_colour(player, player, COLOUR_MESSAGES, "%s",unparse_object(*this, i).c_str());
-			notify_colour(player, player, COLOUR_CONTENTS, "*** End of List ***");
+		notify_colour(player, player, COLOUR_CONTENTS, "*** End of List ***");
 		return;
 	}
 
@@ -2116,32 +2116,32 @@ const	String& string)
 char *time_string (time_t interval)
 {
 	static char buffer[80];
-	int years, days, hours, minutes, seconds;
+	time_t years, days, hours, minutes, seconds;
 
 	/* Obviously the year value is an approximation, but good enough for
 	   our purposes. */
 	interval -= (years = interval / 31557600L) * 31557600L;
-	interval -= (days = interval / 86400) * 86400;
-	interval -= (hours = interval / 3600) * 3600;
-	interval -= (minutes = interval / 60) * 60;
+	interval -= (days = interval / 86400L) * 86400L;
+	interval -= (hours = interval / 3600L) * 3600L;
+	interval -= (minutes = interval / 60L) * 60L;
 	seconds= interval;
 	*buffer = '\0';
 
 	if (years > 0)
-		sprintf (buffer, "%d year%s", years, PLURAL (years));
+		sprintf (buffer, "%ld year%s", years, PLURAL (years));
 	if (days > 0)
 	{
-		sprintf (scratch_buffer, "%s%d day%s", (!*buffer) ? "" : (hours > 0 || minutes > 0 || seconds > 0)? ", ":" and ", days, PLURAL (days));
+		sprintf (scratch_buffer, "%s%ld day%s", (!*buffer) ? "" : (hours > 0 || minutes > 0 || seconds > 0)? ", ":" and ", days, PLURAL (days));
 		strcat (buffer, scratch_buffer);
 	}
 	if (hours > 0)
 	{
-		sprintf (scratch_buffer, "%s%d hour%s", (!*buffer) ? "" : (minutes > 0 || seconds > 0) ? ", ":" and ", hours, PLURAL (hours));
+		sprintf (scratch_buffer, "%s%ld hour%s", (!*buffer) ? "" : (minutes > 0 || seconds > 0) ? ", ":" and ", hours, PLURAL (hours));
 		strcat (buffer, scratch_buffer);
 	}
 	if (minutes > 0)
 	{
-		sprintf (scratch_buffer, "%s%d minute%s", (!*buffer) ? "" : (seconds > 0) ? ", ":" and ", minutes, PLURAL (minutes));
+		sprintf (scratch_buffer, "%s%ld minute%s", (!*buffer) ? "" : (seconds > 0) ? ", ":" and ", minutes, PLURAL (minutes));
 		strcat (buffer, scratch_buffer);
 	}
 	if (seconds > 0)
@@ -2158,27 +2158,27 @@ char *time_string (time_t interval)
 char *small_time_string (time_t interval)
 {
 	static char buffer[80];
-	int days, hours, minutes;
+	time_t days, hours, minutes;
 
-	interval -= (days = interval / 86400) * 86400;
-	interval -= (hours = interval / 3600) * 3600;
-	interval -= (minutes = interval / 60) * 60;
+	interval -= (days = interval / 86400L) * 86400L;
+	interval -= (hours = interval / 3600L) * 3600L;
+	interval -= (minutes = interval / 60L) * 60L;
 
 	*buffer = '\0';
 
 	if (days > 0)
 	{
-		sprintf (scratch_buffer, "%d day%s, ", days, PLURAL (days));
+		sprintf (scratch_buffer, "%ld day%s, ", days, PLURAL (days));
 		strcat (buffer, scratch_buffer);
 	}
 	if (hours > 0 || days > 0)
 	{
-		sprintf (scratch_buffer, "%d hour%s%s", hours, PLURAL (hours), ((days == 0)?(", "):("")));
+		sprintf (scratch_buffer, "%ld hour%s%s", hours, PLURAL (hours), ((days == 0)?(", "):("")));
 		strcat (buffer, scratch_buffer);
 	}
 	if ((minutes > 0 || hours > 0) && days == 0)
 	{
-		sprintf (scratch_buffer, "%d minute%s%s", minutes, PLURAL (minutes), ((hours == 0)?(" and "):("")));
+		sprintf (scratch_buffer, "%ld minute%s%s", minutes, PLURAL (minutes), ((hours == 0)?(" and "):("")));
 		strcat (buffer, scratch_buffer);
 	}
 	if (hours == 0 && days == 0)
@@ -2196,14 +2196,14 @@ char *small_time_string (time_t interval)
 static char *tiny_time_string(time_t interval)
 {
 	static char buffer[80];
-	int days, hours, minutes, seconds;
+	time_t days, hours, minutes, seconds;
 
-	interval -= (days = interval / 86400) * 86400;
-	interval -= (hours = interval / 3600) * 3600;
-	interval -= (minutes = interval / 60) * 60;
+	interval -= (days = interval / 86400L) * 86400L;
+	interval -= (hours = interval / 3600L) * 3600L;
+	interval -= (minutes = interval / 60L) * 60L;
 	seconds= interval;
 
-	sprintf (buffer, "%dd%dh%dm%ds", days, hours, minutes, seconds);
+	sprintf (buffer, "%ldd%ldh%ldm%lds", days, hours, minutes, seconds);
 	return buffer;
 }
 
