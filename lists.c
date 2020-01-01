@@ -375,22 +375,22 @@ Player_list::warn_me_if_idle()
 		if (my_idletime < 180)
 			my_idletime=180;
 
-		int the_idle_time = get_idle_time(current->player);
+		time_t the_idle_time = get_idle_time(current->player);
 		if (the_idle_time > (7 *24 * 60 * 60))
 		{
-			sprintf(time_buffer,"for %d weeks and %d days",  the_idle_time/(7 * 24 * 3600), (the_idle_time / (24 *3600)) % 7);
+			sprintf(time_buffer,"for %ld weeks and %ld days",  the_idle_time/(7 * 24 * 3600), (the_idle_time / (24 *3600)) % 7);
 		}
 		else if (the_idle_time > 24 * 60 * 60)
 		{
-			sprintf(time_buffer, "for %d days and %d hours", the_idle_time/(24 * 3600), (the_idle_time / 3600) % 24);
+			sprintf(time_buffer, "for %ld days and %ld hours", the_idle_time/(24 * 3600), (the_idle_time / 3600) % 24);
 		}
 		else if(the_idle_time > 60 * 60)
 		{
-			sprintf(time_buffer,"for %d hours and %d minutes",  the_idle_time/3600, (the_idle_time / 60) % 60);
+			sprintf(time_buffer,"for %ld hours and %ld minutes",  the_idle_time/3600, (the_idle_time / 60) % 60);
 		}
 		else
 		{
-			sprintf(time_buffer, "for %d minutes",  the_idle_time/60);
+			sprintf(time_buffer, "for %ld minutes",  the_idle_time/60);
 		}
 
 		if (my_idletime < get_idle_time(current->player))
