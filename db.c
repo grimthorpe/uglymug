@@ -52,6 +52,7 @@ static	const	char		*getstring	(FILE *);
 static	void			putfieldtype	(FILE *, const int);
 static	const	int		getfieldtype	(FILE *);
 static	const	int		getint		(FILE *);
+static	const	long		getlong		(FILE *);
 static	const	double		getdouble	(FILE *);
 static	boolexp			*getboolexp	(FILE *);
 static	const	dbref		getref		(FILE *);
@@ -96,10 +97,10 @@ const	dbref	ref)
 static void
 putint (
 	FILE	*f,
-const	int	entry)
+const	long	entry)
 
 {
-	fprintf(f, "%d%c", entry, FIELD_SEPARATOR);
+	fprintf(f, "%ld%c", entry, FIELD_SEPARATOR);
 }
 
 
@@ -274,17 +275,17 @@ object::read (
 			{
 				field = get_next_field(f);
 
-				int len = strlen(field) / 2;
+				size_t len = strlen(field) / 2;
 				if(len > FLAGS_WIDTH)
 				{
 					// We've got a problem - the flags are too big for us!
 					log_bug("Problem loading object - flags are too big to load. Expecting %d bytes, got %d bytes", FLAGS_WIDTH, len);
 					exit(1);
 				}
-				for(int count=0;count < len;count++)
+				for(size_t count=0;count < len;count++)
 				{
 					sscanf(&field[count*2], "%02x", &byte);
-					set_flag_byte(count, byte);
+					set_flag_byte(count, (flag_type)byte);
 				}
 			}
 			break;
@@ -301,13 +302,13 @@ object::read (
 			m_owner = getref(f);
 			break;
 		case OBJECT_CTIME:
-			m_ctime = getint(f);
+			m_ctime = getlong(f);
 			break;
 		case OBJECT_MTIME:
-			m_mtime = getint(f);
+			m_mtime = getlong(f);
 			break;
 		case OBJECT_ATIME:
-			m_atime = getint(f);
+			m_atime = getlong(f);
 			break;
 		default:
 			log_bug("Something has gone seriously wrong in object::read\nField Type:%d", fieldtype);
@@ -358,7 +359,7 @@ Dictionary::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case DICTIONARY_NAME:
@@ -374,13 +375,13 @@ Dictionary::read (
 			set_owner_no_check (getref(f));
 			break;
 		case DICTIONARY_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case DICTIONARY_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case DICTIONARY_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case DICTIONARY_ELEMENTS:
 			for(i=getint(f); i; i--)
@@ -445,7 +446,7 @@ Array::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case ARRAY_NAME:
@@ -461,13 +462,13 @@ Array::read (
 			set_owner_no_check (getref(f));
 			break;
 		case ARRAY_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case ARRAY_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case ARRAY_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case ARRAY_ELEMENTS:
 		case ARRAY_STORAGE_ELEMENTS:
@@ -512,7 +513,7 @@ Describable_object::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case DOBJECT_NAME:
@@ -528,13 +529,13 @@ Describable_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case DOBJECT_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case DOBJECT_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case DOBJECT_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case DOBJECT_DESC:
 			set_description(getstring(f));
@@ -616,7 +617,7 @@ Lockable_object::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case LOBJECT_NAME:
@@ -632,13 +633,13 @@ Lockable_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case LOBJECT_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case LOBJECT_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case LOBJECT_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case LOBJECT_DESC:
 			set_description(getstring(f));
@@ -711,7 +712,7 @@ Inheritable_object::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case IOBJECT_NAME:
@@ -727,13 +728,13 @@ Inheritable_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case IOBJECT_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case IOBJECT_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case IOBJECT_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case IOBJECT_DESC:
 			set_description(getstring(f));
@@ -834,7 +835,7 @@ Old_object::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case OOBJECT_NAME:
@@ -850,13 +851,13 @@ Old_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case OOBJECT_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case OOBJECT_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case OOBJECT_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case OOBJECT_DESC:
 			set_description(getstring(f));
@@ -936,7 +937,7 @@ Room::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case ROOM_NAME:
@@ -952,13 +953,13 @@ Room::read (
 			set_owner_no_check (getref(f));
 			break;
 		case ROOM_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case ROOM_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case ROOM_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case ROOM_DESC:
 			set_description(getstring(f));
@@ -1021,7 +1022,7 @@ Room::read (
 			set_volume_limit (getdouble (f));
 			break;
 		case ROOM_LASTENTRY:
-			last_entry_time = getint (f);
+			last_entry_time = getlong (f);
 			break;
 		case ARRAY_STORAGE_ELEMENTS:
 			get_array_elements(f, this);
@@ -1110,7 +1111,7 @@ Massy_object::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case MOBJECT_NAME:
@@ -1126,13 +1127,13 @@ Massy_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case MOBJECT_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case MOBJECT_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case MOBJECT_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case MOBJECT_DESC:
 			set_description(getstring(f));
@@ -1225,7 +1226,7 @@ puppet::read(
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case PUPPET_NAME:
@@ -1241,13 +1242,13 @@ puppet::read(
 			set_owner_no_check (getref(f));
 			break;
 		case PUPPET_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case PUPPET_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case PUPPET_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case PUPPET_DESC:
 			set_description(getstring(f));
@@ -1446,7 +1447,7 @@ Player::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case PLAYER_NAME:
@@ -1465,13 +1466,13 @@ Player::read (
 			set_description(getstring(f));
 			break;
 		case PLAYER_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case PLAYER_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case PLAYER_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case PLAYER_KEY:
 			set_key_no_free (getboolexp (f));
@@ -1616,7 +1617,7 @@ Thing::read (
 			for(int count=0;count < FLAGS_WIDTH;count++)
 			{
 				sscanf(&field[count*2], "%02x", &byte);
-				set_flag_byte(count, byte);
+				set_flag_byte(count, (flag_type)byte);
 			}
 			break;
 		case THING_NAME:
@@ -1632,13 +1633,13 @@ Thing::read (
 			set_owner_no_check (getref(f));
 			break;
 		case THING_CTIME:
-			set_ctime (getint(f));
+			set_ctime (getlong(f));
 			break;
 		case THING_MTIME:
-			set_mtime (getint(f));
+			set_mtime (getlong(f));
 			break;
 		case THING_ATIME:
-			set_atime (getint(f));
+			set_atime (getlong(f));
 			break;
 		case THING_DESC:
 			set_description(getstring(f));
@@ -1778,7 +1779,7 @@ const	char *const	s)
 	if (sscanf (p, "%ld%n", &x, &chars) == 1)
 		/* Valid number */
 		if ((x >= 0) && (p [chars] == '\0'))
-			return (x);
+			return (dbref)(x);
 		else
 			return (NOTHING);
 	else
@@ -1791,12 +1792,22 @@ getref (
 FILE	*f)
 
 {
-	return(atol(get_next_field(f)));
+	return (dbref)getint(f);
 }
 
 
 static const int
 getint (
+FILE	*f)
+
+{
+	return (int)getlong(f);
+}
+
+
+
+static const long
+getlong (
 FILE	*f)
 
 {
@@ -2187,8 +2198,8 @@ reload_buffer (
 FILE *f)
 
 {
-	int	current_length;
-	int	size;
+	size_t	current_length;
+	size_t	size;
 
 	current_length = buffer + LOAD_BUFFER_SIZE - load_pointer;
 	memcpy(buffer, load_pointer, current_length);
