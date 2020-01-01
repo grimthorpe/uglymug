@@ -52,6 +52,7 @@ static	const	char		*getstring	(FILE *);
 static	void			putfieldtype	(FILE *, const int);
 static	const	int		getfieldtype	(FILE *);
 static	const	int		getint		(FILE *);
+static	const	time_t		gettime		(FILE *);
 static	const	long		getlong		(FILE *);
 static	const	double		getdouble	(FILE *);
 static	boolexp			*getboolexp	(FILE *);
@@ -302,13 +303,13 @@ object::read (
 			m_owner = getref(f);
 			break;
 		case OBJECT_CTIME:
-			m_ctime = getlong(f);
+			m_ctime = gettime(f);
 			break;
 		case OBJECT_MTIME:
-			m_mtime = getlong(f);
+			m_mtime = gettime(f);
 			break;
 		case OBJECT_ATIME:
-			m_atime = getlong(f);
+			m_atime = gettime(f);
 			break;
 		default:
 			log_bug("Something has gone seriously wrong in object::read\nField Type:%d", fieldtype);
@@ -375,13 +376,13 @@ Dictionary::read (
 			set_owner_no_check (getref(f));
 			break;
 		case DICTIONARY_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case DICTIONARY_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case DICTIONARY_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case DICTIONARY_ELEMENTS:
 			for(i=getint(f); i; i--)
@@ -462,13 +463,13 @@ Array::read (
 			set_owner_no_check (getref(f));
 			break;
 		case ARRAY_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case ARRAY_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case ARRAY_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case ARRAY_ELEMENTS:
 		case ARRAY_STORAGE_ELEMENTS:
@@ -529,13 +530,13 @@ Describable_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case DOBJECT_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case DOBJECT_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case DOBJECT_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case DOBJECT_DESC:
 			set_description(getstring(f));
@@ -633,13 +634,13 @@ Lockable_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case LOBJECT_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case LOBJECT_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case LOBJECT_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case LOBJECT_DESC:
 			set_description(getstring(f));
@@ -728,13 +729,13 @@ Inheritable_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case IOBJECT_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case IOBJECT_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case IOBJECT_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case IOBJECT_DESC:
 			set_description(getstring(f));
@@ -851,13 +852,13 @@ Old_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case OOBJECT_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case OOBJECT_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case OOBJECT_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case OOBJECT_DESC:
 			set_description(getstring(f));
@@ -953,13 +954,13 @@ Room::read (
 			set_owner_no_check (getref(f));
 			break;
 		case ROOM_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case ROOM_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case ROOM_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case ROOM_DESC:
 			set_description(getstring(f));
@@ -1022,7 +1023,7 @@ Room::read (
 			set_volume_limit (getdouble (f));
 			break;
 		case ROOM_LASTENTRY:
-			last_entry_time = getlong (f);
+			last_entry_time = gettime (f);
 			break;
 		case ARRAY_STORAGE_ELEMENTS:
 			get_array_elements(f, this);
@@ -1127,13 +1128,13 @@ Massy_object::read (
 			set_owner_no_check (getref(f));
 			break;
 		case MOBJECT_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case MOBJECT_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case MOBJECT_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case MOBJECT_DESC:
 			set_description(getstring(f));
@@ -1242,13 +1243,13 @@ puppet::read(
 			set_owner_no_check (getref(f));
 			break;
 		case PUPPET_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case PUPPET_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case PUPPET_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case PUPPET_DESC:
 			set_description(getstring(f));
@@ -1466,13 +1467,13 @@ Player::read (
 			set_description(getstring(f));
 			break;
 		case PLAYER_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case PLAYER_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case PLAYER_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case PLAYER_KEY:
 			set_key_no_free (getboolexp (f));
@@ -1633,13 +1634,13 @@ Thing::read (
 			set_owner_no_check (getref(f));
 			break;
 		case THING_CTIME:
-			set_ctime (getlong(f));
+			set_ctime (gettime(f));
 			break;
 		case THING_MTIME:
-			set_mtime (getlong(f));
+			set_mtime (gettime(f));
 			break;
 		case THING_ATIME:
-			set_atime (getlong(f));
+			set_atime (gettime(f));
 			break;
 		case THING_DESC:
 			set_description(getstring(f));
@@ -1804,6 +1805,14 @@ FILE	*f)
 	return (int)getlong(f);
 }
 
+
+static const time_t
+gettime (
+FILE	*f)
+
+{
+	return (time_t)getlong(f);
+}
 
 
 static const long
