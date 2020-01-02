@@ -854,7 +854,7 @@ context::do_query_first_name (const String& name, const String&)
 	else
 	{
 		String ret = getname(thing);
-		int semipos = ret.find(';');
+		ssize_t semipos = ret.find(';');
 		if(semipos >= 0)
 			ret = ret.substring(0, semipos);
 		set_return_string (ret);
