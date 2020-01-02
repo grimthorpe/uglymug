@@ -45,16 +45,16 @@ public:
 	text_buffer() : m_data(NULLSTRING) {}
 	~text_buffer() {}
 
-	void add(const char* ptr, int len)
+	void add(const char* ptr, size_t len)
 	{
 		m_data += ptr; //String(ptr, len);
 	}
 
-	int flush(unsigned int min_to_drop);
-	int write(int fd);
+	size_t flush(size_t min_to_drop);
+	size_t write(int fd);
 	void clear() { m_data = NULLSTRING; }
 	bool empty() { return !m_data; }
-	int size() { return m_data.length(); }
+	size_t size() { return m_data.length(); }
 private:
 	String	m_data;
 
@@ -114,7 +114,7 @@ public:
 	time_t			last_time;
         time_t                  time_since_idle;
 	int			warning_level;
-	int			quota;
+	time_t			quota;
 	bool			backslash_pending;
 	int			cr_pending;
 	String			hostname;
@@ -219,17 +219,17 @@ public:
 	void	set_player_name(const String& p) { _player_name = p; }
 	void	set_password(const String& p) { _password = p; }
 
-	int	queue_string(const char *, bool show_literally = false, bool store_in_recall_buffer = true);
-	int	queue_string(const String& s, bool show_literally = false, bool store_in_recall_buffer = true)
+	ssize_t	queue_string(const char *, bool show_literally = false, bool store_in_recall_buffer = true);
+	ssize_t	queue_string(const String& s, bool show_literally = false, bool store_in_recall_buffer = true)
 	{
 		return queue_string(s.c_str(), show_literally, store_in_recall_buffer);
 	}
-	int	queue_write(const char *, int len);
+	ssize_t	queue_write(const char *, ssize_t len);
 
 	void	send_telnet_option(unsigned char command, unsigned char option);
 	void	initial_telnet_options();
-	int	process_telnet_options(unsigned char *, int);
-	int	__process_telnet_options(unsigned char *&, unsigned char*&, unsigned char*);
+	ssize_t	process_telnet_options(unsigned char *, ssize_t);
+	ssize_t	__process_telnet_options(unsigned char *&, unsigned char*&, unsigned char*);
 	void	get_value_from_subnegotiation(unsigned char *, unsigned char, int);
 
 	void	set_echo(bool echo);

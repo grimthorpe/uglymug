@@ -292,10 +292,10 @@ static	int			outgoing_conc_data_waiting = 0;
 
 void				process_commands	(time_t now);
 void				make_nonblocking	(int s);
-const	char			*convert_addr 		(uint32_t);
+String				convert_addr 		(uint32_t);
 struct	descriptor_data		*new_connection		(SOCKET sock);
 void				parse_connect 		(const char *msg, char *command, char *user, char *pass);
-SOCKET				make_socket		(int, unsigned long);
+SOCKET				make_socket		(uint16_t, in_addr_t);
 void				bailout			(int);
 u_long				addr_numtoint		(char *, int);
 u_long				addr_strtoint		(char *, int);
@@ -791,8 +791,8 @@ void terminal_underline(dbref player, const char *string)
 {
 
 	struct descriptor_data *d;
-	int twidth=0;
-	int ulen=strlen(string);
+	ssize_t twidth=0;
+	ssize_t ulen=strlen(string);
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
@@ -975,13 +975,13 @@ struct timeval timeval_sub(struct timeval now, struct timeval then)
 	return now;
 }
 
-int msec_diff(struct timeval now, struct timeval then)
+time_t msec_diff(struct timeval now, struct timeval then)
 {
 	return ((now.tv_sec - then.tv_sec) * 1000
 		+ (now.tv_usec - then.tv_usec) / 1000);
 }
 
-struct timeval msec_add(struct timeval t, int x)
+struct timeval msec_add(struct timeval t, time_t x)
 {
 	t.tv_sec += x / 1000;
 	t.tv_usec += (x % 1000) * 1000;
@@ -995,7 +995,7 @@ struct timeval msec_add(struct timeval t, int x)
 
 struct timeval update_quotas(struct timeval last, struct timeval current)
 {
-	int nslices;
+	time_t nslices;
 	struct descriptor_data *d;
 
 	nslices = msec_diff (current, last) / COMMAND_TIME_MSEC;
@@ -1059,7 +1059,7 @@ void mud_main_loop(int argc, char** argv)
 		ListenPorts = new SOCKET [NumberListenPorts];
 		for(int i = 0; i < argc; i++)
 		{
-			ListenPorts[i] = make_socket(atoi(argv[i]), INADDR_ANY);
+			ListenPorts[i] = make_socket((uint16_t)atoi(argv[i]), INADDR_ANY);
 			maxd = MAX(maxd, ListenPorts[i]);
 		}
 	}
@@ -1378,9 +1378,9 @@ struct descriptor_data *new_connection(SOCKET sock)
 
 	if (is_banned (host_addr))
 	{
-		int i;
-		int len = sizeof(reject_message);
-		int offset = 0;
+		size_t i;
+		size_t len = sizeof(reject_message);
+		size_t offset = 0;
 		do
 		{
 			i = write (newsock, reject_message+offset, len);
@@ -1426,12 +1426,12 @@ descriptor_data::send_telnet_option(unsigned char command, unsigned char option)
 	write(get_descriptor(), (const char*)sendbuf, 3);
 }
 
-int
-descriptor_data::process_telnet_options(unsigned char *src, int length)
+ssize_t
+descriptor_data::process_telnet_options(unsigned char *src, ssize_t length)
 {
 	unsigned char* dst = src;
 	unsigned char* end = src + length;
-	int size = 0;
+	ssize_t size = 0;
 	/* Look through it for telnet options */
 
 	while(src < end)
@@ -1442,12 +1442,12 @@ descriptor_data::process_telnet_options(unsigned char *src, int length)
 	return size;
 }
 
-int
+ssize_t
 descriptor_data::__process_telnet_options(unsigned char*&buf, unsigned char*& dst, unsigned char* end)
 {
-int j;
-unsigned char posreply, negreply;
-int count = 0;
+ssize_t j;
+unsigned char negreply;
+ssize_t count = 0;
 /* We may already be in the middle of a telnet option.
  * NOTE: The top-level switch is written so that it falls through
  *       all the different cases in turn. This will (hopefully)
@@ -1478,12 +1478,10 @@ int count = 0;
 			if(t_iac_command == DO)
 			{
 				negreply=WONT;
-				posreply=WILL;
 			}
 			else
 			{
 				negreply=DONT;
-				posreply=DO;
 			}
 
 			t_iac = IAC_OUTSIDE_IAC;
@@ -1768,7 +1766,7 @@ bool descriptor_data::set_terminal_type (const String& termtype)
 	term = strdup(termtype.c_str());
 
 	for(int i = 0; term[i]; i++)
-		term[i] = tolower(term[i]);
+		term[i] = (char)tolower(term[i]);
 
 	int setupterm_error;
 	if (setupterm (term, get_descriptor(), &setupterm_error) != OK)
@@ -1927,14 +1925,14 @@ struct cached_addr
 cached_addr cached_addresses[CACHE_ADDR_SIZE];
 
 bool
-get_cached_addr(u_long addr, char* name)
+get_cached_addr(u_long addr, String& name)
 {
 	int i;
 	for(i = 0; i < CACHE_ADDR_SIZE; i++)
 	{
 		if(cached_addresses[i].addr == addr)
 		{
-			strcpy(name, cached_addresses[i].name.c_str());
+			name=cached_addresses[i].name;
 			cached_addresses[i].count++;
 			time(&(cached_addresses[i].lastused));
 			return true;
@@ -1979,69 +1977,50 @@ set_cached_addr(u_long addr, const String& name)
 static GeoIP* GeoLocResolver = GeoIP_new(GEOIP_STANDARD);
 #endif
 
-const char *
+String
 convert_addr (
 uint32_t addr)
 
 {
 	struct	hostent	*he;
-	static char	retbuffer [MAX(20, MAXHOSTNAMELEN + 10)];
-	char		buffer [MAX(20, MAXHOSTNAMELEN + 10)];
-	char		compare_buffer [MAXHOSTNAMELEN];
+	String hostname;
 
-	if(!get_cached_addr(addr, retbuffer))
+	if(!get_cached_addr(addr, hostname))
 	{
 		uint32_t bsaddr = ntohl(addr);
 		if (smd_dnslookup (addr))
 		{
 			if((he = gethostbyaddr ((char *) &addr, sizeof(addr), AF_INET)) != NULL)
 			{
-				char	*pos;
-
-				strcpy (buffer, he->h_name);
-				strcpy (compare_buffer, DOMAIN_STRING);
-				while (strchr (compare_buffer, '.') != NULL)
-				{
-					if ((pos = strstr (buffer, compare_buffer)) != NULL)
-					{
-						*pos = '\0';
-						break;
-					}
-					else if ((pos = strchr (compare_buffer + 1, '.')) == NULL)
-						break;
-					else
-						strcpy (compare_buffer, pos);
-				}
+				hostname=he->h_name;
 			}
 			else
 			{
-				snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
+				hostname.printf ("%d.%d.%d.%d", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
 			}
 		}
 		else
 		{
 			/* Not local, or not found in db */
-			snprintf (buffer, sizeof(buffer), "%ld.%ld.%ld.%ld", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
+			hostname.printf ("%d.%d.%d.%d", (bsaddr >> 24) & 0xff, (bsaddr >> 16) & 0xff, (bsaddr >> 8) & 0xff, bsaddr & 0xff);
 		}
-		char geoloc[10];
-		geoloc[0]=0;
+		String geoloc;
 #if defined(GEOIP)
 		if(GeoLocResolver != NULL)
 		{
-			snprintf(geoloc, sizeof(geoloc), "(%s) ", GeoIP_country_code_by_ipnum(GeoLocResolver, (unsigned long)bsaddr));
+			geoloc.printf("(%s) ", GeoIP_country_code_by_ipnum(GeoLocResolver, (unsigned long)bsaddr));
 		}
 #endif
-		snprintf(retbuffer, sizeof(retbuffer), "%s%s", geoloc, buffer);
-		set_cached_addr(addr, retbuffer);
+		hostname+=geoloc;
+		set_cached_addr(addr, hostname);
 	}
-	return (retbuffer);
+	return (hostname);
 }
 
 void
 descriptor_data::shutdownsock()
 {
 	time_t stamp;
-	struct tm *now;
 /* For NPC connections, ignore most of this */
 	if(!IS_FAKED() && (get_connect_state() != DESCRIPTOR_LIMBO_RECONNECTED) && !IS_HALFQUIT())
 	{
@@ -2049,7 +2028,6 @@ descriptor_data::shutdownsock()
 		{
 			mud_disconnect_player (get_player());
 			time (&stamp);
-			now = localtime (&stamp);
 			log_disconnect(get_player(), getname(get_player()), CHANNEL(), channel, NULLSTRING, true);
 		}
 		else
@@ -2148,7 +2126,7 @@ int			chanl)
 	if(s) make_nonblocking (s);
 
 // Do processing depending on if this is an NPC or a real connection
-	if(s == 0 && a == NULL & channel == 0)
+	if((s == 0) && (a == NULL) && (channel == 0))
 	{
 		set_connect_state(DESCRIPTOR_FAKED);
 		MALLOC(raw_input, unsigned char, MAX_COMMAND_LEN + 1);
@@ -2208,7 +2186,7 @@ int			chanl)
 }
 
 
-SOCKET make_socket(int port, unsigned long inaddr)
+SOCKET make_socket(uint16_t port, in_addr_t inaddr)
 {
 	SOCKET s;
 	struct sockaddr_in server;
@@ -2235,8 +2213,8 @@ SOCKET make_socket(int port, unsigned long inaddr)
 	return s;
 }
 
-int
-text_buffer::flush(unsigned int min_to_drop)
+size_t
+text_buffer::flush(size_t min_to_drop)
 {
 	min_to_drop += strlen (flushed_message);
 	if(min_to_drop > m_data.length())
@@ -2249,10 +2227,10 @@ text_buffer::flush(unsigned int min_to_drop)
 	return min_to_drop;
 }
 
-int
+size_t
 text_buffer::write(int fd)
 {
-int written;
+size_t written;
 size_t towrite = m_data.length();
 const char* data = m_data.c_str();
 	do
@@ -2273,10 +2251,10 @@ const char* data = m_data.c_str();
 	return 1;
 }
 
-int
-descriptor_data::queue_write(const char *b, int n)
+ssize_t
+descriptor_data::queue_write(const char *b, ssize_t n)
 {
-	int space;
+	ssize_t space;
 	const char *buf = b;
 
 	if(IS_FAKED())
@@ -2290,7 +2268,7 @@ descriptor_data::queue_write(const char *b, int n)
 	}
 	if(terminal.sevenbit)
 	{
-		for (int i=0; i<n; i++)
+		for (ssize_t i=0; i<n; i++)
 			scratch_buffer[i] = ((unsigned char) b[i] >= 0x7f) ? terminal.sevenbit : b[i];
 		buf = scratch_buffer;
 	}
@@ -2316,7 +2294,7 @@ descriptor_data::queue_write(const char *b, int n)
    queue_string2 is no more, because Reaps doesn't know you can have more
    than one default value... */
 
-int
+ssize_t
 descriptor_data::queue_string(const char *s, bool show_literally, bool store_in_recall_buffer)
 {
 static char b1[2*BUFFER_LEN];
@@ -2583,11 +2561,9 @@ char *a,*a1,*b;
 int
 descriptor_data::process_output()
 {
-	int cnt;
-
 	if(IS_FAKED() || IS_HALFQUIT())
 	{
-		cnt = output.size();
+		//cnt = output.size();
 	}
 	else if (get_descriptor())
 	{
@@ -2824,7 +2800,7 @@ descriptor_data::announce_player (announce_states state, const String& whodidit,
 int
 descriptor_data::process_input (int len)
 {
-	int	got;
+	ssize_t	got;
 	unsigned char	*p, *pend, *q, *qend;
 	static	unsigned char	read_buffer[8192];
 
@@ -2995,7 +2971,7 @@ descriptor_data::process_input (int len)
 				if(isspace(*x))
 					x++;
 
-				int l = (p - x);
+				ssize_t l = (p - x);
 				char *bs = 0;
 				MALLOC(bs, char, (l * termcap.backspace.length() + 5));
 				*bs = '\0';
@@ -3267,12 +3243,10 @@ descriptor_data::connect_a_player (
 	descriptor_data * temp_next;
 	descriptor_data ** temp_prev;
 	time_t now;
-	struct tm *the_time;
 
 	int already_here = 0;
 
 	(void) time (&now);
-	the_time = localtime (&now);
 
 	for (d = descriptor_list; d; d = d->next)
 		if ((d->IS_CONNECTED() || d->IS_HALFQUIT()) && (player == d->get_player()))
@@ -3355,7 +3329,7 @@ descriptor_data::check_connect (const char *input)
 	while(*input && isspace(*input)) input++;
 
 	strcpy(msg, input);
-	int i = strlen(msg);
+	size_t i = strlen(msg);
 	while((i > 0) && isspace(msg[i-1])) i--;
 	msg[i] = 0;
 
@@ -3462,7 +3436,7 @@ descriptor_data::check_connect (const char *input)
 			case DESCRIPTOR_NEW_CHARACTER_PROMPT:
 				if(strncasecmp(command, "yes", strlen(command))==0 || strncasecmp(command, "no", strlen(command))==0)
 				{
-					*command=tolower(*command);
+					*command=(char)tolower(*command);
 					if(*command=='y')
 					{
 						if(smd_cantcreate(ntohl(address)))
@@ -3930,19 +3904,19 @@ int			flags)
 			{
 				length = now - d->start_time;
 				if (length < 60)
-					connectedtime.printf("    %02ds ", length);
+					connectedtime.printf("    %02lds ", length);
 				else if (length < 60 * 60)
-					connectedtime.printf("%2dm %02ds ", length / 60, length % 60);
+					connectedtime.printf("%2ldm %02lds ", length / 60, length % 60);
 				else if (length < 8 * 60 * 60)
-					connectedtime.printf("%2dh %02dm ", length / (60 * 60), (length / 60) % 60);
+					connectedtime.printf("%2ldh %02ldm ", length / (60 * 60), (length / 60) % 60);
 				else if (length < 9 * 60 * 60)
 					connectedtime = "Muddict ";
 				else if (length < 24 * 60 * 60)
-					connectedtime.printf("%2dh %02dm ", length / (60 * 60), (length / 60) % 60);
+					connectedtime.printf("%2ldh %02ldm ", length / (60 * 60), (length / 60) % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					connectedtime.printf("%2dd %02dh ", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
+					connectedtime.printf("%2ldd %02ldh ", length / (24 * 60 * 60), (length / (60 * 60)) % 24);
 				else
-					connectedtime.printf("%2dw %02dd ", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
+					connectedtime.printf("%2ldw %02ldd ", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 
 			}
 			else
@@ -3950,7 +3924,7 @@ int			flags)
 
 			outputline += connectedtime;
 
-			int remaining= width - connectedtime.length() - 10;
+			ssize_t remaining= width - connectedtime.length() - 10;
 
 			/* Format output: Name... */
 			if (d->IS_CONNECTED())
@@ -4078,15 +4052,15 @@ int			flags)
 			{
 				length = now - d->last_time;
 				if (length < 60)
-					idletime.printf ("    %02ds", length);
+					idletime.printf ("    %02lds", length);
 				else if (length < 60 * 60)
-					idletime.printf ("%2dm %02ds", length / 60, length % 60);
+					idletime.printf ("%2ldm %02lds", length / 60, length % 60);
 				else if (length < 24 * 60 * 60)
-					idletime.printf ("%2dh %02dm", length / (60 * 60), (length / 60)  % 60);
+					idletime.printf ("%2ldh %02ldm", length / (60 * 60), (length / 60)  % 60);
 				else if (length < 7 * 24 * 60 * 60)
-					idletime.printf ("%2dd %02dh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
+					idletime.printf ("%2ldd %02ldh", length / (24 * 60 * 60), (length / (60 * 60) % 24));
 				else
-					idletime.printf ("%2dw %02dd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
+					idletime.printf ("%2ldw %02ldd", length / (7 * 24 * 60 * 60), (length / (24 * 60 * 60) % 7));
 			}
 			else
 				idletime = "TooLong";
