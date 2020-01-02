@@ -338,15 +338,13 @@ dbref victim,
 dbref destination)
 
 {
-	static	double	victim_volume;
-	static	double	victim_mass;
-	static	double	destination_volume;
-	static	double	destination_mass;
-	static	double	contents_of_dest_volume;
-	static	double	contents_of_dest_mass;
-	static	double	destination_volume_limit;
-	static	double	destination_mass_limit;
-	static	double	destination_gravity_factor;
+	double	victim_volume;
+	double	victim_mass;
+	double	contents_of_dest_volume;
+	double	contents_of_dest_mass;
+	double	destination_volume_limit;
+	double	destination_mass_limit;
+	double	destination_gravity_factor;
 
 	if (destination == HOME)
 		destination = db[victim].get_destination ();
@@ -359,8 +357,6 @@ dbref destination)
 
 	victim_volume			= find_volume_of_object (victim);
 	victim_mass			= find_mass_of_object (victim);
-	destination_volume		= find_volume_of_object (destination);
-	destination_mass		= find_mass_of_object (destination);
 	destination_volume_limit	= find_volume_limit_of_object (destination);
 	destination_mass_limit 		= find_mass_limit_of_object (destination);
 	destination_gravity_factor	= db[destination].get_inherited_gravity_factor ();
