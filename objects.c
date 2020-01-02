@@ -694,10 +694,10 @@ void object::set_alias (const int, const String&)
 void object::add_recall_line (const String&)
 { IMPLEMENTATION_ERROR ("add_recall_line") }
 
-void object::output_recall_conditional (const String match, const int lines, dbref player)
+void object::output_recall_conditional (const String match, ssize_t lines, dbref player)
 { IMPLEMENTATION_ERROR ("output_recall_conditional") }
 
-void object::output_recall (const int lines, dbref player)
+void object::output_recall (ssize_t lines, dbref player)
 { IMPLEMENTATION_ERROR ("output_recall") }
 
 void object::ditch_recall ()
@@ -1602,12 +1602,9 @@ const String& string)
 
 void
 Player::output_recall (
-const int	lines,
+ssize_t	lines,
 dbref player)
 {
-
-	int thelines = lines;
-
         //Return if there is nothing in the buffer yet
         if(!recall || (recall->buffer_next == 0 && recall->buffer_wrapped == 0))
         {
@@ -1617,13 +1614,13 @@ dbref player)
         //Check there is enough in the buffer already
         if(!recall->buffer_wrapped)
         {
-                if(thelines > recall->buffer_next)
+                if(lines > recall->buffer_next)
                 {
-                        thelines = recall->buffer_next;
+                        lines = recall->buffer_next;
                 }
         }
 
-        int line_to_output=recall->buffer_next - thelines;
+        ssize_t line_to_output=recall->buffer_next - lines;
 
         if(line_to_output < 0)
         {
@@ -1637,7 +1634,7 @@ dbref player)
                 }
         }
 
-        for(int i=0;i<thelines;i++)
+        for(ssize_t i=0;i<lines;i++)
         {
                 if(line_to_output >= MAX_RECALL_LINES)
                 {
@@ -1658,12 +1655,9 @@ dbref player)
 void
 Player::output_recall_conditional (
 const String	match,
-const int	lines,
+ssize_t	lines,
 dbref		player)
 {
-
-	int thelines = lines;
-
         //Return if there is nothing in the buffer yet
         if(!recall || (recall->buffer_next == 0 && recall->buffer_wrapped == 0))
         {
@@ -1673,13 +1667,13 @@ dbref		player)
         //Check there is enough in the buffer already
         if(!recall->buffer_wrapped)
         {
-                if(thelines > recall->buffer_next)
+                if(lines > recall->buffer_next)
                 {
-                        thelines = recall->buffer_next;
+                        lines = recall->buffer_next;
                 }
         }
 
-        int line_to_output=recall->buffer_next - thelines;
+        ssize_t line_to_output=recall->buffer_next - lines;
 
 	RegularExpression re(match);
 
@@ -1695,7 +1689,7 @@ dbref		player)
                 }
         }
 
-        for(int i=0;i<thelines;i++)
+        for(ssize_t i=0;i<lines;i++)
         {
                 if(line_to_output >= MAX_RECALL_LINES)
                 {

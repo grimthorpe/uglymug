@@ -294,8 +294,8 @@ class	object
 	void			set_id				(dbref i)	{ id = i; }
 
 	virtual		void	add_recall_line			(const String& string);
-	virtual		void	output_recall			(const int lines, dbref player);
-	virtual		void	output_recall_conditional	(String match, const int lines, dbref player);
+	virtual		void	output_recall			(ssize_t lines, dbref player);
+	virtual		void	output_recall_conditional	(String match, ssize_t lines, dbref player);
 	virtual		void	ditch_recall			();
 
 	virtual	const	bool	write				(FILE *)		const;
@@ -529,8 +529,8 @@ class	object_and_flags
 				object_and_flags () : type(TYPE_FREE), obj(NULL){}
 	bool			is_free		()			const	{ return (type == TYPE_FREE); }
 	object			*get_obj	()			const	{ return (type == TYPE_FREE ? (object*)NULL : obj); }
-	void			init_free	()				{ type = TYPE_FREE; }
-	void			set_free	()				{ if (type != TYPE_FREE) delete (obj); type = TYPE_FREE; }
+	void			init_free	()				{ type = TYPE_FREE; obj=NULL; }
+	void			set_free	()				{ if (type != TYPE_FREE) { delete (obj); type = TYPE_FREE; obj=NULL; } }
 	void			set_obj		(object &new_obj, dbref i)		{ type = TYPE_NO_TYPE; obj = &new_obj; obj->set_id(i); }
 };
 

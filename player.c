@@ -235,7 +235,7 @@ const	String& match)
                 return;
         }
 
-        int num_lines = DEFAULT_RECALL_LINES;
+        ssize_t num_lines = DEFAULT_RECALL_LINES;
 
         if(lines)
         {
