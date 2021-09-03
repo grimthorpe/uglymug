@@ -1762,15 +1762,15 @@ const
 
 const dbref
 parse_dbref (
-const	char *const	s)
+const String&	s)
 
 {
-	const	char	*p = s;
+	const	char	*p = s.c_str();
 	long		x;
 	int		chars;
 
 	/* If it's NULL, return NOTHING. */
-	if (s == NULL)
+	if (!s)
 		return (NOTHING);
 
 	/* If there's a leading hash, skip it */

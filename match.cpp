@@ -458,7 +458,7 @@ Matcher::absolute_name ()
 
 	if(match_name.c_str()[0] == NUMBER_TOKEN)
 	{
-		match = parse_dbref(match_name.c_str()+1);
+		match = parse_dbref(match_name);
 		if ((match >= 0) && (match < db.get_top ()) && (db + match != NULL))
 			return match;
 	}

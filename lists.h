@@ -71,7 +71,7 @@ class	Player_list
 
 };
 
-extern dbref find_list_dictionary(dbref player, const char *which);
+extern dbref find_list_dictionary(dbref player, const String& which);
 extern const char *reverseplist_dictionary;
 extern const char *reverseclist_dictionary;
 extern const char *list_dictionary;

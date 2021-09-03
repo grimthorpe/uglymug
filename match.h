@@ -127,7 +127,6 @@ private:
 				Matcher				(dbref player, const String& name, typeof_type type, dbref effective_player);
 				Matcher				(dbref player, dbref object, typeof_type type, dbref effective_player);
 				~Matcher			();
-	//void			set_beginning			(const char *str);
 	void			check_keys			();
 	void			work_silent			()			{ gagged = true; }
 	void			match_me			();

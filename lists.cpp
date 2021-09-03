@@ -61,7 +61,7 @@ struct	list_flags	playerlist_flag_list [] =
 
 
 dbref
-find_list_dictionary(dbref player, const char *which)
+find_list_dictionary(dbref player, const String& which)
 {
 	Matcher matcher(player, which, TYPE_DICTIONARY, UNPARSE_ID);
 	matcher.match_variable();
@@ -973,26 +973,6 @@ const String& arg1)
 	}
 	return count;
 }
-
-/* Not used, might as well remove warning.
- * 
- * static int singing_la_la_la_cant_hear_you(dbref player, dbref target)
- * {
- * 	dbref dict;
- * 	int element;
- * 
- * 	dict=find_list_dictionary(target, playerlist_dictionary);
- * 		return 0;
- * 	
- * 	if(!(element=db[dict].exist_element(player)))
- * 		return 0;
- * 	
- * 	if ( (atoi(db[dict].get_element(element).c_str())) & PLIST_IGNORE)
- * 		return 1;
- * 
- * 	return 0;
- * }
- */
 
 static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const String& str)
 {

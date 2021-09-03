@@ -567,7 +567,7 @@ extern	Database		db;
 
 
 inline typeof_type	Typeof	(dbref x) { return db.get_typeof(x); }
-extern	const	dbref			parse_dbref	(const char *);
+extern	const	dbref			parse_dbref	(const String&);
 
 
 #define	DOLIST(var, first)	for((var) = (first); (var) != NOTHING; (var) = db[(var)].get_next ())
