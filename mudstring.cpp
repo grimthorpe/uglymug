@@ -207,6 +207,16 @@ String& String::operator=(const char* cstr)
 	return *this;
 }
 
+String& String::operator=(const char c)
+{
+    char str[2];
+    str[0] = c;
+    str[1] = 0;
+    *this = str;
+
+    return *this;
+}
+
 String&
 String::operator+=(const String& other)
 {

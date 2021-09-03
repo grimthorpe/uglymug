@@ -122,6 +122,7 @@ public:
 // Assignment operators
 	String& operator=(const String& cstr);
 	String& operator=(const char* cstr);
+	String& operator=(const char c);
 
 	String& operator+=(const String& other);
 	String& operator+=(char c);
