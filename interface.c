@@ -210,6 +210,8 @@ static const char *too_many_attempts =
 	"\n\nToo many attempts, disconnecting.\n";
 static const char *passwords_dont_match =
 	"\nThe passwords didn't match. Character creation cancelled.\n";
+static const char *invalid_password =
+	"\nInvalid password, must be at least 2 characters.\n";
 static const char* HALFQUIT_MESSAGE = "\nYour connection will be available for 5 minutes.\n";
 static const char* HALFQUIT_FAIL_MESSAGE = "\nYou never connected as a player!\n";
 
@@ -3511,6 +3513,10 @@ descriptor_data::check_connect (const char *input)
 					{
 						connect_a_player(player, ANNOUNCE_CONNECTED);
 					}
+				}
+				else
+				{
+					queue_string(invalid_password);
 				}
 					
 				break;

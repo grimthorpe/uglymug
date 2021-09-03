@@ -268,7 +268,8 @@ const	String& password, bool effective_wizard)
 // Wizards are allowed to set a NULL password, but mortals aren't.
 	if (!password)
 		return effective_wizard;
-	return 1;
+// Password must be 2 or more characters
+	return password.length() > 1;
 }
 
 
