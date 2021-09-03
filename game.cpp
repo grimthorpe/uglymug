@@ -52,7 +52,7 @@ void				dump_database (void);
 
 
 /* JPK static	const	char		*dumpfile	= NULL; */
-static	char		*dumpfile	= NULL;
+static	String			dumpfile;
 static	int			epoch		= 0;
 static	int			alarm_triggered	= 0;
 static  time_t			dump_start_time = 0;
@@ -579,15 +579,15 @@ static void
 dump_database_internal ()
 
 {
-	char	tmpfile [2048];
+	String	tmpfile;
 	FILE	*db_writefile;
 
-	sprintf (tmpfile, "%s.#%d#", dumpfile, epoch - 1);
-	unlink (tmpfile);	/* nuke our predecessor */
+	tmpfile.printf("%s.#%d#", dumpfile.c_str(), epoch - 1);
+	unlink (tmpfile.c_str());	/* nuke our predecessor */
 
-	sprintf (tmpfile, "%s.#%d#", dumpfile, epoch);
+	tmpfile.printf("%s.#%d#", dumpfile.c_str(), epoch);
 
-	if ((db_writefile = fopen (tmpfile, "w")) != NULL)
+	if ((db_writefile = fopen (tmpfile.c_str(), "w")) != NULL)
 	{
 		db.write (db_writefile);
 		if(ferror(db_writefile))
@@ -600,11 +600,11 @@ dump_database_internal ()
 			notify_wizard("Database dump didn't close properly\n");
 			log_bug("ERROR: Database dump #%d didn't close properly", epoch);
 		}
-		if (rename (tmpfile, dumpfile) < 0)
-			perror(dumpfile);
+		if (rename (tmpfile.c_str(), dumpfile.c_str()) < 0)
+			perror(dumpfile.c_str());
 	}
 	else
-		perror(tmpfile);
+		perror(tmpfile.c_str());
 }
 
 
@@ -660,7 +660,7 @@ const	char	*message)
 #endif	/* HAS_SIGNALS */
 
 	/* dump panic file */
-	sprintf (panicfile, "%s.PANIC", dumpfile);
+	sprintf (panicfile, "%s.PANIC", dumpfile.c_str());
 	if ((f = fopen (panicfile, "w")) == NULL)
 	{
 		perror ("Cannot open panic file (the game has lost data)");
@@ -794,14 +794,14 @@ execute_shutdown(void)
 
 int
 init_game (
-const	char	*infile,
-const	char	*outfile)
+const	String&	infile,
+const	String&	outfile)
 
 {
 	FILE	*f;
 	int	total_failures;
 
-	if ((f = fopen (infile, "r")) == NULL)
+	if ((f = fopen (infile.c_str(), "r")) == NULL)
 		return -1;
 	
 	/* ok, read it in */
@@ -840,9 +840,7 @@ const	char	*outfile)
 	fclose(f);
 
 	/* set up dumper */
-	if (dumpfile)
-		free(dumpfile);
-	dumpfile = alloc_string(outfile);
+	dumpfile = outfile;
 #if	HAS_SIGNALS
 	signal(SIGHUP, hup_handler);
 #endif	/* HAS_SIGNALS */

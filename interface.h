@@ -15,7 +15,7 @@ extern	 dbref	connect_player		(const String& name, const String& password);
 extern	 void	emergency_shutdown	(void);
 extern	 void	boot_player		(dbref player, dbref booter, const String& whodidit, const String& reason);
 
-extern	 int	init_game		(const char *infile, const char *outfile);
+extern	 int	init_game		(const String& infile, const String& outfile);
 extern	 void	dump_database		(void);
 
 extern	void	terminal_underline	(dbref player, const char *);

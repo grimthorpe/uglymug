@@ -9,13 +9,6 @@
 
   To refer to objects use db[object_ref].  Pointers to objects may 
   become invalid after a call to new_object().
-
-  The programmer is responsible for managing storage for string
-  components of entries; db_read will produce malloc'd strings.  The
-  alloc_string routine is provided for generating malloc'd strings
-  duplicates of other strings.  Note that db_free and db_read will
-  attempt to free any non-NULL string that exists in db when they are
-  invoked.  
 */
 
 #include "copyright.h"
@@ -265,8 +258,6 @@ class	boolexp
 	void			valid_key		(const dbref)	const;
 	void			set_references		()		const;
 };
-
-extern		char		*alloc_string		(const char *);
 
 extern boolexp* TRUE_BOOLEXP;
 

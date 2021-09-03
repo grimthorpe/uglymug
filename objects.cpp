@@ -39,34 +39,6 @@ Database	db;
 /************************************************************************/
 
 
-/*
- * alloc_string: Equivalent to strdup(), with the exception that NULL
- *	or empty strings are mapped to NULL.
- *
- * Return value:
- *	The address of the new string, or NULL.
- */
-
-char *
-alloc_string (
-const	char	*string)
-
-{
-	char	*s;
-
-	/* NULL, "" -> NULL */
-	if((string == NULL) || (*string == '\0'))
-		return NULL;
-
-	if((s = strdup (string)) == NULL)
-	{
-		log_bug("Fatal: alloc_string: strdup failed");
-		abort();
-	}
-	return s;
-}
-
-
 /************************************************************************/
 /*									*/
 /*			class Database					*/
