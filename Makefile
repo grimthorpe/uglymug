@@ -38,60 +38,60 @@ LIBUGLY:= $(BUILD_DIR)/libugly.a
 VERSION=`head -1 tag_list | sed 's,.Name:,,; s,[ $$],,g; s,^ *$$,TESTCODE,'`
 
 SOURCES:=\
-	alarm.c \
-	ashcheck.c \
-	boolexp.c \
-	channel.c \
-	colour.c \
-	colouring.c \
-	command.c \
-	concentrator.c \
-	container.c \
-	context.c \
-	create.c \
-	db.c \
-	debug.c \
-	decompile.c \
-	destroy.c \
-	dump.c \
-	editor.c \
-	eval.c \
-	extract.c \
-	fuses.c \
-	game.c \
-	game_predicates.c \
-	get.c \
-	group.c \
-	interface.c \
-	lists.c \
-	log.c \
-	look.c \
-	match.c \
-	mondodestruct.c \
-	move.c \
-	mudstring.c \
-	mudwho.c \
-	netmud.c \
-	npc.c \
-	objects.c \
-	paths.c \
-	player.c \
-	predicates.c \
-	rob.c \
-	sadness.c \
-	sanity-check.c \
-	scat.c \
-	set.c \
-	smd.c \
-	speech.c \
-	stats.c \
-	stringutil.c \
-	trawl.c \
-	unparse.c \
-	utils.c \
-	variable.c \
-	wiz.c \
-	luainterp.c
+	alarm.cpp \
+	ashcheck.cpp \
+	boolexp.cpp \
+	channel.cpp \
+	colour.cpp \
+	colouring.cpp \
+	command.cpp \
+	concentrator.cpp \
+	container.cpp \
+	context.cpp \
+	create.cpp \
+	db.cpp \
+	debug.cpp \
+	decompile.cpp \
+	destroy.cpp \
+	dump.cpp \
+	editor.cpp \
+	eval.cpp \
+	extract.cpp \
+	fuses.cpp \
+	game.cpp \
+	game_predicates.cpp \
+	get.cpp \
+	group.cpp \
+	interface.cpp \
+	lists.cpp \
+	log.cpp \
+	look.cpp \
+	match.cpp \
+	mondodestruct.cpp \
+	move.cpp \
+	mudstring.cpp \
+	mudwho.cpp \
+	netmud.cpp \
+	npc.cpp \
+	objects.cpp \
+	paths.cpp \
+	player.cpp \
+	predicates.cpp \
+	rob.cpp \
+	sadness.cpp \
+	sanity-check.cpp \
+	scat.cpp \
+	set.cpp \
+	smd.cpp \
+	speech.cpp \
+	stats.cpp \
+	stringutil.cpp \
+	trawl.cpp \
+	unparse.cpp \
+	utils.cpp \
+	variable.cpp \
+	wiz.cpp \
+	luainterp.cpp
 
 RAW_LIB_OBJECTS:= \
 	alarm.o \
@@ -238,7 +238,7 @@ version.h:
 
 # Generate our prerequisites.  Plagiarised from the gmake manual by PJC 12/4/03.
 # C and C++ files...
-$(BUILD_DIR)/%.d: %.c version.h
+$(BUILD_DIR)/%.d: %.cpp version.h
 	@echo Generating dependency file $@...
 	@set -e; rm -f $@; \
 	$(CPLUSPLUS) -MM $(CPPFLAGS) $< > $@.$$$$; \
@@ -252,4 +252,4 @@ $(BUILD_DIR)/Makefile.local: configure
 regexp_interface.h: $(BUILD_DIR)/Makefile.local
 
 # Obtain dependencies for all our files
-include $(SOURCES:%.c=$(BUILD_DIR)/%.d)
+include $(SOURCES:%.cpp=$(BUILD_DIR)/%.d)
