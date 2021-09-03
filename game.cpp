@@ -1236,27 +1236,27 @@ const	String&	_command)
 	{
 		if (in_command() && (Typeof(player)==TYPE_PLAYER))
 		{
-			sprintf (scratch_buffer,
-				"%sCan't find basic command in %s%s%s. Full command line was:%s",
+			String tmp;
+			tmp.printf ( "%sCan't find basic command in %s%s%s. Full command line was:%s",
 				 ca[COLOUR_ERROR_MESSAGES],
 				 ca[COLOUR_TRACING],
 				 unparse_object (*this, get_current_command ()).c_str(),
 				 ca[COLOUR_ERROR_MESSAGES],
 				 COLOUR_REVERT);
 
-			notify(player, "%s", scratch_buffer);
-			strcpy (scratch_buffer, command);
+			notify(player, "%s", tmp.c_str());
+			tmp = command;
 			if (get_arg1())
 			{
-				strcat (scratch_buffer, " ");
-				strcat (scratch_buffer, get_arg1().c_str());
+				tmp += ' ';
+				tmp += get_arg1();
 			}
 			if (get_arg2())
 			{
-				strcat (scratch_buffer, " = ");
-				strcat (scratch_buffer, get_arg2().c_str());
+				tmp += " = ";
+				tmp += get_arg2();
 			}
-			notify_colour (player, player, COLOUR_TRACING, "%s", scratch_buffer);
+			notify_colour (player, player, COLOUR_TRACING, "%s", tmp.c_str());
 			notify_colour (player, player, COLOUR_MESSAGES, "This was expanded from the original:");
 			notify_colour (player, player, COLOUR_TRACING, "%s", original_command);
 		}

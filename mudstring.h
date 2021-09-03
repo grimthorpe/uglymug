@@ -127,6 +127,9 @@ public:
 	String& operator+=(const String& other);
 	String& operator+=(char c);
 
+// Cheeky overload to remove 'amount' number of characters from the end.
+	String& operator-=(size_t amount);
+
 // __attribute__ ((format(printf, 2, 3))) is used to enfore printf-style format checking in gcc.
 // NOTE: There is an implicit parameter of 'this', which is why it is parameter 2 that should be checked.
 	String& printf(const char*, ...) __attribute__ ((format (printf, 2, 3)));

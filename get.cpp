@@ -988,9 +988,10 @@ context::do_query_last_entry (const String& name, const String&)
 			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "You can only find the last entry time of a room.");
 		else
 		{
-			sprintf (scratch_buffer, "%ld", (long int)db[thing].get_last_entry_time());
+			String tmp;
+			tmp.printf ("%ld", (long int)db[thing].get_last_entry_time());
 			Accessed (thing);
-			set_return_string (scratch_buffer);
+			set_return_string (tmp);
 			return_status = COMMAND_SUCC;
 		}
 	}
@@ -1033,20 +1034,21 @@ context::do_query_mass (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	String ret;
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
 		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
-			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_mass ());
+			ret.printf ("%.9g", db[thing].get_inherited_mass ());
 			break;
 		default:
 			return;
 	}
 	Accessed (thing);
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 void
@@ -1058,20 +1060,21 @@ context::do_query_mass_limit (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	String ret;
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
 		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
-			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_mass_limit ());
+			ret.printf("%.9g", db[thing].get_inherited_mass_limit ());
 			break;
 		default:
 			return;
 	}
 	Accessed (thing);
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 void 
@@ -1083,18 +1086,19 @@ context::do_query_money (const String& name, const String&)
         return_status = COMMAND_FAIL;
 	if (victim == NOTHING)
 		return;
+	String ret;
 	switch(Typeof (victim))
 	{
 		case TYPE_PLAYER:
 		case TYPE_PUPPET:
-			sprintf(scratch_return_string, "%d", db[victim].get_money());
+			ret.printf("%d", db[victim].get_money());
 			break;
 		default:
 			return;
 	}
 	Accessed (victim);
 	return_status = COMMAND_SUCC;
-        set_return_string (scratch_return_string);
+        set_return_string (ret);
 }
 
 void
@@ -1147,23 +1151,24 @@ context::do_query_name (const String& name, const String& type)
 	}
 	
 
+	String ret;
 	if (! ( string_compare(type, "lower indefinite") && string_compare(type, "li")))
-		strcpy(scratch_return_string, getarticle (thing, ARTICLE_LOWER_INDEFINITE));
+		ret = getarticle (thing, ARTICLE_LOWER_INDEFINITE);
 	else if (! (string_compare(type, "lower definite") && string_compare(type, "ld")))
-		strcpy(scratch_return_string, getarticle (thing, ARTICLE_LOWER_DEFINITE));
+		ret = getarticle (thing, ARTICLE_LOWER_DEFINITE);
 	else if (! (string_compare(type, "upper indefinite") && string_compare(type, "ui")))
-		strcpy(scratch_return_string, getarticle (thing, ARTICLE_UPPER_INDEFINITE));
+		ret = getarticle (thing, ARTICLE_UPPER_INDEFINITE);
 	else if (! (string_compare(type, "upper definite") && string_compare(type, "ud")))
-	        strcpy(scratch_return_string, getarticle (thing, ARTICLE_UPPER_DEFINITE));
+	        ret = getarticle (thing, ARTICLE_UPPER_DEFINITE);
 	else
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@?name: '%s' is not a valid option.", type.c_str());
 		return;
 	}
 
-	strcat (scratch_return_string, getname (thing));
+	ret += getname(thing);
 
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 	return;
 }
@@ -1244,8 +1249,9 @@ context::do_query_next (const String& name, const String&)
 						if((int)db[thing].get_number_of_elements() >= value + 1)
 						{
 							return_status = COMMAND_SUCC;
-							sprintf(scratch_return_string, "%d", value + 1);
-							set_return_string (scratch_return_string);
+							String ret;
+							ret.printf("%d", value + 1);
+							set_return_string (ret);
 						}
 						else
 						{
@@ -1430,9 +1436,10 @@ context::do_query_bps (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
-	sprintf (scratch_return_string, "%d", db[thing].get_pennies());
+	String ret;
+	ret.printf ("%d", db[thing].get_pennies());
 	Accessed (thing);
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }
 
@@ -1505,8 +1512,9 @@ context::do_query_rand (const String& value, const String&)
 		top = db.get_top ();
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "%ld", lrand48 () % top);
-	set_return_string (scratch_return_string);
+	String ret;
+	ret.printf ("%ld", lrand48 () % top);
+	set_return_string (ret);
 }
 
 
@@ -1519,10 +1527,12 @@ context::do_query_realtime (const String& name, const String&)
 		time (&now);
 	else
 		now = atol (name.c_str());
-	strcpy (scratch_return_string, asctime (localtime (&now)));
-	*(scratch_return_string + strlen (scratch_return_string) - 1) = '\0';
+
+	String ret = asctime (localtime (&now));
+	ret -= 1;
+	//*(scratch_return_string + strlen (scratch_return_string) - 1) = '\0';
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 

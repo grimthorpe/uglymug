@@ -361,7 +361,7 @@ private:
 	struct fsm_state	*find_state		(dbref);
 	struct fsm_state	*make_state		(dbref);
 	void			delete_state		(struct fsm_state *);
-	void			fsm_error		(const char *fmt, ...);
+	void			fsm_error		(const String& fmt, ...);
 
     public:
 				puppet			();
@@ -393,9 +393,6 @@ private:
 	const	String&		 get_who_string		()			const	{ return (who_string); }
 	const	int		get_money		()			const	{ return (money); }
 
-#if 0	/* PJC 24/1/97 */
-		void		event			(const dbref player, const dbref npc, const char *e);
-#endif
 	const	bool		destroy			(const dbref);
 };
 

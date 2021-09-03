@@ -192,17 +192,18 @@ void puppet::delete_state(struct fsm_state *old_state)
  * Report an error to the NPC's owner, if SILENT isn't set on it.
  */
 
-void puppet::fsm_error(const char *fmt, ...)
+void puppet::fsm_error(const String& fmt, ...)
 {
 	va_list va;
 
 	if(!get_flag(FLAG_SILENT))
 	{
 		va_start(va, fmt);
-		vsprintf(scratch_buffer, fmt, va);
+		String tmp;
+		tmp.vprintf(fmt.c_str(), va);
 		va_end(va);
 
-		notify(get_owner(), scratch_buffer);
+		notify(get_owner(), tmp);
 	}
 }
 
@@ -211,7 +212,7 @@ void puppet::fsm_error(const char *fmt, ...)
  * Receive an event, and possibly do something and change states.
  */
 
-void puppet::event(dbref player, dbref npc, const char *event)
+void puppet::event(dbref player, dbref npc, const String& event)
 {
 	struct fsm_state *state;
 	int elem;

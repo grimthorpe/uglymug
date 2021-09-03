@@ -49,7 +49,14 @@ String NULLSTRING;
 void StringBuffer::resize(size_t newsize, bool copy)
 {
 	if(newsize <= _capacity)
+	{
+		if(newsize < _len)
+		{
+			_len = newsize;
+			_buf[_len] = 0;	// Null-terminate
+		}
 		return;
+	}
 	if((newsize - _capacity) < 32)
 	{
 		newsize += 32;
@@ -249,6 +256,28 @@ String::operator+=(char c)
 	tmp[1] = 0;
 
 	return (*this)+=String(tmp);
+}
+
+String&
+String::operator-=(size_t amount)
+{
+	if(amount >= length())
+	{
+		*this = NULLSTRING;
+		return *this;
+	}
+	if(_buffer->refcount() > 1)
+	{
+		StringBuffer* tmp = new StringBuffer(_buffer->c_str(), _buffer->length()-amount, _buffer->length()-amount);
+		_buffer->unref();
+		_buffer = tmp;
+		_buffer->ref();
+	}
+	else
+	{
+		_buffer->resize(_buffer->length()-amount);
+	}
+	return *this;
 }
 
 bool

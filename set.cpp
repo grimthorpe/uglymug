@@ -271,8 +271,6 @@ context::do_at_peak
 (const	String& number,
 const	String& )
 {
-char buf[100]; // '@peak <maxint>\0'
-
 	if(!Wizard(player))
 	{
 		notify(player, "Don't be silly.");
@@ -283,7 +281,8 @@ char buf[100]; // '@peak <maxint>\0'
 		peak_users = atoi(number.c_str());
 		notify(player, "Peak set to %d.", peak_users);
 // Do some logging, cos someone is abusing @peak
-sprintf(buf,"@peak %d",peak_users);
+String buf;
+buf.printf("@peak %d",peak_users);
 log_command(    player,
                 getname(player),
                 get_effective_id(),
@@ -1870,7 +1869,6 @@ const	String& value)
 {
 	dbref	victim;
 	int	score;
-	char	scratch_return_string [11];
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -1914,11 +1912,12 @@ const	String& value)
 		notify_colour(player, player, COLOUR_MESSAGES, "%s had %d points, and now has %d points.", getname (victim), db[victim].get_score (), score);
 	}
 
-	sprintf (scratch_return_string, "%ld",db[player].get_score ());
+	String ret;
+	ret.printf("%ld",db[player].get_score ());
 	db[victim].set_score (score);
 	Modified (victim);
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 void
@@ -1988,8 +1987,9 @@ const	String& volume)
 	{
 		if (gagged_command ())
 		{
-			sprintf (scratch_buffer, "You can't make %s that large in", unparse_object (*this, victim).c_str());
-			notify_censor_colour (player,player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)).c_str());
+			String tmp;
+			tmp.printf ("You can't make %s that large in", unparse_object (*this, victim).c_str());
+			notify_censor_colour (player,player, COLOUR_ERROR_MESSAGES, "%s %s.", tmp.c_str(), unparse_object (*this, getloc (victim)).c_str());
 		}
 		return;
 	}
@@ -2161,8 +2161,9 @@ const	String& mass)
 	{
 		if (!gagged_command ())
 		{
-			sprintf (scratch_buffer, "You can't make %s that heavy in", unparse_object (*this, victim).c_str());
-			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "%s %s.", scratch_buffer, unparse_object (*this, getloc (victim)).c_str());
+			String tmp;
+			tmp.printf("You can't make %s that heavy in", unparse_object (*this, victim).c_str());
+			notify_colour (player, player, COLOUR_ERROR_MESSAGES, "%s %s.", tmp.c_str(), unparse_object (*this, getloc (victim)).c_str());
 		}
 		return;
 	}
