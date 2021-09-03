@@ -15,6 +15,9 @@ How to compile UglyMUG
 3. If you don't want make to spew a load of errors the first time you make it,
    ensure the builds/$platform directory exists.
 
+3a. OPTIONAL: Have libpcre and lua 5.3 installed (ideally with -dev packages if required for your platform)
+              PCRE is used for @find, and lua is for (currently experimental) additional command language
+
 4. Run:
      make
    or:
@@ -26,3 +29,5 @@ How to compile UglyMUG
    suffix such as netmud.exe if your platform requires this.
 
 7. Start at doc/index.html to find out how to use UglyMUG.
+
+
