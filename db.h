@@ -363,7 +363,7 @@ class	object
 	virtual		void	set_size			(const size_t);
 	virtual		size_t	get_size			()			const	{return 0;}
 	virtual unsigned int	inherited_lines_in_cmd_blk(const unsigned) const;
-	virtual	unsigned int	reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line)	const;
+	virtual	unsigned int	reconstruct_inherited_command_block(String& command_block, const unsigned start_line)	const;
 	/* Massy_object */
 	virtual		void	set_gravity_factor		(const double g);
 	virtual		void	set_mass			(const double m);

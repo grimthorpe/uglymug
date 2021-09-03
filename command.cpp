@@ -30,7 +30,6 @@
 #include "log.h"
 
 
-#define	ASSIGN_STRING(d,s)	{ if ((d)) free((d)); if ((s && *s!=0)) (d)=strdup((s)); else (d)=NULL;}
 #define SKIP_SPACES(x)		while (*(x) && isspace(*(x))) (x)++;
 #define SKIP_DIGITS(x)		while (*(x) && isdigit(*(x))) (x)++;
 
@@ -271,14 +270,14 @@ const	int	start_line,
 	char	*errs)
 
 {
-	char	command_block[MAX_COMMAND_LEN];
+	String	command_block;
 		int		lines_in_block;
 		int		line = start_line;
 		int		end_line = cmd->get_inherited_number_of_elements ();
 
 	while (line > 0 && line <= end_line)
 	{
-		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
+		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, line);
 #ifdef	DEBUG
 		log_debug("compound_command parse %d: %s", line, command_block);
 #endif	/* DEBUG */
@@ -326,14 +325,14 @@ const	int	start_line,
 	char	*errs)
 
 {
-	char command_block[MAX_COMMAND_LEN];
+	String command_block;
 	int lines_in_block;
 	int		line = start_line + 1;
 	int		end_line = cmd->get_inherited_number_of_elements ();
 
 	while (line > 0 && line <= end_line)
 	{
-		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
+		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, line);
 #ifdef	DEBUG
 		log_debug("for_loop parse: %s", command_block);
 #endif	/* DEBUG */
@@ -383,14 +382,14 @@ const	int	start_line,
 	char	*errs)
 
 {
-	char command_block[MAX_COMMAND_LEN];
+	String command_block;
 	int lines_in_block;
 	int		line = start_line + 1;
 	int		end_line = cmd->get_inherited_number_of_elements ();
 
 	while (line > 0 && line <= end_line)
 	{
-		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
+		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, line);
 #ifdef	DEBUG
 		log_debug("with_loop parse: %s", command_block);
 #endif	/* DEBUG */
@@ -441,7 +440,7 @@ const	int	start_line,
 
 {
 	int		previous_block = start_line;
-	char		command_block[MAX_COMMAND_LEN];
+	String	command_block;
 	int		lines_in_block;
 	int		line = start_line + 1;
 	int		end_line = cmd->get_inherited_number_of_elements ();
@@ -449,7 +448,7 @@ const	int	start_line,
 	cmd->set_parse_helper(start_line, 0); // Clear out the start_line stuff.
 	while (line > 0 && line <= end_line)
 	{
-		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, line);
+		lines_in_block=cmd->reconstruct_inherited_command_block(command_block, line);
 #ifdef	DEBUG
 		log_debug("if_scope parse line %d: %s", line, command_block);
 #endif	/* DEBUG */
@@ -499,16 +498,14 @@ const	int	start_line,
 
 Command_next
 what_is_next (
-const	char	*text)
+const String&	text)
 
 {
-	char		temp_buffer[256];
-	char		*p=temp_buffer;
-	const char	*q=text;
-	int		charssofar=0;
+    String temp_buffer;
+	const char	*q=text.c_str();
 	
 	// Catch no string or empty string.
-	if (!text || !*text)
+	if (!text)
 		return NORMAL_NEXT;
 
 	// Smash leading spaces, because we don't like them.
@@ -519,9 +516,8 @@ const	char	*text)
 	if(*q != '@')
 		return NORMAL_NEXT;
 
-	while (q && (*q) && (*q !=' ') && (charssofar++ < 255))
-		*p++=*q++;
-	*p='\0';
+	while (q && (*q) && (*q !=' '))
+		temp_buffer += *q++;
 
 	/* Damn, we've got to do some work */
 	if(string_prefix("@if", temp_buffer))

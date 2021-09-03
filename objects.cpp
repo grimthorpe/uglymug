@@ -622,7 +622,7 @@ void object::flush_parse_helper ()
 unsigned object::inherited_lines_in_cmd_blk(const unsigned) const
 { IMPLEMENTATION_ERROR ("inherited_lines_in_cmd_blk"); return (unsigned)0; }
 
-unsigned object::reconstruct_inherited_command_block(char *const, const unsigned, const unsigned) const
+unsigned object::reconstruct_inherited_command_block(String&, const unsigned) const
 { IMPLEMENTATION_ERROR ("reconstruct_inherited_command_block"); 
   return (unsigned)0; }
 
@@ -2393,63 +2393,34 @@ unsigned int Command::inherited_lines_in_cmd_blk(const unsigned start_line) cons
 
 /* Make a command line by appending elements with the right number of \
  * characters at the end */
-unsigned Command::reconstruct_command_block(char *const command_block, const unsigned max_size, const unsigned start_line) const
+unsigned Command::reconstruct_command_block(String& command_block, const unsigned start_line) const
 {
-	static const char too_big[]="TooBig";
-	size_t space_left=max_size;
-	bool it_dont_fit=false;
 	unsigned	current_line=start_line;
 	bool first=true;
 
-	*command_block='\0';
-	space_left--;
+	command_block=NULLSTRING;
 	for(;current_line<(start_line+lines_in_command_block(start_line));current_line++)
 	{
 		if(first==false)
 		{
-			if(space_left)
-			{
-				strcat(command_block,"\n");
-				space_left--;
-			}
-			else
-				it_dont_fit=true;
+            command_block += '\n';
 		}
 		else
 			first=false;
 		if(get_element(current_line))
 		{
-			if(get_element(current_line).length()<=space_left)
-			{
-				strcat(command_block,get_element(current_line).c_str());
-				space_left-=get_element(current_line).length();
-			}
-			else
-			{
-				it_dont_fit=true;
-				log_bug("command_block overflow, Start_line:  %u, max_size:  %u", start_line, max_size);
-			}
-		}
-		if(it_dont_fit)		//Catch overflow.
-		{
-			if(space_left>=(sizeof(too_big)-1))
-				strcat(command_block,too_big);
-			else 
-				if(max_size>sizeof(too_big))
-					*(command_block+max_size-sizeof(too_big)-1)='\0';
-			//return anyway
-			return lines_in_command_block(start_line);
+            command_block += get_element(current_line);
 		}
 	}
 	return lines_in_command_block(start_line);
 }
 
-unsigned int Command::reconstruct_inherited_command_block(char *const command_block, const unsigned max_length, const unsigned start_line) const
+unsigned int Command::reconstruct_inherited_command_block(String& command_block, const unsigned start_line) const
 {
 	if(get_number_of_elements() || (get_parent()==NOTHING))	
-		return reconstruct_command_block(command_block, max_length, start_line);
+		return reconstruct_command_block(command_block, start_line);
 	else
-		return db[get_parent()].reconstruct_inherited_command_block(command_block, max_length, start_line);
+		return db[get_parent()].reconstruct_inherited_command_block(command_block, start_line);
 }
 
 void

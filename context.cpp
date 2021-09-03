@@ -594,10 +594,10 @@ context	*c)
 
 {
 	//const	char	*err;
-	char	command_block[MAX_COMMAND_LEN];
+	String	command_block;
 
 	/* current_line incremented here in case the command modifies it */
-	current_line+=db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
+	current_line+=db[command].reconstruct_inherited_command_block(command_block, current_line);
 	c->process_basic_command (command_block);
 	return ACTION_CONTINUE;
 }
@@ -1052,14 +1052,14 @@ If_scope::step_once (
 context	*c)
 
 {
-	char command_block[MAX_COMMAND_LEN];
+	String command_block;
 	dbref	command = get_command ();
 
 	/* We know only that we are stepping.  If we know a real stop line, it's a normal step. */
 	if (current_line < stop_line)
 	{
 		/* current_line incremented here in case the command modifies it */
-		current_line+=db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
+		current_line+=db[command].reconstruct_inherited_command_block(command_block, current_line);
 #ifdef	DEBUG
 		log_debug("if: currentline: %s", command_block);
 #endif	/* DEBUG */
@@ -1079,7 +1079,7 @@ context	*c)
 			return ACTION_STOP;
 
 		/* OK, we're evaluating an elseif / else */
-		db[command].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
+		db[command].reconstruct_inherited_command_block(command_block, current_line);
 #ifdef	DEBUG
 		log_debug("if: currentline: %s", command_block);
 #endif	/* DEBUG */
@@ -1154,7 +1154,7 @@ Loop::step_once (
 context	*c)
 
 {
-	char command_block[MAX_COMMAND_LEN];
+	String command_block;
 
 	/* Should we run now? */
 	if(!shouldrun())
@@ -1176,7 +1176,7 @@ context	*c)
 		return ACTION_STOP;
 
 	/* It's a normal line */
-	current_line+=db[get_command()].reconstruct_inherited_command_block(command_block, MAX_COMMAND_LEN, current_line);
+	current_line+=db[get_command()].reconstruct_inherited_command_block(command_block, current_line);
 #ifdef	DEBUG
 	log_debug("loop: currentline: %s", command_block);
 #endif	/* DEBUG */

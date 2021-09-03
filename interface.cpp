@@ -3671,7 +3671,7 @@ int	sig)
 
 dbref
 match_connected_player (
-const	char	*given)
+const	String&	given)
 
 {
 	struct  descriptor_data *d;

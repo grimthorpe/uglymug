@@ -42,6 +42,6 @@ enum	Command_next
 	END_NEXT,
 };
 
-extern	Command_next	what_is_next	(const char *);
+extern	Command_next	what_is_next	(const String&);
 
 #endif	/* __COMMAND_H */

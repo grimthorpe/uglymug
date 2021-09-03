@@ -44,7 +44,7 @@ extern	int	connection_count	(dbref player);
 extern	int	count_connect_types	(int);
 
 extern	time_t	get_idle_time		(dbref player);
-extern	dbref	match_connected_player	(const char * given);
+extern	dbref	match_connected_player	(const String& given);
 
 extern	void	close_sockets		();
 extern	void	set_signals		();
