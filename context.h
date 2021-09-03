@@ -414,10 +414,10 @@ public:
 	void				maybe_dropto		(dbref loc, dbref dropto);
 	void				send_contents		(dbref loc, dbref dropto);
 
-	const	bool			variable_substitution	(const char *arg, char *result, unsigned int max_length);
-	const	bool			nested_variable_substitution	(const char *&, char *, const int, const int space_left);
-	const	bool			dollar_substitute	(const char *&argp, char *&resp, const int depth, unsigned int space_left);
-		void			brace_substitute	(const char *&, char *&, unsigned int space_left);
+	const	bool			variable_substitution	(const char *arg, char *result, size_t max_length);
+	const	bool			nested_variable_substitution	(const char *&, char *, const int, size_t space_left);
+	const	bool			dollar_substitute	(const char *&argp, char *&resp, const int depth, size_t space_left);
+		void			brace_substitute	(const char *&, char *&, size_t space_left);
 
 	void				do_at_alarm		(const String&, const String&);
 	void				do_at_array		(const String&, const String&);

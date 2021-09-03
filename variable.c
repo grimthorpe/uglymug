@@ -351,7 +351,7 @@ const bool
 context::variable_substitution (
 const	char* arg,
 	char* result,
-const	unsigned int	max_length)
+	size_t	max_length)
 {
 	bool retval;
 
@@ -384,7 +384,7 @@ context::dollar_substitute (
 const	char	*&argp,
 	char	*&resp,
 const	int	depth,
-	unsigned int	space_left)
+	size_t	space_left)
 
 {
 		char		source_buffer [BUFFER_LEN];
@@ -461,7 +461,7 @@ const	int	depth,
 
 	const	String_pair	*arg;
 		String		value = NULLSTRING;
-	unsigned int		length;
+		size_t		length;
 
 	/* ... check for $[0123], else match... */
 	if (!strcmp (name_start, "0"))
@@ -582,7 +582,7 @@ context::nested_variable_substitution (
 const	char	*&argp,
 	char	*resp,
 const	int	depth,
-	int	space_left)
+	size_t	space_left)
 
 {
 	bool		backslash_primed = false;
@@ -689,7 +689,7 @@ void
 context::brace_substitute (
 const	char	*&argp,
 	char	*&resp,
-	unsigned int	space_left)
+	size_t	space_left)
 
 {
 	const	char		*command_start;
@@ -768,7 +768,7 @@ const	String& arg2)
 	/* Now dump arg2 in as well. */
 	if (arg2)
 	{
-		int	len1;
+		size_t	len1;
 
 		len1 = strlen (buffer);
 		if ((len1 > 0) && (buffer [len1 - 1] != '!') && (buffer [len1 - 1] != '<') && (buffer [len1 - 1] != '>'))
@@ -882,12 +882,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (results[0].integer == results[1].floating);
+					final.integer = ((double)results[0].integer == results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (results[0].floating == results[1].integer);
+					final.integer = (results[0].floating == (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -910,12 +910,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (results[0].integer != results[1].floating);
+					final.integer = ((double)results[0].integer != results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (results[0].floating != results[1].integer);
+					final.integer = (results[0].floating != (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -938,12 +938,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (results[0].integer < results[1].floating);
+					final.integer = ((double)results[0].integer < results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (results[0].floating < results[1].integer);
+					final.integer = (results[0].floating < (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -966,12 +966,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (results[0].integer <= results[1].floating);
+					final.integer = ((double)results[0].integer <= results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (results[0].floating <= results[1].integer);
+					final.integer = (results[0].floating <= (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -994,12 +994,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (results[0].integer > results[1].floating);
+					final.integer = ((double)results[0].integer > results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (results[0].floating > results[1].integer);
+					final.integer = (results[0].floating > (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -1022,12 +1022,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (results[0].integer >= results[1].floating);
+					final.integer = ((double)results[0].integer >= results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (results[0].floating >= results[1].integer);
+					final.integer = (results[0].floating >= (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -1045,12 +1045,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.floating = (results[0].integer + results[1].floating);
+					final.floating = ((double)results[0].integer + results[1].floating);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.floating = (results[0].floating + results[1].integer);
+					final.floating = (results[0].floating + (double)results[1].integer);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else
@@ -1074,12 +1074,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.floating = (results[0].integer - results[1].floating);
+					final.floating = ((double)results[0].integer - results[1].floating);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.floating = (results[0].floating - results[1].integer);
+					final.floating = (results[0].floating - (double)results[1].integer);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else
@@ -1097,12 +1097,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.floating = (results[0].integer * results[1].floating);
+					final.floating = ((double)results[0].integer * results[1].floating);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.floating = (results[0].floating * results[1].integer);
+					final.floating = (results[0].floating * (double)results[1].integer);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else
@@ -1127,17 +1127,17 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.floating = (results[0].integer / results[1].floating);
+					final.floating = ((double)results[0].integer / results[1].floating);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.floating = (results[0].floating / results[1].integer);
+					final.floating = (results[0].floating / (double)results[1].integer);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				else
 				{
-					final.floating = ((float)results[0].integer / (float)results[1].integer);
+					final.floating = ((double)results[0].integer / (double)results[1].integer);
 					final.type = EVAL_TYPE_FLOAT;
 				}
 				break;
@@ -1474,12 +1474,12 @@ unsigned int	space_left)
 				}
 				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
 				{
-					final.integer = (int)(results[0].integer / results[1].floating);
+					final.integer = (int)((double)results[0].integer / results[1].floating);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
 				{
-					final.integer = (int)(results[0].floating / results[1].integer);
+					final.integer = (int)(results[0].floating / (double)results[1].integer);
 					final.type = EVAL_TYPE_NUMERIC;
 				}
 				else
@@ -1492,7 +1492,7 @@ unsigned int	space_left)
 			case EVAL_OP_DP:
 				if (OpType(1) == EVAL_TYPE_NUMERIC)
 				{
-					results[1].floating = results[1].integer;
+					results[1].floating = (double)results[1].integer;
 					sprintf(final.string, "%.*f", (int) results[0].integer, results[1].floating);
 				}
 				else
@@ -1588,7 +1588,7 @@ unsigned int	space_left)
 					break;
 				}
 				/* Check that the search string has at least one character in it - else we keep looping forever */
-				if ((searchlen = strlen(results[1].string)) < 1)
+				if ((searchlen = (int)strlen(results[1].string)) < 1)
 				{
 					notify_colour (c.get_player (),c.get_player(), COLOUR_ERROR_MESSAGES, "Zero length search string in @eval replace - doing no replacement.");
 					strcpy (final.string, results [3].string);
@@ -1643,7 +1643,7 @@ unsigned int	space_left)
 					while(*p)
 					{
 						char c= *p++;
-						*q++ = tolower(c);
+						*q++ = (char)tolower(c);
 					}
 					*q = '\0';
 				}
@@ -1655,7 +1655,7 @@ unsigned int	space_left)
 					while(*p)
 					{
 						char c= *p++;
-						*q++ = toupper(c);
+						*q++ = (char)toupper(c);
 					}
 					*q = '\0';
 				}

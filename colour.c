@@ -612,7 +612,7 @@ Player::get_colour_string() const
 	{
 		dbref player = it->first;
 
-		if((player >= 0) && (player < db.top()) && (Typeof(player) == TYPE_PLAYER))
+		if((player >= 0) && (player < db.get_top()) && (Typeof(player) == TYPE_PLAYER))
 		{
 			sprintf(tmp, " %d%s", it->first, it->second.c_str());
 			retval += tmp;

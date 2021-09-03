@@ -1736,10 +1736,10 @@ const
 	fprintf (f, "***UglyMug Beta(tagged) DUMP Format 0***\n");
 
 	/* Write the number of objects in the database */
-	fprintf (f, "Objects: %d\n", (int) m_top);
+	fprintf (f, "Objects: %d\n", (int) get_top());
 
 	/* Write each object */
-	for (i = 0; i <  m_top; i++)
+	for (i = 0; i <  get_top(); i++)
 		if (db + i != NULL)
 		{
 			sprintf (buf, "%c#%d", OBJECT_SEPARATOR, (int)i);
@@ -1950,7 +1950,7 @@ FILE	*f)
 	bool			error = false;
 
 	/* Make sure we're empty */
-	if (array != NULL)
+	if (array.size() != 0)
 		abort ();
 
 	if(fscanf (f, "***UglyMug %s DUMP Format %d***", format, &version) != 2)
@@ -2090,7 +2090,7 @@ FILE	*f)
 				else
 				{
 					build_player_cache (player_count);
-					return m_top;
+					return get_top();
 				}
 				/* NOTREACHED */
 				break;
@@ -2222,7 +2222,7 @@ void Database::build_player_cache(int player_count)
 {
 	// Clear out any existing entries
 	player_cache.erase(player_cache.begin(), player_cache.end());
-	for(dbref i = 0; i < m_top; i++)
+	for(dbref i = 0; i < get_top(); i++)
 	{
 		if(Typeof(i)==TYPE_PLAYER)
 		{

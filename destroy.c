@@ -163,7 +163,7 @@ const	String& dummy)
 	/* Do generic object tests */
 	if(Referenced(object))
 	{
-		for(dbref o = 0; o < db.top(); o++)
+		for(dbref o = 0; o < db.get_top(); o++)
 		{
 			if(Typeof(o) != TYPE_FREE)
 			{

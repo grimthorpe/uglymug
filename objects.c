@@ -75,9 +75,7 @@ const	char	*string)
 
 
 Database::Database ()
-: array(NULL)
-, m_top(NOTHING)
-, free_start(0)
+: free_start(0)
 , alarms(NULL)
 , player_count(0)
 , player_cache()
@@ -93,12 +91,8 @@ Database::~Database ()
 {
 	dbref	i;
 
-	if (array != NULL)
-	{
-		for (i = 0; i < top (); i++)
-			array [i].set_free ();
-		free (array);
-	}
+	for (i = 0; i < get_top (); i++)
+		array [i].set_free ();
 }
 
 
@@ -113,36 +107,11 @@ Database::grow (
 const	dbref	newtop)
 
 {
-	int	index;
-	dbref	real_newtop = (array == NULL) ? (int)newtop : (newtop + (DB_GROWSIZE - 1)) & (~(DB_GROWSIZE - 1));
+	dbref	real_newtop = (newtop + (DB_GROWSIZE - 1)) & (~(DB_GROWSIZE - 1));
 
-	if(newtop > m_top)
+	if(newtop > get_top())
 	{
-		/* If the database exists, extend it; else make one */
-		if(array != NULL)
-		{
-			/* Extend it */
-			if((array = (object_and_flags *) realloc(array, real_newtop * sizeof(object_and_flags))) == NULL)
-			{
-				log_bug("Fatal: grow: realloc failed extending database\n");
-				abort();
-			}
-		}
-		else
-		{
-			/* make the initial one */
-			m_top = 0;
-			if((array = (object_and_flags *) malloc(real_newtop * sizeof(object_and_flags))) == NULL)
-			{
-				log_bug("Fatal: grow: malloc failed");
-				abort();
-			}
-		}
-		/* Set up the entries. */
-		for (index = real_newtop - 1; index >= m_top; index--)
-			array [index].init_free();
-		free_start = m_top;
-		m_top = real_newtop;
+		array.resize(real_newtop);
 	}
 }
 
@@ -163,7 +132,7 @@ object		&obj)
 	dbref	loc = NOTHING;
 
 	/* free_start is a hint to where a free object is. */
-	for(dbref i = free_start; i < m_top; i++)
+	for(dbref i = free_start; i < get_top(); i++)
 	{
 		if(array[i].is_free())
 		{
@@ -173,7 +142,7 @@ object		&obj)
 	}
 	if(NOTHING == loc)
 	{
-		grow (m_top + 1);
+		grow (get_top() + 1);
 
 		/* Should guarantee a free slot this time. */
 		loc = free_start;
@@ -202,7 +171,7 @@ Database::delete_object (
 const dbref	oldobj)
 
 {
-	if (oldobj >= 0 && oldobj < m_top)
+	if (oldobj >= 0 && oldobj < get_top())
 	{
 		if(oldobj < free_start)
 			free_start = oldobj;
@@ -1576,10 +1545,10 @@ const String& string)
         //Love Reaps.
 
 	ssize_t nlpos = 0;
-	ssize_t start = 0;
+	size_t start = 0;
 	while((nlpos = string.find('\n', start)) >= 0)
 	{
-		if((nlpos == start) && (!(recall->buffer_build)))
+		if(((size_t)nlpos == start) && (!(recall->buffer_build)))
 		{
 			start++;
 			continue; // Leave blank lines alone.

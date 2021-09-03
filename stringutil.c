@@ -468,7 +468,7 @@ char *string)
 /* First, check if this is a word that shouldn't be censored - EG 'scunthorpe' */
 
 	std::set<String>::const_iterator it;
-	char c = tolower(string[0]);
+	int c = tolower(string[0]);
 	for(it = excluded_words.begin(); it != excluded_words.end(); it++)
 	{
 		if((*it).c_str()[0] == c) // Speed up match.

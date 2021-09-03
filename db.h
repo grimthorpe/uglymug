@@ -28,6 +28,7 @@
 #include <sys/time.h>
 #include <map>
 #include <list>
+#include <vector>
 
 #include "mudstring.h"
 #include "config.h"
@@ -518,7 +519,6 @@ class	object
 class	object_and_flags
 {
     private:
-	object_and_flags(const object_and_flags&); // DUMMY
 	object_and_flags& operator=(const object_and_flags&); // DUMMY
 
 	typeof_type		type;
@@ -527,6 +527,7 @@ class	object_and_flags
     	typeof_type		get_type	()			const	{ return (type); }
 	void			set_type	(const typeof_type i)		{ type = i; }
 				object_and_flags () : type(TYPE_FREE), obj(NULL){}
+				object_and_flags(const object_and_flags& other) : type(other.get_type()), obj(other.get_obj()) {}
 	bool			is_free		()			const	{ return (type == TYPE_FREE); }
 	object			*get_obj	()			const	{ return (type == TYPE_FREE ? (object*)NULL : obj); }
 	void			init_free	()				{ type = TYPE_FREE; obj=NULL; }
@@ -540,8 +541,7 @@ class	Database
     private:
 	Database(const Database&); // DUMMY
 	Database& operator=(const Database&); // DUMMY
-	object_and_flags	*array;
-	dbref			m_top;
+	std::vector<object_and_flags> array;
 	dbref			free_start;
 	Pending_alarm		*alarms;
 	int			player_count;
@@ -553,8 +553,7 @@ class	Database
 				~Database	();
 		object		&operator[]	(dbref i)		const	{ return (*(array [i].get_obj ())); }
 		object		*operator+	(dbref i)		const	{ return (array [i].get_obj ()); }
-	const	dbref		get_top		()			const	{ return m_top; }
-	const	dbref		top		()			const	{ return m_top; }
+	const	dbref		get_top		()			const	{ return (dbref)(array.size()); }
 	const	dbref		new_object	(object &obj);
 	const	bool		delete_object	(const dbref oldobj);
 	const	bool		write		(FILE *f)		const;

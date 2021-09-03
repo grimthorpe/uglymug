@@ -40,10 +40,10 @@ char	**argv)
 		return 5;
 	}
 
-	if (!(aux = new Aux [db.top ()]))
+	if (!(aux = new Aux [db.get_top ()]))
 		return 1;
 
-	for (i = 0; i < db.top (); i++)
+	for (i = 0; i < db.get_top (); i++)
 		if (db + i != NULL)
 			switch (Typeof (i))
 			{
@@ -81,7 +81,7 @@ char	**argv)
 					aux [db [i].owner ()].properties++;
 					break;
 			}
-	for (i = 0; i < db.top (); i++)
+	for (i = 0; i < db.get_top (); i++)
 		if (Typeof (i) == TYPE_PLAYER)
 			std::cout << db [i].name () << "|"
 				<< (Builder (i) ? 'B' : 'N') << "|"
