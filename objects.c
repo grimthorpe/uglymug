@@ -1575,8 +1575,8 @@ const String& string)
         //get 51 lines if you did @recall but it is 0430 you picky bastard.
         //Love Reaps.
 
-	size_t nlpos = 0;
-	size_t start = 0;
+	ssize_t nlpos = 0;
+	ssize_t start = 0;
 	while((nlpos = string.find('\n', start)) >= 0)
 	{
 		if((nlpos == start) && (!(recall->buffer_build)))
