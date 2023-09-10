@@ -621,9 +621,7 @@ const	bool	if_ok)
 
 
 void
-Compound_command_and_arguments::do_at_return (
-context	&c)
-
+Compound_command_and_arguments::do_at_return ()
 {
 	/* We're at the end of a step, so simply setting current_line somewhere past the end of the command will work */
 	if (command != NOTHING)
@@ -634,18 +632,14 @@ context	&c)
 
 
 void
-Compound_command_and_arguments::do_at_returnchain (
-context	&c)
-
+Compound_command_and_arguments::do_at_returnchain ()
 {
 	/* A current_line less than zero will ditch the chain in step_once */
 	current_line = -1;
 }
 
 bool
-Compound_command_and_arguments::do_at_break (
-context	&c)
-
+Compound_command_and_arguments::do_at_break ()
 {
 	while(!scope_stack.empty() && !scope_stack.top()->do_at_break())
 	{
@@ -661,9 +655,7 @@ context	&c)
 }
 
 bool
-Compound_command_and_arguments::do_at_continue (
-context	&c)
-
+Compound_command_and_arguments::do_at_continue ()
 {
 	while(!scope_stack.empty() && !scope_stack.top()->do_at_continue())
 	{
