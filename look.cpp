@@ -141,17 +141,11 @@ int		level)
 
 {
 	dbref	thing;
-	int	had_contents;
-	int	level_count;
+	bool	had_contents=false;
+
 	/* If it's closed AND opaque, we can't see its contents. */
 	if ((!Open (object)) && (Opaque (object)))
 		return;
-
-	/* Write the correct number of spaces into the start of scratch_buffer */
-	for (level_count = 0; level_count < level; level_count++)
-		scratch_buffer [level_count] = ' ';
-
-	had_contents = 0;
 
 	/* ... and dump a list of the contents. */
 	DOLIST (thing, db[object].get_contents())
@@ -160,16 +154,17 @@ int		level)
 		{
 			if (!had_contents)
 			{
+				String contents;
 				/* Otherwise, output the 'contents' field (if any)... */
 				if (db[object].get_contents_string ())
-					strcpy (scratch_buffer + level, db [object].get_contents_string ().c_str());
+					contents.printf("%*c%s", level, ' ', db[object].get_contents_string().c_str());
 				else
-					strcpy (scratch_buffer + level, contents_name);
-				notify_public_colour(c.get_player (), c.get_player(), COLOUR_CONTENTS, "%s", scratch_buffer);
-				had_contents = 1;
+					contents.printf("%*c%s", level, ' ', contents_name);
+				notify_public_colour(c.get_player (), c.get_player(), COLOUR_CONTENTS, "%s", contents.c_str());
+				had_contents = true;
 			}
-			sprintf (scratch_buffer + level, "%s", unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str());
-			notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
+			String buf=String::format("%*c%s", level, ' ', unparse_objectandarticle_inherited(c, thing, ARTICLE_UPPER_INDEFINITE).c_str());
+			notify_public (c.get_player(), c.get_player (), "%s", buf.c_str());
 			if (Container (thing))
 			{
 				if (db[thing].get_contents() != NOTHING)

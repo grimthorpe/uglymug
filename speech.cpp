@@ -144,10 +144,10 @@ const	String& arg2)
 	}
 	notify_public(player, player, "%sYou %s \"%s%s%s\"", ca[rank_colour(player)], say, ca[COLOUR_SAYS], message.c_str(), ca[rank_colour(player)]);
 
-	sprintf(scratch_buffer, "%s %s ", getname_inherited (player),says);
+	String buf=String::format("%s %s ", getname_inherited (player),says);
 	notify_except_colour(db[loc].get_contents(),
 				player,
-				scratch_buffer,
+				buf.c_str(),
 			        message.c_str(),
 				true,
 				player,

@@ -103,7 +103,7 @@ struct puppet::fsm_state *puppet::make_state(dbref player)
  * the state on.  Returns an error message, or NULL on success.
  */
 
-static char *process_npc_command(dbref npc, const char *cmd, struct puppet::fsm_state *state)
+static String process_npc_command(dbref npc, const char *cmd, struct puppet::fsm_state *state)
 {
 	char		*semicolon;
 	char		*fail_state = NULL;
@@ -131,8 +131,9 @@ static char *process_npc_command(dbref npc, const char *cmd, struct puppet::fsm_
 
 	if(!semicolon || !*(semicolon+1))
 	{
-		sprintf(scratch_buffer, "[%s NPC warning:  infinite loop]", db[npc].get_name());
-		return scratch_buffer;
+		String ret;
+		ret.printf("[%s NPC warning:  infinite loop]", db[npc].get_name());
+		return ret;
 	}
 
 	/* Find out if there are one or two possible states we can go to. */
@@ -163,8 +164,9 @@ static char *process_npc_command(dbref npc, const char *cmd, struct puppet::fsm_
 		state->state=newdict;
 	else
 	{
-		sprintf(scratch_buffer, "[%s NPC error:  \"%s\" isn't a state]", db[npc].get_name(), end_state);
-		return scratch_buffer;
+		String ret;
+		ret.printf("[%s NPC error:  \"%s\" isn't a state]", db[npc].get_name(), end_state);
+		return ret;
 	}
 	
 	return NULL;
@@ -240,7 +242,7 @@ void puppet::event(dbref player, dbref npc, const String& event)
 
 	if((elem=db[state->state].exist_element(event)))
 	{
-		char *msg=process_npc_command(npc, db[state->state].get_element(elem), state);
+		String msg=process_npc_command(npc, db[state->state].get_element(elem), state);
 
 		if(msg)
 			fsm_error(msg);

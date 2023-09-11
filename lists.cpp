@@ -91,21 +91,17 @@ find_list_dictionary(dbref player, const String& which)
 void
 set_reverse_map(dbref bloke_being_ladded, dbref bloke_doing_ladd, int value)
 {
-	char smallbuf[10];
-	char smallbuf2[10];
 	dbref lists=find_list_dictionary(bloke_being_ladded, reverseplist_dictionary);
-	sprintf(smallbuf,"%d", (int)bloke_doing_ladd);
+	std::string smallbuf=std::to_string((int)bloke_doing_ladd);
 	dbref element=db[lists].exist_element(smallbuf);
-	sprintf(smallbuf2, "%d", value);
-	db[lists].set_element(element, smallbuf, smallbuf2);
+	db[lists].set_element(element, smallbuf, std::to_string(value));
 }
 
 void
 delete_reverse_map(dbref bloke_being_deleted, dbref bloke_doing_delete)
 {
-	char smallbuf[10];
 	dbref lists=find_list_dictionary(bloke_being_deleted, reverseplist_dictionary);
-	sprintf(smallbuf,"%d", (int)bloke_doing_delete);
+	String smallbuf=std::to_string((int)bloke_doing_delete);
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
 		log_bug("Attempting to remove a reverse player mapping where none exists.");
@@ -116,27 +112,23 @@ delete_reverse_map(dbref bloke_being_deleted, dbref bloke_doing_delete)
 void
 add_clist_reference(dbref bloke_being_ladded, dbref bloke_doing_ladd)
 {
-	char smallbuf[10];
-	char smallbuf2[10];
 	int value;
 
 	dbref lists=find_list_dictionary(bloke_being_ladded, reverseclist_dictionary);
-	sprintf(smallbuf,"%d", (int)bloke_doing_ladd);
+	String smallbuf=std::to_string((int)bloke_doing_ladd);
 	dbref element=db[lists].exist_element(smallbuf);
 	value= element ? atoi(db[lists].get_element(element).c_str()) : 0;
-	sprintf(smallbuf2, "%d", value + 1);
+	String smallbuf2=std::to_string(value+1);
 	db[lists].set_element(element, smallbuf, smallbuf2);
 }
 
 void
 remove_clist_reference(dbref bloke_being_lremoved, dbref bloke_doing_lremove)
 {
-	char smallbuf[10];
-	char smallbuf2[10];
 	int value;
 
 	dbref lists=find_list_dictionary(bloke_being_lremoved, reverseclist_dictionary);
-	sprintf(smallbuf,"%d", (int)bloke_doing_lremove);
+	String smallbuf=std::to_string((int)bloke_doing_lremove);
 	dbref element=db[lists].exist_element(smallbuf);
 	if (element==0)
 	{
@@ -146,7 +138,7 @@ remove_clist_reference(dbref bloke_being_lremoved, dbref bloke_doing_lremove)
 	value= atoi(db[lists].get_element(element).c_str()) - 1;
 	if (value)
 	{
-		sprintf(smallbuf2, "%d", value);
+		String smallbuf2=std::to_string(value);
 		db[lists].set_element(element, smallbuf, smallbuf2);
 	}
 	else
@@ -211,14 +203,10 @@ context::do_lset(const String& victims, const String& flag)
 
 	lists=find_list_dictionary(player, playerlist_dictionary);
 
-	char smallbuf[128];
-	smallbuf[0]='\0';
-
-
 	dbref target=targets.get_first();
 	while (target != NOTHING)
 	{
-		sprintf(smallbuf,"%d", (int)target);
+		String smallbuf=std::to_string((int)target);
 		if ((element=db[lists].exist_element(smallbuf))==0)
 		{
 			db[lists].set_element(0, smallbuf, "0");
@@ -232,7 +220,7 @@ context::do_lset(const String& victims, const String& flag)
 		else
 			newflags=atoi(db[lists].get_element(element).c_str()) | f;
 
-		sprintf(smallbuf,"%d", newflags);
+		smallbuf=std::to_string(newflags);
 		db[lists].set_element(element, NULLSTRING, smallbuf);
 		set_reverse_map(target, player, newflags);
 		target=targets.get_next();
@@ -333,8 +321,8 @@ Player_list::warn_me_if_idle()
 	{
 		int my_idletime=0, time_index=0, message_index=0;
 		dbref automatic;
-		*scratch_buffer='\0';
-		char time_buffer[BUFFER_LEN];
+		String idle_message;
+		String time_buffer;
 
 		Matcher matcher (current->player, ".message", TYPE_DICTIONARY, originator);
 		matcher.check_keys ();
@@ -354,20 +342,20 @@ Player_list::warn_me_if_idle()
 
 			if ((message_index= db[automatic].exist_element("Idle-Message")))
 			{
-				char *check;
-				strcpy(scratch_buffer, db[automatic].get_element(message_index).c_str());
-				if ((check = strchr(scratch_buffer, '\n')))
-				{	
-					*check = '\0';
+				idle_message=db[automatic].get_element(message_index);
+				ssize_t pos=idle_message.find('\n');
+				if (pos >= 0)
+				{
+					idle_message=idle_message.substring(0, pos);
 					notify_colour(current->player, current->player, COLOUR_ERROR_MESSAGES, "WARNING: Idle message truncated at newline.");
-					db[automatic].set_element(message_index, "Idle-Message", scratch_buffer);
+					db[automatic].set_element(message_index, "Idle-Message", idle_message);
 				}
 
-				if(strlen(scratch_buffer) > MAX_IDLE_MESSAGE_LENGTH)
+				if(idle_message.length() > MAX_IDLE_MESSAGE_LENGTH)
 				{
 					notify_colour(current->player,current->player, COLOUR_ERROR_MESSAGES, "WARNING: Idle message truncated to %d characters.", MAX_IDLE_MESSAGE_LENGTH);
-					scratch_buffer[MAX_IDLE_MESSAGE_LENGTH] = '\0';
-					db[automatic].set_element(message_index, "Idle-Message", scratch_buffer);
+					idle_message=idle_message.substring(0, MAX_IDLE_MESSAGE_LENGTH);
+					db[automatic].set_element(message_index, "Idle-Message", idle_message);
 				}
 			}
 		}
@@ -378,28 +366,28 @@ Player_list::warn_me_if_idle()
 		time_t the_idle_time = get_idle_time(current->player);
 		if (the_idle_time > (7 *24 * 60 * 60))
 		{
-			sprintf(time_buffer,"for %ld weeks and %ld days",  the_idle_time/(7 * 24 * 3600), (the_idle_time / (24 *3600)) % 7);
+			time_buffer.printf("for %ld weeks and %ld days",  the_idle_time/(7 * 24 * 3600), (the_idle_time / (24 *3600)) % 7);
 		}
 		else if (the_idle_time > 24 * 60 * 60)
 		{
-			sprintf(time_buffer, "for %ld days and %ld hours", the_idle_time/(24 * 3600), (the_idle_time / 3600) % 24);
+			time_buffer.printf("for %ld days and %ld hours", the_idle_time/(24 * 3600), (the_idle_time / 3600) % 24);
 		}
 		else if(the_idle_time > 60 * 60)
 		{
-			sprintf(time_buffer,"for %ld hours and %ld minutes",  the_idle_time/3600, (the_idle_time / 60) % 60);
+			time_buffer.printf("for %ld hours and %ld minutes",  the_idle_time/3600, (the_idle_time / 60) % 60);
 		}
 		else
 		{
-			sprintf(time_buffer, "for %ld minutes",  the_idle_time/60);
+			time_buffer.printf("for %ld minutes",  the_idle_time/60);
 		}
 
 		if (my_idletime < get_idle_time(current->player))
 		{
-			if (*scratch_buffer)
-				notify_censor_colour (originator, current->player, COLOUR_MESSAGES, "Idle message from %s who has been inactive %s:\n%s", getname_inherited (current->player), time_buffer, scratch_buffer);
+			if (idle_message)
+				notify_censor_colour (originator, current->player, COLOUR_MESSAGES, "Idle message from %s who has been inactive %s:\n%s", getname_inherited (current->player), time_buffer.c_str(), idle_message.c_str());
 			else
 			{
-				notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle %s",  getname_inherited (current->player), time_buffer);
+				notify_colour(originator, current->player, COLOUR_MESSAGES, "%s has been idle %s",  getname_inherited (current->player), time_buffer.c_str());
 			}
 		}
 		current=current->next;

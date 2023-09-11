@@ -123,8 +123,6 @@ const	context	&c,
 dbref		thing)
 
 {
-	static char buf[BUFFER_LEN];
-
 	switch(thing)
 	{
 		case NOTHING:
@@ -134,7 +132,8 @@ dbref		thing)
 		default:
 			if (Typeof (thing) == TYPE_FREE)
 			{
-				sprintf (buf, "*FREE:#%d*", (int)thing);
+				String buf;
+				buf.printf("*FREE:#%d*", (int)thing);
 				return buf;
 			}
 			if((c.get_player() == UNPARSE_ID) ||
@@ -143,7 +142,8 @@ dbref		thing)
 						|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing))))
 			{
 				/* show everything */
-				sprintf(buf, "%s%s(#%d%s)", getname(thing), COLOUR_REVERT, (int)thing, unparse_flags(thing).c_str());
+				String buf;
+				buf.printf("%s%s(#%d%s)", getname(thing), COLOUR_REVERT, (int)thing, unparse_flags(thing).c_str());
 				return buf;
 			}
 			else
@@ -162,8 +162,6 @@ const	dbref	thing,
 	int 	article_type)
 
 {
-	static char buf[BUFFER_LEN];
-
 	switch(thing)
 	{
 		case NOTHING:
@@ -190,13 +188,15 @@ const	dbref	thing,
 					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
 			{
 				/* show everything */
-				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
+				String buf;
+				buf.printf("%s%s%s(#%d%s)", getarticle (thing, article_type), getname (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
 				return buf;
 			}
 			else
 			{
 				/* show only the name */
-				sprintf (buf, "%s%s", getarticle (thing, article_type), getname (thing));
+				String buf;
+				buf.printf ("%s%s", getarticle (thing, article_type), getname (thing));
 				return buf;
 			}
 	}
@@ -208,8 +208,6 @@ const	context	&c,
 const	dbref	thing)
 
 {
-	static	char	buf [BUFFER_LEN];
-
 	switch(thing)
 	{
 		case NOTHING:
@@ -220,12 +218,10 @@ const	dbref	thing)
 			if(!(db[c.get_player ()].get_flag(FLAG_NUMBER))
 				&& (Visible(thing) || c.controls_for_read (thing)
 					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
-			/*	if(!(db[c.get_player ()].get_flag(FLAG_NUMBER) || Visible(thing))
-					&& (c.controls_for_read (thing)
-					|| can_link_to (c, thing)))*/
 			{
 				/* show everything */
-				sprintf(buf, "%s%s(#%d%s)", getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
+				String buf;
+				buf.printf("%s%s(#%d%s)", getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
 				return buf;
 			}
 			else
@@ -244,8 +240,6 @@ const	dbref	thing,
 	int	article_type)
 
 {
-	static	char	buf [BUFFER_LEN];
-
 	switch(thing)
 	{
 		case NOTHING:
@@ -263,16 +257,17 @@ const	dbref	thing,
 			if(!(db[c.get_player ()].get_flag(FLAG_NUMBER))
 				&& (Visible(thing) || c.controls_for_read (thing)
 					|| can_link_to (c, thing) || Abode (thing) || Link (thing) || Jump (thing)))
-			/*if (!(db[c.get_player ()].get_flag(FLAG_NUMBER) || Visible(thing)) && (c.controls_for_read (thing) || can_link_to (c, thing)))*/
 			{
 				/* show everything */
-				sprintf(buf, "%s%s%s(#%d%s)", getarticle (thing, article_type), getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
+				String buf;
+				buf.printf("%s%s%s(#%d%s)", getarticle (thing, article_type), getname_inherited (thing), COLOUR_REVERT, (int)thing, unparse_flags (thing).c_str());
 				return buf;
 			}
 			else
 			{
 				/* show only the name */
-				sprintf (buf, "%s%s", getarticle (thing, article_type), getname_inherited (thing));
+				String buf;
+				buf.printf ("%s%s", getarticle (thing, article_type), getname_inherited (thing));
 				return buf;
 			}
 	}
@@ -284,8 +279,6 @@ const	context	&c,
 const	dbref	thing)
 
 {
-	static	char	buf[15];
-
 	switch(thing)
 	{
 		case NOTHING:
@@ -293,14 +286,11 @@ const	dbref	thing)
 		case HOME:
 			return "home";
 		default:
-//			if (c.controls_for_read (thing)
-//				|| can_link_to(c, thing))
-//			{
-				sprintf(buf, "#%d", (int)thing);
+			{
+				String buf;
+				buf.printf("#%d", (int)thing);
 				return buf;
-//			}
-//			else
-//				return db[thing].get_inherited_name ().c_str();
+			}
 	}
 }
 
@@ -311,8 +301,6 @@ const	context	&c,
 const	dbref	thing)
 
 {
-	static	char	buf[15];
-
 	switch(thing)
 	{
 		case NOTHING:
@@ -320,13 +308,10 @@ const	dbref	thing)
 		case HOME:
 			return "home";
 		default:
-//			if (c.controls_for_read (thing)
-//				|| can_link_to(c, thing))
-//			{
-				sprintf(buf, "#%d", (int)thing);
-				return buf;
-//			}
-//			else
-//				return db[thing].get_name ().c_str();
+		{
+			String buf;
+			buf.printf("#%d", (int)thing);
+			return buf;
+		}
 	}
 }

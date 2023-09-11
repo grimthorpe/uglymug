@@ -295,14 +295,13 @@ const	String& )
 	return_status = COMMAND_SUCC;
 }
 
-static char*
+static String
 addr_inttostr(struct smd *a)
 {
-static char z[80];
-u_long b;
-	b = a -> host;
-	sprintf(z, "inet %3ld.%3ld.%3ld.%3ld", (b>>24)&0xff, (b>>16)&0xff, (b>>8)&0xff, b&0xff);
-	return z;
+	u_long b = a -> host;
+	String ret;
+	ret.printf("inet %3ld.%3ld.%3ld.%3ld", (b>>24)&0xff, (b>>16)&0xff, (b>>8)&0xff, b&0xff);
+	return ret;
 }
 
 void
@@ -355,7 +354,7 @@ const	String& arg2)
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "%-11s %-21s 0x%08x  %-2s %-2s %-2s %-2s",
 				      (a->temp == true) ? "<Temporary>" : "",
-				      addr_inttostr(a),
+				      addr_inttostr(a).c_str(),
 				      (a->mask),
 				      (a->flags & BANNED)?"b":"-",
 				      (a->flags & DNS)?"d":"-",
