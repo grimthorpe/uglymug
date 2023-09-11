@@ -184,6 +184,19 @@ String::String(const char c, size_t repeat) : _buffer(0)
 	_buffer->fill(c, repeat);
 }
 
+String::String(const std::string& str) : _buffer(0)
+{
+	if(str.c_str())
+	{
+		_buffer = StringBuffer::NewBuffer(str.c_str(), str.length());
+	}
+	else
+	{
+		_buffer = StringBuffer::NewBuffer(nullptr);
+	}
+	_buffer->ref();
+}
+
 String& String::operator=(const String& cstr)
 {
 	StringBuffer* oldbuf=_buffer;
@@ -222,6 +235,11 @@ String& String::operator=(const char c)
     *this = str;
 
     return *this;
+}
+
+String& String::operator=(const std::string& str)
+{
+	return (*this)=str.c_str();
 }
 
 String&
@@ -353,16 +371,16 @@ String::substring(size_t start) const
 }
 
 String
-String::substring(size_t start, size_t len) const
+String::substring(size_t start, ssize_t len) const
 {
 	size_t totallength = length();
 	if((len == 0) || (start >= totallength))
 		return NULLSTRING;
 
 	if(len < 0)
-		len = totallength-start;
+		len = (ssize_t)totallength-(ssize_t)start;
 
-	return String(c_str() + start, len);
+	return String(c_str() + start, (size_t)len);
 }
 
 ssize_t
@@ -395,6 +413,18 @@ String::printf(const char *fmt, ...)
 	va_end(va);
 
 	return *this;
+}
+
+String
+String::format(const char *fmt, ...)
+{
+	va_list va;
+	va_start(va, fmt);
+	String ret;
+	ret.vprintf(fmt, va);
+	va_end(va);
+
+	return ret;
 }
 
 String&

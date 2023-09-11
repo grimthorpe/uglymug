@@ -15,6 +15,7 @@
 #include <functional>
 #include <iostream>
 #include <stdarg.h>
+#include <string>
 
 class	String;
 
@@ -118,11 +119,13 @@ public:
 	String(const char* str, size_t len);
 	String(const String& str);	// COPY constructor
 	String(const char c, size_t repeat);
+	String(const std::string& str);
 
 // Assignment operators
 	String& operator=(const String& cstr);
 	String& operator=(const char* cstr);
 	String& operator=(const char c);
+	String& operator=(const std::string& str);
 
 	String& operator+=(const String& other);
 	String& operator+=(char c);
@@ -134,6 +137,8 @@ public:
 // NOTE: There is an implicit parameter of 'this', which is why it is parameter 2 that should be checked.
 	String& printf(const char*, ...) __attribute__ ((format (printf, 2, 3)));
 	String& vprintf(const char*, va_list) __attribute__ ((format (printf, 2, 0)));
+
+	static String format(const char*, ...) __attribute__ ((format (printf, 1, 2)));
 // Useful methods
 // c_str - Return a pointer to the underlying character buffer.
 //		Same guarantee as StringBuffer::c_str
@@ -148,7 +153,7 @@ public:
 	operator bool()			const	{ return _buffer->length() > 0; }
 
 	String	substring(size_t start)			const;
-	String	substring(size_t start, size_t length)	const;
+	String	substring(size_t start, ssize_t length)	const;
 	ssize_t	find(char c, size_t start = 0)		const;
 	char	operator[](size_t pos)			const;
 
