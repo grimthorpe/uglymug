@@ -1535,7 +1535,7 @@ unsigned int	space_left)
 
 			case EVAL_OP_HEAD:
 				final.string[0] = '\0';
-				if(results[1].string)
+				if(results[1].string[0])
 				{
 					apointer = strstr(results[1].string, results[0].string);
 					if(apointer)
@@ -1551,7 +1551,7 @@ unsigned int	space_left)
 
 			case EVAL_OP_TAIL:
 				final.string[0] = '\0';
-				if(results[1].string)
+				if(results[1].string[0])
 				{
 					apointer = strstr(results[1].string, results[0].string);
 					if(apointer)

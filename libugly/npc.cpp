@@ -19,7 +19,7 @@ const char	*initial_state	= "start";	/* name of initial state dictionary */
  * Send an event to an NPC, to trigger a state change.
  */
 
-void context::do_at_event(const char *name, const char *event)
+void context::do_at_event(const String& name, const String& event)
 {
 	dbref npc;
 
@@ -27,7 +27,7 @@ void context::do_at_event(const char *name, const char *event)
 	set_return_string (error_return_string);
 	return_status=COMMAND_FAIL;
 
-	if(blank(name) || blank(event))
+	if(!name || !event)
 	{
 		notify(player, "Usage:  @event <NPC name> = <event>");
 		return;
@@ -169,7 +169,7 @@ static String process_npc_command(dbref npc, const char *cmd, struct puppet::fsm
 		return ret;
 	}
 	
-	return NULL;
+	return NULLSTRING;
 }
 
 
@@ -205,7 +205,7 @@ void puppet::fsm_error(const String& fmt, ...)
 		tmp.vprintf(fmt.c_str(), va);
 		va_end(va);
 
-		notify(get_owner(), tmp);
+		notify(get_owner(), "%s", tmp.c_str());
 	}
 }
 

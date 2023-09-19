@@ -5,21 +5,11 @@
 #include "mudstring.h"
 #include "config.h"
 
-#if defined REGEXP_PCRE
 #include <pcre.h>
-#else
-// Old regexp stuff, as found in regexp.[ch]
-extern char    *compile        (const char *, char *, char *, int);
-extern int     step            (const char *, const char *);
-#endif
 
 class RegularExpression
 {
-#if defined REGEXP_PCRE
 	pcre*		_compileresults;
-#else
-	char		_compileresults[BUFFER_LEN];
-#endif
 
 public:
 	RegularExpression(const String& pattern);
@@ -29,7 +19,6 @@ public:
 };
 
 // Use PCRE (Perl Compatible Regular Expressions)
-#if defined(REGEXP_PCRE)
 inline RegularExpression::RegularExpression(const String& pattern)
 {
 	const char* errptr;
@@ -58,20 +47,4 @@ inline bool RegularExpression::Match(const String& target)
 	}
 	return true;
 }
-#else
-inline RegularExpression::RegularExpression(const String& regexp)
-{
-	compile(regexp.c_str(), _compileresults, _compileresults+sizeof(_compileresults), '\0');
-}
-inline RegularExpression::~RegularExpression()
-{
-}
-
-inline bool RegularExpression::Match(const String& target)
-{
-	return step(target.c_str(), _compileresults);
-}
-
-#endif
-
 

@@ -44,7 +44,6 @@ extern	int	wait3	(union wait *, int, struct rusage *);
 /* PREFIX_INDICATOR must be greater than the difference between any two character values in the system */
 #define	PREFIX_INDICATOR	0x100
 
-
 void				execute_startup(void);
 void				execute_shutdown(void);
 static	void			fork_and_dump (void);
