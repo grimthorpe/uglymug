@@ -1,33 +1,25 @@
-How to compile UglyMUG
-======================
+Welcome to the 21st Century!
 
-0. Prepare your preferred beverage.  Call it $beverage.
+UglyMUG should now be built using CMake.
 
-1. Ensure you are using gmake.  Our Makefile probably won't work with
-   any other flavour of make.
+Dependencies:
+	At the moment the CMake recipe is hard-coded to use libcrypt, libpcre, libncurses.
 
-2. Check whether we support your build environment.  Run:
-     make checkenvironment
-   and see what it thinks your environment is.  If your environment is
-   unsupported, read the PORTING file.  If your environment is supported,
-   this will tell you a platform type.  Call this $platform.
+	The headers & libraries for these packages should be pre-installed
+	on your machine before you try building things.
 
-3. If you don't want make to spew a load of errors the first time you make it,
-   ensure the builds/$platform directory exists.
+	One day I might get around to checking for them.
 
-3a. OPTIONAL: Have libpcre and lua 5.3 installed (ideally with -dev packages if required for your platform)
-              PCRE is used for @find, and lua is for (currently experimental) additional command language
+Build process:
 
-4. Run:
-     make
-   or:
-     make all
+In the root directory run:
 
-5. Drink $beverage, while watching the screen warily for errors.
+cmake -S . -B build
+cd build
+make
 
-6. Your compiled output should be builds/$platform/netmud, possibly with a
-   suffix such as netmud.exe if your platform requires this.
+After the first cmake run you shouldn't have to run it again, unless you are making
+major changes to the build system.
 
-7. Start at doc/index.html to find out how to use UglyMUG.
-
+The game driver is output to $/build/game/netmud
 
