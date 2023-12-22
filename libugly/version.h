@@ -1,3 +1,0 @@
-#define VERSION ""
-#define RELEASE ""
-

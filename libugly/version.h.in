@@ -1,0 +1,6 @@
+#cmakedefine RELEASE "@RELEASE@"
+#cmakedefine WHOAMI "@WHOAMI@"
+#cmakedefine DATE "@DATE@"
+
+#define VERSION "[UglyCode Release " RELEASE " by " WHOAMI " at " DATE "]"
+

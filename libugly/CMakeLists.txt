@@ -1,8 +1,6 @@
 
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-	COMMAND echo \#define RELEASE \"$(VERSION)\" > ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-	COMMAND echo \#define VERSION \"[UglyCode Releast \" RELEASE \" build \#`cat .version` by `whoami` at `date`]\" >> ${CMAKE_CURRENT_SOURCE_DIR}/version.h
+add_custom_target(Version
+	${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/Version.cmake
 )
 
 set(source_code
@@ -76,9 +74,10 @@ set(source_code
 	regexp_interface.h
 	stack.h
 	telnet.h
-	version.h
 )
 
-add_library(ugly STATIC ${source_code} version.h)
+add_library(ugly STATIC ${source_code})
+
+add_dependencies(ugly Version)
 
 target_include_directories (ugly PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
