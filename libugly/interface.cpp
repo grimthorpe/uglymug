@@ -120,7 +120,7 @@ void gettimeofday (struct timeval *tv, void *)
 #endif	/* NEEDS_GETDTABLESIZE */
 
 #if	NEEDS_STRSIGNAL
-const char *strsignal (const int sig)
+char *strsignal (const int sig)
 {
 	static	char	buf [20];	// Assume 20 digits is good enough. PJC 20/4/2003.
 	sprintf (buf, "%d", sig);
@@ -2144,8 +2144,6 @@ int			chanl)
 	struct sockaddr_in	tmpname;
 	socklen_t		tmpnamelen;
 	u_short                 local_port;
-	char			tmpstring[7]; /* max num=65535=>5 digits+1 */
-
 
 		tmpnamelen=sizeof(tmpname);
 		getsockname(s,(struct sockaddr *)(&tmpname),&tmpnamelen);
@@ -2169,8 +2167,7 @@ int			chanl)
 				terminal.colour_terminal=false;
 				break;
 			default:
-				sprintf(tmpstring,"%d",htons(local_port));
-				service=tmpstring;
+				service=std::to_string(htons(local_port));
 				break;
 		}
 		address = a->sin_addr.s_addr;
@@ -2378,9 +2375,8 @@ char *a,*a1,*b;
 			if(_last_command_count != LastCommandCount)
 			{
 				_last_command_count = LastCommandCount;
-				char temp[1024];
-				snprintf(temp, 1024, "\001(%s)\002(#%d)\003", LastCommandName.c_str(), LastCommandCaller);
-				queue_string(temp, show_literally, store_in_recall_buffer);
+				String temp(String::format("\001(%s)\002(#%d)\003", LastCommandName.c_str(), LastCommandCaller));
+				queue_string(temp.c_str(), show_literally, store_in_recall_buffer);
 			}
 			if(terminal.recall)
 			{
@@ -2656,9 +2652,9 @@ descriptor_data::splat_motd()
 }
 
 
-char *boldify(dbref player, const char *str)
+const String boldify(dbref player, const char *str)
 {
-	static char buf[BUFFER_LEN];
+	String buf;
 	struct descriptor_data *d;
 
 	for (d=descriptor_list; d; d=d->next)
@@ -2666,20 +2662,20 @@ char *boldify(dbref player, const char *str)
 			break;
 
 	if(!d)
-		return NULL;
+		return NULLSTRING;
 
 	if(d->termcap.bold_on && d->termcap.bold_off && d->terminal.type)
-		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.bold_on.c_str(), str, d->termcap.bold_off.c_str());
+		buf.printf("%s%s%s", d->termcap.bold_on.c_str(), str, d->termcap.bold_off.c_str());
 	else
-		strcpy(buf, str);
+		buf = str;
 
 	return buf;
 }
 
 
-char *underscorify(dbref player, const char *str)
+const String underscorify(dbref player, const char *str)
 {
-	static char buf[BUFFER_LEN];
+	String buf;
 	struct descriptor_data *d;
 
 	for (d=descriptor_list; d; d=d->next)
@@ -2690,9 +2686,9 @@ char *underscorify(dbref player, const char *str)
 		return NULL;
 
 //	if(d->termcap.underscore_on && d->termcap.underscore_off && d->terminal.type)
-//		snprintf(buf, sizeof(buf), "%s%s%s", d->termcap.underscore_on.c_str(), str, d->termcap.underscore_off.c_str());
+//		buf.printf("%s%s%s", d->termcap.underscore_on.c_str(), str, d->termcap.underscore_off.c_str());
 //	else
-		strcpy(buf, str);
+		buf = str;
 
 	return buf;
 }
@@ -3650,7 +3646,8 @@ bailout (
 int	sig)
 
 {
-	char message[1024];
+	// Declare this as static so we don't need to grab stack or heap space at the point of crashing.
+	static char message[1024];
 
 	snprintf (message, sizeof(message), "BAILOUT: caught signal %d (%s)", sig, strsignal(sig));
 
@@ -4348,12 +4345,11 @@ const	String& )
 			char rankchar= Retired(d->get_player())?'-':
 					(Wizard(d->get_player())?'*':
 						(Apprentice(d->get_player())?'~':' '));
-			snprintf(linebuf, sizeof(linebuf), " %c%s%-23s%s", 
+			line += String::format(" %c%s%-23s%s", 
 				rankchar,
 				player_colour (get_player(), get_player(), colour),
 				db[d->get_player()].get_name().c_str(),
 				COLOUR_REVERT);
-			line += linebuf;
 			if((++num % numperline) == 0)
 			{
 				notify(player, "%s", line.c_str());
@@ -4815,10 +4811,7 @@ descriptor_data::terminal_set_termtype (const String& termtype, bool gagged)
 String
 descriptor_data::terminal_get_height()
 {
-char ret[40];
-	sprintf(ret, "%d", terminal.height);
-
-	return ret;
+	return std::to_string(terminal.height);
 }
 
 
@@ -4851,10 +4844,7 @@ descriptor_data::terminal_set_height(const String& height, bool gagged)
 String
 descriptor_data::terminal_get_width()
 {
-char ret[40];
-	sprintf(ret, "%d", terminal.width);
-
-	return ret;
+	return std::to_string(terminal.width);
 }
 
 

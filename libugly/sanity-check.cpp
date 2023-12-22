@@ -65,35 +65,35 @@ struct	sanity_item
 struct	sanity_item		*sanity_array;
 
 
-const char *
+String
 sane_unparse_object (dbref thing)
 
 {
-	static	char	buf [100];
+	String ret;
 
 	if ((thing < 0 || thing >= db.get_top()) && thing != NOTHING && thing != HOME)
 	{
-		sprintf (buf, "***ILLEGAL (%d)***", (int)thing);
-		return (buf);
+		ret.printf("***ILLEGAL (%d)***", (int)thing);
 	}
 	else if(Typeof(thing) == TYPE_FREE)
 	{
-		sprintf (buf, "***FREE (%d)***", (int)thing);
-		return (buf);
+		ret.printf("***FREE (%d)***", (int)thing);
 	}
 	else
-		return (unparse_object (unparse_context, thing).c_str());
+		ret = unparse_object (unparse_context, thing);
+
+	return ret;
 }
 
 
 void
 violate (
 dbref		i,
-const	char	*s,
+const	String&	s,
 int		fields)
 
 {
-	fprintf(sanity_file, "\nObject %s violates %s.\n", sane_unparse_object (i), s);
+	fprintf(sanity_file, "\nObject %s violates %s.\n", sane_unparse_object (i), s.c_str());
 	if (fields & LOCATION)
 		fprintf(sanity_file, "\tLocation: %s\n", sane_unparse_object(db[i].get_location()));
 	if (fields & DESTINATION)
@@ -146,14 +146,13 @@ dbref	owner)
 	dbref		temp_list;
 	dbref		prev_list;
 	int		status = 0;
-	static	char	buffer [100];
 
 	prev_list = list;
 	DOLIST(temp_list, list)
 	{
 		if (In_a_contents_list (temp_list) && (sanity_array [temp_list].first_list != owner))
 		{
-			sprintf (buffer, "CONTENTS RULES: IN LISTS FOR #%d AND #%d", (int)(sanity_array [temp_list].first_list), (int)owner);
+			String buffer(String::format("CONTENTS RULES: IN LISTS FOR #%d AND #%d", (int)(sanity_array [temp_list].first_list), (int)owner));
 			violate (prev_list, buffer, OWNER|LOCATION);
 			fatal++;
 		}
@@ -190,7 +189,7 @@ dbref	owner)
 			sanity_array [temp_list].flags &= ~(SANITY_MEMBER_HAS_FOUND);
 			if (db [temp_list].get_location() == NOTHING)
 			{
-				sprintf (buffer, "POINTER RULES: OBJECT HAS NO LOCATION, BUT IS IN LIST for %d", (int)(sanity_array [temp_list].first_list));
+				String buffer(String::format("POINTER RULES: OBJECT HAS NO LOCATION, BUT IS IN LIST for %d", (int)(sanity_array [temp_list].first_list)));
 				violate (temp_list, buffer, 0);
 				fatal++;
 			}
@@ -405,8 +404,8 @@ dbref	i)
 		if(db[i].get_flag(flag_list[x].flag))
 			if (!is_flag_allowed(type, flag_list[x].flag))
 			{
-				sprintf(scratch_buffer, "Flag Rules: Object has Illegal Flag (%s (%d))", flag_list[x].string, flag_list[x].flag);
-				violate (i, scratch_buffer, FLAGS);
+				String buffer(String::format("Flag Rules: Object has Illegal Flag (%s (%d))", flag_list[x].string, flag_list[x].flag));
+				violate (i, buffer, FLAGS);
 				broken++;
 			}
         if (Wizard(i) && wizard_check)

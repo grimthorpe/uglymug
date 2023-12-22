@@ -37,8 +37,8 @@ extern	void	notify_welcomer_natter	(const char *fmt, ...);
 
 extern	void	beep			(dbref player);
 
-extern	char	*boldify		(dbref player, const char *str);
-extern	char	*underscorify		(dbref player, const char *str);
+extern	const String	boldify		(dbref player, const char *str);
+extern	const String	underscorify	(dbref player, const char *str);
 
 extern	int	connection_count	(dbref player);
 extern	int	count_connect_types	(int);
