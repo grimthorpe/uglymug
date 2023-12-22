@@ -22,94 +22,15 @@ class	String;
 // Default NULL string.
 extern String NULLSTRING;
 
-/**
- * The real storage space for the String class.
- * The idea is that it is shared between several identical strings, and
- * reference counted so we know when to get rid of it.
- *
- * If a String wants to modify its contents, it should create a new
- * StringBuffer.
- * Note that this isn't enforced as it is possible that you may wish to
- * have a shared StringBuffer that updates all instances at the same time.
- */
-
-class StringBuffer
-{
-friend class String;
-
-	char*		_buf;		// Pointer to the data
-	size_t		_len;		// The length of the string
-	size_t		_capacity;	// The total allocated space
-	int		_ref;		// The reference count.
-
-// Private member functions.
-// resize - Resize the storage space to at least 'newsize'.
-//		If copy is true, copy over the data into the new buffer
-//		If copy is false, the buffer contents are undefined.
-	void resize(size_t newsize, bool copy=true);
-
-// DESTRUCTOR - Private so that we enforce the reference counting.
-	~StringBuffer();
-
-// DUMMY FUNCTIONS - Defined so that C++ doesn't make them public and
-//			create them by default. Dummy so that the class
-//			can't use them internally.
-	StringBuffer& operator=(const StringBuffer&);
-	StringBuffer(const StringBuffer&);
-
-// CONSTRUCTORS - Private so that we can share a common 'Empty' buffer
-//			if required. Use NewBuffer to create a new StringBuffer
-	StringBuffer(size_t capacity = 0);
-	StringBuffer(const char* str);
-	StringBuffer(const char* str, size_t len, size_t capacity = 0);
-
-public:
-// Public member functions
-
-// NewBuffer - Create a new buffer.
-	static StringBuffer* NewBuffer(const char*str, size_t len = 0, size_t capacity = 0);
-
-// assign - Copy that data pointed to by str, up to 'len' characters.
-//		The internal buffer will sort itself out to cope with it
-	void assign(const char* str, size_t len);
-// fill - Fill the buffer with character 'c' 'len' times.
-	void fill(const char c, size_t len);
-
-// ref - Increase the reference count.
-	void ref();
-// unref - Decrease the reference count. If it hits 0, destroy the buffer.
-	void unref();
-// refcount - The current reference count.
-	int		refcount()	const	{ return _ref; }
-
-// c_str - Return a const pointer to the underlying buffer.
-//		It is not guaranteed to be valid after any other operation.
-	const char*	c_str()		const	{ return _buf?_buf:""; }
-
-// length - Return the length of the data, not including the \0 terminator.
-	size_t	length()	const	{ return _len; }
-
-	void		append(const char*, size_t len);
-	void		printf(const char*, va_list va);
-};
-
 /*
  * String
  *
  * A NULL-pointer safe string class that manages its own buffer.
  */
-class	String
+class	String : public std::string
 {
-	StringBuffer*	_buffer;	// Pointer to the underlying buffer
+	bool operator==(int) = delete;
 
-// Private DUMMY members. Defined so that the main code can't use them,
-// DUMMY so that we don't use them internally.
-//	operator int() const;
-//	bool operator==(const String& str);
-	bool operator==(int);
-
-// PRIVATE CONSTRUCTORS
-	String(StringBuffer* buf);
 public:
 // PUBLIC DESTRUCTOR
 	~String();
@@ -127,8 +48,8 @@ public:
 	String& operator=(const char c);
 	String& operator=(const std::string& str);
 
-	String& operator+=(const String& other);
-	String& operator+=(char c);
+	//String& operator+=(const String& other);
+	//String& operator+=(char c);
 
 // Cheeky overload to remove 'amount' number of characters from the end.
 	String& operator-=(size_t amount);
@@ -139,18 +60,12 @@ public:
 	String& vprintf(const char*, va_list) __attribute__ ((format (printf, 2, 0)));
 
 	static String format(const char*, ...) __attribute__ ((format (printf, 1, 2)));
-// Useful methods
-// c_str - Return a pointer to the underlying character buffer.
-//		Same guarantee as StringBuffer::c_str
-	const char*	c_str()		const	{ return _buffer->c_str(); }
-// length - Return the length of the string
-	size_t		length()	const	{ return _buffer->length(); }
 
 // operator bool - shorthand for checking if the string has data in it.
 //	Returns: TRUE if there is data in the string
 //		 FALSE if the string is empty
 // NOTE: A 0-length string is the same as a 'NULL' string.
-	operator bool()			const	{ return _buffer->length() > 0; }
+	operator bool()			const	{ return !empty(); }
 
 	String	substring(size_t start)			const;
 	String	substring(size_t start, ssize_t length)	const;
@@ -160,6 +75,7 @@ public:
 	bool operator<(const String& other)	const;
 	bool operator>(const String& other)	const;
 	bool operator==(const String& other)	const;
+	bool operator==(const char* other)	const;
 	bool operator!=(const String& other)	const;
 };
 
