@@ -103,7 +103,7 @@ struct puppet::fsm_state *puppet::make_state(dbref player)
  * the state on.  Returns an error message, or NULL on success.
  */
 
-static String process_npc_command(dbref npc, const char *cmd, struct puppet::fsm_state *state)
+static String process_npc_command(dbref npc, const String& cmd, struct puppet::fsm_state *state)
 {
 	char		*semicolon;
 	char		*fail_state = NULL;
@@ -118,15 +118,6 @@ static String process_npc_command(dbref npc, const char *cmd, struct puppet::fsm
 	if((semicolon=strchr(scratch_buffer, ';')))
 		*semicolon='\0';
 
-	npc_context=new context (npc);
-	
-	npc_context->calling_from_command();
-	npc_context->process_basic_command(semicolon+1);
-	mud_scheduler.push_new_express_job (npc_context);
-	status=npc_context->get_return_status();
-
-	delete npc_context;
-
 	/* Is there any state information? */
 
 	if(!semicolon || !*(semicolon+1))
@@ -135,6 +126,13 @@ static String process_npc_command(dbref npc, const char *cmd, struct puppet::fsm
 		ret.printf("[%s NPC warning:  infinite loop]", db[npc].get_name());
 		return ret;
 	}
+
+	context npc_context(npc);
+	
+	npc_context.calling_from_command();
+	npc_context.process_basic_command(semicolon+1);
+	mud_scheduler.push_new_express_job (&npc_context);
+	status=npc_context.get_return_status();
 
 	/* Find out if there are one or two possible states we can go to. */
 
