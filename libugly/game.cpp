@@ -644,7 +644,8 @@ const	char	*message)
 	FILE	*f;
 	int	exitcode;
 
-	log_panic(message);
+	// Use a format string just in case the message has a % in it
+	log_panic("%s", message);
 
 #if	HAS_SIGNALS
 	/* turn off signals */
