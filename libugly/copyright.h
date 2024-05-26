@@ -62,3 +62,4 @@ Other changes should be in the git/CVS logs.
 Everybody owns their own changes, especially the ones nobody else wants
 to admit to.
 */
+#pragma once
