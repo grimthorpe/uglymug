@@ -573,7 +573,7 @@ extern	const	dbref			parse_dbref	(const String&);
 #define	DOLIST(var, first)	for((var) = (first); (var) != NOTHING; (var) = db[(var)].get_next ())
 #define	DOREALLIST(var, first)	for((var) = (first); (var) != NOTHING; (var) = db[(var)].get_real_next ())
 #define	PUSH(thing,index,field)	{ db[(thing)].set_next (db[(index)].get_##field ()); db[(index)].set_##field ((thing)); }
-#define	getloc(thing)		(db[thing].get_location ())
+inline dbref getloc(dbref thing) { return db[thing].get_location(); }
 
 inline bool Abort		(dbref x) { return db[x].get_flag(FLAG_ABORT); }
 inline bool Apprentice		(dbref x) { return db[x].get_flag(FLAG_APPRENTICE); }

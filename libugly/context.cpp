@@ -970,30 +970,10 @@ context::step ()
 /*									*/
 /************************************************************************/
 
-String_pair::String_pair (
-const	String& n,
-const	String& v)
-: m_name (n)
-, m_value (v)
-
-{
-}
-
-
 String_pair::~String_pair ()
 
 {
 }
-
-
-void
-String_pair::set_value(
-const	String& v)
-
-{
-	m_value = v;
-}
-
 
 /************************************************************************/
 /*									*/

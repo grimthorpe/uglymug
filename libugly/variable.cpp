@@ -12,13 +12,15 @@
 #include "externs.h"
 #include "colour.h"
 #include "log.h"
+#include <algorithm>
+#include <iostream>
+#include <sstream>
 
 #define	MAX_NESTED_SUBSTITUTIONS	10
 #define MAX_OPERANDS	4
 #define DOWNCASE(x) (isupper(x) ? tolower(x) : (x))
 
 
-static	const	char	too_big			[] = "TooBig";
 static	const	char	ambiguous_variable	[] = "Ambiguous";
 static	const	char	no_such_variable	[] = "No_such_variable";
 static	const	char	unset_return_variable	[] = "Unset_return_value";
@@ -78,13 +80,13 @@ enum	eval_ops
 	EVAL_OP_ABS		= 49
 };
 
-enum	eval_types
+enum class	EVAL_TYPE
 {
-	EVAL_TYPE_NONE,
-	EVAL_TYPE_STRING,
-	EVAL_TYPE_UNKNOWN,
-	EVAL_TYPE_NUMERIC,
-	EVAL_TYPE_FLOAT
+	NONE,
+	STRING,
+	UNKNOWN,
+	NUMERIC,
+	FLOAT
 };
 
 #define EV_STRING	0x1
@@ -95,8 +97,8 @@ enum	eval_types
 
 struct	operand_block
 {
-	enum	eval_types	type;
-	char			string [BUFFER_LEN];
+	EVAL_TYPE		type;
+	String			string;
 	long			integer;
 	double			floating;
 };
@@ -172,8 +174,8 @@ struct	operation
 
 
 static	const	char		*bracket_match			(const char *, const char, const char);
-static	Command_status		full_parse_expression		(context &c, const char *expression, char *result_buffer, unsigned int space_left);
-static	void			full_parse_operand		(context &c, const char *&expression, char *result, unsigned int space_left);
+static	Command_status		full_parse_expression		(context &c, const char *expression, String& result_buffer);
+static	void			full_parse_operand		(context &c, const char *&expression, String& result);
 static	eval_ops		full_parse_operator		(context &c, const char *&expression, int ops_found);
 static	Command_status		full_frig_types			(context &c, enum eval_ops, struct operand_block*, int);
 
@@ -350,17 +352,11 @@ const	String& arg2)
 const bool
 context::variable_substitution (
 const	char* arg,
-	char* result,
-	size_t	max_length)
+	String& result)
 {
 	bool retval;
 
-	retval = nested_variable_substitution (arg, result, 0, max_length);
-	if (strlen (result) > max_length)
-	{
-		log_bug("Buffer overflow: %s(#%d)", getname (get_player ()), get_player());
-		result[max_length -1] = '\0';
-	}
+	retval = nested_variable_substitution (arg, result, 0);
 
 	return retval;
 }
@@ -382,13 +378,12 @@ const	char* arg,
 const bool
 context::dollar_substitute (
 const	char	*&argp,
-	char	*&resp,
-const	int	depth,
-	size_t	space_left)
+	String	&resp,
+const	int	depth)
 
 {
 		char		source_buffer [BUFFER_LEN];
-		char		result_buffer [BUFFER_LEN + 100]; /* Not bombproof, but should be good enough */
+		String		result_buffer;
 	const	char		*name_start;
 	const	char		*name_end;
 
@@ -401,13 +396,8 @@ const	int	depth,
 		strncpy (source_buffer, argp, name_end - argp);
 		source_buffer [name_end - argp] = '\0';
 		source_pointer = source_buffer;
-		nested_variable_substitution (source_pointer, result_buffer, depth + 1, space_left);
-		if (strlen (result_buffer) > space_left)
-		{
-		log_bug("Buffer overflow by %s(#%d)", getname (get_player ()), get_player());
-			strcpy (result_buffer, too_big);
-		}
-		name_start = result_buffer;
+		nested_variable_substitution (source_pointer, result_buffer, depth + 1);
+		name_start = result_buffer.c_str();
 
 		/* Skip the close-brace */
 		argp = name_end + 1;
@@ -460,8 +450,7 @@ const	int	depth,
 	 */
 
 	const	String_pair	*arg;
-		String		value = NULLSTRING;
-		size_t		length;
+	String	value = NULLSTRING;
 
 	/* ... check for $[0123], else match... */
 	if (!strcmp (name_start, "0"))
@@ -482,35 +471,22 @@ const	int	depth,
 	else if (!strcmp (name_start, "3"))
 	{
 		/* Copy arg1 ## arg2 onto the result */
-		char *dummy = resp;
-
+		bool set=false;
 		/* Copy the first argument if one exists */
 		if ((value = get_innermost_arg1 ()))
 		{
-			if((length = value.length()) > space_left)
-			{
-				strcpy (resp, too_big);
-				return true;
-			}
-			strcpy (resp, value.c_str());
-			resp += length;
-			space_left -= length;
+			resp.append(value);
+			set=true;
 		}
 		if ((value = get_innermost_arg2 ()) && value)
 		{
-			if((length = value.length()) > space_left)
-			{
-				strcpy (dummy, too_big);
-				return true;
-			}
-			strcpy (resp++, "=");
-			strcpy (resp, value.c_str());
-			resp += length;
-			space_left -= length + 1;
+			resp.push_back('=');
+			resp.append(value);
+			set=true;
 		}
 
 		/* If dummy or value are set, we did it.  Either way, stop the variable match later. */
-		value = (value || dummy) ? empty_string : in_command () ? empty_string : no_such_variable;
+		value = set ? empty_string : in_command () ? empty_string : no_such_variable;
 	}
 	else if (in_command() && (arg = locate_innermost_arg (name_start)))
 		/* Matched a local variable */
@@ -560,19 +536,9 @@ const	int	depth,
 	/* OK, we should have *something* by now... */
 	if (value)
 	{
-		if ((length = value.length()) > space_left)
-		{
-			strcpy(resp, too_big);
-			return true;
-		}
-
-		strcpy (resp, value.c_str());
-		resp += length;
-		space_left -= length;
+		resp.append(value);
 
 	}
-	else
-		*resp = '\0';
 	return true;
 }
 
@@ -580,27 +546,22 @@ const	int	depth,
 const bool
 context::nested_variable_substitution (
 const	char	*&argp,
-	char	*resp,
-const	int	depth,
-	size_t	space_left)
+	String&	resp,
+const	int	depth)
 
 {
 	bool		backslash_primed = false;
 	bool		breakout;
-	char		*result;
-	char		*end;
-	char		*tmp;
 
-	end = resp + space_left;
 	/* Break out of the recursion if it exceeds a sensible level */
 	if (depth > MAX_NESTED_SUBSTITUTIONS)
 	{
-		/** Match close-braces with *argp to allow higher levels to continue **/
-		strcpy (resp, recursion_return_string.c_str());
+		resp = recursion_return_string;
 		return true;
 	}
 
-	result = resp;
+	resp.clear();
+
 	/* Cope with multiple non-nested $-substitutions */
 	while (true)
 	{
@@ -610,14 +571,8 @@ const	int	depth,
 		{
 			if (backslash_primed)
 			{
-				*resp++ = *argp++;
+				resp += *argp++;
 				backslash_primed = false;
-				space_left--;
-				if(space_left <= 0)
-				{
-					strcpy(result, too_big);
-					return true;
-				}
 			}
 			else
 			{
@@ -633,13 +588,8 @@ const	int	depth,
 						breakout = true;
 						break;
 					default:
-						*resp++ = *argp++;
-						space_left--;
-						if(space_left <= 0)
-						{
-							strcpy(result, too_big);
-							return true;
-						}
+						resp += *argp++;
+						break;
 				}
 			}
 		}
@@ -648,31 +598,19 @@ const	int	depth,
 		if (!breakout)
 		{
 			/* End of string */
-			*resp = '\0';
 			break;
 		}
 		else
 		{
-			tmp = resp;
 			if (*argp == '$')
 			{
 				++argp;
-				dollar_substitute (argp, resp, depth, space_left);
-				if (resp >= end)
-				{
-					strcpy (tmp, too_big);
-					return true;
-				}
+				dollar_substitute (argp, resp, depth);
 			}
 			else if (*argp == '{')
 			{
 				++argp;
-				brace_substitute (argp, resp, space_left);
-				if (resp >= end)
-				{
-					strcpy (tmp, too_big);
-					return true;
-				}
+				brace_substitute (argp, resp);
 			}
 		}
 	}
@@ -688,8 +626,7 @@ const	int	depth,
 void
 context::brace_substitute (
 const	char	*&argp,
-	char	*&resp,
-	size_t	space_left)
+	String&	resp)
 
 {
 	const	char		*command_start;
@@ -706,10 +643,7 @@ const	char	*&argp,
 
 	/*** FIX ME!!! ***/
 	result = sneakily_process_basic_command (buffer, rs);
-	if(space_left < result.length())
-		result = too_big;
-	strcpy (resp, result.c_str());
-	resp += result.length();
+	resp.append(result);
 
 	/* Skip the close-brace if it exists */
 	if (*argp == '}')
@@ -757,7 +691,6 @@ const	String& arg2)
 
 {
 	char	buffer [BUFFER_LEN];
-	char	scratch_return_string [BUFFER_LEN];
 
 	/* Bombproof if NULL arg1 */
 	if (!arg1)
@@ -780,8 +713,9 @@ const	String& arg2)
 		}
 		strcpy (buffer + len1, arg2.c_str());
 	}
-	return_status = full_parse_expression (*this, buffer, scratch_return_string, BUFFER_LEN);
-	set_return_string (scratch_return_string);
+	String return_string;
+	return_status = full_parse_expression (*this, buffer, return_string);
+	set_return_string (return_string);
 }
 
 
@@ -789,8 +723,7 @@ static Command_status
 full_parse_expression (
 	context	&c,
 const	char	*expression,
-	char	*result_buffer,
-unsigned int	space_left)
+	String& result_buffer)
 
 {
 
@@ -802,7 +735,7 @@ unsigned int	space_left)
 		int			number_operands_found = 0;
 		int			frig_count;
 	struct	operand_block		final;
-		char *			apointer;
+	const	char *			apointer;
 		char *			bpointer;
 		int			i;
 		Command_status		return_status;
@@ -831,12 +764,12 @@ unsigned int	space_left)
 				{
 					/* That copy was justified - the operator check failed. */
 					expression = cached_expression;
-					full_parse_operand(c, expression, results[number_operands_found++].string, BUFFER_LEN);
+					full_parse_operand(c, expression, results[number_operands_found++].string);
 				}
 			}
 			else
 			{
-				full_parse_operand(c, expression, results[number_operands_found++].string, BUFFER_LEN);
+				full_parse_operand(c, expression, results[number_operands_found++].string);
 			}
 			/* Skip white space */
 			while (isspace (*expression))
@@ -846,10 +779,7 @@ unsigned int	space_left)
 
 		if (!op)
 		{
-			if(strlen(results[0].string) > space_left)
-				strcpy(result_buffer, too_big);
-			else
-				strcpy(result_buffer,results[0].string);
+			result_buffer = results[0].string;
 			return (return_status);
 		}
 
@@ -857,9 +787,9 @@ unsigned int	space_left)
 		for (frig_count = 0; frig_count < ops[op].number_of_ops; frig_count++)
 		{
 			return_status = full_frig_types (c, op, &results [frig_count], ops[op].type_of_operation[frig_count]);
-			if (results [frig_count].type == EVAL_TYPE_NONE)
+			if (results [frig_count].type == EVAL_TYPE::NONE)
 			{
-				strcpy (result_buffer, error_return_string.c_str());
+				result_buffer = error_return_string;
 				return (return_status);
 			}
 		}
@@ -870,193 +800,193 @@ unsigned int	space_left)
 		switch (op)
 		{
 			case EVAL_OP_EQ:
-				if ((OpType(0) == EVAL_TYPE_STRING) || (OpType(1) == EVAL_TYPE_STRING))
+				if ((OpType(0) == EVAL_TYPE::STRING) || (OpType(1) == EVAL_TYPE::STRING))
 				{
 					final.integer = !string_compare (results[0].string, results[1].string);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (results[0].floating == results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = ((double)results[0].integer == results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (results[0].floating == (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer == results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_NEQ:
-				if ((OpType(0) == EVAL_TYPE_STRING) || (OpType(1) == EVAL_TYPE_STRING))
+				if ((OpType(0) == EVAL_TYPE::STRING) || (OpType(1) == EVAL_TYPE::STRING))
 				{
 					final.integer = string_compare (results[0].string, results[1].string);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (results[0].floating != results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = ((double)results[0].integer != results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (results[0].floating != (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer != results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_LT:
-				if ((OpType(0) == EVAL_TYPE_STRING) || (OpType(1) == EVAL_TYPE_STRING))
+				if ((OpType(0) == EVAL_TYPE::STRING) || (OpType(1) == EVAL_TYPE::STRING))
 				{
 					final.integer = string_compare (results[0].string, results[1].string) < 0;
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (results[0].floating < results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = ((double)results[0].integer < results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (results[0].floating < (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer < results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_LE:
-				if ((OpType(0) == EVAL_TYPE_STRING) || (OpType(1) == EVAL_TYPE_STRING))
+				if ((OpType(0) == EVAL_TYPE::STRING) || (OpType(1) == EVAL_TYPE::STRING))
 				{
 					final.integer = string_compare (results[0].string, results[1].string) <= 0;
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (results[0].floating <= results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = ((double)results[0].integer <= results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (results[0].floating <= (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer <= results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_GT:
-				if ((OpType(0) == EVAL_TYPE_STRING) || (OpType(1) == EVAL_TYPE_STRING))
+				if ((OpType(0) == EVAL_TYPE::STRING) || (OpType(1) == EVAL_TYPE::STRING))
 				{
 					final.integer = string_compare (results[0].string, results[1].string) > 0;
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (results[0].floating > results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = ((double)results[0].integer > results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (results[0].floating > (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer > results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_GE:
-				if ((OpType(0) == EVAL_TYPE_STRING) || (OpType(1) == EVAL_TYPE_STRING))
+				if ((OpType(0) == EVAL_TYPE::STRING) || (OpType(1) == EVAL_TYPE::STRING))
 				{
 					final.integer = string_compare (results[0].string, results[1].string) >= 0;
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (results[0].floating >= results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = ((double)results[0].integer >= results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (results[0].floating >= (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer >= results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_ADD:
-				if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = (results[0].floating + results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = ((double)results[0].integer + results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.floating = (results[0].floating + (double)results[1].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.integer = (results[0].integer + results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
@@ -1067,48 +997,48 @@ unsigned int	space_left)
 				break;
 
 			case EVAL_OP_SUB:
-				if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = (results[0].floating - results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = ((double)results[0].integer - results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.floating = (results[0].floating - (double)results[1].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.integer = (results[0].integer - results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_MUL:
-				if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = (results[0].floating * results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = ((double)results[0].integer * results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.floating = (results[0].floating * (double)results[1].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.integer = (results[0].integer * results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
@@ -1116,29 +1046,29 @@ unsigned int	space_left)
 				if ((results[1].integer == 0) && (results[1].floating == 0))
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Division by zero.");
-					final.type = EVAL_TYPE_STRING;
-					strcpy (final.string, error_return_string.c_str());
+					final.type = EVAL_TYPE::STRING;
+					final.string = error_return_string;
 					return_status = COMMAND_FAIL;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = (results[0].floating / results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.floating = ((double)results[0].integer / results[1].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.floating = (results[0].floating / (double)results[1].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = ((double)results[0].integer / (double)results[1].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
@@ -1146,65 +1076,65 @@ unsigned int	space_left)
 				if (results[1].integer == 0)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Modulus of zero.");
-					final.type = EVAL_TYPE_STRING;
-					strcpy (final.string, error_return_string.c_str());
+					final.type = EVAL_TYPE::STRING;
+					final.string = error_return_string;
 					return_status = COMMAND_FAIL;
 				}
 				else
 				{
 					final.integer = (results[0].integer % results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_NOT:
 				final.integer = !results[0].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_AND:
 				final.integer = results[0].integer && results[1].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_OR:
 				final.integer = results[0].integer || results[1].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_BITNOT:
 				final.integer = ~results[0].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_BITAND:
 				final.integer = results[0].integer & results[1].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_BITOR:
 				final.integer = results[0].integer | results[1].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_BITXOR:
 				final.integer = results[0].integer ^ results[1].integer;
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_CONCAT:
-				strcpy (final.string, results[0].string);
-				strcat (final.string, results[1].string);
-				final.type = EVAL_TYPE_STRING;
+				final.string = results[0].string;
+				final.string.append(results[1].string);
+				final.type = EVAL_TYPE::STRING;
 				break;
 
 			case EVAL_OP_EXITMATCH:
 				final.integer = 0;
-				match = results[1].string;
+				match = results[1].string.c_str();
 				while(*match)
 				{
 					/* check out this one */
-					for(p = results[0].string;
+					for(p = results[0].string.c_str();
 						*p && DOWNCASE(*p) == DOWNCASE(*match) && *match != EXIT_DELIMITER;
 						p++, match++);
 
@@ -1227,172 +1157,175 @@ unsigned int	space_left)
 					while (isspace (*match))
 						match++;
 				}
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_GETMATCH:
 				final.integer = string_match (results[1].string, results[0].string);
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_SQRT:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					if (results[0].integer != 0)
 					{
 						final.floating = sqrt((double)results[0].integer);
-						final.type = EVAL_TYPE_FLOAT;
+						final.type = EVAL_TYPE::FLOAT;
 					}
 					else
 					{
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Outside sqr domain");
-						strcpy (result_buffer, error_return_string.c_str());
+						result_buffer = error_return_string;
 						return (COMMAND_FAIL);
 					}
 				}
 				else
 				{
 					final.floating = sqrt(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_COS:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					final.floating = cos((double)results[0].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = cos(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_SIN:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					final.floating = sin((double)results[0].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = sin(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_TAN:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					final.floating = tan((double)results[0].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = tan(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_ACOS:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					final.floating = acos((double)results[0].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = acos(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_ASIN:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					final.floating = asin((double)results[0].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = asin(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_ATAN:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 				{
 					final.floating = atan((double)results[0].integer);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				else
 				{
 					final.floating = atan(results[0].floating);
-					final.type = EVAL_TYPE_FLOAT;
+					final.type = EVAL_TYPE::FLOAT;
 				}
 				break;
 
 			case EVAL_OP_MIDSTRING:
 				{
-					size_t len = strlen(results[2].string);
+					size_t len = results[2].string.length();
 					if ((len < (size_t)results[1].integer)
 						|| (len < (size_t)results[0].integer))
 					{
 						if (!c.gagged_command())
 							notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Argument past end of string in midstring");
 
-						strcpy (result_buffer, error_return_string.c_str());
+						result_buffer = error_return_string;
 						return (COMMAND_FAIL);
 					}
 					else
 					{
-						results[2].string[results[1].integer] = '\0';
-						strcpy(final.string, results[2].string + results[0].integer - 1);
-						final.type = EVAL_TYPE_STRING;
+						if(results[1].integer < results[2].integer)
+							final.string = results[2].string.substr(results[0].integer, results[1].integer-results[0].integer);
+						else if(results[1].integer == results[2].integer)
+							final.string.clear();
+						else
+							final.string = results[2].string.substr(results[0].integer);
+						final.type = EVAL_TYPE::STRING;
 					}
 					break;
 				}
 
 			case EVAL_OP_TYPEOF:
-				final.type = EVAL_TYPE_STRING;
+				final.type = EVAL_TYPE::STRING;
 				switch (OpType(0))
 				{
-					case EVAL_TYPE_NUMERIC:
-						strcpy(final.string, "INTEGER");
+					case EVAL_TYPE::NUMERIC:
+						final.string = "INTEGER";
 						break;
-					case EVAL_TYPE_STRING:
-						strcpy(final.string, "STRING");
+					case EVAL_TYPE::STRING:
+						final.string = "STRING";
 						break;
-					case EVAL_TYPE_FLOAT:
-						strcpy(final.string, "FLOAT");
+					case EVAL_TYPE::FLOAT:
+						final.string = "FLOAT";
 						break;
 					default:
-						strcpy(final.string, "UNKNOWN");
+						final.string = "UNKNOWN";
 				}
 				break;
 
 			case EVAL_OP_LENGTH:
-				final.integer = strlen(results[0].string);
-				final.type = EVAL_TYPE_NUMERIC;
+				final.integer = results[0].string.length();
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_NCHAR:
-				if (strlen(results[1].string) < (size_t)results[0].integer)
+				if (results[1].string.length() < (size_t)results[0].integer)
 				{
 					if (!c.gagged_command())
 						notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES,"Argument past end of string in nchar");
 
-					strcpy (result_buffer, error_return_string.c_str());
+					result_buffer = error_return_string;
 					return (COMMAND_FAIL);
 				}
 				else
 				{
-					final.string[0] = results[1].string[results[0].integer - 1];
-					final.string[1] = '\0';
-					final.type = EVAL_TYPE_STRING;
+					final.string = results[1].string[results[0].integer - 1];
+					final.type = EVAL_TYPE::STRING;
 					break;
 				}
 
@@ -1400,202 +1333,220 @@ unsigned int	space_left)
 				if (results[0].integer == 0)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Zero argument to nitem");
-					strcpy (result_buffer, error_return_string.c_str());
+					result_buffer = error_return_string;
 					return (COMMAND_FAIL);
 				}
-
-				for (apointer = strtok(results[2].string,results[1].string), i = 1; i < results[0].integer; i++)
-					apointer = strtok(NULL,results[1].string);
-				if (apointer != NULL)
-					strcpy(final.string,apointer);
+				if (!results[1].string)
+				{
+					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Missing second argument to nitem.");
+					result_buffer = error_return_string;
+					return (COMMAND_FAIL);
+				}
 				else
-					final.string[0] = '\0';
-				final.type = EVAL_TYPE_STRING;
+				{
+					std::istringstream iss(results[2].string);
+
+					for(int i = 0; i < results[0].integer; i++)
+						std::getline(iss, final.string, results[1].string[0]);
+
+					final.type = EVAL_TYPE::STRING;
+				}
 				break;
 
 			case EVAL_OP_NUMITEMS:
-				if (results[0].string[0] == 0)
+				if (!results[0].string)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "No arguments passed to numitems.");
-					strcpy (result_buffer, error_return_string.c_str());
+					result_buffer = error_return_string;
 					return (COMMAND_FAIL);
 				}
-				if (results[1].string[0] == 0)
+				if (!results[1].string)
 				{
 					notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Missing second argument to numitems.");
-					strcpy (result_buffer, error_return_string.c_str());
+					result_buffer = error_return_string;
 					return (COMMAND_FAIL);
 				}
+				else
+				{
+					std::istringstream iss(results[1].string);
+					int i=0;
+					std::string dummy;
+					for(final.integer=0; std::getline(iss, dummy, results[0].string[0]); final.integer++)
+					{
+						// Count goes in final.integer
+					}
+				}
 
-				apointer = results[1].string;
-				for (final.integer = 0; apointer != NULL; final.integer++)
-					apointer = strstr(apointer + 1, results[0].string);
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_SUBSTR:
-				if ((results[0].integer < 1) || ((size_t)(results[0].integer) > strlen(results[2].string)))
+				if ((results[0].integer < 1) || ((size_t)(results[0].integer) > results[2].string.length()))
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Substr position out of range");
-					strcpy (result_buffer, error_return_string.c_str());
+					result_buffer = error_return_string;
 					return (COMMAND_FAIL);
 				}
 
-				apointer = strstr((results[2].string + results[0].integer - 1), results[1].string);
+				apointer = strstr((results[2].string.c_str() + results[0].integer - 1), results[1].string.c_str());
 
 				if (apointer == NULL)
 					final.integer = 0;
 				else
-					final.integer = apointer - results[2].string + 1;
-				final.type = EVAL_TYPE_NUMERIC;
+					final.integer = apointer - results[2].string.c_str() + 1;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_INT:
-				if (OpType(0) == EVAL_TYPE_NUMERIC)
+				if (OpType(0) == EVAL_TYPE::NUMERIC)
 					final.integer = results[0].integer;
 				else
 					final.integer = (int)results[0].floating;
 
-				final.type = EVAL_TYPE_NUMERIC;
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_DIV:
 				if (results[1].integer == 0)
 				{
 					notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Division by zero.");
-					final.type = EVAL_TYPE_STRING;
-					strcpy (final.string, error_return_string.c_str());
+					final.type = EVAL_TYPE::STRING;
+					final.string = error_return_string;
 					return_status = COMMAND_FAIL;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (int)(results[0].floating / results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_NUMERIC) && (OpType(1) == EVAL_TYPE_FLOAT))
+				else if ((OpType(0) == EVAL_TYPE::NUMERIC) && (OpType(1) == EVAL_TYPE::FLOAT))
 				{
 					final.integer = (int)((double)results[0].integer / results[1].floating);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
-				else if ((OpType(0) == EVAL_TYPE_FLOAT) && (OpType(1) == EVAL_TYPE_NUMERIC))
+				else if ((OpType(0) == EVAL_TYPE::FLOAT) && (OpType(1) == EVAL_TYPE::NUMERIC))
 				{
 					final.integer = (int)(results[0].floating / (double)results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				else
 				{
 					final.integer = (results[0].integer / results[1].integer);
-					final.type = EVAL_TYPE_NUMERIC;
+					final.type = EVAL_TYPE::NUMERIC;
 				}
 				break;
 
 			case EVAL_OP_DP:
-				if (OpType(1) == EVAL_TYPE_NUMERIC)
+				if (OpType(1) == EVAL_TYPE::NUMERIC)
 				{
 					results[1].floating = (double)results[1].integer;
-					sprintf(final.string, "%.*f", (int) results[0].integer, results[1].floating);
+					final.string.printf("%.*f", (int) results[0].integer, results[1].floating);
 				}
 				else
 				{
-					sprintf(final.string, "%.*f", (int) results[0].integer, results[1].floating);
+					final.string.printf("%.*f", (int) results[0].integer, results[1].floating);
 				}
-				final.type = EVAL_TYPE_STRING;
+				final.type = EVAL_TYPE::STRING;
 				break;
 
 			case EVAL_OP_PI:
 				final.floating = M_PI;
-				final.type = EVAL_TYPE_FLOAT;
+				final.type = EVAL_TYPE::FLOAT;
 				break;
 
 			case EVAL_OP_NAMEC:
-				final.type = EVAL_TYPE_STRING;
-				strcpy (final.string, getname(match_connected_player(results[0].string)));
+				final.type = EVAL_TYPE::STRING;
+				final.string = getname(match_connected_player(results[0].string));
 				break;
 
 			case EVAL_OP_MATCHITEM:
-				apointer = results[2].string;
-				i = 1;
 				final.integer = 0;
-
-				apointer = strtok(results[2].string,results[1].string);
-
-				while(apointer != NULL)
+				if(!results[1].string)
 				{
-					if (strcasecmp(results[0].string, apointer) == 0)
-					{
-						final.integer = i;
-						break;
-					}
-					apointer = strtok(NULL,results[1].string);
-					i++;
+					// Error
 				}
-
-				final.type = EVAL_TYPE_NUMERIC;
+				else
+				{
+					std::string tmpstring;
+					std::istringstream iss(results[2].string);
+					int i = 1;
+					while(std::getline(iss, tmpstring, results[1].string[0]))
+					{
+						if (strcasecmp(results[0].string.c_str(), tmpstring.c_str()) == 0)
+						{
+							final.integer = i;
+							break;
+						}
+						i++;
+					}
+				}
+				final.type = EVAL_TYPE::NUMERIC;
 				break;
 
 			case EVAL_OP_HEAD:
-				final.string[0] = '\0';
+				final.string.clear();
 				if(results[1].string[0])
 				{
-					apointer = strstr(results[1].string, results[0].string);
-					if(apointer)
+					auto pos=results[1].string.find(results[0].string);
+					if(pos == std::string::npos)
 					{
-						*apointer = '\0';
-						strcpy(final.string,results[1].string);
+						final.string=results[1].string;
 					}
 					else
-						strcpy(final.string,results[1].string);
+					{
+						final.string=results[1].string.substring(0, pos);
+					}
 				}
-				final.type = EVAL_TYPE_STRING;
+				final.type = EVAL_TYPE::STRING;
 				break;
 
 			case EVAL_OP_TAIL:
-				final.string[0] = '\0';
+				final.string.clear();
 				if(results[1].string[0])
 				{
-					apointer = strstr(results[1].string, results[0].string);
-					if(apointer)
+					auto pos=results[1].string.find(results[0].string);
+					if(pos != std::string::npos)
 					{
-						apointer+=strlen(results[0].string);
-						strcpy(final.string,apointer);
+						final.string=results[1].string.substring(pos + 1, std::string::npos);
 					}
 				}
-				final.type = EVAL_TYPE_STRING;
+				final.type = EVAL_TYPE::STRING;
 				break;
 
 			case EVAL_OP_REPLACE:
 				char *nextocc;
 				int searchlen;
 
-				final.type = EVAL_TYPE_STRING;
-				apointer = results[3].string;
-				bpointer = final.string;
-				if (OpType(0) != EVAL_TYPE_NUMERIC)
+				final.type = EVAL_TYPE::STRING;
+#if 0
+				apointer = results[3].string.c_str();
+				bpointer = final.string.c_str();
+				if (OpType(0) != EVAL_TYPE::NUMERIC)
 				{
-					if(OpType(0) == EVAL_TYPE_STRING && string_prefix(results[0].string, "all"))
+					if(OpType(0) == EVAL_TYPE::STRING && string_prefix(results[0].string, "all"))
 						results[0].integer = -1;
 					else
 					{
-						notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Bad number of replaces for @eval replace function - %s", results[0].string);
-						final.type = EVAL_TYPE_NONE;
-						strcpy (result_buffer, error_return_string.c_str());
+						notify_colour(c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Bad number of replaces for @eval replace function - %s", results[0].string.c_str());
+						final.type = EVAL_TYPE::NONE;
+						result_buffer = error_return_string;
 						return (COMMAND_FAIL);
 					}
 				}
 				if (results[0].integer == 0)
 				{
-					strcpy(final.string, results[3].string);
+					final.string = results[3].string;
 					break;
 				}
 				/* Check that the search string has at least one character in it - else we keep looping forever */
-				if ((searchlen = (int)strlen(results[1].string)) < 1)
+				if ((searchlen = (int)(results[1].string.length())) < 1)
 				{
 					notify_colour (c.get_player (),c.get_player(), COLOUR_ERROR_MESSAGES, "Zero length search string in @eval replace - doing no replacement.");
-					strcpy (final.string, results [3].string);
+					final.string = results [3].string;
 					break;
 				}
-				final.string[0] = '\0';
-				while(((results[0].integer--) != 0) && ((nextocc = strstr(apointer, results[1].string)) != NULL))
+				final.string.clear();
+				while(((results[0].integer--) != 0) && ((nextocc = strstr(apointer, results[1].string.c_str())) != NULL))
 				{
 					*nextocc = '\0';
 					strcpy(bpointer, apointer);
@@ -1604,72 +1555,59 @@ unsigned int	space_left)
 					apointer = nextocc + searchlen;
 				}
 				strcat(final.string, apointer);
+#endif // DISABLED
 				break;
 
 			case EVAL_OP_DICMATCH:
 				{
 					dbref	dic;
 
-					final.type = EVAL_TYPE_STRING;
-					final.string [0] = '\0';
+					final.type = EVAL_TYPE::STRING;
+					final.string.clear();
 
 					Matcher matcher (c.get_player (), results[0].string, TYPE_DICTIONARY, c.get_effective_id ());
 					matcher.match_variable ();
 					matcher.match_absolute ();
 					if ((dic = matcher.noisy_match_result ()) == NOTHING)
 					{
-						strcpy (result_buffer, error_return_string.c_str());
+						result_buffer = error_return_string;
 						return (COMMAND_FAIL);
 					}
 					if (Typeof (dic) != TYPE_DICTIONARY)
 					{
-						notify_colour (c.get_player (),c.get_player(), COLOUR_ERROR_MESSAGES, "%s is not a dictionary.", results[0].string);
-						strcpy (result_buffer, error_return_string.c_str());
+						notify_colour (c.get_player (),c.get_player(), COLOUR_ERROR_MESSAGES, "%s is not a dictionary.", results[0].string.c_str());
+						result_buffer = error_return_string;
 						return (COMMAND_FAIL);
 					}
 					for (unsigned int i = 1; i <= db [dic].get_number_of_elements (); i++)
 						if (string_match (results[1].string, db [dic].get_index (i)))
 						{
-							if (final.string [0] != '\0')
-								strcat (final.string, ";");
-							strcat (final.string, db [dic].get_element (i).c_str());
+							if (final.string)
+								final.string.push_back(';');
+							final.string.append(db [dic].get_element (i));
 						}
 				}
 				break;
 			case EVAL_OP_TOLOWER:
 				{
-					char* p = results[0].string;
-					char* q = final.string;
-					while(*p)
-					{
-						char c= *p++;
-						*q++ = (char)tolower(c);
-					}
-					*q = '\0';
+					std::transform(results[0].string.begin(), results[0].string.end(), results[0].string.begin(), ::tolower);
 				}
 				break;
 			case EVAL_OP_TOUPPER:
 				{
-					char* p = results[0].string;
-					char* q = final.string;
-					while(*p)
-					{
-						char c= *p++;
-						*q++ = (char)toupper(c);
-					}
-					*q = '\0';
+					std::transform(results[0].string.begin(), results[0].string.end(), results[0].string.begin(), ::toupper);
 				}
 				break;
 
 			case EVAL_OP_ABS:
 				{
-					if (OpType(0) == EVAL_TYPE_NUMERIC)
+					if (OpType(0) == EVAL_TYPE::NUMERIC)
 					{
 						if(results[0].integer < 0)
 							final.integer = 0-results[0].integer;
 						else
 							final.integer = results[0].integer;
-						final.type = EVAL_TYPE_NUMERIC;
+						final.type = EVAL_TYPE::NUMERIC;
 					}
 					else
 					{
@@ -1677,14 +1615,14 @@ unsigned int	space_left)
 							final.floating = 0-results[0].floating;
 						else
 							final.floating = results[0].floating;
-						final.type = EVAL_TYPE_FLOAT;
+						final.type = EVAL_TYPE::FLOAT;
 					}
 				}
 				break;
 
 			default:
 				notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Unknown op.");
-				strcpy (result_buffer, error_return_string.c_str());
+				result_buffer = error_return_string;
 				return (COMMAND_FAIL);
 		}
 
@@ -1697,15 +1635,16 @@ unsigned int	space_left)
 		{
 			switch (final.type)
 			{
-				case EVAL_TYPE_NUMERIC:
-					sprintf (result_buffer, "%ld", final.integer);
+				case EVAL_TYPE::NUMERIC:
+					result_buffer = std::to_string(final.integer);
 					break;
-				case EVAL_TYPE_FLOAT:
-					sprintf (result_buffer, "%0.10g", final.floating);
+				case EVAL_TYPE::FLOAT:
+					result_buffer = std::to_string(final.floating);
 					break;
-				case EVAL_TYPE_STRING:
+				case EVAL_TYPE::STRING:
 				default:
-					strcpy (result_buffer, final.string);
+					result_buffer = final.string;
+					break;
 			}
 			return (return_status);
 		}
@@ -1713,15 +1652,16 @@ unsigned int	space_left)
 		/* Otherwise, there's more, so keep going */
 		switch (final.type)
 		{
-			case EVAL_TYPE_NUMERIC:
-				sprintf(results[0].string, "%ld", final.integer);
+			case EVAL_TYPE::NUMERIC:
+				results[0].string = std::to_string(final.integer);
 				break;
-			case EVAL_TYPE_FLOAT:
-				sprintf(results[0].string, "%0.10g", final.floating);
+			case EVAL_TYPE::FLOAT:
+				results[0].string = std::to_string(final.floating);
 				break;
-			case EVAL_TYPE_STRING:
+			case EVAL_TYPE::STRING:
 			default:
-				strcpy (results[0].string, final.string);
+				results[0].string = final.string;
+				break;
 		}
 		number_operands_found = 1;
 		op = EVAL_OP_NONE;
@@ -1734,8 +1674,7 @@ static void
 full_parse_operand (
 	context		&c,
 const	char		*&expression,
-	char		*result_buffer,
-unsigned int		space_left)
+	String&		result_buffer)
 
 {
 	const	char	*command_start;
@@ -1752,7 +1691,7 @@ unsigned int		space_left)
 		/* Copy and process the nested evaluation */
 		strncpy (buffer, command_start, expression - command_start);
 		buffer [expression - command_start] = '\0';
-		full_parse_expression (c, buffer, result_buffer, space_left);
+		full_parse_expression (c, buffer, result_buffer);
 
 		/* Skip the ')' */
 		++expression;
@@ -1761,25 +1700,23 @@ unsigned int		space_left)
 	{
 		command_start = ++expression;
 		expression = bracket_match (expression, '"', '"');
-		strncpy (result_buffer, command_start, expression - command_start);
-		result_buffer [expression - command_start] = '\0';
+		result_buffer = String(command_start, expression - command_start);
 		++expression;
 	}
 	else if (*expression == '$')
 	{
 		++expression;
-		c.dollar_substitute (expression, result_buffer, 0, space_left);
+		c.dollar_substitute (expression, result_buffer, 0);
 	}
 	else if (*expression == '{')
 	{
 		++expression;
-		c.brace_substitute (expression, result_buffer, space_left);
+		c.brace_substitute (expression, result_buffer);
 	}
 	else
 	{
 		while (*expression && !isspace (*expression))
-			*result_buffer++ = *expression++;
-		*result_buffer = '\0';
+			result_buffer.push_back(*expression++);
 	}
 }
 
@@ -2132,35 +2069,35 @@ struct	operand_block* 	results,
 	if (op == EVAL_OP_NONE)
 	{
 		/* Already notified during parse */
-		results->type = EVAL_TYPE_NONE;
+		results->type = EVAL_TYPE::NONE;
 		return (COMMAND_FAIL);
 	}
 
 	/* First of all, see if we can get a number out of the thing.  Try a float, as integers are a subset. */
-	results->floating = strtod (results->string, &end);
+	results->floating = strtod (results->string.c_str(), &end);
 	if (end == results->string || *end != '\0')
 	{
 		/* It's not any kind of number. */
 		if (types & EV_STRING)
 		{
-			results->type = EVAL_TYPE_STRING;
+			results->type = EVAL_TYPE::STRING;
 			return (COMMAND_SUCC);
 		}
 		else
 		{
 			notify_colour (c.get_player (), c.get_player(), COLOUR_ERROR_MESSAGES, "Can't do numeric operation on a string.");
-			results->type = EVAL_TYPE_NONE;
+			results->type = EVAL_TYPE::NONE;
 			return (COMMAND_FAIL);
 		}
 	}
 	else
 	{
 		/* We know it's a floating-point number.  If we can get an integer out of it, do so - otherwise, leave it. */
-		results->type = EVAL_TYPE_FLOAT;
+		results->type = EVAL_TYPE::FLOAT;
 
-		results->integer = strtol (results->string, &end, 10);
+		results->integer = strtol (results->string.c_str(), &end, 10);
 		if (end != results->string && *end == '\0')
-			results->type = EVAL_TYPE_NUMERIC;
+			results->type = EVAL_TYPE::NUMERIC;
 		return (COMMAND_SUCC);
 	}
 }

@@ -38,19 +38,16 @@ enum	Command_action
 };
 
 
-class	String_pair
+class	String_pair : std::pair<String, String>
 {
-    private:
-		String			m_name;
-		String			m_value;
     public:
-					String_pair	(const String& n, const String& v);
+					String_pair	(const String& n, const String& v) { first=n; second=v; }
 					~String_pair	();
-		void			set_value	(const String& v);
-	const	String&			get_name	() 	const	{ return m_name; }
-	const	String&			name	() 	const	{ return m_name; }
-	const	String&			get_value	()	const	{ return m_value; }
-	const	String&			value	()	const	{ return m_value; }
+		void			set_value	(const String& v) { second = v; }
+	const	String&			get_name	() 	const	{ return first; }
+	const	String&			name	() 	const	{ return first; }
+	const	String&			get_value	()	const	{ return second; }
+	const	String&			value	()	const	{ return second; }
 };
 
 
@@ -414,10 +411,10 @@ public:
 	void				maybe_dropto		(dbref loc, dbref dropto);
 	void				send_contents		(dbref loc, dbref dropto);
 
-	const	bool			variable_substitution	(const char *arg, char *result, size_t max_length);
-	const	bool			nested_variable_substitution	(const char *&, char *, const int, size_t space_left);
-	const	bool			dollar_substitute	(const char *&argp, char *&resp, const int depth, size_t space_left);
-		void			brace_substitute	(const char *&, char *&, size_t space_left);
+	const	bool			variable_substitution	(const char *arg, String& result);
+	const	bool			nested_variable_substitution	(const char *&, String&, const int);
+	const	bool			dollar_substitute	(const char *&argp, String& resp, const int depth);
+		void			brace_substitute	(const char *&, String&);
 
 	void				do_at_alarm		(const String&, const String&);
 	void				do_at_array		(const String&, const String&);

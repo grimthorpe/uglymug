@@ -924,8 +924,7 @@ const	String&	_command)
 	char		*q;
 	const	char	*p;
 	char		smashed_original [MAX_COMMAND_LEN];
-	char		command_buf [2 * MAX_COMMAND_LEN];
-	char		*command = command_buf;
+	String		command;
 	bool		command_done = false;
 	int		legal_command = 0;
 	dbref		tracer;
@@ -1072,7 +1071,7 @@ const	String&	_command)
 	 *
 	 * PJC 18/2/97.
 	 */
-	if (!variable_substitution (smashed_original, command, MAX_COMMAND_LEN))
+	if (!variable_substitution (smashed_original, command))
 	{
 #ifdef	DEBUG
 		log_debug ("Backing out of braced command.\n");
@@ -1094,10 +1093,10 @@ const	String&	_command)
 	   left us with a command such as: ' arg1 arg2' if the substitution returned
 	   a blank, as described above. We want to skip that space. */
 
-	for (; *command && isspace(*command); command++)
-		;
+	while(command && isspace(command[0]))
+		command.erase(0);
 
-	if ((command==NULL) || (*command=='\0'))
+	if (!command)
 	{
 		alarm_block--;
 		return;
@@ -1106,31 +1105,34 @@ const	String&	_command)
 	/* Tracing */
 	if (tracer != NOTHING)
 	{
-		notify(tracer, "%s[exec]%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_TRACING], command, COLOUR_REVERT);
+		notify(tracer, "%s[exec]%s %s%s", ca[COLOUR_TITLES], ca[COLOUR_TRACING], command.c_str(), COLOUR_REVERT);
 	}
 
-	if (strlen (command) >= MAX_COMMAND_LEN)
+	if (command.length() >= MAX_COMMAND_LEN)
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Command is too long.");
-	else if (*command == SAY_TOKEN || *command == ALT_SAY_TOKEN) /* single character token */
+	else if (command[0] == SAY_TOKEN || command[0] == ALT_SAY_TOKEN) /* single character token */
 	{
+		command.erase(0);
 		set_simple_command ("say");
-		set_arg1 (command + 1);
+		set_arg1 (command);
 		set_arg2 (NULLSTRING);
 	}
-	else if (*command == POSE_TOKEN)
+	else if (command[0] == POSE_TOKEN)
 	{
+		command.erase(0);
 		set_simple_command ("pose");
-		set_arg1 (command + 1);
+		set_arg1 (command);
 		set_arg2 (NULLSTRING);
 		legal_command = 1;
 	}
-	else if (*command == NOTIFY_TOKEN)
+	else if (command[0] == NOTIFY_TOKEN)
 	{
+		command.erase(0);
 		set_simple_command ("@areanotify");
 		set_arg1 ("here");
-		set_arg2 (command + 1);
+		set_arg2 (command);
 	}
-	else if ((*command != '@') && (can_move (*this, command)))
+	else if ((command[0] != '@') && (can_move (*this, command)))
 	{
 		/* command is an exact match for an exit */
 		set_simple_command ("go");
@@ -1140,48 +1142,38 @@ const	String&	_command)
 	}
 	else
 	{
-		char		*a1;
-		char		*a2 = NULL;	/* In case we don't set it later */
-		char		*endarg;
+		String cmd;
+		String a1;
+		String a2;
 
 		/* parse arguments */
-		endarg = command + strlen(command);	/* Get the end of the command line */
+
+		/* copy over command word */
+		auto parsePos = command.begin();
+		while(parsePos != command.end() && !isspace(*parsePos))
+			cmd.push_back(*parsePos++);
 
 		/* find arg1 */
-		/* move over command word */
-		for (a1 = command; *a1 && !isspace(*a1); a1++)
-			;
+		while(parsePos != command.end() && isspace(*parsePos))
+			parsePos++;
+		
+		/* copy arg1 up to first '=' or end of string */
+		while(parsePos != command.end() && (*parsePos != '='))
+			a1.push_back(*parsePos++);
 
-		/* NUL-terminate command word */
-		if (*a1)
-			*a1++ = '\0';
+		/* If '=' then skip it */
+		if(parsePos != command.end() && (*parsePos == '='))
+			parsePos++;
 
-		/* Make sure arg2 points to NULL if there isn't a 2nd argument */
-		if (a1 <= endarg)
-		{
-			/* move over spaces */
-			while (*a1 && isspace(*a1))
-				a1++;
-			if(a1 <= endarg)
-			{
-				/* find end of arg1, start of arg2 */
-				for(a2 = a1; *a2 && *a2 != '='; a2++)
-					;
+		/* Skip any spaces */
+		while(parsePos != command.end() && isspace(*parsePos))
+			parsePos++;
 
-				/* NUL-fill between end of arg1 and arg2 */
-				for(q = a2 - 1; q >= a1 && isspace(*q); q--)
-					*q = '\0';
+		/* copy arg2 */
+		while(parsePos != command.end())
+			a2.push_back(*parsePos++);
 
-				/* go past '=' and leading whitespace if present */
-				if (*a2)
-					*a2++ = '\0';
-
-				while(*a2 && isspace(*a2))
-					a2++;
-			}
-		}
-
-		set_simple_command (command);
+		set_simple_command (cmd);
 		set_arg1 (a1);
 		set_arg2 (a2);
 	}
