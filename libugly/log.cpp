@@ -85,10 +85,10 @@ void log_bug (
 						...
 ) {
 	/* turn the variable args into a string */
-	char	message[BUFFER_LEN];
+	String message;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(message, sizeof(message), fmt, vl);
+	message.vprintf(fmt, vl);
 	va_end(vl);
 	
 	/*
@@ -99,7 +99,7 @@ void log_bug (
 	Trace(	"%cBUG%c%d%c%s%c\n",
 			RECORD_START,						FIELD_SEPARATOR,
 			time(NULL),							FIELD_SEPARATOR,
-			message,							RECORD_END
+			message.c_str(),							RECORD_END
 	);
 }
 
@@ -241,10 +241,10 @@ void log_debug (
 						...
 ) {
 	/* turn the variable args into a string */
-	char	message[BUFFER_LEN];
+	String message;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(message, sizeof(message), fmt, vl);
+	message.vprintf(fmt, vl);
 	va_end(vl);
 	
 	/*
@@ -255,7 +255,7 @@ void log_debug (
 	Trace(	"%cDEBUG%c%d%c%s%c\n",
 			RECORD_START,						FIELD_SEPARATOR,
 			time(NULL),							FIELD_SEPARATOR,
-			message,							RECORD_END
+			message.c_str(),							RECORD_END
 	);
 }
 
@@ -313,10 +313,10 @@ void log_dumping (
 							...
 ) {
 	/* turn the variable args into a string */
-	char	file[BUFFER_LEN];
+	String file;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(file, sizeof(file), fmt, vl);
+	file.vprintf(fmt, vl);
 	va_end(vl);
 	
 	/*
@@ -360,10 +360,10 @@ void log_hack (
 						...
 ) {
 	/* turn the variable args into a string */
-	char	message[BUFFER_LEN];
+	String message;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(message, sizeof(message), fmt, vl);
+	message.vprintf(fmt, vl);
 	va_end(vl);
 	
 	/*
@@ -442,10 +442,10 @@ void log_message (
 						...
 ) {
 	/* turn the variable args into a string */
-	char	message[BUFFER_LEN];
+	String message;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(message, sizeof(message), fmt, vl);
+	message.vprintf(fmt, vl);
 	va_end(vl);
 	
 	/*
@@ -491,10 +491,10 @@ void log_panic (
 				...
 ) {
 	/* turn the variable args into a string */
-	char	message[BUFFER_LEN];
+	String message;
 	va_list vl;
 	va_start(vl, fmt);
-	vsnprintf(message, sizeof(message), fmt, vl);
+	message.vprintf(fmt, vl);
 	va_end(vl);
 	/*
 	 * PANIC|timestamp|message
