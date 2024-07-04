@@ -399,9 +399,11 @@ bool forced = false;
 		forced = true;
 	}
 	add_player(player);
+
+	String msg;
 	if(forced)
 	{
-		sprintf(scratch_buffer, "%s has overridden permission and joined the channel", db[player].get_name().c_str());
+		msg.printf( "%s has overridden permission and joined the channel", db[player].get_name().c_str());
 	}
 	else if(DontAnnounce(player))
 	{
@@ -409,9 +411,9 @@ bool forced = false;
 	}
 	else
 	{
-		sprintf(scratch_buffer, "%s has joined the channel", db[player].get_name().c_str());
+		msg.printf( "%s has joined the channel", db[player].get_name().c_str());
 	}
-	send(player, scratch_buffer, true);
+	send(player, msg, true);
 	return true;
 }
 
@@ -433,17 +435,19 @@ context::do_chat(const String& arg1, const String& arg2)
 		else
 		{
 			notify_colour(player, player, COLOUR_CHANNEL_NAMES, "Default channel: %s", db[player].get_channel()->name().c_str());
-			sprintf(scratch_buffer, "On channels: ");
+			String msg( "On channels: ");
+			bool comma=false;
 			for(Channel* iter = Channel::head(); iter != NULL; iter=iter->next())
 			{
 				if(iter->player_connected(player))
 				{
-					strcat(scratch_buffer, iter->name().c_str());
-					strcat(scratch_buffer, ", ");
+					if(comma)
+						msg += ", ";
+					msg += iter->name().c_str();
+					comma = true;
 				}
 			}
-			scratch_buffer[strlen(scratch_buffer)-2] = 0;
-			notify_colour(player, player, COLOUR_CHANNEL_NAMES, "%s", scratch_buffer);
+			notify_colour(player, player, COLOUR_CHANNEL_NAMES, "%s", msg.c_str());
 		}
 		RETURN_SUCC;
 	}
@@ -540,6 +544,7 @@ context::do_query_channel (const String& arg1, const String& arg2)
 		}
 	}
 
+	String scratch_buffer;
 	if(Primary == query)
 	{
 		Channel *ch = db[victim].get_channel();
@@ -551,16 +556,15 @@ context::do_query_channel (const String& arg1, const String& arg2)
 	}
 	else if(All == query)
 	{
-		scratch_buffer[0] = '\0';
 		for(Channel *current=Channel::head(); current; current=current->next())
 		{
 			for(ChannelPlayer *current_player=current->players(); current_player; current_player=current_player->next())
 			{
 				if (current_player->player() == victim)
 				{
-					if (scratch_buffer[0] != '\0')
-						strcat (scratch_buffer, ";");
-					strcat (scratch_buffer, current->name().c_str());
+					if (scratch_buffer)
+						scratch_buffer += ';';
+					scratch_buffer += current->name();
 				}
 			}
 		}
@@ -569,26 +573,24 @@ context::do_query_channel (const String& arg1, const String& arg2)
 	}
 	else if(Members == query)
 	{
-		scratch_buffer[0] = '\0';
 		for(ChannelPlayer *current_player=interested_channel->players(); current_player; current_player=current_player->next())
 		{
-			if (scratch_buffer[0] != '\0')
-				strcat (scratch_buffer, ";");
-			strcat (scratch_buffer, db[current_player->player()].get_name().c_str());
+			if (scratch_buffer)
+				scratch_buffer += ';';
+			scratch_buffer += db[current_player->player()].get_name();
 		}
 		return_status = COMMAND_SUCC;
 		set_return_string (scratch_buffer);
 	}
 	else if(Operators == query)
 	{
-		scratch_buffer[0] = '\0';
 		for(ChannelPlayer *current_player=interested_channel->players(); current_player; current_player=current_player->next())
 		{
 			if (current_player->controller())
 			{
-				if (scratch_buffer[0] != '\0')
-					strcat (scratch_buffer, ";");
-				strcat (scratch_buffer, db[current_player->player()].get_name().c_str());
+				if (scratch_buffer)
+					scratch_buffer += ';';
+				scratch_buffer += db[current_player->player()].get_name();
 			}
 		}
 		return_status = COMMAND_SUCC;
@@ -690,16 +692,19 @@ context::do_at_channel (const String& arg1, const String& arg2)
 					continue;
 				}
 				total++;
-				sprintf(scratch_buffer, "%-15.15s%s%s  ", iter->name().c_str(), iter->get_private()?"P":" ",iter->get_censored()?"C":" ");
+				String buf;
+				buf.printf("%-15.15s%s%s  ", iter->name().c_str(), iter->get_private()?"P":" ",iter->get_censored()?"C":" ");
+				bool comma=false;
 				for(ChannelPlayer* cit = iter->players(); cit != 0; cit = cit->next())
 				{
+					if(comma)
+						buf += ", ";
 					if(cit->controller())
-						strcat(scratch_buffer, "@");
-					strcat(scratch_buffer, db[cit->player()].get_name().c_str());
-					strcat(scratch_buffer, ", ");
+						buf += "@";
+					buf += db[cit->player()].get_name();
+					comma = true;
 				}
-				scratch_buffer[strlen(scratch_buffer) - 2] = 0;
-				notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
+				notify_colour(player, player, COLOUR_MESSAGES, "%s", buf);
 			}
 			if(arg2)
 			{
@@ -778,8 +783,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			db[player].set_channel(NULL);
 		if(!DontAnnounce(player))
 		{
-			sprintf(scratch_buffer, "%s has left the channel.", db[player].get_name().c_str());
-			channel->remove_player_and_send(player, player, scratch_buffer);
+			String tmp;
+			tmp.printf("%s has left the channel.", db[player].get_name().c_str());
+			channel->remove_player_and_send(player, player, tmp);
 		}
 		else
 		{
@@ -818,43 +824,46 @@ context::do_at_channel (const String& arg1, const String& arg2)
 
 		if(channel->invites())
 		{
-			sprintf(scratch_buffer, "Channel %s outstanding invites:  ", channel->name().c_str());
+			String tmp;
+			tmp.printf( "Channel %s outstanding invites:  ", channel->name().c_str());
 			for(ChannelPlayer *cp=channel->invites(); cp; cp=cp->next())
 			{
-				strcat(scratch_buffer, db[cp->player()].get_name().c_str());
+				tmp += db[cp->player()].get_name();
 				if(cp->next())
-					strcat(scratch_buffer, ", ");
+					tmp += ", ";
 			}
 
-			notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer,COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_MESSAGES, "%s", tmp.c_str(),COLOUR_REVERT);
 		}
 
 		if(channel->bans())
 		{
-			sprintf(scratch_buffer, "Channel %s banned players:  ", channel->name().c_str());
+			String tmp;
+			tmp.printf("Channel %s banned players:  ", channel->name().c_str());
 			for(ChannelPlayer *cp=channel->bans(); cp; cp=cp->next())
 			{
-				strcat(scratch_buffer, db[cp->player()].get_name().c_str());
+				tmp += db[cp->player()].get_name();
 				if(cp->next())
-					strcat(scratch_buffer, ", ");
+					tmp += ", ";
 			}
 
-			notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer,COLOUR_REVERT);
+			notify_colour(player, player, COLOUR_MESSAGES, "%s", tmp.c_str(),COLOUR_REVERT);
 		}
 	}
 
 	if ((Who == command) || (Status == command))
 	{
-		sprintf(scratch_buffer, "Channel %s players:  ", channel->name().c_str());
+		String tmp;
+		tmp.printf("Channel %s players:  ", channel->name().c_str());
 		for(ChannelPlayer *cp=channel->players(); cp; cp=cp->next())
 		{
 			if(cp->controller())
-				strcat(scratch_buffer, "@");
-			strcat(scratch_buffer, db[cp->player()].get_name().c_str());
+				tmp += "@";
+			tmp += db[cp->player()].get_name().c_str();
 			if(cp->next())
-				strcat(scratch_buffer, ", ");
+				tmp += ", ";
 		}
-		notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer,COLOUR_REVERT);
+		notify_colour(player, player, COLOUR_MESSAGES, "%s", tmp.c_str(),COLOUR_REVERT);
 			RETURN_SUCC;
 	}
 
@@ -889,8 +898,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			}
 
 			channel->set_private(false);
-			sprintf(scratch_buffer, "%s sets the channel public", db[player].get_name().c_str());
-			channel->send(player, scratch_buffer, 1);
+			String tmp;
+			tmp.printf("%s sets the channel public", db[player].get_name().c_str());
+			channel->send(player, tmp, 1);
 			RETURN_SUCC;
 		}
 
@@ -904,8 +914,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			}
 
 			channel->set_private(true);
-			sprintf(scratch_buffer, "%s sets the channel private", db[player].get_name().c_str());
-			channel->send(player, scratch_buffer, 1);
+			String tmp;
+			tmp.printf("%s sets the channel private", db[player].get_name().c_str());
+			channel->send(player, tmp, 1);
 			RETURN_SUCC;
 		}
 
@@ -919,8 +930,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			}
 
 			channel->set_censored(true);
-			sprintf(scratch_buffer, "%s sets the channel censored", db[player].get_name().c_str());
-			channel->send(player, scratch_buffer, 1);
+			String tmp;
+			tmp.printf("%s sets the channel censored", db[player].get_name().c_str());
+			channel->send(player, tmp, 1);
 			RETURN_SUCC;
 		}
 
@@ -934,8 +946,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			}
 
 			channel->set_censored(false);
-			sprintf(scratch_buffer, "%s sets the channel uncensored", db[player].get_name().c_str());
-			channel->send(player, scratch_buffer, 1);
+			String tmp;
+			tmp.printf("%s sets the channel uncensored", db[player].get_name().c_str());
+			channel->send(player, tmp, 1);
 			RETURN_SUCC;
 		}
 		if(!gagged_command())
@@ -967,8 +980,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			RETURN_FAIL;
 		}
 
-		sprintf(scratch_buffer, "%s has changed the channel name to \"%s\"", db[player].get_name().c_str(), arg2.c_str());
-		channel->send(player, scratch_buffer, 1);
+		String tmp;
+		tmp.printf("%s has changed the channel name to \"%s\"", db[player].get_name().c_str(), arg2.c_str());
+		channel->send(player, tmp, 1);
 
 		channel->set_name(arg2);
 
@@ -1023,8 +1037,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		// add himself etc here one day.
 		if (player != victim)
 		{
-			sprintf(scratch_buffer, ":makes %s an operator", db[victim].get_name().c_str());
-			channel->send(player, scratch_buffer);
+			String tmp;
+			tmp.printf(":makes %s an operator", db[victim].get_name().c_str());
+			channel->send(player, tmp);
 		}
 		else
 		{
@@ -1055,12 +1070,13 @@ context::do_at_channel (const String& arg1, const String& arg2)
 
 		vc->set_controller(false);
 
+		String tmp;
 		if (player != victim)
-			sprintf(scratch_buffer, "%s removes %s as an operator", db[player].get_name().c_str(), db[victim].get_name().c_str());
+			tmp.printf("%s removes %s as an operator", db[player].get_name().c_str(), db[victim].get_name().c_str());
 		else
 			/* resigns from being an operator */
-			sprintf(scratch_buffer, "%s resigns from being an operator", db[player].get_name().c_str());
-		channel->send(player, scratch_buffer, 1);
+			tmp.printf("%s resigns from being an operator", db[player].get_name().c_str());
+		channel->send(player, tmp, 1);
 
 		RETURN_SUCC;
 	 
@@ -1095,8 +1111,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			{
 				channel->remove_invite(victim);
 				notify_colour(victim, victim, COLOUR_MESSAGES, "[%s withdraws your invitation to channel %s]", db[player].get_name().c_str(), channel->name().c_str());
-				sprintf(scratch_buffer, "%s withdraws %s's invitation", db[player].get_name().c_str(), db[victim].get_name().c_str());
-				channel->send(player, scratch_buffer, 1);
+				String tmp;
+				tmp.printf("%s withdraws %s's invitation", db[player].get_name().c_str(), db[victim].get_name().c_str());
+				channel->send(player, tmp, 1);
 			}
 			else
 			{
@@ -1116,19 +1133,20 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			}
 			else
 			{
+				String tmp;
 				if (which)
 				{
 					which->set_timestamp(time(0));
 					notify_colour(victim, victim, COLOUR_MESSAGES, "[%s re-invites you to channel %s (type \"chat %s\" to join)]", db[player].get_name().c_str(), channel->name().c_str(), channel->name().c_str());
-					sprintf(scratch_buffer, "%s re-invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
+					tmp.printf("%s re-invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
 				}
 				else
 				{
 					channel->add_invite(victim);
 					notify_colour(victim, victim, COLOUR_MESSAGES, "[%s invites you to channel %s (type \"chat %s\" to join)]", db[player].get_name().c_str(), channel->name().c_str(), channel->name().c_str());
-					sprintf(scratch_buffer, "%s invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
+					tmp.printf("%s invites %s to the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
 				}
-				channel->send(player, scratch_buffer, 1);
+				channel->send(player, tmp, 1);
 			}
 		}
 		RETURN_SUCC;
@@ -1149,8 +1167,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			RETURN_FAIL;
 		}
 
-		sprintf(scratch_buffer, "%s has booted %s from the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
-		channel->remove_player_and_send(victim, player, scratch_buffer);
+		String tmp;
+		tmp.printf("%s has booted %s from the channel", db[player].get_name().c_str(), db[victim].get_name().c_str());
+		channel->remove_player_and_send(victim, player, tmp);
 		db[victim].set_channel(NULL);
 		RETURN_SUCC;
 	}
@@ -1171,15 +1190,16 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		}
 
 		notify_colour(victim, victim, COLOUR_MESSAGES, "[%s has banned you from channel %s]", db[player].get_name().c_str(), channel->name().c_str());
-		sprintf(scratch_buffer, "%s has banned %s from the channel.", db[player].get_name().c_str(), db[victim].get_name().c_str());
+		String tmp;
+		tmp.printf("%s has banned %s from the channel.", db[player].get_name().c_str(), db[victim].get_name().c_str());
 		if(channel->find_player(victim))
 		{
-			channel->remove_player_and_send(victim, player, scratch_buffer);
+			channel->remove_player_and_send(victim, player, tmp);
 			db[victim].set_channel(NULL);
 		}
 		else
 		{
-			channel->send(player, scratch_buffer, 1);
+			channel->send(player, tmp, 1);
 		}
 		channel->add_ban(victim);
 
@@ -1198,8 +1218,9 @@ context::do_at_channel (const String& arg1, const String& arg2)
 		notify_colour(victim, victim, COLOUR_MESSAGES, "[%s has removed the ban on you from channel %s]", db[player].get_name().c_str(), channel->name().c_str());
 			
 		channel->remove_ban(victim);
-		sprintf(scratch_buffer, "%s has removed the ban on %s", db[player].get_name().c_str(), db[victim].get_name().c_str());
-		channel->send(player, scratch_buffer, 1);
+		String tmp;
+		tmp.printf("%s has removed the ban on %s", db[player].get_name().c_str(), db[victim].get_name().c_str());
+		channel->send(player, tmp, 1);
 
 		RETURN_SUCC;
 	}
@@ -1211,20 +1232,21 @@ context::do_at_channel (const String& arg1, const String& arg2)
 
 void channel_disconnect(dbref player, bool just_leave)
 {
+	String tmp;
 	if(just_leave)
 	{
-		sprintf(scratch_buffer, "%s has left this channel", db[player].get_name().c_str());
+		tmp.printf("%s has left this channel", db[player].get_name().c_str());
 	}
 	else
 	{
-		sprintf(scratch_buffer, "%s has disconnected", db[player].get_name().c_str());
+		tmp.printf("%s has disconnected", db[player].get_name().c_str());
 	}
 	for(Channel *current=Channel::head(); current; )
 	{
 		Channel* next = current->next();
 		if(current->player_connected(player))
 		{
-			current->remove_player_and_send(player, player, scratch_buffer);
+			current->remove_player_and_send(player, player, tmp);
 		}
 		current = next;
 	}
@@ -1239,7 +1261,6 @@ context::do_channel_who(const String& name, const String& arg2)
 	time_t	interval;
 	Channel *channel=db[player].get_channel();
 	const colour_at&	ca = db[get_player()].get_colour_at();
-	char	buf[200];
 
 	/*
 	 * They'd better be on a channel - otherwise we don't have much to offer.
@@ -1254,7 +1275,8 @@ context::do_channel_who(const String& name, const String& arg2)
 	/*
 	 * Print out the header: Players on channel: <name> [(Private)]   Idle
 	 */
-	sprintf(buf, "%s%s %s%s%s",
+	String header;
+	header.printf("%s%s %s%s%s",
 			ca[COLOUR_TITLES],
 			channel->name().c_str(),
 			ca[COLOUR_ERROR_MESSAGES],
@@ -1263,7 +1285,7 @@ context::do_channel_who(const String& name, const String& arg2)
 
 	notify(player, "%sPlayers on channel: %-30s                                    %sIdle%s",
 			ca[COLOUR_MESSAGES],
-			buf,
+			header.c_str(),
 			ca[COLOUR_MESSAGES],
 			COLOUR_REVERT);
 
@@ -1280,7 +1302,8 @@ context::do_channel_who(const String& name, const String& arg2)
 		/*
 		 * if the are an operator, say so, otherwise put the right number of blanks there
 		 */
-		sprintf(scratch_buffer, "%s%8s %s%s",
+		String tmp;
+		tmp.printf("%s%8s %s%s",
 				ca[COLOUR_WIZARDS],
 				cp->controller() ? "Operator" : "",
 				ca[COLOUR_WHOSTRINGS],
@@ -1303,48 +1326,48 @@ context::do_channel_who(const String& name, const String& arg2)
 			      || firstchar == '.'
 			      || firstchar == '\''))
                               {
-				strcat (scratch_buffer, " ");
+				      tmp += " ";
 				extra_space=1;
 			      }
 
-			strcat(scratch_buffer, chop_string(db[cp->player()].get_who_string (), 60 - extra_space - db[cp->player()].get_name().length()).c_str());
+			tmp += chop_string(db[cp->player()].get_who_string (), 60 - extra_space - db[cp->player()].get_name().length());
 		}
 		else
 		{
-			strcat(scratch_buffer, chop_string("", 60 - extra_space - db[cp->player()].get_name().length()).c_str());
+			tmp += chop_string("", 60 - extra_space - db[cp->player()].get_name().length());
 		}
 
-		strcat(scratch_buffer, ca[COLOUR_WHOSTRINGS]);
+		tmp += ca[COLOUR_WHOSTRINGS];
 
 		/*
 		 * Say how idle they are - perhaps it should be a constant for Dragor!! ;-)
 		 */
+		String buf2;
 		if (interval)
 		{
 			if (interval < 5)
-				sprintf (buf, "   Active");
+				buf2.printf ("   Active");
 			else if (interval < 60)
-				sprintf (buf, "      %02lds", (long int)interval);
+				buf2.printf ("      %02lds", (long int)interval);
 			else if (interval < 60 * 60)
-				sprintf (buf, "  %2ldm %02lds", (long int)interval / 60, (long int)interval % 60);
+				buf2.printf ("  %2ldm %02lds", (long int)interval / 60, (long int)interval % 60);
 			else if (interval < 90 * 60)
-				sprintf (buf, "    Aeons");
+				buf2.printf ("    Aeons");
 			else if (interval < 120 * 60)
-				sprintf (buf, "  Eoghans");
+				buf2.printf ("  Eoghans");
 			else if (interval < 150 * 60)
-				sprintf (buf, "   IntMax");
+				buf2.printf ("   IntMax");
 			else if (interval < 180 * 60)
-				sprintf (buf, "  Forever");
+				buf2.printf ("  Forever");
 			else
-				sprintf (buf, "   Always");
+				buf2.printf ("   Always");
 		}
 		else
-			sprintf (buf, "   Active");
+			buf2.printf ("   Active");
 
-		strcat (scratch_buffer, buf);
-		
+		tmp += buf2;
 
-		notify(player, "%s%s", scratch_buffer, COLOUR_REVERT);
+		notify(player, "%s%s", tmp, COLOUR_REVERT);
 		channel_count++;
 	}
 

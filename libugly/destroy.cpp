@@ -567,8 +567,6 @@ log_message("Player list updated");
 
 	/* Now other people's custom lists */
 	int sanity_count;
-	char newlist[MAX_LIST_SIZE * 8];
-	//char buf[10];
 	nowarning=1;
 	if ((mylist=find_list_dictionary(zap_player, reverseclist_dictionary)) != NOTHING)
 	{
@@ -593,9 +591,10 @@ log_message("Player list updated");
 	/* Now go thru his custom list dictionary, removing me from it */
 			while (j<=db[hislist].get_number_of_elements())
 			{
-				newlist[0]='\0';
-				strcpy(scratch_buffer, db[hislist].get_element(j).c_str());
-				for (char *number=strtok(scratch_buffer,";"); number; number=strtok(NULL,";"))
+				String newlist;
+				char* tmp = strdup(db[hislist].get_element(j).c_str());
+				bool semi=false;
+				for (char *number=strtok(tmp,";"); number; number=strtok(NULL,";"))
 				{
 					if(atoi(number)==zap_player)
 					{
@@ -608,13 +607,15 @@ log_message("Player list updated");
 					}
 					else
 					{
-						strcat(newlist,number);
-						strcat(newlist,";");
+						if(semi)
+							newlist += ";";
+						newlist += number;
+						semi=true;
 					}
 				}
-				if (*newlist)
+				free(tmp);
+				if (newlist)
 				{
-					newlist[strlen(newlist)-1]='\0';
 					db[hislist].set_element(j, NULLSTRING, newlist);
 					j++;
 log_message("Custom list updated");

@@ -292,10 +292,9 @@ const	String&)
 			if(current->get_object() == target)
 			{
 				time(&now);
-				sprintf(scratch_buffer, "%d;%s",
+				set_return_string(String::format("%d;%s",
 					(int)(current->get_time_to_execute() - now),
-					unparse_for_return(*this, db[target].get_destination()).c_str());
-				set_return_string(scratch_buffer);
+					unparse_for_return(*this, db[target].get_destination()).c_str()));
 				return_status = COMMAND_SUCC;
 				break;
 			}
@@ -310,8 +309,8 @@ const	String&)
 			{
 				then = current->get_time_to_execute ();
 				rtime = localtime (&then);
-				sprintf (scratch_buffer,
-					"%2dd %02dh %02dm %02ds (%ld secs): %s",
+				String buf;
+				buf.printf ( "%2dd %02dh %02dm %02ds (%ld secs): %s",
 					rtime->tm_wday,
 					rtime->tm_hour,
 					rtime->tm_min,
@@ -319,9 +318,9 @@ const	String&)
 					(long int)current->get_time_to_execute () - now,
 					unparse_object (*this, current->get_object ()).c_str()
 					);
-				strcat (scratch_buffer, " firing ");
-				strcat (scratch_buffer, unparse_object (*this, db[current->get_object ()].get_destination ()).c_str());
-				notify (player, "%s", scratch_buffer);
+				buf += " firing ";
+				buf += unparse_object (*this, db[current->get_object ()].get_destination ()).c_str();
+				notify (player, "%s", buf.c_str());
 				count++;
 			}
 		}

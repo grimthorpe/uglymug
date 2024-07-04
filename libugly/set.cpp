@@ -2786,8 +2786,6 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 {
 	dbref victim;
 	int amount;
-	char *where;
-	char scanned_name[BUFFER_LEN];
 	const char *currency_name=CURRENCY_NAME;
 
 	if(!arg1 || !arg2)
@@ -2802,14 +2800,16 @@ void context::do_at_credit(const String& arg1, const String& arg2)
 		RETURN_FAIL;
 	}
 
-        strcpy(scanned_name, arg2.c_str());
-        if ((where=strchr(scanned_name, ';')) == 0)
+	auto where = arg2.find(';');
+	if(where == String::npos)
 	{
 		notify(player, "Usage:  @credit <player> = <currency type>;<amount to give>");
 		RETURN_FAIL;
 	}
-	*where = '\0';
-	if((amount=atoi(++where)) == 0)
+	String scanned_name=arg2.substr(0, where);
+	String scanned_amount=arg2.substr(where+1);
+
+	if((amount=atoi(scanned_amount.c_str())) == 0)
 	{
 		notify(player, "You must specify a non-zero amount to transfer.");
 		RETURN_FAIL;
@@ -2885,8 +2885,6 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 {
 	dbref victim;
 	int amount;
-	char *where;
-	char scanned_name[BUFFER_LEN];
 	const char *currency_name=CURRENCY_NAME;
 
 	if(!arg1 || !arg2)
@@ -2908,14 +2906,16 @@ void context::do_at_debit(const String& arg1, const String& arg2)
 		RETURN_FAIL;
 	}
 
-        strcpy(scanned_name, arg2.c_str());
-        if ((where=strchr(scanned_name, ';')) == 0)
+	auto where = arg2.find(';');
+        if (where == String::npos)
 	{
 		notify(player, "Usage:  @debit <player> = <currency type>;<amount to give>");
 		RETURN_FAIL;
 	}
-	*where = '\0';
-	if((amount=atoi(++where)) == 0)
+	String scanned_name=arg2.substr(0, where);
+	String scanned_amount=arg2.substr(where+1);
+
+	if((amount=atoi(scanned_amount.c_str())) == 0)
 	{
 		notify(player, "You must specify a non-zero amount to transfer.");
 		RETURN_FAIL;

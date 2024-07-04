@@ -1423,8 +1423,7 @@ void mud_connect_player (dbref player)
 	if (!Connected (player))
 	{
 		time(&now);
-		sprintf(scratch_buffer, "%ld", (long int)now);
-		db [player].set_fail_message (scratch_buffer);
+		db [player].set_fail_message (String::format("%ld", (long int)now));
 	}
 
 	db [player].set_flag(FLAG_CONNECTED);
@@ -1468,8 +1467,7 @@ void mud_disconnect_player (dbref player)
 
 		time (&now);
 		total += (now - last);
-		sprintf (scratch_buffer, "%ld", (long int)total);
-		db [player].set_ofail (scratch_buffer);
+		db [player].set_ofail (String::format("%ld", (long int)total));
 	}
 }
 
