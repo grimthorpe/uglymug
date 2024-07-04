@@ -1094,7 +1094,7 @@ const	String&	_command)
 	   a blank, as described above. We want to skip that space. */
 
 	while(command && isspace(command[0]))
-		command.erase(0);
+		command.erase(0,1);
 
 	if (!command)
 	{
@@ -1112,14 +1112,14 @@ const	String&	_command)
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "Command is too long.");
 	else if (command[0] == SAY_TOKEN || command[0] == ALT_SAY_TOKEN) /* single character token */
 	{
-		command.erase(0);
+		command.erase(0,1);
 		set_simple_command ("say");
 		set_arg1 (command);
 		set_arg2 (NULLSTRING);
 	}
 	else if (command[0] == POSE_TOKEN)
 	{
-		command.erase(0);
+		command.erase(0,1);
 		set_simple_command ("pose");
 		set_arg1 (command);
 		set_arg2 (NULLSTRING);
@@ -1127,7 +1127,7 @@ const	String&	_command)
 	}
 	else if (command[0] == NOTIFY_TOKEN)
 	{
-		command.erase(0);
+		command.erase(0,1);
 		set_simple_command ("@areanotify");
 		set_arg1 ("here");
 		set_arg2 (command);
