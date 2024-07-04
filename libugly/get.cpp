@@ -22,8 +22,6 @@
 
 extern	"C"	long	lrand48 ();
 
-static char scratch_return_string[BUFFER_LEN];
-
 void
 context::do_query_numconnected(
 const	String& argument,
@@ -187,7 +185,7 @@ const	String& )
 		else
 		{
 			loc = db[thing].get_location();
-			while ((loc != NOTHING) && (strlen (scratch_return_string) < BUFFER_LEN))
+			while (loc != NOTHING)
 			{
 				if (already_had_one)
 					ret += ", ";
@@ -883,6 +881,7 @@ void
 context::do_query_gravity_factor (const String& name, const String&)
 {
 	dbref thing = find_for_query (*this, name, 1);
+	String ret;
 
 	set_return_string (error_return_string);
 	return_status = COMMAND_FAIL;
@@ -893,14 +892,14 @@ context::do_query_gravity_factor (const String& name, const String&)
 		case TYPE_PLAYER:
 		case TYPE_ROOM:
 		case TYPE_THING:
-			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_gravity_factor ());
+			ret.printf ("%.9g", db[thing].get_inherited_gravity_factor ());
 			break;
 		default:
 			return;
 	}
 	Accessed (thing);
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 void
@@ -931,9 +930,10 @@ context::do_query_idletime (const String& name, const String&)
 	{
 		return;
 	}
-	sprintf (scratch_return_string, "%ld", (long int)interval);
+	String ret;
+	ret.printf ("%ld", (long int)interval);
 	Accessed (thing);
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }
 
@@ -1530,7 +1530,6 @@ context::do_query_realtime (const String& name, const String&)
 
 	String ret = asctime (localtime (&now));
 	ret -= 1;
-	//*(scratch_return_string + strlen (scratch_return_string) - 1) = '\0';
 	return_status = COMMAND_SUCC;
 	set_return_string (ret);
 }
@@ -1547,8 +1546,9 @@ context::do_query_score (const String& name, const String&)
 		return;
 	Accessed (thing);
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "%ld", db[thing].get_score ());
-	set_return_string (scratch_return_string);
+	String ret;
+	ret.printf ("%ld", db[thing].get_score ());
+	set_return_string (ret);
 }
 
 
@@ -1586,14 +1586,15 @@ context::do_query_size (const String& name, const String&)
 	if (thing == NOTHING)
 		return;
 
+	String ret;
 	switch(Typeof(thing))
 	{
 		case TYPE_ARRAY:
 		case TYPE_DICTIONARY:
 		case TYPE_COMMAND:
-			sprintf (scratch_return_string, "%d", db[thing].get_number_of_elements());
+			ret.printf ("%d", db[thing].get_number_of_elements());
 			Accessed (thing);
-			set_return_string (scratch_return_string);
+			set_return_string (ret);
 			return_status = COMMAND_SUCC;
 			break;
 
@@ -1646,8 +1647,9 @@ const	String&)
 
 	time (&time_now);
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "%ld", (long int)time_now);
-	set_return_string (scratch_return_string);
+	String ret;
+	ret.printf ("%ld", (long int)time_now);
+	set_return_string (ret);
 }
 
 
@@ -1841,20 +1843,21 @@ context::do_query_volume (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	String ret;
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
 		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
-			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_volume ());
+			ret.printf ("%.9g", db[thing].get_inherited_volume ());
 			break;
 		default:
 			return;
 	}
 	Accessed (thing);
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 void
@@ -1866,20 +1869,21 @@ context::do_query_volume_limit (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	String ret;
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER:
 		case TYPE_PUPPET:	/* Lee TC	*/
 		case TYPE_ROOM:
 		case TYPE_THING:
-			sprintf (scratch_return_string, "%.9g", db[thing].get_inherited_volume_limit ());
+			ret.printf ("%.9g", db[thing].get_inherited_volume_limit ());
 			break;
 		default:
 			return;
 	}
 	Accessed (thing);
 	return_status = COMMAND_SUCC;
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 }
 
 void
@@ -1891,18 +1895,19 @@ context::do_query_weight (const String& name, const String&)
 	return_status = COMMAND_FAIL;
 	if (thing == NOTHING)
 		return;
+	String ret;
 	switch (Typeof (thing))
 	{
 		case TYPE_PLAYER :
 		case TYPE_ROOM :
 		case TYPE_THING :
-			sprintf (scratch_return_string, "%.9g", (db[thing].get_inherited_mass () + find_mass_of_contents_except (thing, NOTHING)));
+			ret.printf ("%.9g", (db[thing].get_inherited_mass () + find_mass_of_contents_except (thing, NOTHING)));
 			break;
 		default :
 			return;
 	}
 	Accessed (thing);
-	set_return_string (scratch_return_string);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }
 
@@ -1933,8 +1938,9 @@ context::do_query_ctime (const String& name, const String&)
 		return;
 	if (!(t = db[thing].get_ctime ()))
 		return;
-	sprintf (scratch_return_string, "%ld", t);
-	set_return_string (scratch_return_string);
+	String ret;
+	ret.printf ("%ld", t);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }
 	
@@ -1950,8 +1956,9 @@ context::do_query_mtime (const String& name, const String&)
 		return;
 	if (!(t = db[thing].get_mtime ()))
 		return;
-	sprintf (scratch_return_string, "%ld", t);
-	set_return_string (scratch_return_string);
+	String ret;
+	ret.printf ("%ld", t);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }
 	
@@ -1967,7 +1974,8 @@ context::do_query_atime (const String& name, const String&)
 		return;
 	if (!(t = db[thing].get_atime ()))
 		return;
-	sprintf (scratch_return_string, "%ld", t);
-	set_return_string (scratch_return_string);
+	String ret;
+	ret.printf("%ld", t);
+	set_return_string (ret);
 	return_status = COMMAND_SUCC;
 }

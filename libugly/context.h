@@ -155,7 +155,7 @@ class	If_scope
 					If_scope	(const Scope *os, bool i);
 	virtual				~If_scope	()			{}
 			Command_action	step_once	(context *);
-	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
+	static	const	int		parse_command	(object *cmd, const int start_line, String& errs);
 	virtual		void		do_at_elseif	(const bool ok);
 };
 
@@ -200,7 +200,7 @@ private:
     public:
 					For_loop	(const Scope *os, int in_start, int in_end, int in_step, const String& name);
 	virtual				~For_loop	()			{}
-	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
+	static	const	int		parse_command	(object *cmd, const int start_line, String& errs);
 };
 
 
@@ -222,7 +222,7 @@ class	With_loop
     public:
 					With_loop	(const Scope *os, dbref d, const char *index_name, const char *element_name);
 	virtual				~With_loop	()			{}
-	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
+	static	const	int		parse_command	(object *cmd, const int start_line, String& errs);
 };
 
 
@@ -279,7 +279,7 @@ private:
 					Compound_command_and_arguments	(dbref c, context *, const String& sc, const String& a1, const String& a2, dbref eid, Matcher *m, bool silent);
 	virtual				~Compound_command_and_arguments	();
 			Command_action	step			(context *);
-		const	char		*set_command		(dbref c);
+		const	String		set_command		(dbref c);
 		const	dbref		get_command		()	const		{ return (command); }
 			void		set_effective_id	(dbref i)		{ effective_id = i; }
 		const	dbref		get_effective_id	()	const		{ return (effective_id); }
@@ -297,7 +297,7 @@ private:
 			bool		do_at_break		();
 			bool		do_at_continue		();
 		const	Scope		*innermost_scope	()	const;
-	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
+	static	const	int		parse_command	(object *cmd, const int start_line, String& errs);
 		String_pair		*locate_innermost_arg	(const String& name)	const;
 
 			bool		gagged_command		()	const	{ return gagged; }

@@ -40,7 +40,6 @@ const	String	error_return_string		= "Error";
 const	String	recursion_return_string		= "Recursion.";
 const	String	unset_return_string		= "Unset_return_value.";
 const	String	permission_denied		= "Permission denied.";
-	char	scratch_return_string	[BUFFER_LEN];
 	char	scratch_buffer		[2 * BUFFER_LEN];
 
 
@@ -259,15 +258,14 @@ Matcher		&matcher)
  * Return value:
  *	The line number of the line beyond the one it finishes at.
  *
- * errs must be an externally allocated character buffer.  It is filled in
- *	with any error string.
+ * errs is filled in with any error string.
  */
 
 const int
 Compound_command_and_arguments::parse_command (
 	object	*cmd,
 const	int	start_line,
-	char	*errs)
+	String&	errs)
 
 {
 	String	command_block;
@@ -289,11 +287,11 @@ const	int	start_line,
 			case ELSEIF_NEXT:
 			case ELSE_NEXT:
 			case ENDIF_NEXT:
-				sprintf (errs, "Missing @if at line %d in command", line);
+				errs.printf ("Missing @if at line %d in command", line);
 				line = -1;
 				break;
 			case END_NEXT:
-				sprintf (errs, "Missing @for or @with at line %d in command", line);
+				errs.printf ("Missing @for or @with at line %d in command", line);
 				line = -1;
 				break;
 			case IF_NEXT:
@@ -322,7 +320,7 @@ const int
 For_loop::parse_command (
 	object	*cmd,
 const	int	start_line,
-	char	*errs)
+	String&	errs)
 
 {
 	String command_block;
@@ -344,7 +342,7 @@ const	int	start_line,
 			case ELSEIF_NEXT:
 			case ELSE_NEXT:
 			case ENDIF_NEXT:
-				sprintf (errs, "Missing @if at line %d in command", line);
+				errs.printf ("Missing @if at line %d in command", line);
 				line = -1;
 				break;
 			case END_NEXT:
@@ -370,7 +368,7 @@ const	int	start_line,
 
 	/* Either we fell off the command or there was a parse error (ie. -1 in line) */
 	if (line != -1)
-		sprintf (errs, "No @end to match the @for in %d in command", start_line);
+		errs.printf ("No @end to match the @for in %d in command", start_line);
 	return -1;
 }
 
@@ -379,7 +377,7 @@ const int
 With_loop::parse_command (
 	object	*cmd,
 const	int	start_line,
-	char	*errs)
+	String&	errs)
 
 {
 	String command_block;
@@ -401,7 +399,7 @@ const	int	start_line,
 			case ELSEIF_NEXT:
 			case ELSE_NEXT:
 			case ENDIF_NEXT:
-				sprintf (errs, "Missing @if at line %d in command", line);
+				errs.printf ("Missing @if at line %d in command", line);
 				line = -1;
 				break;
 			case END_NEXT:
@@ -427,7 +425,7 @@ const	int	start_line,
 
 	/* Either we fell off the command or there was a parse error (ie. -1 in line) */
 	if (line != -1)
-		sprintf (errs, "No @end to match the @with in %d in command", start_line);
+		errs.printf ("No @end to match the @with in %d in command", start_line);
 	return -1;
 }
 
@@ -436,7 +434,7 @@ const int
 If_scope::parse_command (
 	object	*cmd,
 const	int	start_line,
-	char	*errs)
+	String&	errs)
 
 {
 	int		previous_block = start_line;
@@ -468,7 +466,7 @@ const	int	start_line,
 				cmd->set_parse_helper (start_line, ( (line) << 8) + cmd->get_parse_helper (start_line));
 				return line;
 			case END_NEXT:
-				sprintf (errs, "Missing @for or @with at line %d in command", line);
+				errs.printf ("Missing @for or @with at line %d in command", line);
 				line = -1;
 				break;
 			case IF_NEXT:
@@ -491,7 +489,7 @@ const	int	start_line,
 
 	/* Either we fell off the command or there was a parse error (ie. -1 in line) */
 	if (line != -1)
-		sprintf (errs, "No @endif to match the @if in %d in command", start_line);
+		errs.printf ("No @endif to match the @if in %d in command", start_line);
 	return -1;
 }
 

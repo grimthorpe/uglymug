@@ -251,20 +251,12 @@ int		level)
 }
 
 
-char *
+static String
 underline (
-int	n)
+size_t	n)
 
 { 
-	static char under[BUFFER_LEN*2] ;
-	int i ;
-
-	if (n>=(BUFFER_LEN*2))
-		n= BUFFER_LEN*2-1 ;
-	for ( i= 0 ; i<n ; i++)
-	  	under[i]='~' ;
-	under[n]= '\0' ;
-	return under ;
+	return String('-', n);
 }
 
 
@@ -400,8 +392,7 @@ int 	prettylook_is_on
 
 {
 	dbref	exit;
-	char	namebuf [BUFFER_LEN];
-	char	*name_end;
+	String	name;
 	int	seen = 0;
 	const colour_at& ca = db[c.get_player()].get_colour_at();
 	while (loc != NOTHING)
@@ -415,10 +406,11 @@ int 	prettylook_is_on
 						&& ((Typeof (db[exit].get_destination()) == TYPE_ROOM) || (Typeof (db[exit].get_destination()) == TYPE_THING))))))
 			{
 				/* Zap all but the first option off the name */
-				strcpy (namebuf, getarticle (exit, ARTICLE_UPPER_INDEFINITE));
-				strcat (namebuf, getname_inherited (exit));
-				if ((name_end = strchr (namebuf, ';')) != NULL)
-					*name_end = '\0';
+				name = getarticle (exit, ARTICLE_UPPER_INDEFINITE);
+				name += getname_inherited (exit);
+				ssize_t pos = name.find(';');
+				if(pos > 0)
+					name = name.substring(0, pos);
 
 				/* If it's the first one we've seen, dump a header */
 				if (!seen)
@@ -434,25 +426,25 @@ int 	prettylook_is_on
 				/* If it's unlinked, print its name and ref */
 				if (db[exit].get_destination() == NOTHING)
 					if (!(Number(c.get_player())))
-						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit);
+						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit);
 					else
-						sprintf (scratch_buffer, "  %s%s%s is unlinked.", ca[COLOUR_EXITS],namebuf, COLOUR_REVERT);
+						sprintf (scratch_buffer, "  %s%s%s is unlinked.", ca[COLOUR_EXITS],name.c_str(), COLOUR_REVERT);
 				else
 				{
 					if (c.controls_for_read (exit) && !(Number(c.get_player())))
 					{
 						if (Opaque(exit))
-							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit);
+							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit);
 						else
 						{
 							if (!Plural(exit))
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) lead to %s%s%s.",
-									 ca[COLOUR_EXITS], namebuf, COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME], 
+									 ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME], 
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE).c_str(),
 									 COLOUR_REVERT);
 							else
 								sprintf (scratch_buffer, "  %s%s%s(#%d E) leads to %s%s%s.",
-									 ca[COLOUR_EXITS],namebuf,COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME],
+									 ca[COLOUR_EXITS],name.c_str(),COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME],
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE).c_str(),
 									 COLOUR_REVERT);
 						}
@@ -461,10 +453,10 @@ int 	prettylook_is_on
 					else
 					{
 						if ((Opaque(exit)) || (db[exit].get_destination() == HOME))
-							sprintf(scratch_buffer, "  %s%s%s.", ca[COLOUR_EXITS], namebuf,COLOUR_REVERT);
+							sprintf(scratch_buffer, "  %s%s%s.", ca[COLOUR_EXITS], name.c_str(),COLOUR_REVERT);
 						else
 							sprintf (scratch_buffer, "  %s%s%s leads to %s%s%s%s.",
-								ca[COLOUR_EXITS],namebuf,COLOUR_REVERT,
+								ca[COLOUR_EXITS],name.c_str(),COLOUR_REVERT,
 								ca[COLOUR_ROOMNAME],
 								getarticle (db[exit].get_destination (), ARTICLE_LOWER_INDEFINITE),
 								getname_inherited (db[exit].get_destination ()),

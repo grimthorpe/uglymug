@@ -229,6 +229,7 @@ class	Pending_alarm;
 class	Pending_fuse;
 class	Matcher;
 
+class	boolexp_parser;
 
 class	boolexp
 {
@@ -242,10 +243,9 @@ class	boolexp
 	dbref			thing;
 	const	bool		eval_internal		(const context &c, Matcher &matcher)		const;
 		void		unparse_internal	(context &c, boolexp_type outer_type, String& retval, bool for_return)	const;
-	friend	boolexp		*parse_boolexp_E	(const dbref player);
-	friend	boolexp		*parse_boolexp_T	(const dbref player);
-	friend	boolexp		*parse_boolexp_F	(const dbref player);
-	friend	void		putbool_subexp		(FILE *, const boolexp *, char **);
+	
+	friend	boolexp_parser;
+	friend	void		putbool_subexp		(const boolexp *, String&);
 	friend	boolexp		*getboolexp1		(char **);
     public:
 				boolexp			(boolexp_type t);

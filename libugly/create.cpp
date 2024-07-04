@@ -23,10 +23,6 @@
 #define ID (player!=get_effective_id())?(get_effective_id()):(db[player].get_build_id())
 
 
-/** The only scratch_return_string we use is for #id, so it can be short */
-static	char	scratch_return_string [11];
-
-
 /**
  * Given a context and a source for the link, find a location for the destination
  *	link name and check that it's possible to link to it.
@@ -248,8 +244,7 @@ const	String& linkto)
 			notify_colour(player, player, COLOUR_MESSAGES,"Exit #%d opened.", exit);
 
 		return_status = COMMAND_SUCC;
-		sprintf (scratch_return_string, "#%d", (int)exit);
-		set_return_string (scratch_return_string);
+		set_return_string (String::format("#%d", (int)exit));
 
 		/* check second arg to see if we should do a link */
 		if(linkto && *linkto.c_str() != '\0')
@@ -526,8 +521,7 @@ const	String& desc)
 		notify_colour(player, player, COLOUR_MESSAGES, "%s created with room number #%d", name.c_str(), room);
 	}
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)room);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)room));
 }
 
 
@@ -684,8 +678,7 @@ const	String& commands)
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 
@@ -747,8 +740,7 @@ const	String& )
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 
@@ -810,8 +802,7 @@ const	String& )
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 /**
@@ -873,8 +864,7 @@ const	String& value)
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 
@@ -949,8 +939,7 @@ notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Warning - @variable is a d
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 
@@ -1199,8 +1188,7 @@ context::do_at_fuse (const String& fuse_name, const String& command_name)
 	}
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 
@@ -1266,8 +1254,7 @@ context::do_at_alarm (const String& alarm_name, const String& time_of_execution)
 		db.pend (thing);
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 
 
@@ -1351,8 +1338,7 @@ const	String& )
 	PUSH (thing, db [player].get_location (), contents);
 
 	return_status = COMMAND_SUCC;
-	sprintf (scratch_return_string, "#%d", (int)thing);
-	set_return_string (scratch_return_string);
+	set_return_string (String::format("#%d", (int)thing));
 }
 /*
 void

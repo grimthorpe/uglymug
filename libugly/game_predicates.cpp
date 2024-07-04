@@ -607,8 +607,8 @@ is_guest (
 dbref player)
 {
         int guest_match;
-	char element[BUFFER_LEN];
-       	sprintf(element, "#%d", (int)player);
+	String element;
+       	element.printf("#%d", (int)player);
 	Matcher matcher (player, "guest_dictionary", TYPE_DICTIONARY, UNPARSE_ID);
 	matcher.match_variable_remote(COMMAND_LAST_RESORT);
 	matcher.match_array_or_dictionary();

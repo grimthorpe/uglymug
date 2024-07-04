@@ -23,6 +23,30 @@ static	size_t	commands_executed;
 
 boolexp* TRUE_BOOLEXP=new boolexp(BOOLEXP_CONST);
 
+class boolexp_parser
+{
+public:
+	boolexp_parser(dbref _player, const String& boolexp) : player(_player), m_boolexp(boolexp)
+	{
+		parsebuf = m_boolexp.begin();
+	}
+	/**
+	 * Move the parse pointer past an arbitrary amount of whitespace
+	 */
+	void skip_whitespace()
+	{
+		while((parsebuf != m_boolexp.end()) && isspace(*parsebuf))
+			parsebuf++;
+	}
+	boolexp* parse_boolexp_E ();
+	boolexp* parse_boolexp_F ();
+	boolexp* parse_boolexp_T ();
+private:
+	dbref player;
+	const String& m_boolexp;
+	String::const_iterator parsebuf;
+};
+
 /**
  * Construct a blank boolexp of type t.
  */
@@ -154,24 +178,6 @@ const
 }
 
 
-static const char *parsebuf;	///< Global pointer to current position in the parse
-
-
-/**
- * Move the parse pointer past an arbitrary amount of whitespace
- */
-
-static void
-skip_whitespace()
-{
-	while(*parsebuf && isspace(*parsebuf))
-		parsebuf++;
-}
-
-
-
-boolexp	*parse_boolexp_E (dbref player);	// Advance declaration
-
 /**
  * Parse a boolexp Factor, which may be:
  * - '(' Expression ')'
@@ -181,21 +187,20 @@ boolexp	*parse_boolexp_E (dbref player);	// Advance declaration
  */
 
 boolexp *
-parse_boolexp_F (
-const	dbref	player)
-
+boolexp_parser::parse_boolexp_F ()
 {
 	boolexp	*b;
-	char	*p;
-	char	buf [BUFFER_LEN];
 	int	i;
 
 	skip_whitespace();
+	if(parsebuf == m_boolexp.end())
+		return TRUE_BOOLEXP;
+
 	switch(*parsebuf)
 	{
 		case '(':
 			parsebuf++;
-			b = parse_boolexp_E (player);
+			b = parse_boolexp_E ();
 			skip_whitespace();
 			if(b != TRUE_BOOLEXP && *parsebuf++ != ')')
 			{
@@ -207,7 +212,7 @@ const	dbref	player)
 		case NOT_TOKEN:
 			parsebuf++;
 			b = new boolexp (BOOLEXP_NOT);
-			b->sub1 = parse_boolexp_F (player);
+			b->sub1 = parse_boolexp_F ();
 			if(b->sub1 == TRUE_BOOLEXP)
 			{
 				delete (b);
@@ -216,21 +221,21 @@ const	dbref	player)
 			return b;
 			/* break */
 		case COMMAND_TOKEN:
+		{
+			String buf;
 			/* must have a flag name */
 			/* load the name into our buffer */
-			p = buf;
 			parsebuf++;
-			while(*parsebuf
+			while((parsebuf != m_boolexp.end())
 				&& *parsebuf != AND_TOKEN
 				&& *parsebuf != OR_TOKEN
 				&& *parsebuf != ')')
 			{
-				*p++ = *parsebuf++;
+				buf += *parsebuf++;
 			}
 			/* strip trailing whitespace */
-			*p-- = '\0';
-			while(isspace(*p))
-				*p-- = '\0';
+			while((!buf.empty()) && (isspace(buf.back())))
+				buf-=1;
 
 			b = new boolexp (BOOLEXP_FLAG);
 
@@ -248,22 +253,23 @@ const	dbref	player)
 				return TRUE_BOOLEXP;
 			}
 			return b;
+		}
 			/* break */
 		default:
+		{
+			String buf;
 			/* must have hit an object ref */
 			/* load the name into our buffer */
-			p = buf;
-			while(*parsebuf
+			while((parsebuf != m_boolexp.end())
 				&& *parsebuf != AND_TOKEN
 				&& *parsebuf != OR_TOKEN
 				&& *parsebuf != ')')
 			{
-				*p++ = *parsebuf++;
+				buf += *parsebuf++;
 			}
 			/* strip trailing whitespace */
-			*p-- = '\0';
-			while(isspace(*p))
-				*p-- = '\0';
+			while((!buf.empty()) && (isspace(buf.back())))
+				buf-=1;
 
 			b = new boolexp (BOOLEXP_CONST);
 
@@ -292,6 +298,7 @@ const	dbref	player)
 						return TRUE_BOOLEXP;
 				}
 			}
+		}
 		/* break */
 	}
 }
@@ -303,14 +310,13 @@ const	dbref	player)
  */
 
 boolexp *
-parse_boolexp_T (
-const	dbref	player)
+boolexp_parser::parse_boolexp_T ()
 
 {
 	boolexp *b;
 	boolexp *b2;
 
-	if((b = parse_boolexp_F (player)) == TRUE_BOOLEXP)
+	if((b = parse_boolexp_F ()) == TRUE_BOOLEXP)
 		return b;
 	else
 	{
@@ -323,7 +329,7 @@ const	dbref	player)
 
 			b2 = new boolexp (BOOLEXP_AND);
 			b2->sub1 = b;
-			if((b2->sub2 = parse_boolexp_T (player)) == TRUE_BOOLEXP)
+			if((b2->sub2 = parse_boolexp_T ()) == TRUE_BOOLEXP)
 			{
 				delete (b2);
 				b2 = TRUE_BOOLEXP;
@@ -340,14 +346,13 @@ const	dbref	player)
  */
 
 boolexp *
-parse_boolexp_E (
-const	dbref	player)
+boolexp_parser::parse_boolexp_E ()
 
 {
     boolexp *b;
     boolexp *b2;
 
-    if((b = parse_boolexp_T (player)) == TRUE_BOOLEXP) {
+    if((b = parse_boolexp_T ()) == TRUE_BOOLEXP) {
 	return b;
     } else {
 	skip_whitespace();
@@ -356,7 +361,7 @@ const	dbref	player)
 
 	    b2 = new boolexp (BOOLEXP_OR);
 	    b2->sub1 = b;
-	    if((b2->sub2 = parse_boolexp_E (player)) == TRUE_BOOLEXP) {
+	    if((b2->sub2 = parse_boolexp_E ()) == TRUE_BOOLEXP) {
 		delete (b2);
 		return TRUE_BOOLEXP;
 	    } else {
@@ -381,8 +386,8 @@ const	dbref	player,
 const	String& buf)
 
 {
-	parsebuf = buf.c_str();
-	return (parse_boolexp_E (player));
+	boolexp_parser parse(player, buf);
+	return parse.parse_boolexp_E ();
 }
 
 

@@ -25,7 +25,6 @@
 
 #define FIELD_SEPARATOR '\027'
 #define	OBJECT_SEPARATOR '\002'
-//#define LOAD_BUFFER_SIZE (8*BUFFER_LEN)
 #define LOAD_BUFFER_SIZE (1024*1024)
 
 #ifdef DEBUG
@@ -155,47 +154,40 @@ const	char	*s)
 
 void
 putbool_subexp(
-	FILE	*f,
 const	boolexp	*b,
-	char	**buf_ptr)
+	String& buf_ptr)
 
 {
-	static	char	temp_buf[10];
-
 	switch(b->type)
 	{
 		case BOOLEXP_AND:
-			*((*buf_ptr)++) = '(';
-			putbool_subexp(f, b->sub1, buf_ptr);
-			*((*buf_ptr)++) = AND_TOKEN;
-			putbool_subexp(f, b->sub2, buf_ptr);
-			*((*buf_ptr)++) = ')';
+			buf_ptr += '(';
+			putbool_subexp(b->sub1, buf_ptr);
+			buf_ptr += AND_TOKEN;
+			putbool_subexp(b->sub2, buf_ptr);
+			buf_ptr += ')';
 			break;
 		case BOOLEXP_OR:
-			*((*buf_ptr)++) = '(';
-			putbool_subexp(f, b->sub1, buf_ptr);
-			*((*buf_ptr)++) = OR_TOKEN;
-			putbool_subexp(f, b->sub2, buf_ptr);
-			*((*buf_ptr)++) = ')';
+			buf_ptr += '(';
+			putbool_subexp(b->sub1, buf_ptr);
+			buf_ptr += OR_TOKEN;
+			putbool_subexp(b->sub2, buf_ptr);
+			buf_ptr += ')';
 			break;
 		case BOOLEXP_NOT:
-			*((*buf_ptr)++) = '(';
-			*((*buf_ptr)++) = NOT_TOKEN;
-			putbool_subexp(f, b->sub1, buf_ptr);
-			*((*buf_ptr)++) = ')';
+			buf_ptr += '(';
+			buf_ptr += NOT_TOKEN;
+			putbool_subexp(b->sub1, buf_ptr);
+			buf_ptr += ')';
 			break;
 		case BOOLEXP_CONST:
-			sprintf(temp_buf, "%d", (int)(b->thing));
-			strcpy(*buf_ptr, temp_buf);
-			*buf_ptr += strlen(temp_buf)*sizeof(char);
+			buf_ptr += String::format("%d", (int)(b->thing));
 			break;
 		case BOOLEXP_FLAG:
-			*((*buf_ptr)++) = '(';
-			*((*buf_ptr)++) = COMMAND_TOKEN;
-			sprintf(temp_buf, "%d", (int)(b->thing));
-			strcpy(*buf_ptr, temp_buf);
-			*buf_ptr += strlen(temp_buf)*sizeof(char);
-			*((*buf_ptr)++) = ')';
+			buf_ptr += '(';
+			buf_ptr += COMMAND_TOKEN;
+			buf_ptr += String::format("%d", (int)(b->thing));
+			buf_ptr += ')';
 			break;
 		default:
 			break;
@@ -208,13 +200,11 @@ putboolexp(
 const	boolexp	*b)
 
 {
-	char	buf [DB_MSGLEN*2];
-	char	*buf_ptr = buf;
+	String	buf;
 
 	if(b != TRUE_BOOLEXP)
 	{
-		putbool_subexp(f, b, &buf_ptr);
-		*buf_ptr = '\0';
+		putbool_subexp(b, buf);
 		putstring(f, buf);
 	}
 	else
@@ -2180,10 +2170,8 @@ FILE *f)
 	/* By this point, field_end points to the end of the current field */
 	/* and load_pointer points to the beginning. */
 
-#ifdef DEBUG
-	if (field_end - load_pointer >= BUFFER_LEN)
+	if(field_end == NULL)
 		log_bug("Can't handle field size. Aborting db load.");
-#endif
 
 	*field_end = '\0';
 	field = load_pointer;
@@ -2211,7 +2199,7 @@ FILE *f)
 	size_t	size;
 
 	current_length = buffer + LOAD_BUFFER_SIZE - load_pointer;
-	memcpy(buffer, load_pointer, current_length);
+	memmove(buffer, load_pointer, current_length);
 	size = fread (buffer + current_length, sizeof(char), load_pointer - buffer, f);
 	buffer[current_length + size] = '\0';
 	load_pointer = buffer;

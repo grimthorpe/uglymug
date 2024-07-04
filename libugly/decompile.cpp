@@ -22,66 +22,55 @@
  */
 
 
-static char *
+static String
 decompile_string (
-const	char	*string)
+const String& string)
 
 {
-	static	char	return_string [BUFFER_LEN + 1];
-	const	char	*src = string;
-		char	*dest = return_string;
-
-	while (src && *src && (dest - return_string) < BUFFER_LEN)
+String ret;
+	for(auto ch : string)
 	{
-		switch (*src)
+		switch(ch)
 		{
-			case '{':
-			case '$':
-			case '\\':
-			case '\n':
-				*dest++ = '\\';
-				break;
-			case '%':
-				*dest++ = '%';
-				break;
-			/* Default: Do nothing */
+		case '{':
+		case '$':
+		case '\\':
+		case '\n':
+			ret += '\\';
+			break;
+		case '%':
+			ret += '%';
+			break;
+		default:
+			break;
 		}
-
-		*dest++ = *src++;
+		ret += ch;
 	}
-
-	*dest = '\0';
-	return return_string;
-}
-
-static char*
-decompile_string(const String& string)
-{
-	return decompile_string(string.c_str());
+	return ret;
 }
 
 static void
 decompile_mass_and_volume (dbref object, dbref player)
 
 {
-const char* object_name = decompile_string(db[object].get_name());
+	String object_name = decompile_string(db[object].get_name());
 
 	if (db[object].get_gravity_factor() != 1)
 	{
-		notify (player, "@gravityfactor %s = %.9g", object_name, db[object].get_gravity_factor());
+		notify (player, "@gravityfactor %s = %.9g", object_name.c_str(), db[object].get_gravity_factor());
 	}
-	notify (player, "@mass %s = %.9g", object_name, db[object].get_mass ());
-	notify (player, "@volume %s = %.9g", object_name, db[object].get_volume ());
+	notify (player, "@mass %s = %.9g", object_name.c_str(), db[object].get_mass ());
+	notify (player, "@volume %s = %.9g", object_name.c_str(), db[object].get_volume ());
  
 	if (db[object].get_mass_limit () >= HUGE_VAL)
-		notify(player, "@masslimit %s = None", object_name);
+		notify(player, "@masslimit %s = None", object_name.c_str());
  else
-	notify(player, "@masslimit %s = %.9g", object_name, db[object].get_mass_limit ());
+	notify(player, "@masslimit %s = %.9g", object_name.c_str(), db[object].get_mass_limit ());
 
  if (db[object].get_volume_limit () >= HUGE_VAL)
-	notify(player, "@volumelimit %s = None", object_name);
+	notify(player, "@volumelimit %s = None", object_name.c_str());
  else
-	notify(player, "@volumelimit %s = %.9g", object_name, db[object].get_volume_limit ());
+	notify(player, "@volumelimit %s = %.9g", object_name.c_str(), db[object].get_volume_limit ());
 }
 
 
@@ -117,52 +106,54 @@ static void
 decompile_how_to_make(dbref object, dbref player)
 
 {
- char create_word[BUFFER_LEN];
+String create_word;
+String postfix;
  
  switch (Typeof (object))
  {
 	case TYPE_ROOM:
-		strcpy (create_word, "dig");
+		create_word = "dig";
 		break;
 	case TYPE_THING:
-		strcpy (create_word, "create");
+		create_word = "create";
 		break;
 	case TYPE_PLAYER:
-		notify (player, "@pcreate %s = PASSWORD", decompile_string(db[object].get_name()));
-		return;
+		create_word = "pcreate";
+		postfix = " = PASSWORD";
+		break;
 	case TYPE_EXIT:
-		strcpy (create_word, "open");
+		create_word = "open";
 		break;
 	case TYPE_PUPPET:
-		strcpy (create_word, "puppet");
+		create_word = "puppet";
 		break;
 	case TYPE_COMMAND:
-		strcpy (create_word, "command");
+		create_word = "command";
 		break;
 	case TYPE_VARIABLE:
-		strcpy (create_word, "variable");
+		create_word = "variable";
 		break;
 	case TYPE_PROPERTY:
-		strcpy (create_word, "property");
+		create_word = "property";
 		break;
 	case TYPE_DICTIONARY:
-		strcpy (create_word, "dictionary");
+		create_word = "dictionary";
 		break;
 	case TYPE_ARRAY:
-		strcpy (create_word, "array");
+		create_word = "array";
 		break;
 	case TYPE_FUSE:
-		strcpy (create_word, "fuse");
+		create_word = "fuse";
 		break;
 	case TYPE_ALARM:
-		strcpy (create_word, "alarm");
+		create_word = "alarm";
 		break;
 	default:
 		notify (player, "I don't know what type that is, so I can't decompile it.");
 		return;
  }
 
- notify (player, "@%s %s", create_word, decompile_string(db[object].get_name()));
+ notify (player, "@%s %s%s", create_word.c_str(), decompile_string(db[object].get_name()), postfix.c_str());
 
 }
 
@@ -193,7 +184,7 @@ const	String& args)
 	bool	readonly_flag_set;	/* We need to know if an object is RO - it's a special flag - needs to be final command */
 	int	number,			/* The number of elements in an array or dictionary */
 		temp;			/* A counter for outputting array or dictionary elements */
-	char	decompiled_name[BUFFER_LEN * 2];
+	String	decompiled_name;
 
 	return_status = COMMAND_FAIL;
 	set_return_string (error_return_string);
@@ -230,13 +221,13 @@ const	String& args)
 
 	Accessed (object);
 
-	strcpy (decompiled_name, decompile_string(db[object].get_name()));
+	decompiled_name = decompile_string(db[object].get_name());
 
 /* I know that this is a splodge of code at the moment, but I'm hoping to order it more sensibly later */
 
 	notify (player, "[Decompile Output Start]");					/* Let them know where the decompiling starts */
 	if ((Wizard(get_effective_id()) && (Typeof(object) == TYPE_PLAYER)))
-		notify (player, "@pcreate %s = PASSWORD", decompiled_name);
+		notify (player, "@pcreate %s = PASSWORD", decompiled_name.c_str());
 	else
 		decompile_how_to_make (object, player);
 
@@ -250,7 +241,7 @@ const	String& args)
 		case TYPE_FUSE:
 			if (db[object].get_drop_message())
 			    /* It makes more sense to set the drop message first - not affect ticks on fuses */
-			    notify (player, "@drop %s = %s", decompiled_name, db[object].get_drop_message().c_str());
+			    notify (player, "@drop %s = %s", decompiled_name.c_str(), db[object].get_drop_message().c_str());
 		case TYPE_PLAYER:
 		case TYPE_PROPERTY:
 		case TYPE_PUPPET:
@@ -259,7 +250,7 @@ const	String& args)
 		case TYPE_VARIABLE:
 			notify (player,
                                 "@describe %s = %s",
-                                decompiled_name,
+                                decompiled_name.c_str(),
                                 decompile_string(db[object].get_description())
 				);
 			break;
@@ -269,9 +260,9 @@ const	String& args)
 			{
 				for (temp= 1 ; temp <= number ; temp++)
 					if(db[object].get_element(temp))
-						notify (player, "@describe %s[%s] = %s", decompiled_name, db[object].get_index(temp).c_str(),	decompile_string(db[object].get_element(temp).c_str()));
+						notify (player, "@describe %s[%s] = %s", decompiled_name.c_str(), db[object].get_index(temp).c_str(),	decompile_string(db[object].get_element(temp).c_str()));
 					else
-						notify (player, "@describe %s[%s]", decompiled_name, db[object].get_index(temp).c_str());
+						notify (player, "@describe %s[%s]", decompiled_name.c_str(), db[object].get_index(temp).c_str());
 			}
 			break;
 		case TYPE_ARRAY:
@@ -280,9 +271,9 @@ const	String& args)
 			{
 				for (temp= 1 ; temp <= number ; temp++)
 					if (db[object].get_element(temp))
-						notify (player, "@describe %s[%d] = %s", decompiled_name, temp, decompile_string(db[object].get_element(temp)));
+						notify (player, "@describe %s[%d] = %s", decompiled_name.c_str(), temp, decompile_string(db[object].get_element(temp)));
 					else
-						notify (player, "@describe %s[%d]", decompiled_name, temp);
+						notify (player, "@describe %s[%d]", decompiled_name.c_str(), temp);
 			}
 			break;
 		default:
@@ -293,13 +284,13 @@ const	String& args)
 
 /* These bits are common to all objects */
 	readonly_flag_set = decompile_flags (object, player);			/* Decompile flags set on object */
-	notify (player, "@owner %s = %s", decompiled_name, unparse_for_return(*this, db[object].get_owner()).c_str());
+	notify (player, "@owner %s = %s", decompiled_name.c_str(), unparse_for_return(*this, db[object].get_owner()).c_str());
 
 	switch (Typeof (object))
 	{
 		case TYPE_PLAYER:
 			if (Wizard(get_effective_id()))
-			    notify (player, "@score %s = %d", decompiled_name, db[object].get_score());
+			    notify (player, "@score %s = %d", decompiled_name.c_str(), db[object].get_score());
 		case TYPE_PUPPET:
 			if (Wizard(get_effective_id()))
 			{
@@ -307,44 +298,44 @@ const	String& args)
 				controller_matcher.match_neighbor ();
 				controller_matcher.match_player ();
 				controller_matcher.match_absolute ();
-				notify (player, "@controller %s = #%d", decompiled_name, controller_matcher.noisy_match_result());
-				notify (player, "give %s = %d", decompiled_name, db[object].get_pennies());
+				notify (player, "@controller %s = #%d", decompiled_name.c_str(), controller_matcher.noisy_match_result());
+				notify (player, "give %s = %d", decompiled_name.c_str(), db[object].get_pennies());
 			}
 			decompile_alias (object, player);
-			notify (player, "@race %s = %s", decompiled_name, decompile_string(db[object].get_race()));
+			notify (player, "@race %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_race()));
 		case TYPE_ROOM:
 		case TYPE_THING:
 			if (db[object].get_contents_string())
-				notify(player, "@cstring %s = %s", decompiled_name, decompile_string(db[object].get_contents_string()));
+				notify(player, "@cstring %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_contents_string()));
 			decompile_mass_and_volume (object, player);
 		case TYPE_EXIT:
 		        if (db[object].get_destination() != -1)
-				notify (player, "@link %s = #%d", decompiled_name, db[object].get_destination());
+				notify (player, "@link %s = #%d", decompiled_name.c_str(), db[object].get_destination());
 		case TYPE_COMMAND:
 			if (db[object].get_key() != NULL)
-				notify (player, "@lock %s = %s", decompiled_name, db[object].get_key()->unparse_for_return(*this).c_str());
+				notify (player, "@lock %s = %s", decompiled_name.c_str(), db[object].get_key()->unparse_for_return(*this).c_str());
 		case TYPE_VARIABLE:
 		case TYPE_ALARM:
 			if (db[object].get_odrop())
-				notify (player, "@odrop %s = %s", decompiled_name, decompile_string(db[object].get_odrop()));
+				notify (player, "@odrop %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_odrop()));
 		case TYPE_FUSE:
 			if (db[object].get_succ_message())
-				notify (player, "@succ %s = %s", decompiled_name, decompile_string(db[object].get_succ_message()));
+				notify (player, "@succ %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_succ_message()));
 
 			if (db[object].get_fail_message())
-				notify (player, "@fail %s = %s", decompiled_name, decompile_string(db[object].get_fail_message()));
+				notify (player, "@fail %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_fail_message()));
 
 			if (db[object].get_csucc() != -1)
-				notify (player, "@csucc %s = #%d", decompiled_name, db[object].get_csucc());
+				notify (player, "@csucc %s = #%d", decompiled_name.c_str(), db[object].get_csucc());
 
 			if (db[object].get_cfail() != -1)
-				notify (player, "@cfail %s = #%d", decompiled_name, db[object].get_cfail());
+				notify (player, "@cfail %s = #%d", decompiled_name.c_str(), db[object].get_cfail());
 
 			if (db[object].get_osuccess())
-				notify (player, "@osucc %s = %s", decompiled_name, decompile_string(db[object].get_osuccess()));
+				notify (player, "@osucc %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_osuccess()));
 
 			if (db[object].get_ofail())
-				notify (player, "@ofail %s = %s", decompiled_name, decompile_string(db[object].get_ofail()));
+				notify (player, "@ofail %s = %s", decompiled_name.c_str(), decompile_string(db[object].get_ofail()));
 			break;
 		case TYPE_PROPERTY:
 		case TYPE_DICTIONARY:
@@ -358,12 +349,12 @@ const	String& args)
 
 	
 	if (db[object].get_parent() != -1)
-		notify (player, "@parent %s = #%d", decompiled_name, db[object].get_parent());
+		notify (player, "@parent %s = #%d", decompiled_name.c_str(), db[object].get_parent());
 
 
 /* If an object is set readonly it must be the last thing you set on. I think the reasons for this are fairly obvious! */
 	if (readonly_flag_set == true)
-		notify (player, "@set %s = ReadOnly", decompiled_name);
+		notify (player, "@set %s = ReadOnly", decompiled_name.c_str());
 
 	notify (player, "[Decompile Output End]");
 

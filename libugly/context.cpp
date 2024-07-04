@@ -277,12 +277,11 @@ const	dbref	eid,
 , gagged(silent)
 , in_chpid(false)
 {
-	const	char	*err;
+	String err;
 
-//	player = c->get_player();
-	if ((err = (set_command (cmd))) != 0)
+	if (err = (set_command (cmd)))
 	{
-		notify(c->get_player(), "%s %s", err, unparse_object(*c, cmd).c_str());
+		notify(c->get_player(), "%s %s", err.c_str(), unparse_object(*c, cmd).c_str());
 		set_command (NOTHING);
 	}
 	else if(Silent(cmd))
@@ -314,17 +313,16 @@ Compound_command_and_arguments::empty_scope_stack ()
 }
 
 
-const char *
+const String
 Compound_command_and_arguments::set_command (
 dbref	c)
 
 {
-	static	char	errs [BUFFER_LEN];
+	String errs;
 	command = c;
 	current_line = 1;
 
 	/* Set up the caches */
-	*errs = '\0';
 	if (command != NOTHING)
 	{
 		csucc_cache = db [c].get_inherited_csucc ();
@@ -341,13 +339,13 @@ dbref	c)
 	}
 
 	/* Did anybody print an error? */
-	if (*errs)
+	if (errs)
 	{
 		db [c].flush_parse_helper ();
 		return errs;
 	}
 	else
-		return 0;
+		return NULLSTRING;
 }
 
 
@@ -519,10 +517,10 @@ context		*context)
 				else if ((cfail_cache != NOTHING) && (Typeof (cfail_cache) == TYPE_COMMAND) && (could_doit (*context, cfail_cache)))
 				{
 					int temp_cache=cfail_cache;
-					const char *err;
+					String err;
 					if ((err = set_command (cfail_cache)))
 					{
-						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err, unparse_object(*context, temp_cache).c_str());
+						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err.c_str(), unparse_object(*context, temp_cache).c_str());
 						set_command (NOTHING);
 					}
 				}
@@ -553,10 +551,10 @@ context		*context)
 				else if ((csucc_cache != NOTHING) && (Typeof (csucc_cache) == TYPE_COMMAND) && (could_doit (*context, csucc_cache)))
 				{
 					int temp_cache=csucc_cache;
-					const char *err;
+					String err;
 					if ((err = set_command (csucc_cache)))
 					{
-						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err, unparse_object(*context, temp_cache).c_str());
+						notify_colour (player, player, COLOUR_FAILURE, "%s %s", err.c_str(), unparse_object(*context, temp_cache).c_str());
 						set_command (NOTHING);
 					}
 				}
