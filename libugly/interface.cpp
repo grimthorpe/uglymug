@@ -1740,8 +1740,6 @@ descriptor_data::get_value_from_subnegotiation(unsigned char *buf, unsigned char
 					log_bug("Descriptor %d sent a SNDLOC, but isn't connected from LOGTHROUGH_HOST", get_descriptor());
 					break;
 				}
-				//memcpy(scratch, buf, size);
-				//scratch[size]=0;
 #ifdef DEBUG_TELNET
 				log_debug("Descriptor %d location is '%s'", get_descriptor(), scratch);
 #endif
@@ -2251,27 +2249,32 @@ const char* data = m_data.c_str();
 }
 
 ssize_t
-descriptor_data::queue_write(const char *b, ssize_t n)
+descriptor_data::queue_write(const String& b, ssize_t n)
 {
-	ssize_t space;
-	const char *buf = b;
-
 	if(IS_FAKED())
 		return n;
 
 	if(!terminal.noflush)
 	{
-		space = MAX_OUTPUT - output.size() - n;
+		ssize_t space = MAX_OUTPUT - output.size() - n;
 		if (space < 0)
 			output.flush(-space);
 	}
 	if(terminal.sevenbit)
 	{
-		for (ssize_t i=0; i<n; i++)
-			scratch_buffer[i] = ((unsigned char) b[i] >= 0x7f) ? terminal.sevenbit : b[i];
-		buf = scratch_buffer;
+		String seven = b;
+
+		for(auto it=seven.begin(); it != seven.end(); it++)
+		{
+			if((*it >= 0x7f) || (*it < 0))
+				*it = terminal.sevenbit;
+		}
+		output.add(seven.c_str(), n);
 	}
-	output.add(buf, n);
+	else
+	{
+		output.add(b.c_str(), n);
+	}
 
 	if (!get_descriptor())
 		outgoing_conc_data_waiting = 1;
@@ -2294,9 +2297,9 @@ descriptor_data::queue_write(const char *b, ssize_t n)
    than one default value... */
 
 ssize_t
-descriptor_data::queue_string(const char *s, bool show_literally, bool store_in_recall_buffer)
+descriptor_data::queue_string(const String& str, bool show_literally, bool store_in_recall_buffer)
 {
-static char b1[2*BUFFER_LEN];
+String b1;
 static char b2[2*BUFFER_LEN];
 static char OUTPUT_COMMAND[] = ".output ";
 static char PLAYER_OUTPUT_COMMAND[] = ".playeroutput ";
@@ -2314,7 +2317,8 @@ char *a,*a1,*b;
 	}
 	else if(IS_FAKED()) // Output text to a NPC
 	{
-		while(*s != '\0')
+		auto s=str.begin();
+		while(s != str.end())
 		{
 			switch(*s)
 			{
@@ -2325,18 +2329,14 @@ char *a,*a1,*b;
 						break;
 					raw_input_at = raw_input;
 					if(myoutput)
-						strcpy(b1, MYOUTPUT_COMMAND);
-					else
-					if(terminal.emit_lastcommand)
+						b1 = MYOUTPUT_COMMAND;
+					else if(terminal.emit_lastcommand)
 					{
-						char tmp[20];
-						sprintf(tmp, "#%d=", LastCommandCaller);
-						strcpy(b1, PLAYER_OUTPUT_COMMAND);
-						strcat(b1, tmp);
+						b1.printf("%s#%d=", PLAYER_OUTPUT_COMMAND, LastCommandCaller);
 					}
 					else
-						strcpy(b1, OUTPUT_COMMAND);
-					strcat(b1, (char *)raw_input);
+						b1 = OUTPUT_COMMAND;
+					b1 += (const char*)raw_input;
 					time(&last_time);
 					save_command(b1);
 					*raw_input_at = 0;
@@ -2347,7 +2347,7 @@ char *a,*a1,*b;
 					if(!colour || !terminal.colour_terminal)
 					{
 						s++;
-						if(*s != '%' && *s != '\0')
+						if(s != str.end() && *s != '%')
 							s++;
 					}
 					else
@@ -2380,7 +2380,7 @@ char *a,*a1,*b;
 			}
 			if(terminal.recall)
 			{
-				db[get_player()].add_recall_line(s);
+				db[get_player()].add_recall_line(str);
 			}
 		}
         }
@@ -2389,7 +2389,7 @@ char *a,*a1,*b;
 	{
 		return 1;
 	}
-	strcpy(b2, s);
+	strcpy(b2, str.c_str());
 	b=b2;
 
 // Do word-wrap.
@@ -2480,12 +2480,12 @@ char *a,*a1,*b;
 	{
 		/* I apologise for the messyness of the next bit, but it is to implement */
 		/* LF to LF/CR conversion (for Jimbo) */
-		strcpy(b1,b);
+		String tmp = b;
 		a=b;
-		a1=b1;
-		while((*a++ = *a1))
+		const char* p1=tmp.c_str();
+		while((*a++ = *p1))
 		{
-			if(*a1++ == '\n')
+			if(*p1++ == '\n')
 				*a++='\r';
 		}
 	}

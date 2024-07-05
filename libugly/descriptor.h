@@ -219,12 +219,8 @@ public:
 	void	set_player_name(const String& p) { _player_name = p; }
 	void	set_password(const String& p) { _password = p; }
 
-	ssize_t	queue_string(const char *, bool show_literally = false, bool store_in_recall_buffer = true);
-	ssize_t	queue_string(const String& s, bool show_literally = false, bool store_in_recall_buffer = true)
-	{
-		return queue_string(s.c_str(), show_literally, store_in_recall_buffer);
-	}
-	ssize_t	queue_write(const char *, ssize_t len);
+	ssize_t	queue_string(const String& s, bool show_literally = false, bool store_in_recall_buffer = true);
+	ssize_t	queue_write(const String&, ssize_t len);
 
 	void	send_telnet_option(unsigned char command, unsigned char option);
 	void	initial_telnet_options();
