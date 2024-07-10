@@ -256,7 +256,7 @@ underline (
 size_t	n)
 
 { 
-	return String('-', n);
+	return String(n, '-');
 }
 
 
@@ -292,7 +292,7 @@ const	char	*contents_name)
 						notify_public(c.get_player(), c.get_player (), "%s%s%s", ca[COLOUR_CONTENTS], contents_name, COLOUR_REVERT);
 						had_it = 1;
 						if (prettyprint_is_on)
-							notify(c.get_player(), "%s%s%s",ca[COLOUR_UNDERLINES], underline(colour_strlen(contents_name)), COLOUR_REVERT) ;
+							notify(c.get_player(), "%s%s%s",ca[COLOUR_UNDERLINES], underline(colour_strlen(contents_name)).c_str(), COLOUR_REVERT) ;
 					}
 					if((Typeof(thing) != TYPE_PLAYER) || c.controls_for_read(loc) || Connected (thing))
 					{
@@ -490,7 +490,7 @@ dbref	loc)
 	if (prettylook)
 		notify(c.get_player(), "%s%s%s",
 				ca[COLOUR_UNDERLINES],
-				underline(colour_strlen(name.c_str())),
+				underline(colour_strlen(name.c_str())).c_str(),
 				COLOUR_REVERT);
 
 

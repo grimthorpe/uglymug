@@ -36,16 +36,16 @@ public:
 	~String();
 
 // PUBLIC CONSTRUCTORS
-	String(const char* str = 0);	// Create a new String based on the data pointer to.
-	String(const char* str, size_t len);
+	String(const value_type* str = 0);	// Create a new String based on the data pointer to.
+	String(const value_type* str, size_t len);
 	String(const String& str);	// COPY constructor
-	String(const char c, size_t repeat);
+	String(size_t repeat, const value_type c);
 	String(const std::string& str);
 
 // Assignment operators
 	String& operator=(const String& cstr);
-	String& operator=(const char* cstr);
-	String& operator=(const char c);
+	String& operator=(const value_type* cstr);
+	String& operator=(const value_type c);
 	String& operator=(const std::string& str);
 
 	//String& operator+=(const String& other);
@@ -56,10 +56,10 @@ public:
 
 // __attribute__ ((format(printf, 2, 3))) is used to enfore printf-style format checking in gcc.
 // NOTE: There is an implicit parameter of 'this', which is why it is parameter 2 that should be checked.
-	String& printf(const char*, ...) __attribute__ ((format (printf, 2, 3)));
-	String& vprintf(const char*, va_list) __attribute__ ((format (printf, 2, 0)));
+	String& printf(const value_type*, ...) __attribute__ ((format (printf, 2, 3)));
+	String& vprintf(const value_type*, va_list) __attribute__ ((format (printf, 2, 0)));
 
-	static String format(const char*, ...) __attribute__ ((format (printf, 1, 2)));
+	static String format(const value_type*, ...) __attribute__ ((format (printf, 1, 2)));
 
 // operator bool - shorthand for checking if the string has data in it.
 //	Returns: TRUE if there is data in the string
@@ -75,7 +75,7 @@ public:
 	bool operator<(const String& other)	const;
 	bool operator>(const String& other)	const;
 	bool operator==(const String& other)	const;
-	bool operator==(const char* other)	const;
+	bool operator==(const value_type* other)	const;
 	bool operator!=(const String& other)	const;
 };
 
@@ -91,5 +91,5 @@ extern std::ostream &operator<< (std::ostream &os, const String &s);
 
 /* Output a string to a maximum length (or pad to the length with spaces), taking colour markup into account */
 String chop_string(const String&, size_t length);
-String chop_string(const char*, size_t length);
+String chop_string(const String::value_type*, size_t length);
 #endif /* _MUDSTRING_H */

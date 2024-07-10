@@ -23,13 +23,13 @@ String::~String()
 }
 
 // str is defaulted to 0 in the definition
-String::String(const char* str)
+String::String(const value_type* str)
 {
 	if(str)
 		operator=(str);
 }
 
-String::String(const char* str, size_t len)
+String::String(const value_type* str, size_t len)
 	: std::string(str, len)
 {
 }
@@ -39,8 +39,8 @@ String::String(const String& str)
 	operator=(str);
 }
 
-String::String(const char c, size_t repeat)
-	: std::string(c, repeat)
+String::String(size_t repeat, String::value_type c)
+	: std::string(repeat, c)
 {
 }
 
@@ -55,7 +55,7 @@ String& String::operator=(const String& cstr)
 	return *this;
 }
 
-String& String::operator=(const char* cstr)
+String& String::operator=(const value_type* cstr)
 {
 	if(cstr)
 		std::string::operator=(cstr);
@@ -65,7 +65,7 @@ String& String::operator=(const char* cstr)
 	return *this;
 }
 
-String& String::operator=(const char c)
+String& String::operator=(const value_type c)
 {
 	clear();
 	push_back(c);
@@ -111,7 +111,7 @@ String::operator==(const String& other) const
 }
 
 bool
-String::operator==(const char* other) const
+String::operator==(const value_type* other) const
 {
 	return string_compare(*this, other) == 0;
 }
@@ -138,12 +138,12 @@ chop_string(const String& string, size_t size)
 }
 
 String
-chop_string(const char* string, size_t size)
+chop_string(const String::value_type* string, size_t size)
 {
 	String retval;
 	if(string != NULL)
 	{
-		const char* p = string;
+		const String::value_type* p = string;
 		for(size_t i = 0; i < size; i++)
 		{
 			if(!*p)
@@ -187,7 +187,7 @@ ssize_t
 String::find(char c, size_t start /* = 0 */) const
 {
 	size_t len = length();
-	const char* ptr = c_str();
+	const value_type* ptr = c_str();
 	for(size_t pos = start; pos < len; pos++)
 	{
 		if(ptr[pos] == c)
@@ -205,7 +205,7 @@ String::operator[](size_t pos) const
 }
 
 String&
-String::printf(const char *fmt, ...)
+String::printf(const value_type *fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
@@ -216,7 +216,7 @@ String::printf(const char *fmt, ...)
 }
 
 String
-String::format(const char *fmt, ...)
+String::format(const value_type *fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
@@ -228,7 +228,7 @@ String::format(const char *fmt, ...)
 }
 
 String&
-String::vprintf(const char *fmt, va_list va)
+String::vprintf(const value_type *fmt, va_list va)
 {
 	int size;
 
