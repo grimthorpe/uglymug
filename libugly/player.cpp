@@ -26,6 +26,16 @@ dbref lookup_player(dbref player, const String& name)
 	return db.lookup_player(name);
 }
 
+static String mudcrypt(const String& password)
+{
+	crypt_data data;
+	memset(&data, 0, sizeof(data));
+	const char* crypted = crypt_rn(password.c_str(), password.c_str(), &data, sizeof(data));
+	if((crypted != NULL) && (strlen(crypted) > 1))
+		return crypted+2;
+	return NULLSTRING;
+}
+
 /* Return NOTHING if the player does not exist, or 0 if incorrect password (but player exists) */
 
 dbref
@@ -45,7 +55,7 @@ const	String& password)
 		return 0;
 	}
 	if(db[player].get_password ()
-		&& string_compare(db[player].get_password (), (char *) (crypt(password.c_str(), password.c_str()) +2)))
+		&& string_compare(db[player].get_password (), mudcrypt(password)))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "WARNING: Connection attempt with password '%s'.", password.c_str());
 		log_hack(NOTHING, "Login attempt unsuccessful for player %s(%d)", db[player].get_name().c_str(), player);
@@ -83,7 +93,7 @@ dbref create_player(const String& name, const String& password, bool effective_w
 
 	if(password)
 	{
-		db[player].set_password		((char *) (crypt(password.c_str(), password.c_str()) +2));
+		db[player].set_password		(mudcrypt(password));
 	}
 	else
 	{
@@ -139,7 +149,7 @@ const	String& newpw)
 		notify_colour(player, player, COLOUR_MESSAGES, "What's your old password?");
 		return;
 	}
-	if(string_compare((char *) (crypt(old.c_str(), old.c_str()) + 2), db[player].get_password ()))
+	if(string_compare(mudcrypt(old), db[player].get_password ()))
 	{
 		notify_colour(player, player, COLOUR_ERROR_MESSAGES, "Sorry");
 		return;
@@ -151,7 +161,7 @@ const	String& newpw)
 		return;
 	}
 
-	db[player].set_password ((crypt(newpw.c_str(), newpw.c_str()) +2));
+	db[player].set_password (mudcrypt(newpw));
 	Modified (player);
 	notify_colour(player, player, COLOUR_MESSAGES, "Password changed.");
 
