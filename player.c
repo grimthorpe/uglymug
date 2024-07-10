@@ -31,7 +31,7 @@ static String mudcrypt(const String& password)
 	crypt_data data;
 	memset(&data, 0, sizeof(data));
 	const char* crypted = crypt_rn(password.c_str(), password.c_str(), &data, sizeof(data));
-	if(strlen(crypted) > 2)
+	if((crypted != NULL) && (strlen(crypted) > 1))
 		return crypted+2;
 	return NULLSTRING;
 }
