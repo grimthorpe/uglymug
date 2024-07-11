@@ -79,6 +79,37 @@ public:
 	bool operator!=(const String& other)	const;
 };
 
+class StringTokenizer
+{
+public:
+	StringTokenizer(const String& str) : m_str(str), m_eol(false) {}
+
+	bool EndOfList() const { return m_eol; }
+
+	const String NextToken(const String& separators)
+	{
+		String ret;
+		if(!EndOfList())
+		{
+			auto pos = m_str.find_first_of(separators);
+			if(pos != String::npos)
+			{
+				ret=m_str.substr(0, pos);
+				m_str.erase(pos+1);
+			}
+			else
+			{
+				m_eol=true;
+				ret = m_str;
+			}
+		}
+		return ret;
+	}
+private:
+	String m_str;
+	bool m_eol;
+};
+
 namespace std {
 	template<> class less<String> {
 	public:
