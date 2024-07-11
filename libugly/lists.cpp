@@ -862,27 +862,20 @@ const String& arg1)
 	if (list!=NULL)
 		eat_keiths_chips();
 
-	strcpy(scratch_buffer, arg1.c_str());	/* strtok() is destructive */
-
 	// Parse the form tell admin, luggage, friends = I love you.
 
-	for(c=strtok(scratch_buffer, ",;"); c; c=strtok(NULL, ",;"))
+	StringTokenizer tok(arg1);
+	while(!tok.EndOfList())
 	{
-		char str[512], *ptr, *woo;
-
-		/* Trim whitespace.  My variable names are the best on the planet. */
-
-		strcpy(str, c);
-		woo=str+strspn(str, " ");
-		for(ptr=woo+strlen(woo)-1; ptr>=woo && isspace(*ptr); ptr--)
-			*ptr='\0';
+		String woo = tok.NextToken(",;").trim();
+		if(!woo)
+			continue;
 
 		// Are we looking at a user-defined list?
-		if((*woo != '*') && (element=db[lists].exist_element(woo)))
+		if((woo[0] != '*') && (element=db[lists].exist_element(woo)))
 		{
 			/* Copy an entire list in. */
-			char *listinfo=strdup(db[lists].get_element(element).c_str());
-			ptr=listinfo;
+			const char *ptr=db[lists].get_element(element).c_str();
 			do
 			{
 				if (!find_player(atoi(ptr)))
@@ -894,22 +887,19 @@ const String& arg1)
 			}
 			while (*ptr);
 			
-			free(listinfo);
-			char wspace[1024];
-			sprintf(wspace, "<%s>", woo);
-			add_list(wspace);
+			add_list(String::format("<%s>", woo));
 			continue;
 		}
 
 
-		if (!strcmp(woo, "me"))
+		if (!string_compare(woo, "me"))
 		{
 			include(player);
 			continue;
 		}
 
 #ifdef	ANNOY_THE_ADMIN
-		if (!strcmp(woo, ADMIN_SPECIFIER))
+		if (!string_compare(woo, ADMIN_SPECIFIER))
 		{
 			include_if_set(FLAG_WIZARD);
 			include_if_set(FLAG_APPRENTICE);
@@ -918,7 +908,7 @@ const String& arg1)
 		}
 #endif	// ANNOY_THE_ADMIN
 
-		if (!strcmp(woo, FRIENDS_SPECIFIER))
+		if (!string_compare(woo, FRIENDS_SPECIFIER))
 		{
 			Player_list temp(player);
 			temp.include_from_list(player, PLIST_FRIEND);
@@ -938,8 +928,8 @@ const String& arg1)
 		}
 
 		// Must be just a single player
-		if (*woo=='*')
-			woo++;
+		if (woo[0]=='*')
+			woo.erase(0,1);
 		target=match_connected_player(woo);
 
 		if (target==AMBIGUOUS)
@@ -964,9 +954,14 @@ const String& arg1)
 
 static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const String& str)
 {
-	char *names=strdup(str.c_str()), *name;
+	StringTokenizer tok(str);
 
-	for(victim_count=0, name=strtok(names, ";,"); name; name=strtok(NULL, ";,"))
+	while(!tok.EndOfList())
+	{
+		String name = tok.NextToken(",;").trim();
+		if(!name)
+			continue;
+
 		if((victims[victim_count]=lookup_player(player, name))==NOTHING)
 			notify_colour(player,player,COLOUR_ERROR_MESSAGES, "There's no player called \"%s\"", name);
 		else
@@ -979,8 +974,7 @@ static int lookup_players_and_put_their_numbers_in_an_array(dbref player, const 
 				break;
 			}
 		}
-
-	free(names);
+	}
 
 	return victim_count;
 }
@@ -1055,27 +1049,31 @@ void context::do_ladd(const String& arg1, const String& arg2)
 	const colour_at& ca=db[player].get_colour_at();
 	if((element=db[lists].exist_element(arg1)))
 	{
-		// Copy element and leave room for char buf[] to be strcat'ed 
-		char mylist[MAX_LIST_SIZE*8]; // Room for '0123456;0123457;' etc
-		mylist[0]='\0';
+		// Copy element
+		String mylist = db[lists].get_element(element);
 		char *number;
-		
-		strcpy(mylist,db[lists].get_element(element).c_str());
 		
 		for(int i=0; i<victim_count; i++)
 		{
-			strcpy(scratch_buffer, mylist);
-			for(number=strtok(scratch_buffer, ";"); number; number=strtok(NULL, ";"))
-				if(atoi(number)==victims[i])
+			StringTokenizer tok(mylist);
+			bool found = false;
+			while(!tok.EndOfList())
+			{
+				String number = tok.NextToken(";").trim();
+				if(!number)
+					continue;
+				if(atoi(number.c_str())==victims[i])
 				{
 					notify_colour(player, player, COLOUR_MESSAGES, "%s is already in this list.", db[victims[i]].get_name().c_str());
+					found = true;
 					break;
 				}
-			if(!number)
+			}
+			if(!found)
 			{
 				notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1.c_str(), ca[COLOUR_MESSAGES]);
-				sprintf(buf, "%s%d", *mylist? ";":"", (int)(victims[i]));
-				strcat(mylist, buf);
+
+				mylist += String::format("%s%d", mylist?";":"", (int)(victims[i]));
 				add_clist_reference(victims[i], player);
 			}
 		}
@@ -1083,17 +1081,16 @@ void context::do_ladd(const String& arg1, const String& arg2)
 	}
 	else
 	{
-		*scratch_buffer='\0';
+		String mylist;
 
 		for(int i=0; i<victim_count; i++)
 		{
 			notify_public(player, player, "%sAdded %s%s %sto list %%w'%s'%s.", ca[COLOUR_MESSAGES], ca[rank_colour(victims[i])], db[victims[i]].get_name().c_str(), ca[COLOUR_MESSAGES], arg1.c_str(), ca[COLOUR_MESSAGES]);
 			add_clist_reference(victims[i], player);
-			sprintf(buf, "%s%d", i==0? "":";", (int)(victims[i]));
-			strcat(scratch_buffer, buf);
+			mylist += String::format("%s%d", mylist?";":"", (int)(victims[i]));
 		}
 
-		db[lists].set_element(0, arg1, scratch_buffer);
+		db[lists].set_element(0, arg1, mylist);
 	}
 
 	return_status=COMMAND_SUCC;
@@ -1143,14 +1140,14 @@ void context::do_llist(const String& arg1, const String& )
 		else
 		{
 			notify_colour(player, player, COLOUR_MESSAGES, "You have the following custom player lists:");
-			*scratch_buffer='\0';
+			String mylist;
 			for(unsigned int i=1; i<=db[lists].get_number_of_elements(); i++)
 			{
-				if (*scratch_buffer)
-					strcat(scratch_buffer,", ");
-				strcat(scratch_buffer, db[lists].get_index(i).c_str());
+				if (mylist)
+					mylist += ", ";
+				mylist += db[lists].get_index(i);
 			}
-			notify(player, "%%w%%h%s%%z", scratch_buffer);
+			notify(player, "%%w%%h%s%%z", mylist.c_str());
 			notify_colour(player,player, COLOUR_MESSAGES, "Use 'llist <listname>' to see the contents of a custom list.");
 		}
 		return;
@@ -1173,13 +1170,15 @@ void context::do_llist(const String& arg1, const String& )
 
 	notify_censor(player, player, "Your list \"%s\" contains:", arg1.c_str());
 	terminal_underline(player, squiggles);
-	strcpy(scratch_buffer, db[lists].get_element(element).c_str());
-	for(char *c=strtok(scratch_buffer, ";"); c; c=strtok(NULL, ";"))
+	StringTokenizer tok(db[lists].get_element(element));
+	while(!tok.EndOfList())
 	{
-		if (Connected(atoi(c)))
-			notify_censor(player, player, "  *%s%s", ca[rank_colour(atoi(c))], db[atoi(c)].get_name().c_str());
-		else
-			notify_censor(player, player, "   %s%s", ca[rank_colour(atoi(c))], db[atoi(c)].get_name().c_str());
+		String c=tok.NextToken(";").trim();
+		if(!c)
+			continue;
+
+		int playerid=atoi(c.c_str());
+		notify_censor(player, player, "  %c%s%s", Connected(playerid)?'*':' ', ca[rank_colour(playerid)], db[playerid].get_name().c_str());
 	}
 	terminal_underline(player, squiggles);
 	notify(player, "");
@@ -1272,23 +1271,28 @@ void context::do_lremove(const String& arg1, const String& arg2)
 		return;
 	}
 
-	char *names=strdup(db[lists].get_element(element).c_str());
-	*scratch_buffer='\0';
+	StringTokenizer tok(db[lists].get_element(element));
+	String mylist;
 
-	for(char *c=strtok(names, ";"); c; c=strtok(NULL, ";"))
+	while(!tok.EndOfList())
 	{
+		String id=tok.NextToken(";").trim();
+		if(!id)
+			continue;
+		int playerid=atoi(id.c_str());
 		target= targets.get_first();
 		while (target != NOTHING)
 		{
-			if (target== atoi(c))
+			if (target== playerid)
 				break;
 			target=targets.get_next();
 		}
 
 		if(target == NOTHING)	/* don't delete this one */
 		{
-			strcat(scratch_buffer, c);
-			strcat(scratch_buffer, ";");
+			if(mylist)
+				mylist += ';';
+			mylist += id;
 		}
 		else
 		{
@@ -1298,15 +1302,12 @@ void context::do_lremove(const String& arg1, const String& arg2)
 		}
 	}
 
-	scratch_buffer[strlen(scratch_buffer)-1]='\0';
-	free(names);
-
-	db[lists].set_element(element, arg1, scratch_buffer);
+	db[lists].set_element(element, arg1, mylist);
 
 	/* If this list is now empty, delete it.  If there aren't any more lists, delete
 	   the dictionary (as above). */
 
-	if(!*scratch_buffer)
+	if(!mylist)
 	{
 		db[lists].destroy_element(element);
 		notify_colour(player,player, COLOUR_MESSAGES, "All players removed - list deleted.");
@@ -1349,7 +1350,7 @@ context::do_fwho(const String& , const String& )
 	notify(player, "The following friends are connected:");
 	terminal_underline(player, squiggles);
 	target=friends.get_first();
-	*scratch_buffer='\0';
+	String scratch;
 
 	while (target!=NOTHING)
 	{
@@ -1397,19 +1398,19 @@ context::do_fwho(const String& , const String& )
 			lt, ca[rank_colour(target)], db[target].get_name().c_str(), rt);
 
 		strncat(workspace, spaces, 24 - colour_strlen(workspace));
-		strcat(scratch_buffer, workspace);
+		scratch += workspace;
 		if (++ac == 3)
 		{
 			ac=0;
-			notify_censor(player, player, "%s", scratch_buffer);
-			*scratch_buffer='\0';
+			notify_censor(player, player, "%s", scratch.c_str());
+			scratch.clear();
 		}
 
 		target=friends.get_next();
 	}
-	if (*scratch_buffer)
+	if (scratch)
 	{
-		notify_censor(player, player, "%s", scratch_buffer);
+		notify_censor(player, player, "%s", scratch.c_str());
 	}
 	if (howmany==0)
 		notify_colour(player, player, COLOUR_MESSAGES, "     ** NO FRIENDS CONNECTED, BILLY **");

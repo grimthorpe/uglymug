@@ -592,28 +592,31 @@ log_message("Player list updated");
 			while (j<=db[hislist].get_number_of_elements())
 			{
 				String newlist;
-				char* tmp = strdup(db[hislist].get_element(j).c_str());
+				StringTokenizer tok(db[hislist].get_element(j));
 				bool semi=false;
-				for (char *number=strtok(tmp,";"); number; number=strtok(NULL,";"))
+				while (!tok.EndOfList())
 				{
-					if(atoi(number)==zap_player)
+					String number=tok.NextToken(";");
+					if(number)
 					{
-						if (nowarning)
+						if(atoi(number.c_str())==zap_player)
 						{
-							notify_colour(who, who, COLOUR_MESSAGES, "[Player '%s' has just been destroyed, and removed from your custom lists]", getname(zap_player), db[hislist].get_index(j).c_str());
-							nowarning=0;
+							if (nowarning)
+							{
+								notify_colour(who, who, COLOUR_MESSAGES, "[Player '%s' has just been destroyed, and removed from your custom lists]", getname(zap_player), db[hislist].get_index(j).c_str());
+								nowarning=0;
+							}
+							sanity_count--;
 						}
-						sanity_count--;
-					}
-					else
-					{
-						if(semi)
-							newlist += ";";
-						newlist += number;
-						semi=true;
+						else
+						{
+							if(semi)
+								newlist += ";";
+							newlist += number;
+							semi=true;
+						}
 					}
 				}
-				free(tmp);
 				if (newlist)
 				{
 					db[hislist].set_element(j, NULLSTRING, newlist);

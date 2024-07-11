@@ -49,8 +49,6 @@ int	broken = 0;
 int	hack = 0;
 int	fixed = 0;
 
-extern char	scratch_buffer[];
-
 static	context	unparse_context (UNPARSE_ID, context::DEFAULT_CONTEXT);
 
 FILE	*sanity_file;
