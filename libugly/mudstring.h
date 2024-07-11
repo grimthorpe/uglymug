@@ -69,8 +69,12 @@ public:
 
 	String	substring(size_t start)			const;
 	String	substring(size_t start, ssize_t length)	const;
-	ssize_t	find(char c, size_t start = 0)		const;
-	char	operator[](size_t pos)			const;
+	ssize_t	find(value_type c, size_t start = 0)		const;
+	value_type operator[](size_t pos)			const;
+
+	// Trim whitespace from the start and end of the string.
+	String& trim();
+	static String trim(const String&);
 
 	bool operator<(const String& other)	const;
 	bool operator>(const String& other)	const;
@@ -86,7 +90,7 @@ public:
 
 	bool EndOfList() const { return m_eol; }
 
-	const String NextToken(const String& separators)
+	String NextToken(const String& separators)
 	{
 		String ret;
 		if(!EndOfList())
@@ -95,7 +99,7 @@ public:
 			if(pos != String::npos)
 			{
 				ret=m_str.substr(0, pos);
-				m_str.erase(pos+1);
+				m_str.erase(0,pos+1);
 			}
 			else
 			{

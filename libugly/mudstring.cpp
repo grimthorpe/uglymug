@@ -248,3 +248,21 @@ String::vprintf(const value_type *fmt, va_list va)
 	return *this;
 }
 
+String&
+String::trim()
+{
+	// Remove the end chars first to reduce how much reallocation gets done
+	while((!empty()) && (isspace(*rbegin())))
+		pop_back();
+	while((!empty()) && (isspace(*begin())))
+		erase(0,1);
+	return *this;
+}
+
+String
+String::trim(const String& other)
+{
+	String ret(other);
+	return ret.trim();
+}
+
