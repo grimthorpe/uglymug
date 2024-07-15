@@ -10,6 +10,8 @@
 #include "colour.h"
 
 #include <set>
+#include <sstream>
+#include <iomanip>
 
 //#include <stdio.h>
 //#include <string.h>
@@ -535,3 +537,13 @@ const char *censor(const String& string)
     *letter='\0';
     return censored;
 }
+
+String
+date_string(const time_t* t)
+{
+	std::basic_stringstream<String::value_type> str;
+	str << std::put_time(std::localtime(t), "%c");
+
+	return str.str();
+}
+

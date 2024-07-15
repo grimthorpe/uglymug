@@ -455,8 +455,8 @@ void log_message (
 
 	Trace(	"%cGENERAL%c%d%c%s%c\n",
 			RECORD_START,						FIELD_SEPARATOR,
-			time(NULL),							FIELD_SEPARATOR,
-			message,							RECORD_END
+			time(NULL),						FIELD_SEPARATOR,
+			message.c_str(),					RECORD_END
 	);
 }
 

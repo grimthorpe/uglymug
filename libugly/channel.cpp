@@ -544,7 +544,7 @@ context::do_query_channel (const String& arg1, const String& arg2)
 		}
 	}
 
-	String scratch_buffer;
+	String scratch;
 	if(Primary == query)
 	{
 		Channel *ch = db[victim].get_channel();
@@ -562,25 +562,25 @@ context::do_query_channel (const String& arg1, const String& arg2)
 			{
 				if (current_player->player() == victim)
 				{
-					if (scratch_buffer)
-						scratch_buffer += ';';
-					scratch_buffer += current->name();
+					if (scratch)
+						scratch += ';';
+					scratch += current->name();
 				}
 			}
 		}
 		return_status = COMMAND_SUCC;
-		set_return_string (scratch_buffer);
+		set_return_string (scratch);
 	}
 	else if(Members == query)
 	{
 		for(ChannelPlayer *current_player=interested_channel->players(); current_player; current_player=current_player->next())
 		{
-			if (scratch_buffer)
-				scratch_buffer += ';';
-			scratch_buffer += db[current_player->player()].get_name();
+			if (scratch)
+				scratch += ';';
+			scratch += db[current_player->player()].get_name();
 		}
 		return_status = COMMAND_SUCC;
-		set_return_string (scratch_buffer);
+		set_return_string (scratch);
 	}
 	else if(Operators == query)
 	{
@@ -588,13 +588,13 @@ context::do_query_channel (const String& arg1, const String& arg2)
 		{
 			if (current_player->controller())
 			{
-				if (scratch_buffer)
-					scratch_buffer += ';';
-				scratch_buffer += db[current_player->player()].get_name();
+				if (scratch)
+					scratch += ';';
+				scratch += db[current_player->player()].get_name();
 			}
 		}
 		return_status = COMMAND_SUCC;
-		set_return_string (scratch_buffer);
+		set_return_string (scratch);
 	}
 	else
 	{
@@ -1129,7 +1129,7 @@ context::do_at_channel (const String& arg1, const String& arg2)
 			if((which=channel->find_invite(victim)) && (now-which->timestamp() < CHANNEL_INVITE_FREQUENCY))
 			{
 				if(!gagged_command())
-					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player is already invited (you can re-send the invite in %s).",time_string(CHANNEL_INVITE_FREQUENCY - now + which->timestamp()));
+					notify_colour(player, player, COLOUR_ERROR_MESSAGES, "That player is already invited (you can re-send the invite in %s).",time_string(CHANNEL_INVITE_FREQUENCY - now + which->timestamp()).c_str());
 			}
 			else
 			{

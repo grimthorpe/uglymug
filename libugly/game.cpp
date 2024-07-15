@@ -1490,7 +1490,7 @@ void mud_time_sync ()
 	if (alarm_triggered < 0)
 	{
 		long dumptime = time(NULL) - dump_start_time;
-		notify_wizard("[Database backed up in %s]", small_time_string(dumptime));
+		notify_wizard("[Database backed up in %s]", small_time_string(dumptime).c_str());
 		alarm_triggered = 0;
 	}
 

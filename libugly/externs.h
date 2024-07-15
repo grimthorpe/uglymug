@@ -133,8 +133,8 @@ extern	int		peak_users;
 /* From look.c */
 extern	void		look_room		(context &, dbref room);
 extern	const char	*flag_description	(dbref thing);
-extern	char		*time_string		(time_t interval);
-extern	char		*small_time_string	(time_t interval);
+extern	String		time_string		(time_t interval);
+extern	String		small_time_string	(time_t interval);
 
 /* From move.c */
 extern	bool		can_move		(context &c, const String& direction);
@@ -150,11 +150,9 @@ extern	bool	can_link_to		(const context &c, const dbref where);
 extern	bool	can_link		(const context &c, const dbref exit);
 
 /* From speech.c */
-extern	void		notify_except		(dbref first, dbref originator, dbref exception, const char *msg);
 extern	void		notify_except		(dbref first, dbref originator, dbref exception, const String& msg);
-extern	void		notify_except2		(dbref first, dbref originator, dbref exc1, dbref exc2, const char *msg);
 extern	void		notify_except2		(dbref first, dbref originator, dbref exc1, dbref exc2, const String& msg);
-extern	int		blank			(const char *s);
+extern	bool		blank			(const char *s);
 extern	String		reconstruct_message	(const String& arg1, const String& arg2);
 
 /* From stringutil.c */

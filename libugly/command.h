@@ -19,7 +19,7 @@ extern	const	String	ok_return_string;
 extern	const	String	recursion_return_string;
 extern	const	String	unset_return_string;
 extern	const	String	permission_denied;
-extern		char	scratch_buffer [];
+//extern		char	scratch_buffer [];
 
 
 /*  static const unsigned int MAX_COMMAND_LEN=2048; */

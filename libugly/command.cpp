@@ -40,8 +40,7 @@ const	String	error_return_string		= "Error";
 const	String	recursion_return_string		= "Recursion.";
 const	String	unset_return_string		= "Unset_return_value.";
 const	String	permission_denied		= "Permission denied.";
-	char	scratch_buffer		[2 * BUFFER_LEN];
-
+//char scratch_buffer[BUFFER_LEN];
 
 bool
 context::can_do_compound_command (

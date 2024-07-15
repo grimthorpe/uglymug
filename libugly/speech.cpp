@@ -18,7 +18,7 @@
 
 #define MAX_IDLE_MESSAGE_LENGTH 70
 
-void notify_except_colour (dbref first,dbref exception, const char *prefix,const char *msg, bool speechmarks, dbref talker, ColourAttribute colour);
+void notify_except_colour (dbref first,dbref exception, const String& prefix,const String& msg, bool speechmarks, dbref talker, ColourAttribute colour);
 
 static void
 strcat_with_indent (
@@ -359,15 +359,14 @@ context::do_emote(const String& arg1, const String& arg2, bool oemote)
 	}
 
 	/* notify everybody */
-	if ((message[0] == '\'') || (message[0] == '`'))
-		sprintf(scratch_buffer, "%s", getname_inherited (player));
-	else
-		sprintf(scratch_buffer, "%s ", getname_inherited (player));
+	String name = getname_inherited (player);
+	if ((message[0] != '\'') && (message[0] != '`'))
+		name += ' ';
 	dbref except = NOTHING;
 	if(oemote)
 		except = player;
 
-	notify_except_colour(db[loc].get_contents(), except, scratch_buffer, message.c_str(), false, player, COLOUR_EMOTES);
+	notify_except_colour(db[loc].get_contents(), except, name, message, false, player, COLOUR_EMOTES);
 	return_status = COMMAND_SUCC;
 	set_return_string (ok_return_string);
 }
@@ -470,7 +469,8 @@ const	String& arg2)
 		notify_colour(player, player, COLOUR_MESSAGES, "Anything in particular, or just generally moaning?");
 	else
 	{
-		sprintf(scratch_buffer, "GRIPE from %s(%d) in %s%s(%d): %s\n",
+		String gripe;
+		gripe.printf("GRIPE from %s(%d) in %s%s(%d): %s\n",
 			getname_inherited (player), (int)player,
 			getarticle (loc, ARTICLE_LOWER_INDEFINITE),
 			getname_inherited (loc), (int)loc,
@@ -480,7 +480,7 @@ const	String& arg2)
 					message.c_str()
 		);
 		notify_colour(player, player, COLOUR_MESSAGES, "Your complaint has been logged.");
-		notify_wizard ("%s", scratch_buffer);
+		notify_wizard ("%s", gripe);
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 	}
@@ -587,19 +587,18 @@ const	String& part2)
 	}
 	else
 	{
+		String message;
 		if (blank(arg2))
-			strcpy (scratch_buffer, "tries to contact you.\n");
+			message = "tries to contact you.\n";
 		else if (*arg2==':')
 		{
-			strcpy (scratch_buffer, arg2+1);
-			strcat (scratch_buffer, "\n");
+			message = arg2+1;
+			message += "\n";
 		}
 		else
 		{
-			sprintf(scratch_buffer, "says \"%s\"",arg2);
-			strcat (scratch_buffer, "\n");
+			message.printf("says \"%s\"\n",arg2);
 		}
-		char *suffix=strdup(scratch_buffer);
 
 		targets.warn_me_if_idle();
 		targets.beep();
@@ -614,22 +613,20 @@ const	String& part2)
 		{
 			const colour_at& ca=db[target].get_colour_at();
 			context	unparse_context (target, *this);
-			strcpy (scratch_buffer, unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE).c_str());
-			strcat (scratch_buffer, ", ");
-			strcat (scratch_buffer, ca[rank_colour(player)]);
-			strcat (scratch_buffer, unparse_object_inherited (unparse_context, player).c_str());
+			String fromwhom = unparse_objectandarticle_inherited (unparse_context, db[player].get_location(), ARTICLE_LOWER_INDEFINITE);
+			fromwhom += ", ";
+			fromwhom += ca[rank_colour(player)];
+			fromwhom += unparse_object_inherited (unparse_context, player).c_str();
 
 			if (howmany > 1)
-				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z to %s from %s%s %s%s", targets.generate_courtesy_string(player, target), ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));
+				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z to %s from %s%s %s%s", targets.generate_courtesy_string(player, target), ca[COLOUR_ROOMNAME], fromwhom.c_str(), ca[COLOUR_PAGES], boldify(target, message).c_str());
 			else
-				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z from %s%s%s %s", ca[COLOUR_ROOMNAME], scratch_buffer, ca[COLOUR_PAGES], boldify(target, suffix));
+				notify_censor_colour (target, player, COLOUR_PAGES, "%%w%%hPAGING%%z from %s%s%s %s", ca[COLOUR_ROOMNAME], fromwhom.c_str(), ca[COLOUR_PAGES], boldify(target, message).c_str());
 
 			Accessed (target);
 
 			target=targets.get_next();
 		}
-
-		free (suffix);
 	}
 
 	all_targets.trigger_command(".page", *this);
@@ -710,8 +707,7 @@ const	String& arg2)
 	set_return_string (error_return_string);
 	if (controls_for_write (db[player].get_location()))
 	{
-		sprintf (scratch_buffer, "%s", reconstruct_message(arg1, arg2).c_str());
-		notify_except (db [db [player].get_location()].get_contents(), player, player, scratch_buffer);
+		notify_except (db [db [player].get_location()].get_contents(), player, player, reconstruct_message(arg1, arg2));
 		return_status = COMMAND_SUCC;
 		set_return_string (ok_return_string);
 	}
@@ -754,11 +750,12 @@ const	String& what)
 
 		if (controls_for_read(db[victim].get_location()))
 		{
-			if ((*what.c_str() == '\'') || (*what.c_str() == '`'))
-				sprintf(scratch_buffer, "%s%s", getname_inherited (player), what.c_str());
+			String message;
+			if ((what[0] == '\'') || (what[0] == '`'))
+				message.printf("%s%s", getname_inherited (player), what.c_str());
 			else
-				sprintf(scratch_buffer, "%s %s", getname_inherited (player), what.c_str());
-			notify_censor(victim, player, scratch_buffer);
+				message.printf("%s %s", getname_inherited (player), what.c_str());
+			notify_censor(victim, player, message);
 			return_status = COMMAND_SUCC;
 			set_return_string (ok_return_string);
 			return;
@@ -844,15 +841,16 @@ const	String& arg2)
 	targets.exclude_from_reverse_list(player, PLIST_FBLOCK);
 	targets.include(player);
 	String output=reconstruct_message(arg1, arg2);
+	String message;
 	if (output[0] == ':')
-		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s%s%s", db[player].get_name().c_str(), (output[1] == '\'') ? "" : " ", output.c_str()+1); 
+		message.printf("%%y%%h[FRIENDS] %%w%s%s%s", db[player].get_name().c_str(), (output[1] == '\'') ? "" : " ", output.c_str()+1); 
 	else
-		sprintf(scratch_buffer, "%%y%%h[FRIENDS] %%w%s says \"%s\"", db[player].get_name().c_str(), output.c_str()); 
+		message.printf("%%y%%h[FRIENDS] %%w%s says \"%s\"", db[player].get_name().c_str(), output.c_str()); 
 	dbref target=targets.get_first();
 
 	while (target != NOTHING)
 	{
-		notify_censor(target, player, "%s", scratch_buffer);
+		notify_censor(target, player, message);
 		target=targets.get_next();
 	}
 	
@@ -865,21 +863,21 @@ void
 notify_except_colour (
 dbref		first,
 dbref		exception,
-const	char	*prefix,
-const	char	*msg,
+const	String&	prefix,
+const	String&	msg,
 bool		speechmarks,
 dbref		talker,
 ColourAttribute	colour)
 
 {
-	const char *myprefix;
-	const char *mymsg;
+	String myprefix;
+	String mymsg;
 
 	int docensor=Censored(db[talker].get_location());
 	if (docensor)
 	{
-		myprefix=strdup(censor(prefix));
-		mymsg=strdup(censor(msg));
+		myprefix=censor(prefix);
+		mymsg=censor(msg);
 	}
 	else
 	{
@@ -893,16 +891,11 @@ ColourAttribute	colour)
 
 			const colour_at& ca=db[first].get_colour_at();
 			if (speechmarks==true)
-				notify_public(first, talker, "%s%s\"%s%s%s\"%%z", ca[rank_colour(talker)], myprefix, ca[colour],  mymsg, ca[rank_colour(talker)]);
+				notify_public(first, talker, "%s%s\"%s%s%s\"%%z", ca[rank_colour(talker)], myprefix.c_str(), ca[colour],  mymsg.c_str(), ca[rank_colour(talker)]);
 			else
-				notify_public(first, talker, "%s%s%s%s%%z", ca[rank_colour(talker)], myprefix, ca[colour],  mymsg);
+				notify_public(first, talker, "%s%s%s%s%%z", ca[rank_colour(talker)], myprefix.c_str(), ca[colour],  mymsg.c_str());
 			
 		}
-	if (docensor)
-	{
-		free (const_cast <char *> (mymsg));
-		free (const_cast <char *> (myprefix));
-	}
 }
 
 void
@@ -911,24 +904,12 @@ dbref		first,
 dbref		originator,
 dbref		exception,
 const	String&	msg)
-
-{
-	notify_except(first, originator, exception, msg.c_str());
-}
-
-void
-notify_except (
-dbref		first,
-dbref		originator,
-dbref		exception,
-const	char	*msg)
 
 {
 	DOLIST (first, first)
 		if ((Connected (first) ) && (first != exception))
-			notify_public (first, originator, "%s", msg);
+			notify_public (first, originator, msg);
 }
-
 
 void
 notify_except2 (
@@ -939,31 +920,19 @@ dbref		exc2,
 const	String&	msg)
 
 {
-	notify_except2(first, originator, exc1, exc2, msg.c_str());
-}
-
-void
-notify_except2 (
-dbref		first,
-dbref		originator,
-dbref		exc1,
-dbref		exc2,
-const	char	*msg)
-
-{
 	DOLIST (first, first)
 		if ((Connected (first) ) && (first != exc1) && (first != exc2))
-			notify_public (first, originator, "%s", msg);
+			notify_public (first, originator, msg);
 }
 
 
-int
+bool
 blank (
 const	char	*s)
 
 {
 	if (s == NULL)
-		return (1);
+		return true;
 	while (*s && isspace(*s))
 		s++;
 

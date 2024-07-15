@@ -17,7 +17,7 @@
 
 #define	CONTENTS_TAB	2
 
-static char *tiny_time_string(time_t interval);
+static String tiny_time_string(time_t interval);
 
 /*
  * look_container: We know the thing's a container, and have already printed out
@@ -31,7 +31,7 @@ static char *tiny_time_string(time_t interval);
 
 /** Yuck! Sometime I'll get around to changing this - PJC 23/12/96 **/
 // If you hit this limit then just increase the table below
-#define MAX_LEVELS 13
+/*#define MAX_LEVELS 13
 const char *const spacestring[] = 
 {
 	"",
@@ -48,24 +48,12 @@ const char *const spacestring[] =
 	"                      ",
 	"                        ",
 	"                          "
-};
-
-const char* const
+};*/
+// Grimthorpe to the rescue! Only 28 years later..... LSJ 15/07/24
+String
 spaces(unsigned int level)
 {
-static char spc[1024];	// 512 levels of indentation...
-	if(level < MAX_LEVELS)
-	{
-		return spacestring[level];
-	}
-	if(level >= (sizeof(spc) / 2))
-	{
-		level = (sizeof(spc) / 2) - 1;
-	}
-	memset((void*)spc, ' ', level*2);
-	spc[level*2] = 0;
-
-	return spc;
+	return String(level*2, ' ');
 }
 
 static void
@@ -73,7 +61,7 @@ output_command(
 dbref	command,
 dbref	player)
 {
-	int		tab_level = 0;
+	unsigned int	tab_level = 0;
 	unsigned	line = 1;
 	bool		force_outdent=false;
 	bool		linenumbers = Linenumbers(player);
@@ -105,9 +93,9 @@ dbref	player)
 		for(;line<block_end;line++)
 		{
 			if (linenumbers)
-				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces(tab_level), db[command].get_inherited_element(line).c_str());
+				notify_censor(player, player, "%%g[%3u]%%z %s%s", line, spaces(tab_level).c_str(), db[command].get_inherited_element(line).c_str());
 			else
-				notify_censor(player, player, "%s%s", spaces(tab_level), db[command].get_inherited_element(line).c_str());
+				notify_censor(player, player, "%s%s", spaces(tab_level).c_str(), db[command].get_inherited_element(line).c_str());
 		}
 
 		if (force_outdent)
@@ -189,7 +177,7 @@ static void
 examine_container (
 context		&c,
 dbref		object,
-int		level)
+size_t		level)
 
 {
 	dbref	thing;
@@ -199,51 +187,45 @@ int		level)
 	/* If it's opaque, closed, and you don't control it, you can't see in. */
 	if (!(((Open (object)) || (Opaque (object))) || c.controls_for_read (object)))
 	{
-		for (level_count = 0; level_count < level; level_count++)
-			scratch_buffer [level_count] = ' ';
-
-		sprintf (scratch_buffer + level_count, "%sYou cannot see inside it%s",
+		String output(level, ' ');
+		output += String::format("%sYou cannot see inside it%s",
 							ca[COLOUR_ERROR_MESSAGES],
 							COLOUR_REVERT);
-		notify (c.get_player (), scratch_buffer);
+		notify (c.get_player (), output);
 		return;
 	}
 
 	/* output the key for the container */
-	for (level_count = 0; level_count < level; level_count++)
-		scratch_buffer [level_count] = ' ';
-	sprintf (scratch_buffer + level_count, "%sKey:%s %s", 
+	String key(level, ' ');
+	key += String::format("%sKey:%s %s", 
 			ca[COLOUR_TITLES],
 			COLOUR_REVERT,
 			db[object].get_lock_key ()->unparse (c).c_str());
 
-	notify(c.get_player (), "%s", scratch_buffer);
+	notify(c.get_player (), key);
 
-	/* Otherwise, output the 'contents' field (if any). Re-use the spaces from last time. */
+	/* Otherwise, output the 'contents' field (if any).*/
+	String contents(level, ' ');
 	if (db [object].get_contents_string())
 	{
-		sprintf(scratch_buffer + level_count, "%sContents string:%s ",
+		contents += String::format("%sContents string:%s ",
 				ca[COLOUR_CONTENTS],
 				COLOUR_REVERT);
-		strcat (scratch_buffer + level_count, db [object].get_contents_string ().c_str());
+		contents += db [object].get_contents_string ();
 	}
 	else
-		sprintf (scratch_buffer + level_count, "%sContents:%s",
+		contents += String::format("%sContents:%s",
 					ca[COLOUR_CONTENTS],
 					COLOUR_REVERT);
 
-	notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
-
-	/* Write the correct number of spaces into the start of scratch_buffer */
-	for (level_count = 0; level_count < (level + CONTENTS_TAB); level_count++)
-		scratch_buffer [level_count] = ' ';
-	scratch_buffer[level_count] = 0;
+	notify_public (c.get_player(), c.get_player (), contents);
 
 	/* ... and dump a list of the contents. */
 	DOLIST (thing, db[object].get_contents())
 	{
-		sprintf (scratch_buffer + level_count, "%s%s", (Connected (thing) ? "*" : ""), unparse_object_inherited(c, thing).c_str());
-		notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
+		String content(level, ' ');
+		content += String::format("%s%s", (Connected (thing) ? "*" : ""), unparse_object_inherited(c, thing).c_str());
+		notify_public (c.get_player(), c.get_player (), content);
 		if (Container (thing))
 			if(db[thing].get_contents() != NOTHING)
 				examine_container (c, thing, level + CONTENTS_TAB);
@@ -423,27 +405,28 @@ int 	prettylook_is_on
 					if (prettylook_is_on)
 						notify (c.get_player(), "%s~~~~~~~~~~~~~~%s",ca[COLOUR_UNDERLINES], COLOUR_REVERT);
 				}
+				String exitdesc;
 				/* If it's unlinked, print its name and ref */
 				if (db[exit].get_destination() == NOTHING)
 					if (!(Number(c.get_player())))
-						sprintf (scratch_buffer, "  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit);
+						exitdesc.printf ("  %s%s%s(#%d E) is unlinked.",ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit);
 					else
-						sprintf (scratch_buffer, "  %s%s%s is unlinked.", ca[COLOUR_EXITS],name.c_str(), COLOUR_REVERT);
+						exitdesc.printf ("  %s%s%s is unlinked.", ca[COLOUR_EXITS],name.c_str(), COLOUR_REVERT);
 				else
 				{
 					if (c.controls_for_read (exit) && !(Number(c.get_player())))
 					{
 						if (Opaque(exit))
-							sprintf(scratch_buffer, "  %s%s%s(#%d E).", ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit);
+							exitdesc.printf("  %s%s%s(#%d E).", ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit);
 						else
 						{
 							if (!Plural(exit))
-								sprintf (scratch_buffer, "  %s%s%s(#%d E) lead to %s%s%s.",
+								exitdesc.printf ("  %s%s%s(#%d E) lead to %s%s%s.",
 									 ca[COLOUR_EXITS], name.c_str(), COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME], 
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE).c_str(),
 									 COLOUR_REVERT);
 							else
-								sprintf (scratch_buffer, "  %s%s%s(#%d E) leads to %s%s%s.",
+								exitdesc.printf ("  %s%s%s(#%d E) leads to %s%s%s.",
 									 ca[COLOUR_EXITS],name.c_str(),COLOUR_REVERT, (int)exit, ca[COLOUR_ROOMNAME],
 									 unparse_objectandarticle_inherited(c, db[exit].get_destination(), ARTICLE_LOWER_INDEFINITE).c_str(),
 									 COLOUR_REVERT);
@@ -453,9 +436,9 @@ int 	prettylook_is_on
 					else
 					{
 						if ((Opaque(exit)) || (db[exit].get_destination() == HOME))
-							sprintf(scratch_buffer, "  %s%s%s.", ca[COLOUR_EXITS], name.c_str(),COLOUR_REVERT);
+							exitdesc.printf("  %s%s%s.", ca[COLOUR_EXITS], name.c_str(),COLOUR_REVERT);
 						else
-							sprintf (scratch_buffer, "  %s%s%s leads to %s%s%s%s.",
+							exitdesc.printf ("  %s%s%s leads to %s%s%s%s.",
 								ca[COLOUR_EXITS],name.c_str(),COLOUR_REVERT,
 								ca[COLOUR_ROOMNAME],
 								getarticle (db[exit].get_destination (), ARTICLE_LOWER_INDEFINITE),
@@ -463,7 +446,7 @@ int 	prettylook_is_on
 								COLOUR_REVERT);
 					}
 				}
-				notify_public (c.get_player(), c.get_player (), "%s", scratch_buffer);
+				notify_public (c.get_player(), c.get_player (), exitdesc);
 			}
 		}
 		loc = db [loc].get_parent ();
@@ -613,12 +596,12 @@ const	String& )
 					look_simple(*this, thing);
 					if(!Unassigned (thing))
 					{
-						strcpy (scratch_buffer, unparse_object_inherited (*this, thing).c_str());
-						strcat (scratch_buffer, " is ");
-						if(Male(thing)) strcat (scratch_buffer, "male.");
-						if(Female(thing)) strcat (scratch_buffer, "female.");
-						if(Neuter(thing)) strcat (scratch_buffer, "neuter.");
-						notify(player, "%s", scratch_buffer);
+						String output=unparse_object_inherited (*this, thing);
+						output += " is ";
+						if(Male(thing)) output += "male.";
+						if(Female(thing)) output += "female.";
+						if(Neuter(thing)) output += "neuter.";
+						notify(player, output);
 					}
 					if (db[thing].get_score () != 0)
 					{
@@ -899,19 +882,15 @@ const	String& options)
 			if(db[thing].get_fail_message())
 			{
 
-				last = atol(db[thing].get_fail_message().c_str());
-				sprintf(scratch_buffer, "%sLast time connected:%s %s%s", 
+				last = std::stol(db[thing].get_fail_message());
+				String output;
+				output.printf("%sLast time connected:%s %s%s", 
 					ca[COLOUR_TITLES], 
 					ca[COLOUR_LAST_CONNECTED], 
-					(last==0) ? "Unknown" : ctime(&last), 
+					(last==0) ? "Unknown" : date_string(&last).c_str(),
 					COLOUR_REVERT);
 
-				size_t i;
-				for (i= strlen(scratch_buffer) ; (scratch_buffer[i] != '\n') && (i > 0) ;  i--);
-				if (scratch_buffer[i]=='\n')
-				    scratch_buffer[i]='\0';
-
-				notify(player, "%s", scratch_buffer);
+				notify(player, output);
 			}
 			break;
 
@@ -1266,9 +1245,7 @@ const	String& options)
 		else
 		{
 			time_t last_entry_time = db[thing].get_last_entry_time();
-			strcpy(scratch_buffer, ctime(&last_entry_time));
-			*strchr(scratch_buffer, '\n') = '\0';
-			notify(player, "%sLast entry time:%s %s%s%s",  ca[COLOUR_TITLES], COLOUR_REVERT, ca[COLOUR_LAST_CONNECTED], scratch_buffer, COLOUR_REVERT);
+			notify(player, "%sLast entry time:%s %s%s%s",  ca[COLOUR_TITLES], COLOUR_REVERT, ca[COLOUR_LAST_CONNECTED], date_string(&last_entry_time).c_str(), COLOUR_REVERT);
 		}
 		break;
 	  case TYPE_PLAYER:
@@ -1476,14 +1453,15 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Variables:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES],unparse_object(*this, looper).c_str());
+							String output;
+							output.printf("  %s%s", ca[COLOUR_PROPERTIES],unparse_object(*this, looper).c_str());
 							{
 								if (!Dark(looper) && controls_for_read (looper))
 								{
-									strcat (scratch_buffer, " = ");
-									strcat (scratch_buffer, db[looper].get_description().c_str());
+									output += " = ";
+									output += db[looper].get_description();
 								}
-								notify_public(player, player, "%s%s", scratch_buffer, COLOUR_REVERT);
+								notify_public(player, player, "%s%s", output.c_str(), COLOUR_REVERT);
 							}
 						}
 					}
@@ -1503,13 +1481,14 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Properties:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s%s", ca[COLOUR_PROPERTIES], unparse_object(*this, looper).c_str());
+							String output;
+							output.printf("  %s%s", ca[COLOUR_PROPERTIES], unparse_object(*this, looper).c_str());
 							if (!Dark(looper) && controls_for_read (looper))
 							{
-								strcat (scratch_buffer, " = ");
-								strcat (scratch_buffer, db[looper].get_description().c_str());
+								output += " = ";
+								output += db[looper].get_description();
 							}
-							notify_public(player, player, "%s%s", scratch_buffer, COLOUR_REVERT);
+							notify_public(player, player, "%s%s", output.c_str(), COLOUR_REVERT);
 						}
 					}
 				}
@@ -1528,11 +1507,12 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Arrays:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper).c_str());
+							String output;
+							output.printf("  %s", unparse_object(*this, looper).c_str());
 							if (!Dark(looper) && controls_for_read (looper))
-								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
+								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_ARRAYS], output.c_str(), COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
 							else
-								notify_public(player, player, "%s%s%s", ca[COLOUR_ARRAYS], scratch_buffer, COLOUR_REVERT);
+								notify_public(player, player, "%s%s%s", ca[COLOUR_ARRAYS], output.c_str(), COLOUR_REVERT);
 						}
 					}
 				}
@@ -1551,11 +1531,12 @@ const	String& options)
 								notify_colour(player, player, COLOUR_CONTENTS, "Dictionaries:");
 								temp = 1;
 							}
-							sprintf(scratch_buffer, "  %s", unparse_object(*this, looper).c_str());
+							String output;
+							output.printf("  %s", unparse_object(*this, looper).c_str());
 							if (!Dark(looper) && controls_for_read (looper))
-								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_DICTIONARIES], scratch_buffer, COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
+								notify_public(player, player, "%s%s : %s%d element%s", ca[COLOUR_DICTIONARIES], output.c_str(), COLOUR_REVERT, db[looper].get_number_of_elements(), PLURAL(db[looper].get_number_of_elements()));
 							else
-								notify_public_colour(player, player, COLOUR_DICTIONARIES, "%s",  scratch_buffer);
+								notify_public_colour(player, player, COLOUR_DICTIONARIES, "%s",  output.c_str());
 						}
 					}
 				}
@@ -1616,41 +1597,41 @@ const	String& options)
 
 			if((last=db[thing].get_ctime()))
 			{
-				sprintf(scratch_buffer, "  %sCreate:%s %s(+%s)%s", 
+				String output;
+				output.printf("  %sCreate:%s %s(+%s)%s", 
 					ca[COLOUR_TITLES], 
 					ca[COLOUR_TIMESTAMPS], 
 					ctime(&last), 
-					tiny_time_string(now-last),
+					tiny_time_string(now-last).c_str(),
 					COLOUR_REVERT);
 
-				*strchr(scratch_buffer, '\n') = ' ';
-				notify(player, "%s", scratch_buffer);
+				notify(player, output);
 			}
 
 			if((last=db[thing].get_mtime()))
 			{
-				sprintf(scratch_buffer, "  %sModify:%s %s(+%s)%s", 
+				String output;
+				output.printf("  %sModify:%s %s(+%s)%s", 
 					ca[COLOUR_TITLES], 
 					ca[COLOUR_TIMESTAMPS], 
 					ctime(&last), 
-					tiny_time_string(now-last),
+					tiny_time_string(now-last).c_str(),
 					COLOUR_REVERT);
 
-				*strchr(scratch_buffer, '\n') = ' ';
-				notify(player, "%s", scratch_buffer);
+				notify(player, output);
 			}
 
 			if((last=db[thing].get_atime()))
 			{
-				sprintf(scratch_buffer, "  %sAccess:%s %s(+%s)%s", 
+				String output;
+				output.printf("  %sAccess:%s %s(+%s)%s", 
 					ca[COLOUR_TITLES], 
 					ca[COLOUR_TIMESTAMPS], 
 					ctime(&last), 
-					tiny_time_string(now-last),
+					tiny_time_string(now-last).c_str(),
 					COLOUR_REVERT);
 
-				*strchr(scratch_buffer, '\n') = ' ';
-				notify(player, "%s", scratch_buffer);
+				notify(player, output);
 			}
 		}
 	}
@@ -2100,9 +2081,9 @@ const	String& string)
 }
 
 
-char *time_string (time_t interval)
+String time_string (time_t interval)
 {
-	static char buffer[80];
+	String buffer;
 	time_t years, days, hours, minutes, seconds;
 
 	/* Obviously the year value is an approximation, but good enough for
@@ -2112,77 +2093,66 @@ char *time_string (time_t interval)
 	interval -= (hours = interval / 3600L) * 3600L;
 	interval -= (minutes = interval / 60L) * 60L;
 	seconds= interval;
-	*buffer = '\0';
 
 	if (years > 0)
-		sprintf (buffer, "%ld year%s", years, PLURAL (years));
+		buffer.printf ("%ld year%s", years, PLURAL (years));
 	if (days > 0)
 	{
-		sprintf (scratch_buffer, "%s%ld day%s", (!*buffer) ? "" : (hours > 0 || minutes > 0 || seconds > 0)? ", ":" and ", days, PLURAL (days));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%s%ld day%s", (!buffer) ? "" : (hours > 0 || minutes > 0 || seconds > 0)? ", ":" and ", days, PLURAL (days));
 	}
 	if (hours > 0)
 	{
-		sprintf (scratch_buffer, "%s%ld hour%s", (!*buffer) ? "" : (minutes > 0 || seconds > 0) ? ", ":" and ", hours, PLURAL (hours));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%s%ld hour%s", (!buffer) ? "" : (minutes > 0 || seconds > 0) ? ", ":" and ", hours, PLURAL (hours));
 	}
 	if (minutes > 0)
 	{
-		sprintf (scratch_buffer, "%s%ld minute%s", (!*buffer) ? "" : (seconds > 0) ? ", ":" and ", minutes, PLURAL (minutes));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%s%ld minute%s", (!buffer) ? "" : (seconds > 0) ? ", ":" and ", minutes, PLURAL (minutes));
 	}
 	if (seconds > 0)
 	{
-		sprintf (scratch_buffer, "%s%ld second%s", (*buffer) ? " and ":"", (long int)interval, PLURAL (interval));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%s%ld second%s", (!buffer) ? "":" and ", (long int)interval, PLURAL (interval));
 	}
-	if (*buffer=='\0')
-		sprintf(buffer, "0s");
+	if(!buffer)
+		buffer="0s";
 	return buffer;
 }
 
 
-char *small_time_string (time_t interval)
+String small_time_string (time_t interval)
 {
-	static char buffer[80];
+	String buffer;
 	time_t days, hours, minutes;
 
 	interval -= (days = interval / 86400L) * 86400L;
 	interval -= (hours = interval / 3600L) * 3600L;
 	interval -= (minutes = interval / 60L) * 60L;
 
-	*buffer = '\0';
-
 	if (days > 0)
 	{
-		sprintf (scratch_buffer, "%ld day%s, ", days, PLURAL (days));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%ld day%s, ", days, PLURAL (days));
 	}
 	if (hours > 0 || days > 0)
 	{
-		sprintf (scratch_buffer, "%ld hour%s%s", hours, PLURAL (hours), ((days == 0)?(", "):("")));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%ld hour%s%s", hours, PLURAL (hours), ((days == 0)?(", "):("")));
 	}
 	if ((minutes > 0 || hours > 0) && days == 0)
 	{
-		sprintf (scratch_buffer, "%ld minute%s%s", minutes, PLURAL (minutes), ((hours == 0)?(" and "):("")));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%ld minute%s%s", minutes, PLURAL (minutes), ((hours == 0)?(" and "):("")));
 	}
 	if (hours == 0 && days == 0)
 	{
-		sprintf (scratch_buffer, "%ld second%s", (long int)interval, PLURAL (interval));
-		strcat (buffer, scratch_buffer);
+		buffer += String::format("%ld second%s", (long int)interval, PLURAL (interval));
 	}
 
-	strcat(buffer, ".");
+	buffer += ".";
 
 	return buffer;
 }
 
 
-static char *tiny_time_string(time_t interval)
+static String tiny_time_string(time_t interval)
 {
-	static char buffer[80];
+	String buffer;
 	time_t days, hours, minutes, seconds;
 
 	interval -= (days = interval / 86400L) * 86400L;
@@ -2190,7 +2160,7 @@ static char *tiny_time_string(time_t interval)
 	interval -= (minutes = interval / 60L) * 60L;
 	seconds= interval;
 
-	sprintf (buffer, "%ldd%ldh%ldm%lds", days, hours, minutes, seconds);
+	buffer.printf ("%ldd%ldh%ldm%lds", days, hours, minutes, seconds);
 	return buffer;
 }
 
@@ -2210,24 +2180,24 @@ context::do_at_censorinfo(const String& ,const String& )
 
 	notify_colour(player, player, COLOUR_TITLES, "The censor list contains the following:");
 
-	*scratch_buffer='\0';
+	String output;
 	std::set<String>::const_iterator it;
 	for (it = rude_words.begin(); it != rude_words.end(); it++)
 	{
-		if (*scratch_buffer)
-			strcat(scratch_buffer,", ");
-		strcat(scratch_buffer, (*it).c_str());
+		if (output)
+			output += ", ";
+		output += (*it);
 	}
-	notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
+	notify_colour(player, player, COLOUR_MESSAGES, "%s", output.c_str());
 
-	*scratch_buffer='\0';
+	output.clear();
 	notify(player,"");
 	notify_colour(player, player, COLOUR_TITLES, "The exclude list contains the following:");
 	for (it = excluded_words.begin(); it != excluded_words.end(); it++)
 	{
-		if (*scratch_buffer)
-			strcat(scratch_buffer,", ");
-		strcat(scratch_buffer, (*it).c_str());
+		if (output)
+			output+=", ";
+		output += (*it);
 	}
-	notify_colour(player, player, COLOUR_MESSAGES, "%s", scratch_buffer);
+	notify_colour(player, player, COLOUR_MESSAGES, "%s", output.c_str());
 }

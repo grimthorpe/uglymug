@@ -158,9 +158,9 @@ chop_string(const String::value_type* string, size_t size)
 				}
 			}
 		}
+		retval.printf("%-*.*s", (int)size, (int)size, string);
 	}
 
-	retval.printf("%-*.*s", (int)size, (int)size, string);
 	return retval;
 }
 
@@ -239,8 +239,11 @@ String::vprintf(const value_type *fmt, va_list va)
 
 	if(size > -1)
 	{
+		// Size shenanigans: vsnprintf wants a buffer that includes the trailing \0
+		// but C++ string sizes don't include it, and don't necessarily leave space for it.
 		resize(size+1);
-		vsnprintf(data(), size+1, fmt, va);
+		size=vsnprintf(data(), size+1, fmt, va);
+		resize(size);
 	}
 	else
 		clear();

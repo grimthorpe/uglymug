@@ -48,8 +48,9 @@ public:
 	String& operator=(const value_type c);
 	String& operator=(const std::string& str);
 
-	//String& operator+=(const String& other);
-	//String& operator+=(char c);
+	String& operator+=(const String& other) { append(other); return *this; }
+	String& operator+=(const value_type* other) { append(other); return *this; }
+	String& operator+=(const value_type c) { append(1, c); return *this; }
 
 // Cheeky overload to remove 'amount' number of characters from the end.
 	String& operator-=(size_t amount);
@@ -127,4 +128,7 @@ extern std::ostream &operator<< (std::ostream &os, const String &s);
 /* Output a string to a maximum length (or pad to the length with spaces), taking colour markup into account */
 String chop_string(const String&, size_t length);
 String chop_string(const String::value_type*, size_t length);
+
+String date_string(const time_t* t);
+
 #endif /* _MUDSTRING_H */

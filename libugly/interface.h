@@ -19,26 +19,30 @@ extern	 int	init_game		(const String& infile, const String& outfile);
 extern	 void	dump_database		(void);
 
 extern	void	terminal_underline	(dbref player, const char *);
-extern	void	notify_colour		(dbref player, dbref talker, ColourAttribute colour, const char *fmt, ...);
-extern	void	notify_censor_colour	(dbref player, dbref talker, ColourAttribute colour, const char *fmt, ...);
-extern	void	notify_public_colour	(dbref player, dbref talker, ColourAttribute colour, const char *fmt, ...);
-extern	void	notify			(dbref player, const char *fmt, ...);
-extern	void	notify_norecall		(dbref player, const char *fmt, ...);
-extern	void	notify_norecall_conditional (String match,dbref player, const char *fmt, ...);
-extern	void	notify_censor		(dbref player, dbref originator, const char *fmt, ...);
+extern	void	notify_colour		(dbref player, dbref talker, ColourAttribute colour, const char fmt[], ...);
+extern	void	notify_censor_colour	(dbref player, dbref talker, ColourAttribute colour, const char fmt[], ...);
+extern	void	notify_public_colour	(dbref player, dbref talker, ColourAttribute colour, const char fmt[], ...);
+extern	void	notify			(dbref player, const char fmt[], ...);
+extern	void	notify			(dbref player, const String&);
+extern	void	notify_norecall		(dbref player, const char fmt[], ...);
+extern	void	notify_norecall_conditional (String match,dbref player, const char fmt[], ...);
+extern	void	notify_censor		(dbref player, dbref originator, const char fmt[], ...);
+extern	void	notify_censor		(dbref player, dbref originator, const String&);
 
-extern	void	notify_public		(dbref player, dbref originator, const char *fmt, ...);
-extern	void	notify_all		(const char *fmt, ...);
-extern	void	notify_listeners	(const char *fmt, ...);
-extern	void	notify_area		(dbref loc, dbref originator, const char *fmt, ...);
-extern	void	notify_wizard		(const char *fmt, ...);
-extern	void	notify_wizard_natter	(const char *fmt, ...);
-extern	void	notify_welcomer_natter	(const char *fmt, ...);
+extern	void	notify_public		(dbref player, dbref originator, const char fmt[], ...);
+extern	void	notify_public		(dbref player, dbref originator, const String&);
+extern	void	notify_all		(const char fmt[], ...);
+extern	void	notify_listeners	(const char fmt[], ...);
+extern	void	notify_area		(dbref loc, dbref originator, const char fmt[], ...);
+extern	void	notify_wizard		(const String&);
+extern	void	notify_wizard		(const char fmt[], ...);
+extern	void	notify_wizard_natter	(const char fmt[], ...);
+extern	void	notify_welcomer_natter	(const char fmt[], ...);
 
 extern	void	beep			(dbref player);
 
-extern	const String	boldify		(dbref player, const char *str);
-extern	const String	underscorify	(dbref player, const char *str);
+extern	const String	boldify		(dbref player, const String& str);
+extern	const String	underscorify	(dbref player, const String& str);
 
 extern	int	connection_count	(dbref player);
 extern	int	count_connect_types	(int);

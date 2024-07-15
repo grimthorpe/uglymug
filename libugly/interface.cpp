@@ -589,7 +589,6 @@ void notify_all (const char *fmt, ...)
 
 void notify_wizard(const char *fmt, ...)
 {
-	struct descriptor_data *d;
 	String output;
 	va_list vl;
 
@@ -597,10 +596,15 @@ void notify_wizard(const char *fmt, ...)
 	output.vprintf (fmt, vl);
 	va_end (vl);
 
+	notify_wizard(output);
+}
+void notify_wizard(const String& output)
+{
+	struct descriptor_data *d;
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && (Wizard (d->get_player()) || Apprentice(d->get_player())) && (!(Haven(d->get_player()))))
 		{
-			d->queue_string (output.c_str(), true);
+			d->queue_string (output, true);
 			d->queue_string ("\n");
 		}
 }
@@ -809,16 +813,9 @@ void terminal_underline(dbref player, const char *string)
 		}
 }
 
-void notify(dbref player, const char *fmt, ...)
+void notify(dbref player, const String& output)
 {
 	struct descriptor_data *d;
-	String output;
-	va_list vl;
-
-	va_start (vl, fmt);
-	output.vprintf(fmt, vl);
-	va_end (vl);
-
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
@@ -826,6 +823,18 @@ void notify(dbref player, const char *fmt, ...)
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
+}
+
+void notify(dbref player, const char *fmt, ...)
+{
+	String output;
+	va_list vl;
+
+	va_start (vl, fmt);
+	output.vprintf(fmt, vl);
+	va_end (vl);
+
+	notify(player, output);
 }
 
 void notify_norecall_conditional(String match,dbref player, const char *fmt, ...)
@@ -885,15 +894,20 @@ void notify_norecall(dbref player, const char *fmt, ...)
 
 void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 {
-	struct descriptor_data *d;
 	String output;
 	va_list vl;
-	bool deruded=false;
-	const char *censored=NULL;
 
 	va_start (vl, fmt);
 	output.vprintf(fmt, vl);
 	va_end (vl);
+
+	notify_censor(player, originator, output);
+}
+void notify_censor(dbref player, dbref originator, const String& output)
+{
+	struct descriptor_data *d;
+	bool deruded=false;
+	String censored;
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
@@ -908,7 +922,7 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 				d->queue_string(censored);
 			}
 			else
-				d->queue_string (output.c_str());
+				d->queue_string (output);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
@@ -917,36 +931,42 @@ void notify_censor(dbref player, dbref originator, const char *fmt, ...)
 /* Notify public is used when we want to take notice of
    the flags: 'censored', 'censorall', and 'censorpublic' */
 
-void notify_public(dbref player, dbref originator, const char *fmt, ...)
+void notify_public(dbref player, dbref originator, const String& output)
 {
 	struct descriptor_data *d;
-	String output;
-	va_list vl;
 
 	bool deruded=false;
-	const char *censored=NULL;
-
-	va_start (vl, fmt);
-	output.vprintf(fmt, vl);
-	va_end (vl);
+	String censored;
 
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
 			if (Censorall(player) || Censored(originator) || (Censorpublic(player) && Public(db[player].get_location())))
 			{
-				if (deruded==false)
+				if (!deruded)
 				{
 					deruded=true;
-					censored=censor(output.c_str());
+					censored=censor(output);
 				}
 				d->queue_string (censored);
 			}
 			else
-				d->queue_string (output.c_str());
+				d->queue_string (output);
 			d->queue_string (COLOUR_REVERT);
 			d->queue_string ("\n");
 		}
+}
+
+void notify_public(dbref player, dbref originator, const char *fmt, ...)
+{
+	String output;
+	va_list vl;
+
+	va_start (vl, fmt);
+	output.vprintf(fmt, vl);
+	va_end (vl);
+
+	notify_public(player, originator, output);
 }
 
 void beep (dbref player)
@@ -2652,7 +2672,7 @@ descriptor_data::splat_motd()
 }
 
 
-const String boldify(dbref player, const char *str)
+const String boldify(dbref player, const String& str)
 {
 	String buf;
 	struct descriptor_data *d;
@@ -2665,7 +2685,7 @@ const String boldify(dbref player, const char *str)
 		return NULLSTRING;
 
 	if(d->termcap.bold_on && d->termcap.bold_off && d->terminal.type)
-		buf.printf("%s%s%s", d->termcap.bold_on.c_str(), str, d->termcap.bold_off.c_str());
+		buf.printf("%s%s%s", d->termcap.bold_on.c_str(), str.c_str(), d->termcap.bold_off.c_str());
 	else
 		buf = str;
 
@@ -4109,9 +4129,9 @@ int			flags)
 				if (get_player())
 					queue_string (player_colour (get_player(), get_player(), COLOUR_MESSAGES));
 				if (flags & DUMP_WIZARD)
-					outputline.printf("Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) Up: %s\n", users, peak_users, local, inet, logthrough, small_time_string(uptime));
+					outputline.printf("Users: %d (Peak %d)  (%d local, %d remote, %d logthrough) Up: %s\n", users, peak_users, local, inet, logthrough, small_time_string(uptime).c_str());
 				else
-					outputline.printf("Users: %d (Peak %d) Up: %s\n", users, peak_users, small_time_string(uptime));
+					outputline.printf("Users: %d (Peak %d) Up: %s\n", users, peak_users, small_time_string(uptime).c_str());
 				queue_string (outputline);
 				if (get_player())
 					queue_string (COLOUR_REVERT);
