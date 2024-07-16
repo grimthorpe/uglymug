@@ -241,7 +241,7 @@ String::vprintf(const value_type *fmt, va_list va)
 	{
 		// Size shenanigans: vsnprintf wants a buffer that includes the trailing \0
 		// but C++ string sizes don't include it, and don't necessarily leave space for it.
-		resize(size+1);
+		reserve(size+1);
 		size=vsnprintf(data(), size+1, fmt, va);
 		resize(size);
 	}
