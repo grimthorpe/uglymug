@@ -234,7 +234,7 @@ newversion:
 		expr `cat .version` + 1 > .version; \
 	fi
 
-version.h:
+version.h: .version
 	@echo \#define RELEASE \"$(VERSION)\" > version.h
 	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI}` at `date`]\" >> version.h
 
@@ -255,3 +255,4 @@ regexp_interface.h: $(BUILD_DIR)/Makefile.local
 
 # Obtain dependencies for all our files
 include $(SOURCES:%.c=$(BUILD_DIR)/%.d)
+

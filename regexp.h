@@ -49,7 +49,7 @@ int	circf;
 static int	low;
 static int	size;
 
-static char	bittab[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
+static unsigned char	bittab[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
 static void getrnge(register const char *str)
 {

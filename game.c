@@ -741,11 +741,11 @@ reaper (
 int			sig)
 
 {
-#ifndef sun
-	union	wait	stat;
-#else
-	int *stat;
-#endif
+//#ifndef sun
+//	union	wait	stat;
+//#else
+	int stat;
+//#endif
 
 	while (wait3 ((int*)&stat, WNOHANG, NULL) > 0);
 	alarm_triggered = -1;

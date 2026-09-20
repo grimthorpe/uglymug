@@ -291,13 +291,13 @@ private:
 			void		unchpid			()			{ if(!in_chpid) effective_id = unchpid_id; }
 		const	bool		inside_subscope		()	const		{ return !scope_stack.empty(); }
 			void		push_scope		(Scope *s)		{ scope_stack.push (s); }
-			Command_action	step_once	(context *);
-			void		do_at_elseif		(const bool ok);
-			void		do_at_end		(context &);
-			void		do_at_return		(context &);
-			void		do_at_returnchain	(context &);
-			bool		do_at_break		(context &);
-			bool		do_at_continue		(context &);
+		virtual	Command_action	step_once	(context *);
+		virtual	void		do_at_elseif		(const bool ok);
+//		virtual	void		do_at_end		();
+		virtual	void		do_at_return		();
+		virtual	void		do_at_returnchain	();
+		virtual	bool		do_at_break		();
+		virtual	bool		do_at_continue		();
 		const	Scope		&innermost_scope	()	const;
 	static	const	int		parse_command	(object *cmd, const int start_line, char *errs);
 		String_pair		*locate_innermost_arg	(const String& name)	const;

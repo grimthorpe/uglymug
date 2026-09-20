@@ -694,7 +694,7 @@ const	String&arg2)
 
 	/* Set up the second argument */
 	set_return_string (arg2);
-	call_stack.top ()->do_at_return (*this);
+	call_stack.top ()->do_at_return ();
 }
 
 
@@ -754,7 +754,7 @@ const	String&arg2)
 		/* Set up the second argument */
 		set_return_string (arg2);
 	}
-	call_stack.top ()->do_at_returnchain (*this);
+	call_stack.top ()->do_at_returnchain ();
 }
 
 
@@ -1131,7 +1131,7 @@ const String& arg2)
 		/* Set up the second argument */
 		set_return_string (arg2);
 	}
-	if(!call_stack.top ()->do_at_break (*this))
+	if(!call_stack.top ()->do_at_break ())
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@break used outside of @for or @with");
 		set_return_string (error_return_string);
@@ -1153,7 +1153,7 @@ const String& dummy2)
 	}
 	return_status=COMMAND_SUCC;
 	set_return_string(ok_return_string);
-	if(!call_stack.top ()->do_at_continue (*this))
+	if(!call_stack.top ()->do_at_continue ())
 	{
 		notify_colour (player, player, COLOUR_ERROR_MESSAGES, "@continue used outside of @for or @with");
 		set_return_string (error_return_string);
