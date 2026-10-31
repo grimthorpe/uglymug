@@ -1,3 +1,6 @@
 build/
+builds/
 libugly/
+version.h
+.version
 
