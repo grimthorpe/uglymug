@@ -48,7 +48,7 @@ private:
 		void		insert_element		(const int, const String&);
 	const	bool		destroy			(const dbref);
     		void		set_size		(const int value)	{ size = value; }
-		int		get_size		()			{ return size; }
+	virtual	int		get_size		() const override			{ return size; }
 	const	bool		write			(FILE *f)		const;
 //	const	bool		read			(FILE* f);
 		void		sort_elements		(int);

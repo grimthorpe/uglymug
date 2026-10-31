@@ -234,6 +234,8 @@ newversion:
 		expr `cat .version` + 1 > .version; \
 	fi
 
+.version: newversion
+
 version.h: .version
 	@echo \#define RELEASE \"$(VERSION)\" > version.h
 	@echo \#define VERSION \"[UglyCODE Release \" RELEASE \" build \#`cat .version` by `${WHOAMI}` at `date`]\" >> version.h
@@ -248,6 +250,7 @@ $(BUILD_DIR)/%.d: %.c version.h
 	rm -f $@.$$$$
 
 $(BUILD_DIR)/Makefile.local: configure
+	mkdir -p $(BUILD_DIR)
 	sh ./configure $(BUILD_DIR)/Makefile.local
 
 # regexp_interface.h changes depending on the local configuration.

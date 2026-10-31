@@ -173,6 +173,7 @@ extern	bool		add_rude		(const String&);
 extern	bool		add_excluded		(const String&);
 extern	bool		un_rude			(const String&);
 extern	bool		un_exclude		(const String&);
+extern	String		mudcrypt		(const String& password);
 extern	std::set<String> rude_words;
 extern	std::set<String> excluded_words;
 extern	int		rudes;

@@ -300,7 +300,7 @@ const	String& password)
 		/* it's ok, do it */
 		if(password)
 		{
-			db[victim].set_password ((char *) crypt(password.c_str(),password.c_str()) + 2);
+			db[victim].set_password (mudcrypt(password));
 		}
 		else
 		{

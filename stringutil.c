@@ -14,6 +14,10 @@
 //#include <stdio.h>
 //#include <string.h>
 
+#if NEEDS_CRYPT_H
+#include <crypt.h>
+#endif // NEEDS_CRYPT_H
+
 std::set<String>	rude_words;
 std::set<String>	excluded_words;
 
@@ -597,4 +601,14 @@ const char *censor(const String& string)
     }
     *letter='\0';
     return censored;
+}
+
+String mudcrypt(const String& password)
+{
+	crypt_data data;
+	memset(&data, 0, sizeof(data));
+        const char* crypted = crypt_rn(password.c_str(), password.c_str(), &data, sizeof(data));
+        if((crypted != NULL) && (strlen(crypted) > 1))
+                return crypted+2;
+        return NULLSTRING;
 }

@@ -258,17 +258,17 @@ const String &s)
 }
 
 String
-chop_string(const String& string, int size)
+chop_string(const String& string, ssize_t size)
 {
 	return chop_string(string.c_str(), size);
 }
 
 String
-chop_string(const char* string, int size)
+chop_string(const char* string, ssize_t size)
 {
 	String retval;
 	const char* p = string;
-	for(int i = 0; i < size; i++)
+	for(ssize_t i = 0; i < size; i++)
 	{
 		if(!*p)
 			break;

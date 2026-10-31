@@ -791,8 +791,8 @@ void terminal_underline(dbref player, const char *string)
 {
 
 	struct descriptor_data *d;
-	int twidth=0;
-	int ulen=strlen(string);
+	ssize_t twidth=0;
+	ssize_t ulen=strlen(string);
 	for (d = descriptor_list; d; d = d->next)
 		if (d->IS_CONNECTED() && d->get_player() == player)
 		{
@@ -975,7 +975,7 @@ struct timeval timeval_sub(struct timeval now, struct timeval then)
 	return now;
 }
 
-int msec_diff(struct timeval now, struct timeval then)
+time_t msec_diff(struct timeval now, struct timeval then)
 {
 	return ((now.tv_sec - then.tv_sec) * 1000
 		+ (now.tv_usec - then.tv_usec) / 1000);
@@ -1378,9 +1378,9 @@ struct descriptor_data *new_connection(SOCKET sock)
 
 	if (is_banned (host_addr))
 	{
-		int i;
-		int len = sizeof(reject_message);
-		int offset = 0;
+		ssize_t i;
+		ssize_t len = sizeof(reject_message);
+		ssize_t offset = 0;
 		do
 		{
 			i = write (newsock, reject_message+offset, len);

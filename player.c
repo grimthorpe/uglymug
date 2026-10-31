@@ -4,9 +4,6 @@
 #include <string.h>
 #include <time.h>
 #include "os.h"
-#if NEEDS_CRYPT_H
-#	include <crypt.h>
-#endif /* NEEDS_CRYPT_H */
 #include "db.h"
 #include "objects.h"
 #include "config.h"
@@ -24,16 +21,6 @@ dbref lookup_player(dbref player, const String& name)
 		return player;
 	
 	return db.lookup_player(name);
-}
-
-static String mudcrypt(const String& password)
-{
-	crypt_data data;
-	memset(&data, 0, sizeof(data));
-	const char* crypted = crypt_rn(password.c_str(), password.c_str(), &data, sizeof(data));
-	if((crypted != NULL) && (strlen(crypted) > 1))
-		return crypted+2;
-	return NULLSTRING;
 }
 
 /* Return NOTHING if the player does not exist, or 0 if incorrect password (but player exists) */

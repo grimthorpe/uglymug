@@ -161,6 +161,6 @@ namespace std {
 extern std::ostream &operator<< (std::ostream &os, const String &s);
 
 /* Output a string to a maximum length (or pad to the length with spaces), taking colour markup into account */
-String chop_string(const String&, int length);
-String chop_string(const char*, int length);
+String chop_string(const String&, ssize_t length);
+String chop_string(const char*, ssize_t length);
 #endif /* _MUDSTRING_H */

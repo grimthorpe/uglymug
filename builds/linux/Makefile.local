@@ -1,0 +1,7 @@
+# Local machine configuration.
+LD_REGEXP=
+CC_REGEXP=
+LD_GEOIP=
+CC_GEOIP=
+LD_LUA=
+CC_LUA=
